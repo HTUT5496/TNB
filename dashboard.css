@@ -211,9 +211,10 @@ body {
 .category-carousel {
   display: flex;
   overflow-x: auto;
-  gap: 15px;
+  gap: 12px;
   padding: 5px 20px 20px;
   scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .category-carousel::-webkit-scrollbar {
@@ -221,8 +222,10 @@ body {
 }
 
 .cat-card {
-  min-width: 100px;
-  padding: 15px 10px;
+  /* Updated min-width and flex to prevent text overflow */
+  min-width: 105px;
+  flex: 0 0 auto;
+  padding: 15px 8px;
   border-radius: 20px;
   background: var(--card-dark);
   text-align: center;
@@ -241,6 +244,7 @@ body {
   display: block;
 }
 
+/* Specific Category Color fixes for icons */
 .cat-card.gold i {
   color: #f59e0b;
 }
@@ -255,6 +259,16 @@ body {
 }
 .cat-card.purple i {
   color: #8b5cf6;
+}
+
+.cat-card p {
+  font-size: 11px;
+  font-weight: 600;
+  /* Ensure long words like Investment are handled */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 /* Transaction List */
@@ -408,7 +422,6 @@ body {
   background-size: 20px;
 }
 
-/* Fixes the "Categories line" view */
 .input-group select optgroup {
   background-color: #0f172a;
   color: var(--primary);
@@ -417,7 +430,6 @@ body {
   padding: 10px 0;
 }
 
-/* Fixes the white background on options in some browsers */
 .input-group select option {
   background-color: #1e293b;
   color: #ffffff;
@@ -650,8 +662,4 @@ body.light-mode .add-circle {
     opacity: 1;
     transform: translateY(0);
   }
-}
-.cat-card p {
-  font-size: 11px; /* Slightly smaller text */
-  word-break: break-word; /* Allows long words to break if necessary */
 }
