@@ -535,3 +535,101 @@ body.light-mode .dropdown-menu {
   border: 1px solid rgba(0, 0, 0, 0.05);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
+/* --- Choice Modal Styling (Income/Expense Selection) --- */
+.choice-content {
+  text-align: center;
+  padding: 30px !important;
+}
+
+.choice-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.choice-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.choice-item i {
+  font-size: 2rem;
+}
+
+.choice-item span {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+/* Choice Hover & Interaction */
+.choice-item.income i { color: var(--income); }
+.choice-item.expense i { color: var(--expense); }
+
+.choice-item:active {
+  transform: scale(0.95);
+}
+
+.choice-item.income:hover {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: var(--income);
+}
+
+.choice-item.expense:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: var(--expense);
+}
+
+/* --- Category Filter & Transaction Animations --- */
+
+/* Category Active State (နှိပ်ထားရင် အရောင်လင်းနေစေရန်) */
+.cat-card.active {
+  border: 2px solid var(--primary);
+  background: rgba(59, 130, 246, 0.1);
+  transform: translateY(-5px);
+}
+
+/* Transaction List Animation */
+.transaction-item {
+  animation: slideIn 0.4s ease-out forwards;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Amount Colors */
+.amt-in {
+  color: var(--income);
+}
+
+.amt-ex {
+  color: var(--expense);
+}
+
+/* Category Color Variations (Purple for Bill) */
+.cat-card.purple i {
+  color: #a855f7;
+}
+
+/* Light Mode Adjustments for Choice Modal */
+body.light-mode .choice-item {
+  background: #f1f5f9;
+  border-color: rgba(0, 0, 0, 0.05);
+  color: var(--text-main);
+}
