@@ -386,22 +386,42 @@ body.light-mode .cat-card {
   color: var(--text-sub);
 }
 
-.input-group input,
-.input-group select {
+/* Updated input and select styling for Dashboard */
+.input-group select,
+.input-group input {
   width: 100%;
   padding: 14px;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.05);
-  color: inherit;
+  background: #1e293b; /* Solid dark background for consistency */
+  color: #ffffff; /* Force white text */
   outline: none;
   font-size: 0.9rem;
+  appearance: none; /* Removes default system styling */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 20px;
 }
 
+/* Fixes the dropdown list visibility */
+.input-group select option {
+  background-color: #0f172a; /* Dark background for the option list */
+  color: #ffffff; /* White text for the options */
+}
+
+/* Light mode overrides */
 body.light-mode .input-group input,
 body.light-mode .input-group select {
-  background: #f1f5f9;
+  background-color: #f1f5f9;
   border-color: #e2e8f0;
+  color: #1e293b;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='black' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+}
+
+body.light-mode .input-group select option {
+  background-color: #ffffff;
+  color: #1e293b;
 }
 
 .modal-btns {
