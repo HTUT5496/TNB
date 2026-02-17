@@ -1,447 +1,279 @@
 /* Dashboard Page Custom CSS */
 
 :root {
-    --bg-dark: #020617;
-    --card-dark: rgba(255, 255, 255, 0.05);
-    --primary: #3b82f6;
-    --income: #10b981;
-    --expense: #ef4444;
-    --text-main: #ffffff;
-    --text-sub: #94a3b8;
-    --modal-bg: #0f172a;
-    --grad: linear-gradient(135deg, #2563eb, #7c3aed);
-    --border: rgba(255, 255, 255, 0.1); /* Border color variable */
+  --bg-dark: #020617;
+  --card-dark: rgba(255, 255, 255, 0.05);
+  --primary: #3b82f6;
+  --income: #10b981;
+  --expense: #ef4444;
+  --text-main: #ffffff;
+  --text-sub: #94a3b8;
+  --modal-bg: #0f172a;
+  --grad: linear-gradient(135deg, #2563eb, #7c3aed);
+  --border: rgba(255, 255, 255, 0.1);
 }
 
 body.light-mode {
-    --bg-dark: #f8fafc;
-    --card-dark: #ffffff;
-    --text-main: #1e293b;
-    --text-sub: #64748b;
-    --modal-bg: #ffffff;
-    --grad: linear-gradient(135deg, #3b82f6, #8b5cf6);
-    --border: rgba(0, 0, 0, 0.1);
+  --bg-dark: #f8fafc;
+  --card-dark: #ffffff;
+  --text-main: #1e293b;
+  --text-sub: #64748b;
+  --modal-bg: #ffffff;
+  --grad: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  --border: rgba(0, 0, 0, 0.1);
 }
 
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Plus Jakarta Sans", sans-serif;
-    transition: background 0.3s ease, color 0.3s ease, transform 0.2s ease;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 body {
-    background-color: var(--bg-dark);
-    color: var(--text-main);
-    display: flex;
-    justify-content: center;
-    min-height: 100vh;
-    overflow-x: hidden;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
 .mobile-container {
-    width: 100%;
-    max-width: 450px;
-    background-color: var(--bg-dark);
-    position: relative;
-    min-height: 100vh;
-    padding-bottom: 120px;
+  width: 100%;
+  max-width: 450px;
+  background-color: var(--bg-dark);
+  position: relative;
+  min-height: 100vh;
+  padding-bottom: 120px;
 }
 
 /* --- Header Section --- */
 .top-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: var(--bg-dark);
-    backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg-dark);
+  backdrop-filter: blur(10px);
 }
 
-.app-logo {
-    font-weight: 800;
-    letter-spacing: 1px;
-    color: var(--primary);
-    font-size: 1.5rem;
+.icon-btn {
+  background: none;
+  border: none;
+  color: var(--text-main);
+  font-size: 1.2rem;
+  cursor: pointer;
 }
+
+.profile-container { position: relative; }
 
 .profile-avatar img {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    border: 2px solid var(--primary);
-    object-fit: cover;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid var(--primary);
+  object-fit: cover;
 }
+
+/* --- Profile Dropdown --- */
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 55px;
+  right: 0;
+  background: var(--modal-bg);
+  min-width: 200px;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border);
+  z-index: 1000;
+  padding: 8px 0;
+}
+
+.dropdown-menu.show { display: block; animation: fadeInDown 0.3s ease; }
+
+.dropdown-item {
+  width: 100%;
+  padding: 12px 15px;
+  border: none;
+  background: none;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.logout-red { color: var(--expense) !important; }
 
 /* --- Balance Card --- */
 .balance-card {
-    background: var(--grad);
-    margin: 10px 20px;
-    padding: 25px;
-    border-radius: 30px;
-    color: white;
-    box-shadow: 0 15px 35px rgba(37, 99, 235, 0.3);
+  background: var(--grad);
+  margin: 10px 20px;
+  padding: 25px;
+  border-radius: 30px;
+  color: white;
+  box-shadow: 0 15px 35px rgba(37, 99, 235, 0.3);
 }
 
-.balance-card h1 {
-    font-size: 2.2rem;
-    margin: 10px 0;
-    font-weight: 800;
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* --- Quick Actions --- */
-.quick-actions {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    padding: 25px 20px;
-    gap: 10px;
+.icon-circle {
+  width: 35px;
+  height: 35px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.icon-box {
-    width: 55px;
-    height: 55px;
-    border-radius: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 1.3rem;
-    margin-bottom: 8px;
+/* --- Form Elements (Select Box Fix) --- */
+.input-group select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--card-dark);
+  color: var(--text-main);
+  outline: none;
+  cursor: pointer;
 }
 
-.green { background: var(--income); }
-.red { background: var(--expense); }
-.blue { background: var(--primary); }
-.purple { background: #8b5cf6; }
-
-/* --- Select Box (Dropdown) Fixes --- */
-select {
-    width: 100%;
-    padding: 12px;
-    border-radius: 12px;
-    border: 1px solid var(--border);
-    background: var(--card-dark);
-    color: var(--text-main);
-    outline: none;
-    appearance: none; /* Default arrow ကို ဖျောက်ပြီး custom လုပ်နိုင်ရန် */
-    cursor: pointer;
-}
-
-/* Dropdown list ထဲက စာသားများကို Dark Mode မှာ မြင်ရစေရန် */
+/* Dark Mode Dropdown စာသားများ မြင်ရစေရန် */
 select option {
-    background-color: var(--modal-bg);
-    color: var(--text-main);
+  background-color: var(--modal-bg);
+  color: var(--text-main);
 }
 
-/* Light mode အတွက် ပြန်ညှိခြင်း */
 body.light-mode select option {
-    background-color: #ffffff;
-    color: #1e293b;
+  background-color: #ffffff;
+  color: #1e293b;
 }
 
-/* --- Modal Styling --- */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 2000;
-    left: 0; top: 0;
-    width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(8px);
+/* --- Choice Modal --- */
+.choice-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-top: 10px;
 }
 
-.modal-content {
-    background: var(--modal-bg);
-    width: 90%;
-    max-width: 380px;
-    margin: 20vh auto;
-    padding: 25px;
-    border-radius: 28px;
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
-    border: 1px solid var(--border);
+.choice-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--card-dark);
+  color: var(--text-main);
+  cursor: pointer;
 }
 
-/* --- Transaction List & Animations --- */
-.transaction-item {
-    display: flex;
-    align-items: center;
-    padding: 14px;
-    margin: 0 20px 10px;
-    background: var(--card-dark);
-    border-radius: 20px;
-    gap: 12px;
-    animation: slideIn 0.4s ease-out forwards;
-}
-
-@keyframes slideIn {
-    from { opacity: 0; transform: translateX(-10px); }
-    to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes fadeInDown {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.amt-in { color: var(--income); }
-.amt-ex { color: var(--expense); }
+.choice-item.income i { color: var(--income); font-size: 2rem; }
+.choice-item.expense i { color: var(--expense); font-size: 2rem; }
 
 /* --- Bottom Nav --- */
 .bottom-nav {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    max-width: 400px;
-    background: var(--modal-bg);
-    display: flex;
-    justify-content: space-between;
-    padding: 12px 20px;
-    border-radius: 25px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    z-index: 1000;
-    border: 1px solid var(--border);
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 400px;
+  background: var(--modal-bg);
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 15px;
+  border-radius: 25px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  border: 1px solid var(--border);
 }
+
+.nav-item {
+  background: none;
+  border: none;
+  color: var(--text-sub);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.65rem;
+  cursor: pointer;
+}
+
+.nav-item.active { color: var(--primary); }
 
 .add-circle {
-    width: 58px;
-    height: 58px;
-    background: var(--primary);
-    color: white !important;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.4rem;
-    margin-top: -40px;
-    border: 5px solid var(--bg-dark);
-    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
-}/* Dashboard Page Custom CSS */
-
-:root {
-    --bg-dark: #020617;
-    --card-dark: rgba(255, 255, 255, 0.05);
-    --primary: #3b82f6;
-    --income: #10b981;
-    --expense: #ef4444;
-    --text-main: #ffffff;
-    --text-sub: #94a3b8;
-    --modal-bg: #0f172a;
-    --grad: linear-gradient(135deg, #2563eb, #7c3aed);
-    --border: rgba(255, 255, 255, 0.1); /* Border color variable */
+  width: 58px;
+  height: 58px;
+  background: var(--primary);
+  color: white !important;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  margin-top: -40px;
+  border: 5px solid var(--bg-dark);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
 }
 
-body.light-mode {
-    --bg-dark: #f8fafc;
-    --card-dark: #ffffff;
-    --text-main: #1e293b;
-    --text-sub: #64748b;
-    --modal-bg: #ffffff;
-    --grad: linear-gradient(135deg, #3b82f6, #8b5cf6);
-    --border: rgba(0, 0, 0, 0.1);
+/* --- Category Carousel --- */
+.category-carousel {
+  display: flex;
+  overflow-x: auto;
+  gap: 15px;
+  padding: 5px 20px 20px;
+  scrollbar-width: none;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Plus Jakarta Sans", sans-serif;
-    transition: background 0.3s ease, color 0.3s ease, transform 0.2s ease;
+.cat-card {
+  min-width: 100px;
+  padding: 15px;
+  border-radius: 20px;
+  background: var(--card-dark);
+  text-align: center;
+  border: 1px solid var(--border);
 }
 
-body {
-    background-color: var(--bg-dark);
-    color: var(--text-main);
-    display: flex;
-    justify-content: center;
-    min-height: 100vh;
-    overflow-x: hidden;
+/* --- Animations --- */
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.mobile-container {
-    width: 100%;
-    max-width: 450px;
-    background-color: var(--bg-dark);
-    position: relative;
-    min-height: 100vh;
-    padding-bottom: 120px;
-}
-
-/* --- Header Section --- */
-.top-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: var(--bg-dark);
-    backdrop-filter: blur(10px);
-}
-
-.app-logo {
-    font-weight: 800;
-    letter-spacing: 1px;
-    color: var(--primary);
-    font-size: 1.5rem;
-}
-
-.profile-avatar img {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    border: 2px solid var(--primary);
-    object-fit: cover;
-}
-
-/* --- Balance Card --- */
-.balance-card {
-    background: var(--grad);
-    margin: 10px 20px;
-    padding: 25px;
-    border-radius: 30px;
-    color: white;
-    box-shadow: 0 15px 35px rgba(37, 99, 235, 0.3);
-}
-
-.balance-card h1 {
-    font-size: 2.2rem;
-    margin: 10px 0;
-    font-weight: 800;
-}
-
-/* --- Quick Actions --- */
-.quick-actions {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    padding: 25px 20px;
-    gap: 10px;
-}
-
-.icon-box {
-    width: 55px;
-    height: 55px;
-    border-radius: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 1.3rem;
-    margin-bottom: 8px;
-}
-
-.green { background: var(--income); }
-.red { background: var(--expense); }
-.blue { background: var(--primary); }
-.purple { background: #8b5cf6; }
-
-/* --- Select Box (Dropdown) Fixes --- */
-select {
-    width: 100%;
-    padding: 12px;
-    border-radius: 12px;
-    border: 1px solid var(--border);
-    background: var(--card-dark);
-    color: var(--text-main);
-    outline: none;
-    appearance: none; /* Default arrow ကို ဖျောက်ပြီး custom လုပ်နိုင်ရန် */
-    cursor: pointer;
-}
-
-/* Dropdown list ထဲက စာသားများကို Dark Mode မှာ မြင်ရစေရန် */
-select option {
-    background-color: var(--modal-bg);
-    color: var(--text-main);
-}
-
-/* Light mode အတွက် ပြန်ညှိခြင်း */
-body.light-mode select option {
-    background-color: #ffffff;
-    color: #1e293b;
-}
-
-/* --- Modal Styling --- */
 .modal {
-    display: none;
-    position: fixed;
-    z-index: 2000;
-    left: 0; top: 0;
-    width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(8px);
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
 }
 
 .modal-content {
-    background: var(--modal-bg);
-    width: 90%;
-    max-width: 380px;
-    margin: 20vh auto;
-    padding: 25px;
-    border-radius: 28px;
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
-    border: 1px solid var(--border);
-}
-
-/* --- Transaction List & Animations --- */
-.transaction-item {
-    display: flex;
-    align-items: center;
-    padding: 14px;
-    margin: 0 20px 10px;
-    background: var(--card-dark);
-    border-radius: 20px;
-    gap: 12px;
-    animation: slideIn 0.4s ease-out forwards;
-}
-
-@keyframes slideIn {
-    from { opacity: 0; transform: translateX(-10px); }
-    to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes fadeInDown {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.amt-in { color: var(--income); }
-.amt-ex { color: var(--expense); }
-
-/* --- Bottom Nav --- */
-.bottom-nav {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    max-width: 400px;
-    background: var(--modal-bg);
-    display: flex;
-    justify-content: space-between;
-    padding: 12px 20px;
-    border-radius: 25px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    z-index: 1000;
-    border: 1px solid var(--border);
-}
-
-.add-circle {
-    width: 58px;
-    height: 58px;
-    background: var(--primary);
-    color: white !important;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.4rem;
-    margin-top: -40px;
-    border: 5px solid var(--bg-dark);
-    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+  background: var(--modal-bg);
+  width: 90%;
+  max-width: 380px;
+  margin: 20vh auto;
+  padding: 25px;
+  border-radius: 28px;
+  border: 1px solid var(--border);
 }
