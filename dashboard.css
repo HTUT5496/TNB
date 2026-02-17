@@ -633,3 +633,103 @@ body.light-mode .input-group select option {
     transform: translateY(0);
   }
 }
+/* ... [Keep all your existing :root and body styles exactly as they are] ... */
+
+/* Category Carousel Specific Colors (Modified/Added) */
+.cat-card.gold i {
+  color: #f59e0b;
+} /* Salary/Bonus */
+.cat-card.blue i {
+  color: #3b82f6;
+} /* Investment */
+.cat-card.green i {
+  color: #10b981;
+} /* Income */
+.cat-card.red i {
+  color: #ef4444;
+} /* Bills/Expenses */
+.cat-card.purple i {
+  color: #8b5cf6;
+} /* Shopping */
+
+/* Add specific styling for the Dropdown Groupings */
+.input-group select optgroup {
+  background-color: #0f172a;
+  color: var(--primary);
+  font-weight: 700;
+  font-style: normal;
+}
+
+/* Modal and Input styles already reflect your previous fix */
+.input-group select,
+.input-group input {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #1e293b;
+  color: #ffffff;
+  outline: none;
+  font-size: 0.9rem;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 20px;
+}
+
+/* Center Add Button Pulse Animation (New Feature) */
+.add-circle {
+  width: 60px;
+  height: 60px;
+  background: var(--primary);
+  color: white !important;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-top: -45px;
+  border: 6px solid var(--bg-dark);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+  flex: none;
+  animation: pulse-blue 2s infinite; /* Added pulse */
+}
+
+@keyframes pulse-blue {
+  0% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
+}
+
+/* Transaction Item Enhancements */
+.transaction-item:active {
+  transform: scale(0.98);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Light Mode Pulse Fix */
+body.light-mode .add-circle {
+  border-color: #f8fafc;
+  animation: pulse-light 2s infinite;
+}
+
+@keyframes pulse-light {
+  0% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
+}
+
+/* ... [Rest of your existing Sidebar, Nav, and Choice Modal CSS] ... */
