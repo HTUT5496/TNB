@@ -109,17 +109,27 @@
 
         <h3 class="section-title" id="title-categories">Categories</h3>
         <div class="category-carousel">
-          <div class="cat-card gold" onclick="catAction('Expense', 'Food')">
+          <div class="cat-card red" onclick="catAction('Expense', 'Food')">
             <i class="fas fa-utensils"></i>
             <p id="cat-food">Food</p>
           </div>
-          <div class="cat-card blue" onclick="catAction('Expense', 'Shopping')">
+          <div
+            class="cat-card purple"
+            onclick="catAction('Expense', 'Shopping')"
+          >
             <i class="fas fa-shopping-bag"></i>
             <p id="cat-shop">Shopping</p>
           </div>
           <div class="cat-card green" onclick="catAction('Income', 'Salary')">
             <i class="fas fa-wallet"></i>
             <p id="cat-salary">Salary</p>
+          </div>
+          <div
+            class="cat-card blue"
+            onclick="catAction('Income', 'Investment')"
+          >
+            <i class="fas fa-chart-line"></i>
+            <p id="cat-invest">Investment</p>
           </div>
         </div>
 
@@ -161,6 +171,7 @@
           <h3 id="modal-form-title">Add Transaction</h3>
           <form id="transaction-form">
             <input type="hidden" id="trans-type" value="income" />
+
             <div class="input-group">
               <label id="lbl-amount">Amount</label>
               <input
@@ -171,26 +182,31 @@
                 required
               />
             </div>
+
             <div class="input-group">
               <label id="label-category">Category</label>
               <select id="category" required>
-                <optgroup label="Income">
-                  <option value="Salary">Salary</option>
-                  <option value="Investment">Investment</option>
-                  <option value="Bonus">Bonus</option>
+                <optgroup label="Income" id="opt-income">
+                  <option value="Salary" data-type="income">Salary</option>
+                  <option value="Investment" data-type="income">
+                    Investment
+                  </option>
+                  <option value="Bonus" data-type="income">Bonus</option>
                 </optgroup>
-                <optgroup label="Expense">
-                  <option value="Shopping">Shopping</option>
-                  <option value="Food">Food</option>
-                  <option value="Bill">Bill</option>
+                <optgroup label="Expense" id="opt-expense">
+                  <option value="Shopping" data-type="expense">Shopping</option>
+                  <option value="Food" data-type="expense">Food</option>
+                  <option value="Bill" data-type="expense">Bill</option>
                 </optgroup>
-                <option value="Other">Other</option>
+                <option value="Other" data-type="both">Other</option>
               </select>
             </div>
+
             <div class="input-group">
               <label id="lbl-note">Note</label>
               <input type="text" id="note" placeholder="What is this for?" />
             </div>
+
             <div class="modal-btns">
               <button type="submit" class="main-btn" id="save-btn">Save</button>
               <button type="button" class="sub-btn" onclick="closeModal()">
@@ -216,10 +232,12 @@
         >
           <i class="fas fa-list-ul"></i><span id="nav-hist">History</span>
         </button>
+
         <div class="add-placeholder"></div>
         <button class="nav-item add-circle" onclick="showChoiceModal()">
           <i class="fas fa-plus"></i>
         </button>
+
         <button
           class="nav-item"
           id="nav-rep-btn"

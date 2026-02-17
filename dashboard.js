@@ -142,6 +142,7 @@ function selectChoice(type) {
 
 // --- Quick Category Action ---
 function catAction(type, categoryName) {
+  // Pass the type to openModal to ensure filtering runs correctly
   openModal(type.toLowerCase());
   const categorySelect = document.getElementById("category");
   if (categorySelect) {
@@ -180,15 +181,46 @@ function updateSummary() {
     `-$${totalExpense.toLocaleString()}`;
 }
 
-// --- Modal Logic ---
+// --- Modal Logic with Category Filtering ---
 function openModal(type) {
   const modal = document.getElementById("transaction-modal");
   const title = document.getElementById("modal-form-title");
   const typeInput = document.getElementById("trans-type");
+  const categorySelect = document.getElementById("category");
   const d = langData[currentLang];
 
   typeInput.value = type;
   title.innerText = type === "income" ? d.modalInc : d.modalExp;
+
+  // --- Dynamic Filtering Logic ---
+  const options = categorySelect.querySelectorAll("option");
+  const optGroups = categorySelect.querySelectorAll("optgroup");
+  let firstValidOption = null;
+
+  // 1. Show/Hide individual options based on data-type
+  options.forEach((opt) => {
+    const optType = opt.getAttribute("data-type");
+    if (optType === type || optType === "both") {
+      opt.style.display = "block";
+      opt.disabled = false;
+      if (!firstValidOption) firstValidOption = opt.value;
+    } else {
+      opt.style.display = "none";
+      opt.disabled = true;
+    }
+  });
+
+  // 2. Hide optgroup headings that don't match the transaction type
+  optGroups.forEach((group) => {
+    const label = group.getAttribute("label").toLowerCase();
+    group.style.display = label === type ? "block" : "none";
+  });
+
+  // 3. Auto-select the first visible option
+  if (firstValidOption) {
+    categorySelect.value = firstValidOption;
+  }
+
   modal.style.display = "block";
 }
 
@@ -230,17 +262,13 @@ function renderTransactions() {
   if (!list) return;
   list.innerHTML = "";
 
-  // Updated categories mapping with icons
   const icons = {
-    // Income
     Salary: "fa-wallet",
     Investment: "fa-chart-line",
     Bonus: "fa-gift",
-    // Expense
     Shopping: "fa-shopping-bag",
     Food: "fa-utensils",
     Bill: "fa-file-invoice-dollar",
-    // Shared
     Other: "fa-tags",
   };
 
@@ -259,7 +287,7 @@ function renderTransactions() {
           <p>${t.note || ""} • ${dateStr}</p>
       </div>
       <div class="trans-amt ${t.type === "income" ? "amt-in" : "amt-ex"}">
-          ${t.type === "income" ? "+" : "-"}$${Math.abs(t.amount)}
+          ${t.type === "income" ? "+" : "-"}$${Math.abs(t.amount).toLocaleString()}
           <i class="fas fa-trash-alt delete-icon" onclick="event.stopPropagation(); deleteTrans('${t.id}')"></i>
       </div>
     `;

@@ -1,4 +1,4 @@
-/* Dashboard Page အတွက် သီးသန့် CSS ဖိုင် */
+/* Dashboard Page Custom Styles */
 
 :root {
   --bg-dark: #020617;
@@ -88,16 +88,13 @@ body {
   padding: 5px;
 }
 
-.profile-avatar {
-  cursor: pointer;
-}
-
 .profile-avatar img {
   width: 42px;
   height: 42px;
   border-radius: 50%;
   border: 2px solid var(--primary);
   object-fit: cover;
+  cursor: pointer;
 }
 
 /* Balance Card */
@@ -234,8 +231,8 @@ body {
   box-shadow: var(--shadow);
 }
 
-body.light-mode .cat-card {
-  border: 1px solid rgba(0, 0, 0, 0.05);
+.cat-card:active {
+  transform: scale(0.95);
 }
 
 .cat-card i {
@@ -244,6 +241,7 @@ body.light-mode .cat-card {
   display: block;
 }
 
+/* Category Specific Colors */
 .cat-card.gold i {
   color: #f59e0b;
 }
@@ -252,6 +250,12 @@ body.light-mode .cat-card {
 }
 .cat-card.green i {
   color: #10b981;
+}
+.cat-card.red i {
+  color: #ef4444;
+}
+.cat-card.purple i {
+  color: #8b5cf6;
 }
 
 /* Transaction List */
@@ -272,10 +276,6 @@ body.light-mode .cat-card {
   cursor: pointer;
 }
 
-.transaction-list {
-  margin-top: 5px;
-}
-
 .transaction-item {
   display: flex;
   align-items: center;
@@ -285,6 +285,11 @@ body.light-mode .cat-card {
   border-radius: 20px;
   gap: 12px;
   box-shadow: var(--shadow);
+}
+
+.transaction-item:active {
+  transform: scale(0.98);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .cat-icon {
@@ -378,7 +383,6 @@ body.light-mode .cat-card {
   margin-bottom: 15px;
   text-align: left;
 }
-
 .input-group label {
   display: block;
   font-size: 0.8rem;
@@ -386,31 +390,36 @@ body.light-mode .cat-card {
   color: var(--text-sub);
 }
 
-/* Updated input and select styling for Dashboard */
+/* Input & Select Customization */
 .input-group select,
 .input-group input {
   width: 100%;
   padding: 14px;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  background: #1e293b; /* Solid dark background for consistency */
-  color: #ffffff; /* Force white text */
+  background: #1e293b;
+  color: #ffffff;
   outline: none;
   font-size: 0.9rem;
-  appearance: none; /* Removes default system styling */
+  appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
   background-size: 20px;
 }
 
-/* Fixes the dropdown list visibility */
-.input-group select option {
-  background-color: #0f172a; /* Dark background for the option list */
-  color: #ffffff; /* White text for the options */
+.input-group select optgroup {
+  background-color: #0f172a;
+  color: var(--primary);
+  font-weight: 700;
+  font-style: normal;
 }
 
-/* Light mode overrides */
+.input-group select option {
+  background-color: #0f172a;
+  color: #ffffff;
+}
+
 body.light-mode .input-group input,
 body.light-mode .input-group select {
   background-color: #f1f5f9;
@@ -429,7 +438,6 @@ body.light-mode .input-group select option {
   gap: 10px;
   margin-top: 25px;
 }
-
 .main-btn {
   flex: 1;
   padding: 14px;
@@ -440,7 +448,6 @@ body.light-mode .input-group select option {
   font-weight: 700;
   cursor: pointer;
 }
-
 .sub-btn {
   flex: 1;
   padding: 14px;
@@ -501,13 +508,39 @@ body.light-mode .input-group select option {
   border: 6px solid var(--bg-dark);
   box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
   flex: none;
+  animation: pulse-blue 2s infinite;
+}
+
+body.light-mode .add-circle {
+  border-color: #f8fafc;
+  animation: pulse-light 2s infinite;
+}
+
+@keyframes pulse-blue {
+  0% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
+}
+
+@keyframes pulse-light {
+  0% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
 }
 
 /* Choice Modal Styling */
-.choice-container {
-  text-align: center;
-}
-
 .choice-options {
   display: flex;
   gap: 15px;
@@ -526,21 +559,15 @@ body.light-mode .input-group select option {
   cursor: pointer;
 }
 
-.choice-btn:active {
-  transform: scale(0.95);
-}
-
 .choice-btn i {
   font-size: 2rem;
   color: white;
 }
-
 .choice-btn span {
   font-weight: 700;
   font-size: 0.9rem;
   color: white;
 }
-
 .income-choice {
   background: var(--income);
   box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
@@ -554,7 +581,6 @@ body.light-mode .input-group select option {
 .profile-container {
   position: relative;
 }
-
 .dropdown-menu {
   display: none;
   position: absolute;
@@ -579,16 +605,11 @@ body.light-mode .input-group select option {
   padding: 15px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
-
 .dropdown-header p {
   font-weight: 700;
   font-size: 0.9rem;
   color: var(--text-main);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
-
 .dropdown-header small {
   color: var(--text-sub);
   font-size: 0.75rem;
@@ -608,18 +629,10 @@ body.light-mode .input-group select option {
   font-size: 0.85rem;
 }
 
-.dropdown-item i {
-  width: 16px;
-  font-size: 1rem;
-  color: var(--text-sub);
-}
 .dropdown-item:hover {
   background: rgba(59, 130, 246, 0.1);
 }
 .dropdown-item.logout-red {
-  color: #ef4444;
-}
-.dropdown-item.logout-red i {
   color: #ef4444;
 }
 
@@ -633,103 +646,3 @@ body.light-mode .input-group select option {
     transform: translateY(0);
   }
 }
-/* ... [Keep all your existing :root and body styles exactly as they are] ... */
-
-/* Category Carousel Specific Colors (Modified/Added) */
-.cat-card.gold i {
-  color: #f59e0b;
-} /* Salary/Bonus */
-.cat-card.blue i {
-  color: #3b82f6;
-} /* Investment */
-.cat-card.green i {
-  color: #10b981;
-} /* Income */
-.cat-card.red i {
-  color: #ef4444;
-} /* Bills/Expenses */
-.cat-card.purple i {
-  color: #8b5cf6;
-} /* Shopping */
-
-/* Add specific styling for the Dropdown Groupings */
-.input-group select optgroup {
-  background-color: #0f172a;
-  color: var(--primary);
-  font-weight: 700;
-  font-style: normal;
-}
-
-/* Modal and Input styles already reflect your previous fix */
-.input-group select,
-.input-group input {
-  width: 100%;
-  padding: 14px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: #1e293b;
-  color: #ffffff;
-  outline: none;
-  font-size: 0.9rem;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 20px;
-}
-
-/* Center Add Button Pulse Animation (New Feature) */
-.add-circle {
-  width: 60px;
-  height: 60px;
-  background: var(--primary);
-  color: white !important;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  margin-top: -45px;
-  border: 6px solid var(--bg-dark);
-  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
-  flex: none;
-  animation: pulse-blue 2s infinite; /* Added pulse */
-}
-
-@keyframes pulse-blue {
-  0% {
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
-  }
-  70% {
-    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
-  }
-}
-
-/* Transaction Item Enhancements */
-.transaction-item:active {
-  transform: scale(0.98);
-  background: rgba(255, 255, 255, 0.08);
-}
-
-/* Light Mode Pulse Fix */
-body.light-mode .add-circle {
-  border-color: #f8fafc;
-  animation: pulse-light 2s infinite;
-}
-
-@keyframes pulse-light {
-  0% {
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
-  }
-  70% {
-    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
-  }
-}
-
-/* ... [Rest of your existing Sidebar, Nav, and Choice Modal CSS] ... */
