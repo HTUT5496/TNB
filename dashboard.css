@@ -1,635 +1,278 @@
-/* Dashboard Page အတွက် သီးသန့် CSS ဖိုင် */
+/* Dashboard Page - Neumorphism Style 
+   Folder: Dashboard/dashboard.css
+*/
 
 :root {
-  --bg-dark: #020617;
-  --card-dark: rgba(255, 255, 255, 0.05);
-  --primary: #3b82f6;
-  --income: #10b981;
-  --expense: #ef4444;
-  --text-main: #ffffff;
-  --text-sub: #94a3b8;
-  --modal-bg: #0f172a;
-  --grad: linear-gradient(135deg, #2563eb, #7c3aed);
+  /* Dark Mode Colors (Deep Background) */
+  --bg-dark: #121826;
+  --nm-flat: #121826;
+  --nm-shadow-light: rgba(255, 255, 255, 0.03);
+  --nm-shadow-dark: rgba(0, 0, 0, 0.5);
+  --primary: #3b82f6;
+  --income: #10b981;
+  --expense: #ef4444;
+  --text-main: #e2e8f0;
+  --text-sub: #94a3b8;
+  --modal-bg: #1a2235;
 }
 
 body.light-mode {
-  --bg-dark: #f8fafc;
-  --card-dark: #ffffff;
-  --text-main: #1e293b;
-  --text-sub: #64748b;
-  --modal-bg: #ffffff;
-  --grad: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  /* Light Mode Colors (Soft Gray Background) */
+  --bg-dark: #e0e5ec;
+  --nm-flat: #e0e5ec;
+  --nm-shadow-light: rgba(255, 255, 255, 0.8);
+  --nm-shadow-dark: rgba(163, 177, 198, 0.6);
+  --text-main: #2d3748;
+  --text-sub: #718096;
+  --modal-bg: #e0e5ec;
 }
 
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Plus Jakarta Sans", sans-serif;
-  transition:
-    background 0.3s ease,
-    color 0.3s ease,
-    transform 0.2s ease;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  background-color: var(--bg-dark);
-  color: var(--text-main);
-  display: flex;
-  justify-content: center;
-  min-height: 100vh;
-  overflow-x: hidden;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  transition: background 0.4s ease;
 }
 
 .mobile-container {
-  width: 100%;
-  max-width: 450px;
-  background-color: var(--bg-dark);
-  position: relative;
-  min-height: 100vh;
-  padding-bottom: 120px;
+  width: 100%;
+  max-width: 450px;
+  min-height: 100vh;
+  padding: 0 0 120px 0;
+  position: relative;
 }
 
-/* Header Section */
+/* --- Neumorphism Helper Classes --- */
+.nm-box {
+  background: var(--nm-flat);
+  box-shadow: 6px 6px 12px var(--nm-shadow-dark), 
+             -6px -6px 12px var(--nm-shadow-light);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.01);
+}
+
+.nm-inset {
+  background: var(--nm-flat);
+  box-shadow: inset 4px 4px 8px var(--nm-shadow-dark), 
+              inset -4px -4px 8px var(--nm-shadow-light);
+  border-radius: 12px;
+}
+
+/* --- Header --- */
 .top-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: var(--bg-dark);
-  backdrop-filter: blur(10px);
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.app-logo {
-  font-weight: 800;
-  letter-spacing: 1px;
-  color: var(--primary);
-  font-size: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px 20px;
+  background: var(--bg-dark);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 .icon-btn {
-  background: none;
-  border: none;
-  color: var(--text-main);
-  font-size: 1.2rem;
-  cursor: pointer;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  color: var(--text-main);
+  cursor: pointer;
+  background: var(--nm-flat);
+  box-shadow: 4px 4px 8px var(--nm-shadow-dark), 
+             -4px -4px 8px var(--nm-shadow-light);
+  border-radius: 12px;
 }
 
-.profile-avatar {
-  cursor: pointer;
+.app-logo {
+  font-weight: 800;
+  color: var(--primary);
+  text-shadow: 2px 2px 4px var(--nm-shadow-dark);
 }
 
+/* --- Profile Avatar --- */
 .profile-avatar img {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  border: 2px solid var(--primary);
-  object-fit: cover;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  border: 3px solid var(--bg-dark);
+  box-shadow: 4px 4px 8px var(--nm-shadow-dark), 
+             -4px -4px 8px var(--nm-shadow-light);
 }
 
-/* Balance Card */
+/* --- Balance Card (Glass-Neumorphism) --- */
 .balance-card {
-  background: var(--grad);
-  margin: 10px 20px;
-  padding: 25px;
-  border-radius: 30px;
-  color: white;
-  box-shadow: 0 15px 35px rgba(37, 99, 235, 0.3);
+  margin: 10px 20px;
+  padding: 30px;
+  background: var(--nm-flat);
+  box-shadow: 8px 8px 16px var(--nm-shadow-dark), 
+             -8px -8px 16px var(--nm-shadow-light);
+  border-radius: 30px;
+  text-align: center;
 }
 
 .balance-card h1 {
-  font-size: 2.2rem;
-  margin: 10px 0;
-  font-weight: 800;
+  font-size: 2.5rem;
+  margin: 10px 0;
+  color: var(--primary);
+  font-weight: 800;
 }
 
 .summary-row {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  justify-content: space-between;
+  margin-top: 25px;
+  gap: 15px;
 }
 
 .summary-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  flex: 1;
+  padding: 15px;
+  background: var(--nm-flat);
+  box-shadow: inset 3px 3px 6px var(--nm-shadow-dark), 
+              inset -3px -3px 6px var(--nm-shadow-light);
+  border-radius: 18px;
 }
 
-.summary-item span {
-  font-size: 0.8rem;
-  opacity: 0.9;
-}
-
-.summary-item p {
-  font-weight: 700;
-}
-
-.icon-circle {
-  width: 35px;
-  height: 35px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8rem;
-}
-
-/* Quick Actions */
+/* --- Quick Action Buttons --- */
 .quick-actions {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  padding: 25px 20px;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 30px 20px;
+  gap: 15px;
 }
 
 .action-btn {
-  background: none;
-  border: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
 .icon-box {
-  width: 55px;
-  height: 55px;
-  border-radius: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1.3rem;
-  margin-bottom: 8px;
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
+  background: var(--nm-flat);
+  box-shadow: 5px 5px 10px var(--nm-shadow-dark), 
+             -5px -5px 10px var(--nm-shadow-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  font-size: 1.4rem;
 }
 
-.action-btn span {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--text-sub);
+.action-btn:active .icon-box {
+  box-shadow: inset 3px 3px 6px var(--nm-shadow-dark), 
+              inset -3px -3px 6px var(--nm-shadow-light);
 }
 
-.green {
-  background: var(--income);
-}
-.red {
-  background: var(--expense);
-}
-.blue {
-  background: var(--primary);
-}
-.purple {
-  background: #8b5cf6;
-}
+.green i { color: var(--income); }
+.red i { color: var(--expense); }
+.blue i { color: var(--primary); }
+.purple i { color: #a855f7; }
 
-/* Categories & Carousel */
-.section-title {
-  padding: 0 20px;
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin-bottom: 15px;
-}
-
+/* --- Category Carousel --- */
 .category-carousel {
-  display: flex;
-  overflow-x: auto;
-  gap: 15px;
-  padding: 5px 20px 20px;
-  scrollbar-width: none;
+  display: flex;
+  overflow-x: auto;
+  gap: 20px;
+  padding: 10px 20px 30px;
+  scrollbar-width: none;
 }
 
 .cat-card {
-  min-width: 100px;
-  padding: 15px 10px;
-  border-radius: 20px;
-  background: var(--card-dark);
-  text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  cursor: pointer;
+  min-width: 110px;
+  padding: 20px;
+  background: var(--nm-flat);
+  box-shadow: 5px 5px 10px var(--nm-shadow-dark), 
+             -5px -5px 10px var(--nm-shadow-light);
+  border-radius: 22px;
+  text-align: center;
 }
 
-.cat-card i {
-  font-size: 1.2rem;
-  margin-bottom: 8px;
-  display: block;
+/* --- Select Box Fix (Dark/Light Visibility) --- */
+select#category, input {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  background: var(--nm-flat);
+  box-shadow: inset 3px 3px 6px var(--nm-shadow-dark), 
+              inset -3px -3px 6px var(--nm-shadow-light);
+  color: var(--text-main);
+  border-radius: 12px;
+  outline: none;
+  font-size: 1rem;
 }
 
-.cat-card.gold i {
-  color: #f59e0b;
-}
-.cat-card.blue i {
-  color: #3b82f6;
-}
-.cat-card.green i {
-  color: #10b981;
+select#category option {
+  background: var(--modal-bg);
+  color: var(--text-main);
 }
 
-/* Transaction List */
-.list-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-right: 20px;
-}
-
-.lang-btn {
-  background: var(--card-dark);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--text-main);
-  padding: 5px 12px;
-  border-radius: 10px;
-  font-size: 0.75rem;
-  cursor: pointer;
-}
-
-.transaction-item {
-  display: flex;
-  align-items: center;
-  padding: 14px;
-  margin: 0 20px 10px;
-  background: var(--card-dark);
-  border-radius: 20px;
-  gap: 12px;
-}
-
-.cat-icon {
-  width: 45px;
-  height: 45px;
-  background: rgba(59, 130, 246, 0.1);
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--primary);
-  font-size: 1.1rem;
-}
-
-.trans-info {
-  flex: 1;
-}
-.trans-info h4 {
-  font-size: 0.95rem;
-  margin-bottom: 2px;
-}
-.trans-info p {
-  font-size: 0.75rem;
-  color: var(--text-sub);
-}
-
-.trans-amt {
-  font-weight: 700;
-  font-size: 0.95rem;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.delete-icon {
-  color: var(--text-sub);
-  cursor: pointer;
-  font-size: 0.9rem;
-  opacity: 0.5;
-}
-
-.delete-icon:hover {
-  color: var(--expense);
-  opacity: 1;
-}
-
-/* Modal Styling */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 2000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(8px);
-}
-
-.modal-content {
-  background: var(--modal-bg);
-  width: 90%;
-  max-width: 380px;
-  margin: 20vh auto;
-  padding: 25px;
-  border-radius: 28px;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
-}
-
-.input-group {
-  margin-bottom: 15px;
-  text-align: left;
-}
-
-.input-group label {
-  display: block;
-  font-size: 0.8rem;
-  margin-bottom: 5px;
-  color: var(--text-sub);
-}
-
-.input-group input,
-.input-group select {
-  width: 100%;
-  padding: 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.05);
-  color: inherit;
-  outline: none;
-}
-
-.modal-btns {
-  display: flex;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.main-btn {
-  flex: 1;
-  padding: 12px;
-  background: var(--primary);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.sub-btn {
-  flex: 1;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--text-main);
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-}
-
-/* Bottom Nav */
+/* --- Bottom Nav --- */
 .bottom-nav {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 90%;
-  max-width: 400px;
-  background: var(--modal-bg);
-  display: flex;
-  justify-content: space-between;
-  padding: 12px 20px;
-  border-radius: 25px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  z-index: 1000;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.nav-item {
-  background: none;
-  border: none;
-  color: var(--text-sub);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.65rem;
-  cursor: pointer;
-}
-
-.nav-item.active {
-  color: var(--primary);
+  position: fixed;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 400px;
+  padding: 15px;
+  background: var(--nm-flat);
+  box-shadow: 10px 10px 20px var(--nm-shadow-dark), 
+             -10px -10px 20px var(--nm-shadow-light);
+  border-radius: 25px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
 }
 
 .add-circle {
-  width: 58px;
-  height: 58px;
-  background: var(--primary);
-  color: white !important;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.4rem;
-  margin-top: -40px;
-  border: 5px solid var(--bg-dark);
-  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
-}
-/* --- Profile Dropdown Styling (Added Features) --- */
-
-.profile-container {
-  position: relative; /* Dropdown နေရာမှန်စေရန် */
+  width: 60px;
+  height: 60px;
+  background: var(--primary);
+  color: white !important;
+  border-radius: 50%;
+  margin-top: -50px;
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+  border: 5px solid var(--bg-dark);
 }
 
-.dropdown-menu {
-  display: none; /* Default အနေနဲ့ ဖျောက်ထားမည် */
-  position: absolute;
-  top: 55px;
-  right: 0;
-  background: var(--modal-bg);
-  min-width: 200px;
-  border-radius: 20px;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  z-index: 1000;
-  overflow: hidden;
-  padding: 8px 0;
+/* --- Modals --- */
+.modal-content {
+  background: var(--modal-bg);
+  padding: 30px;
+  border-radius: 35px;
+  box-shadow: 20px 20px 40px var(--nm-shadow-dark);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* JS ကနေ .show class ထည့်လိုက်ရင် ပေါ်လာစေရန် */
-.dropdown-menu.show {
-  display: block;
-  animation: fadeInDown 0.3s ease;
+.main-btn {
+  padding: 15px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 15px;
+  font-weight: 700;
+  box-shadow: 4px 4px 10px rgba(0,0,0,0.2);
+  cursor: pointer;
 }
 
-.dropdown-header {
-  padding: 15px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.dropdown-header p {
-  font-weight: 700;
-  font-size: 0.9rem;
-  color: var(--text-main);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.dropdown-header small {
-  color: var(--text-sub);
-  font-size: 0.75rem;
-}
-
-.dropdown-menu hr {
-  border: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  margin: 5px 0;
-}
-
-.dropdown-item {
-  width: 100%;
-  padding: 12px 15px;
-  border: none;
-  background: none;
-  color: var(--text-main);
-  text-align: left;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  transition: 0.2s;
-}
-
-.dropdown-item i {
-  width: 16px;
-  font-size: 1rem;
-  color: var(--text-sub);
-}
-
-.dropdown-item:hover {
-  background: rgba(59, 130, 246, 0.1);
-}
-
-.dropdown-item.logout-red {
-  color: #ef4444;
-}
-
-.dropdown-item.logout-red i {
-  color: #ef4444;
-}
-
-.dropdown-item.logout-red:hover {
-  background: rgba(239, 68, 68, 0.1);
-}
-
-/* Dropdown Animation */
-@keyframes fadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Dark/Light mode compatibility for dropdown borders */
-body.light-mode .dropdown-menu {
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-}
-/* --- Choice Modal Styling (Income/Expense Selection) --- */
-.choice-content {
-  text-align: center;
-  padding: 30px !important;
-}
-
-.choice-btns {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-  margin-top: 10px;
-}
-
-.choice-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding: 20px;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.03);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.choice-item i {
-  font-size: 2rem;
-}
-
-.choice-item span {
-  font-weight: 700;
-  font-size: 0.9rem;
-}
-
-/* Choice Hover & Interaction */
-.choice-item.income i { color: var(--income); }
-.choice-item.expense i { color: var(--expense); }
-
-.choice-item:active {
-  transform: scale(0.95);
-}
-
-.choice-item.income:hover {
-  background: rgba(16, 185, 129, 0.1);
-  border-color: var(--income);
-}
-
-.choice-item.expense:hover {
-  background: rgba(239, 68, 68, 0.1);
-  border-color: var(--expense);
-}
-
-/* --- Category Filter & Transaction Animations --- */
-
-/* Category Active State (နှိပ်ထားရင် အရောင်လင်းနေစေရန်) */
-.cat-card.active {
-  border: 2px solid var(--primary);
-  background: rgba(59, 130, 246, 0.1);
-  transform: translateY(-5px);
-}
-
-/* Transaction List Animation */
-.transaction-item {
-  animation: slideIn 0.4s ease-out forwards;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-/* Amount Colors */
-.amt-in {
-  color: var(--income);
-}
-
-.amt-ex {
-  color: var(--expense);
-}
-
-/* Category Color Variations (Purple for Bill) */
-.cat-card.purple i {
-  color: #a855f7;
-}
-
-/* Light Mode Adjustments for Choice Modal */
-body.light-mode .choice-item {
-  background: #f1f5f9;
-  border-color: rgba(0, 0, 0, 0.05);
-  color: var(--text-main);
+/* --- Responsive Layout --- */
+@media (max-width: 380px) {
+  .balance-card h1 { font-size: 1.8rem; }
+  .icon-box { width: 50px; height: 50px; }
+  .quick-actions { gap: 10px; }
 }
