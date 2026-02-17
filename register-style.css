@@ -1,0 +1,194 @@
+/* Register Page အတွက် သီးသန့် CSS ဖိုင် */
+
+* {
+  box-sizing: border-box;
+  transition:
+    background 0.3s ease,
+    color 0.3s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  overflow: hidden; /* Scrollbar မပေါ်စေရန် */
+}
+
+/* Dark Mode */
+body.dark-mode {
+  background: #020617;
+  color: #ffffff;
+}
+
+/* Light Mode */
+body.light-mode {
+  background: #f8fafc;
+  color: #1e293b;
+}
+
+.glass-container {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  padding: 35px 25px;
+  border-radius: 28px;
+  width: 90%;
+  max-width: 400px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+body.light-mode .glass-container {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.top-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 25px;
+}
+
+h1 {
+  margin-bottom: 20px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+input {
+  width: 100%;
+  padding: 14px 18px;
+  margin: 10px 0;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: inherit;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+input:focus {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.05);
+}
+
+body.light-mode input {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+
+.main-btn {
+  width: 100%;
+  padding: 15px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-top: 15px;
+  box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+}
+
+.main-btn:hover {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+  box-shadow: 0 20px 25px -5px rgba(37, 99, 235, 0.4);
+}
+
+.sub-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: inherit;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+body.light-mode .sub-btn {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+}
+
+.social-btn {
+  width: 100%;
+  padding: 14px;
+  margin-top: 15px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  background: white;
+  color: #1e293b;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.note-box {
+  background: rgba(59, 130, 246, 0.15);
+  padding: 15px;
+  border-radius: 16px;
+  font-size: 0.85rem;
+  margin-bottom: 25px;
+  line-height: 1.5;
+  border-left: 4px solid #3b82f6;
+}
+
+.separator {
+  margin: 25px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  line-height: 0.1em;
+  text-align: center;
+}
+
+body.light-mode .separator {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.separator span {
+  padding: 0 15px;
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+body.dark-mode .separator span {
+  background: #020617; /* Register Page Background အရောင်နှင့် ညှိထားသည် */
+}
+
+body.light-mode .separator span {
+  background: #f8fafc;
+}
+
+.footer-links {
+  margin-top: 25px;
+  font-size: 0.85rem;
+}
+
+.footer-links p {
+  margin: 10px 0;
+  color: #94a3b8;
+}
+
+.footer-links a {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 700;
+  margin-left: 5px;
+}
+
+.footer-links a:hover {
+  text-decoration: underline;
+}

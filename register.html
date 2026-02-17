@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TNB - Register</title>
+    <link rel="stylesheet" href="register-style.css" />
+    <link rel="manifest" href="manifest.json" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body class="dark-mode">
+    <div class="glass-container">
+      <div class="top-nav">
+        <button id="lang-btn" class="sub-btn">Burmese</button>
+        <button onclick="location.href = 'index.html'" class="sub-btn">
+          Login
+        </button>
+        <button id="theme-btn" class="sub-btn">🌙 Dark</button>
+      </div>
+
+      <div class="note-box">
+        <p id="note-text">
+          Welcome to the financial management software. Create your account to
+          start tracking your assets.
+        </p>
+      </div>
+
+      <h1 id="title">Register</h1>
+
+      <form id="reg-form">
+        <input type="text" id="username" placeholder="UserName" required />
+        <input
+          type="password"
+          id="password"
+          placeholder="Password (min 6 chars)"
+          minlength="6"
+          required
+        />
+        <input
+          type="password"
+          id="confirm-password"
+          placeholder="Confirm Password"
+          required
+        />
+        <button type="submit" id="reg-btn" class="main-btn">Register</button>
+      </form>
+
+      <div class="separator"><span>Or</span></div>
+
+      <button type="button" id="gmail-btn" class="social-btn">
+        Continue with Gmail
+      </button>
+
+      <div class="footer-links">
+        <p id="login-text">
+          If you already have account? <a href="index.html">Login</a>
+        </p>
+        <p id="reset-text">
+          <a href="reset.html">Forgot Password? Reset Password</a>
+        </p>
+      </div>
+    </div>
+
+    <script src="register-script.js"></script>
+  </body>
+</html>

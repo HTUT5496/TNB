@@ -1,0 +1,306 @@
+/* Dashboard Page အတွက် သီးသန့် CSS ဖိုင် */
+
+:root {
+  --bg-dark: #020617;
+  --card-dark: rgba(255, 255, 255, 0.05);
+  --primary: #3b82f6;
+  --income: #10b981;
+  --expense: #ef4444;
+  --text-main: #ffffff;
+  --text-sub: #94a3b8;
+  --modal-bg: #0f172a;
+  --grad: linear-gradient(135deg, #2563eb, #7c3aed);
+}
+
+body.light-mode {
+  --bg-dark: #f8fafc;
+  --card-dark: #ffffff;
+  --text-main: #1e293b;
+  --text-sub: #64748b;
+  --modal-bg: #ffffff;
+  --grad: linear-gradient(135deg, #3b82f6, #8b5cf6);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  transition:
+    background 0.3s ease,
+    color 0.3s ease,
+    transform 0.2s ease;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.mobile-container {
+  width: 100%;
+  max-width: 450px;
+  background-color: var(--bg-dark);
+  position: relative;
+  min-height: 100vh;
+  padding-bottom: 120px; /* Bottom Nav အတွက် နေရာချန်ထားခြင်း */
+}
+
+/* Header Section */
+.top-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg-dark);
+  backdrop-filter: blur(10px);
+}
+
+.app-logo {
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--primary);
+  font-size: 1.5rem;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  color: var(--text-main);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.profile-avatar img {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid var(--primary);
+  object-fit: cover;
+}
+
+/* Balance Card */
+.balance-card {
+  background: var(--grad);
+  margin: 10px 20px;
+  padding: 25px;
+  border-radius: 30px;
+  color: white;
+  box-shadow: 0 15px 35px rgba(37, 99, 235, 0.3);
+}
+
+.balance-card h1 {
+  font-size: 2.5rem;
+  margin: 10px 0;
+  font-weight: 800;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.summary-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.icon-circle {
+  width: 35px;
+  height: 35px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+}
+
+/* Quick Actions */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 25px 20px;
+  gap: 15px;
+}
+
+.icon-box {
+  width: 60px;
+  height: 60px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.4rem;
+  margin-bottom: 8px;
+}
+
+.green {
+  background: var(--income);
+}
+.red {
+  background: var(--expense);
+}
+.blue {
+  background: var(--primary);
+}
+.purple {
+  background: #8b5cf6;
+}
+
+.action-btn span {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-sub);
+}
+
+/* Transactions & Categories */
+.section-title {
+  padding: 0 20px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+.category-carousel {
+  display: flex;
+  overflow-x: auto;
+  gap: 15px;
+  padding: 5px 20px 20px;
+  scrollbar-width: none;
+}
+
+.cat-card {
+  min-width: 105px;
+  padding: 20px 10px;
+  border-radius: 24px;
+  background: var(--card-dark);
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+}
+
+.transaction-item {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  margin: 0 20px 12px;
+  background: var(--card-dark);
+  border-radius: 22px;
+  gap: 15px;
+}
+
+.cat-icon {
+  width: 50px;
+  height: 50px;
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+}
+
+.trans-info {
+  flex: 1;
+}
+.trans-info h4 {
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+.trans-info p {
+  font-size: 0.8rem;
+  color: var(--text-sub);
+}
+
+.trans-amt {
+  font-weight: 700;
+  text-align: right;
+}
+.amt-in {
+  color: var(--income);
+}
+.amt-ex {
+  color: var(--expense);
+}
+
+/* Modal & Floating Nav */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+}
+
+.modal-content {
+  background: var(--modal-bg);
+  width: 90%;
+  max-width: 400px;
+  margin: 15% auto;
+  padding: 30px;
+  border-radius: 30px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+}
+
+.bottom-nav {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 400px;
+  background: var(--modal-bg);
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 25px;
+  border-radius: 25px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  z-index: 999;
+}
+
+.nav-item {
+  background: none;
+  border: none;
+  color: var(--text-sub);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+}
+
+.nav-item.active {
+  color: var(--primary);
+}
+
+.add-circle {
+  width: 60px;
+  height: 60px;
+  background: var(--primary);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-top: -45px;
+  border: 6px solid var(--bg-dark);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+}
