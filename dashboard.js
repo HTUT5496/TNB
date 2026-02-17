@@ -30,6 +30,7 @@ const langData = {
     modalExp: "Add Expense",
     save: "Save",
     cancel: "Cancel",
+    choiceTitle: "Choose Type",
   },
   my: {
     totalBal: "လက်ကျန်ငွေစုစုပေါင်း",
@@ -50,6 +51,7 @@ const langData = {
     modalExp: "ထွက်ငွေစာရင်းသွင်းရန်",
     save: "သိမ်းမည်",
     cancel: "ပယ်ဖျက်မည်",
+    choiceTitle: "အမျိုးအစားရွေးချယ်ပါ",
   },
 };
 
@@ -58,7 +60,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   await checkUser();
   await fetchTransactions();
   renderTransactions();
-  setupDropdown(); // Dropdown functionality ကို initialize လုပ်ရန်
+  setupDropdown();
 });
 
 // Check User Session & Update Profile
@@ -69,7 +71,6 @@ async function checkUser() {
   if (user) {
     currentUser = user;
 
-    // UI Elements များကို Update လုပ်ခြင်း
     const name = user.user_metadata.full_name || "User";
     const email = user.email;
     const avatarUrl =
@@ -89,26 +90,68 @@ function setupDropdown() {
   const profileBtn = document.getElementById("profile-btn");
   const dropdown = document.getElementById("profile-dropdown");
 
-  // Profile ပုံနှိပ်လျှင် Dropdown အဖွင့်အပိတ်လုပ်ရန်
   profileBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     dropdown.classList.toggle("show");
   });
 
-  // အပြင်ဘက်ကို နှိပ်လျှင် Dropdown ပြန်ပိတ်ရန်
   document.addEventListener("click", () => {
     if (dropdown.classList.contains("show")) {
       dropdown.classList.remove("show");
     }
   });
 
-  // Logout ခလုတ်နှိပ်ခြင်း
   document.getElementById("logout-confirm-btn").onclick = async () => {
     if (confirm("Do you want to logout?")) {
       await _supabase.auth.signOut();
       window.location.href = "index.html";
     }
   };
+}
+
+// --- Navigation & Sidebar Logic (New) ---
+function navigateTo(page) {
+  // Updates active state on bottom nav
+  document
+    .querySelectorAll(".nav-item")
+    .forEach((btn) => btn.classList.remove("active"));
+
+  // Logic for page navigation
+  if (page === "dashboard") {
+    document.getElementById("nav-dash-btn").classList.add("active");
+  } else {
+    // Since other pages (history.html, etc) follow your folder structure:
+    // window.location.href = page + ".html";
+    alert("Navigating to " + page + " page...");
+  }
+}
+
+function toggleSidebar() {
+  // Placeholder for sidebar logic
+  alert("Sidebar menu clicked");
+}
+
+// --- Choice Modal Logic ---
+function showChoiceModal() {
+  document.getElementById("choice-modal").style.display = "block";
+}
+
+function closeChoiceModal() {
+  document.getElementById("choice-modal").style.display = "none";
+}
+
+function selectChoice(type) {
+  closeChoiceModal();
+  openModal(type);
+}
+
+// --- Quick Category Action (New) ---
+function catAction(type, categoryName) {
+  openModal(type.toLowerCase());
+  const categorySelect = document.getElementById("category");
+  if (categorySelect) {
+    categorySelect.value = categoryName;
+  }
 }
 
 // --- Supabase Database Logic ---
@@ -158,7 +201,6 @@ function closeModal() {
   document.getElementById("transaction-modal").style.display = "none";
 }
 
-// Form Submission
 document.getElementById("transaction-form").onsubmit = async (e) => {
   e.preventDefault();
 
@@ -248,6 +290,18 @@ document.getElementById("lang-toggle").onclick = () => {
   document.getElementById("qa-reports").innerText = d.rep;
   document.getElementById("title-categories").innerText = d.catTitle;
   document.getElementById("title-recent").innerText = d.recentTitle;
+
+  // Bottom Nav Translations
+  document.getElementById("nav-dash").innerText = d.dash;
+  document.getElementById("nav-hist").innerText = d.hist;
+  document.getElementById("nav-rep").innerText = d.rep;
+  document.getElementById("nav-set").innerText = d.set;
+
+  // Choice Modal Translations
+  document.getElementById("choice-title").innerText = d.choiceTitle;
+  document.querySelectorAll(".choice-btn span")[0].innerText = d.addInc;
+  document.querySelectorAll(".choice-btn span")[1].innerText = d.addExp;
+  document.querySelector("#choice-modal .sub-btn").innerText = d.cancel;
 
   const modalTitle = document.getElementById("modal-form-title");
   if (modalTitle) {

@@ -34,7 +34,7 @@
   <body class="dark-mode">
     <div class="mobile-container">
       <header class="top-header">
-        <button class="icon-btn" id="menu-btn">
+        <button class="icon-btn" id="menu-btn" onclick="toggleSidebar()">
           <i class="fas fa-bars"></i>
         </button>
         <h2 class="app-logo">TNB</h2>
@@ -97,11 +97,11 @@
             <div class="icon-box red"><i class="fas fa-minus"></i></div>
             <span id="qa-add-expense">Add Expense</span>
           </button>
-          <button class="action-btn" onclick="quickAction('History')">
+          <button class="action-btn" onclick="navigateTo('history')">
             <div class="icon-box blue"><i class="fas fa-history"></i></div>
             <span id="qa-history">History</span>
           </button>
-          <button class="action-btn" onclick="quickAction('Reports')">
+          <button class="action-btn" onclick="navigateTo('reports')">
             <div class="icon-box purple"><i class="fas fa-chart-pie"></i></div>
             <span id="qa-reports">Reports</span>
           </button>
@@ -109,15 +109,15 @@
 
         <h3 class="section-title" id="title-categories">Categories</h3>
         <div class="category-carousel">
-          <div class="cat-card gold" onclick="catAction('Food')">
+          <div class="cat-card gold" onclick="catAction('Expense', 'Food')">
             <i class="fas fa-utensils"></i>
             <p id="cat-food">Food</p>
           </div>
-          <div class="cat-card blue" onclick="catAction('Shopping')">
+          <div class="cat-card blue" onclick="catAction('Expense', 'Shopping')">
             <i class="fas fa-shopping-bag"></i>
             <p id="cat-shop">Shopping</p>
           </div>
-          <div class="cat-card green" onclick="catAction('Salary')">
+          <div class="cat-card green" onclick="catAction('Income', 'Salary')">
             <i class="fas fa-wallet"></i>
             <p id="cat-salary">Salary</p>
           </div>
@@ -130,6 +130,31 @@
 
         <div id="transaction-list" class="transaction-list"></div>
       </main>
+
+      <div id="choice-modal" class="modal">
+        <div class="modal-content choice-container">
+          <h3 id="choice-title">Choose Type</h3>
+          <div class="choice-options">
+            <button
+              class="choice-btn income-choice"
+              onclick="selectChoice('income')"
+            >
+              <i class="fas fa-arrow-down"></i>
+              <span>Add Income</span>
+            </button>
+            <button
+              class="choice-btn expense-choice"
+              onclick="selectChoice('expense')"
+            >
+              <i class="fas fa-arrow-up"></i>
+              <span>Add Expense</span>
+            </button>
+          </div>
+          <button type="button" class="sub-btn" onclick="closeChoiceModal()">
+            Cancel
+          </button>
+        </div>
+      </div>
 
       <div id="transaction-modal" class="modal">
         <div class="modal-content">
@@ -152,7 +177,7 @@
                 <option value="Salary">Salary</option>
                 <option value="Food">Food</option>
                 <option value="Shopping">Shopping</option>
-                <option value="Gift">Gift</option>
+                <option value="Gift">Investment</option>
                 <option value="Other">Other</option>
               </select>
             </div>
@@ -171,20 +196,36 @@
       </div>
 
       <nav class="bottom-nav">
-        <button class="nav-item active" id="nav-dash-btn">
+        <button
+          class="nav-item active"
+          id="nav-dash-btn"
+          onclick="navigateTo('dashboard')"
+        >
           <i class="fas fa-home"></i><span id="nav-dash">Dashboard</span>
         </button>
-        <button class="nav-item" id="nav-hist-btn">
+        <button
+          class="nav-item"
+          id="nav-hist-btn"
+          onclick="navigateTo('history')"
+        >
           <i class="fas fa-list-ul"></i><span id="nav-hist">History</span>
         </button>
         <div class="add-placeholder"></div>
-        <button class="nav-item add-circle" onclick="openModal('income')">
+        <button class="nav-item add-circle" onclick="showChoiceModal()">
           <i class="fas fa-plus"></i>
         </button>
-        <button class="nav-item" id="nav-rep-btn">
+        <button
+          class="nav-item"
+          id="nav-rep-btn"
+          onclick="navigateTo('reports')"
+        >
           <i class="fas fa-chart-line"></i><span id="nav-rep">Reports</span>
         </button>
-        <button class="nav-item" id="nav-set-btn">
+        <button
+          class="nav-item"
+          id="nav-set-btn"
+          onclick="navigateTo('settings')"
+        >
           <i class="fas fa-user-gear"></i><span id="nav-set">Settings</span>
         </button>
       </nav>
