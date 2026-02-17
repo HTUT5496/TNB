@@ -200,7 +200,7 @@ body {
   background: #8b5cf6;
 }
 
-/* Categories & Carousel */
+/* Categories & Carousel - COMPACT VERSION */
 .section-title {
   padding: 0 20px;
   font-size: 1.1rem;
@@ -211,7 +211,7 @@ body {
 .category-carousel {
   display: flex;
   overflow-x: auto;
-  gap: 12px;
+  gap: 10px;
   padding: 5px 20px 20px;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -222,11 +222,11 @@ body {
 }
 
 .cat-card {
-  /* Updated min-width and flex to prevent text overflow */
-  min-width: 105px;
+  /* Smaller width and padding to match Add Income scale */
+  min-width: 80px;
   flex: 0 0 auto;
-  padding: 15px 8px;
-  border-radius: 20px;
+  padding: 12px 6px;
+  border-radius: 18px;
   background: var(--card-dark);
   text-align: center;
   border: 1px solid rgba(255, 255, 255, 0.05);
@@ -239,8 +239,8 @@ body {
 }
 
 .cat-card i {
-  font-size: 1.2rem;
-  margin-bottom: 8px;
+  font-size: 1rem; /* Smaller icons for compact look */
+  margin-bottom: 6px;
   display: block;
 }
 
@@ -262,9 +262,10 @@ body {
 }
 
 .cat-card p {
-  font-size: 11px;
+  /* Matching the 0.7rem font size of quick actions */
+  font-size: 0.7rem;
   font-weight: 600;
-  /* Ensure long words like Investment are handled */
+  color: var(--text-sub);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -403,8 +404,7 @@ body {
   color: var(--text-sub);
 }
 
-/* --- Dropdown Category Line Fix --- */
-
+/* Dropdown Fix */
 .input-group select,
 .input-group input {
   width: 100%;
@@ -444,17 +444,6 @@ body.light-mode .input-group select {
   color: #1e293b;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='black' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
 }
-
-body.light-mode .input-group select optgroup {
-  background-color: #ffffff;
-}
-
-body.light-mode .input-group select option {
-  background-color: #ffffff;
-  color: #1e293b;
-}
-
-/* --- End Dropdown Fix --- */
 
 .modal-btns {
   display: flex;
@@ -534,35 +523,6 @@ body.light-mode .input-group select option {
   animation: pulse-blue 2s infinite;
 }
 
-body.light-mode .add-circle {
-  border-color: #f8fafc;
-  animation: pulse-light 2s infinite;
-}
-
-@keyframes pulse-blue {
-  0% {
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
-  }
-  70% {
-    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
-  }
-}
-
-@keyframes pulse-light {
-  0% {
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
-  }
-  70% {
-    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
-  }
-}
-
 /* Choice Modal Styling */
 .choice-options {
   display: flex;
@@ -591,11 +551,9 @@ body.light-mode .add-circle {
 }
 .income-choice {
   background: var(--income);
-  box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
 }
 .expense-choice {
   background: var(--expense);
-  box-shadow: 0 10px 20px rgba(239, 68, 68, 0.2);
 }
 
 /* Profile Dropdown */
@@ -619,38 +577,6 @@ body.light-mode .add-circle {
 .dropdown-menu.show {
   display: block;
   animation: fadeInDown 0.3s ease;
-}
-.dropdown-header {
-  padding: 15px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-.dropdown-header p {
-  font-weight: 700;
-  font-size: 0.9rem;
-  color: var(--text-main);
-}
-.dropdown-header small {
-  color: var(--text-sub);
-  font-size: 0.75rem;
-}
-.dropdown-item {
-  width: 100%;
-  padding: 12px 15px;
-  border: none;
-  background: none;
-  color: var(--text-main);
-  text-align: left;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  font-size: 0.85rem;
-}
-.dropdown-item:hover {
-  background: rgba(59, 130, 246, 0.1);
-}
-.dropdown-item.logout-red {
-  color: #ef4444;
 }
 
 @keyframes fadeInDown {
