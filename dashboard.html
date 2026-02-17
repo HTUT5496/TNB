@@ -15,7 +15,6 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
-
     <link rel="stylesheet" href="dashboard.css" />
 
     <script>
@@ -43,12 +42,26 @@
           <button id="theme-toggle" class="icon-btn">
             <i class="fas fa-moon"></i>
           </button>
-          <div class="profile-avatar" id="profile-btn">
-            <img
-              id="user-avatar"
-              src="https://ui-avatars.com/api/?name=User&background=3b82f6&color=fff"
-              alt="Profile"
-            />
+
+          <div class="profile-container">
+            <div class="profile-avatar" id="profile-btn">
+              <img
+                id="user-avatar"
+                src="https://ui-avatars.com/api/?name=User&background=3b82f6&color=fff"
+                alt="Profile"
+              />
+            </div>
+
+            <div id="profile-dropdown" class="dropdown-menu">
+              <div class="dropdown-header">
+                <p id="user-display-name">User Name</p>
+                <small id="user-display-email">user@email.com</small>
+              </div>
+              <hr />
+              <button class="dropdown-item logout-red" id="logout-confirm-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+              </button>
+            </div>
           </div>
         </div>
       </header>

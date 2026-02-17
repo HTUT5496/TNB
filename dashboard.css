@@ -429,3 +429,109 @@ body {
   border: 5px solid var(--bg-dark);
   box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
 }
+/* --- Profile Dropdown Styling (Added Features) --- */
+
+.profile-container {
+  position: relative; /* Dropdown နေရာမှန်စေရန် */
+}
+
+.dropdown-menu {
+  display: none; /* Default အနေနဲ့ ဖျောက်ထားမည် */
+  position: absolute;
+  top: 55px;
+  right: 0;
+  background: var(--modal-bg);
+  min-width: 200px;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 1000;
+  overflow: hidden;
+  padding: 8px 0;
+}
+
+/* JS ကနေ .show class ထည့်လိုက်ရင် ပေါ်လာစေရန် */
+.dropdown-menu.show {
+  display: block;
+  animation: fadeInDown 0.3s ease;
+}
+
+.dropdown-header {
+  padding: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dropdown-header p {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdown-header small {
+  color: var(--text-sub);
+  font-size: 0.75rem;
+}
+
+.dropdown-menu hr {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  margin: 5px 0;
+}
+
+.dropdown-item {
+  width: 100%;
+  padding: 12px 15px;
+  border: none;
+  background: none;
+  color: var(--text-main);
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: 0.2s;
+}
+
+.dropdown-item i {
+  width: 16px;
+  font-size: 1rem;
+  color: var(--text-sub);
+}
+
+.dropdown-item:hover {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.dropdown-item.logout-red {
+  color: #ef4444;
+}
+
+.dropdown-item.logout-red i {
+  color: #ef4444;
+}
+
+.dropdown-item.logout-red:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* Dropdown Animation */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dark/Light mode compatibility for dropdown borders */
+body.light-mode .dropdown-menu {
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
