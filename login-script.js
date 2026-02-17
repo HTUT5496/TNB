@@ -50,14 +50,13 @@ document.getElementById("lang-btn").onclick = () => {
   document.getElementById("password").placeholder = d.pass;
   document.getElementById("login-btn").innerText = d.btn;
 
-  // Folder မရှိတော့သဖြင့် လမ်းကြောင်းများကို တိုက်ရိုက်ဖိုင်အမည်များသို့ ပြောင်းလဲထားသည်
   document.getElementById("signup-text").innerHTML =
     `${d.signup} <a href="register.html">Sign Up</a>`;
   document.getElementById("reset-text").innerHTML =
     `${d.reset} <a href="reset.html">Reset Password</a>`;
 };
 
-// Login Logic (Supabase Authentication)
+// Login Logic (Email/Password)
 document.getElementById("login-form").onsubmit = async (e) => {
   e.preventDefault();
   const email = document.getElementById("username").value + "@tnb.com";
@@ -75,18 +74,21 @@ document.getElementById("login-form").onsubmit = async (e) => {
         : "အသုံးပြုသူအမည် သို့မဟုတ် လျှို့ဝှက်နံပါတ် မှားယွင်းနေပါသည်။",
     );
   } else {
-    // အောင်မြင်ပါက dashboard.html သို့ တိုက်ရိုက်သွားမည်
     location.href = "dashboard.html";
   }
 };
 
-// Gmail Login (Google OAuth)
+// Gmail Login (Google OAuth) - Modified for Accuracy
 document.getElementById("gmail-btn").onclick = async () => {
-  await _supabase.auth.signInWithOAuth({
+  const { data, error } = await _supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      // GitHub Pages ပေါ်တွင် လမ်းကြောင်းမှန်ကန်စေရန် TNB-App အမည်ထည့်သွင်းထားသည်
-      redirectTo: window.location.origin + "/TNB-App/dashboard.html",
+      // GitHub Pages လိပ်စာ (image_13d165.png) နှင့် ကိုက်ညီအောင် ပြင်ဆင်ထားသည်
+      redirectTo: "https://htut5496.github.io/TNB/dashboard.html",
     },
   });
+
+  if (error) {
+    alert("Google Login Error: " + error.message);
+  }
 };
