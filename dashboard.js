@@ -142,8 +142,11 @@ function selectChoice(type) {
 
 // --- Quick Category Action ---
 function catAction(type, categoryName) {
-  // Pass the type to openModal to ensure filtering runs correctly
-  openModal(type.toLowerCase());
+  // Ensure we pass the correct type (income/expense)
+  const lowerType = type.toLowerCase();
+  openModal(lowerType);
+
+  // Set the specific category after modal opens and filters
   const categorySelect = document.getElementById("category");
   if (categorySelect) {
     categorySelect.value = categoryName;
@@ -192,12 +195,12 @@ function openModal(type) {
   typeInput.value = type;
   title.innerText = type === "income" ? d.modalInc : d.modalExp;
 
-  // --- Dynamic Filtering Logic ---
+  // --- Visual Filter Logic for Dropdown ---
   const options = categorySelect.querySelectorAll("option");
   const optGroups = categorySelect.querySelectorAll("optgroup");
   let firstValidOption = null;
 
-  // 1. Show/Hide individual options based on data-type
+  // 1. Filter Options
   options.forEach((opt) => {
     const optType = opt.getAttribute("data-type");
     if (optType === type || optType === "both") {
@@ -210,13 +213,18 @@ function openModal(type) {
     }
   });
 
-  // 2. Hide optgroup headings that don't match the transaction type
+  // 2. Filter Group Headers (The "Categories Line")
   optGroups.forEach((group) => {
-    const label = group.getAttribute("label").toLowerCase();
-    group.style.display = label === type ? "block" : "none";
+    const label = group.getAttribute("label").toUpperCase();
+    // Logic matches the HTML "─── INCOME ───" or "─── EXPENSE ───"
+    if (label.includes(type.toUpperCase())) {
+      group.style.display = "";
+    } else {
+      group.style.display = "none";
+    }
   });
 
-  // 3. Auto-select the first visible option
+  // 3. Set default selection
   if (firstValidOption) {
     categorySelect.value = firstValidOption;
   }
@@ -226,6 +234,7 @@ function openModal(type) {
 
 function closeModal() {
   document.getElementById("transaction-modal").style.display = "none";
+  document.getElementById("transaction-form").reset();
 }
 
 document.getElementById("transaction-form").onsubmit = async (e) => {
@@ -250,7 +259,6 @@ document.getElementById("transaction-form").onsubmit = async (e) => {
     alert("Error saving: " + error.message);
   } else {
     closeModal();
-    e.target.reset();
     await fetchTransactions();
     renderTransactions();
   }
