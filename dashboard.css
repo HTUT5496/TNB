@@ -47,7 +47,7 @@ body {
   background-color: var(--bg-dark);
   position: relative;
   min-height: 100vh;
-  padding-bottom: 120px; /* Bottom Nav အတွက် နေရာချန်ထားခြင်း */
+  padding-bottom: 120px;
 }
 
 /* Header Section */
@@ -63,6 +63,12 @@ body {
   backdrop-filter: blur(10px);
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
 .app-logo {
   font-weight: 800;
   letter-spacing: 1px;
@@ -75,6 +81,10 @@ body {
   border: none;
   color: var(--text-main);
   font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.profile-avatar {
   cursor: pointer;
 }
 
@@ -97,7 +107,7 @@ body {
 }
 
 .balance-card h1 {
-  font-size: 2.5rem;
+  font-size: 2.2rem;
   margin: 10px 0;
   font-weight: 800;
 }
@@ -116,6 +126,15 @@ body {
   gap: 12px;
 }
 
+.summary-item span {
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+
+.summary-item p {
+  font-weight: 700;
+}
+
 .icon-circle {
   width: 35px;
   height: 35px;
@@ -132,19 +151,34 @@ body {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   padding: 25px 20px;
-  gap: 15px;
+  gap: 10px;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
 }
 
 .icon-box {
-  width: 60px;
-  height: 60px;
-  border-radius: 20px;
+  width: 55px;
+  height: 55px;
+  border-radius: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   margin-bottom: 8px;
+}
+
+.action-btn span {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-sub);
 }
 
 .green {
@@ -160,13 +194,7 @@ body {
   background: #8b5cf6;
 }
 
-.action-btn span {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-sub);
-}
-
-/* Transactions & Categories */
+/* Categories & Carousel */
 .section-title {
   padding: 0 20px;
   font-size: 1.1rem;
@@ -183,82 +211,177 @@ body {
 }
 
 .cat-card {
-  min-width: 105px;
-  padding: 20px 10px;
-  border-radius: 24px;
+  min-width: 100px;
+  padding: 15px 10px;
+  border-radius: 20px;
   background: var(--card-dark);
   text-align: center;
   border: 1px solid rgba(255, 255, 255, 0.05);
   cursor: pointer;
 }
 
+.cat-card i {
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.cat-card.gold i {
+  color: #f59e0b;
+}
+.cat-card.blue i {
+  color: #3b82f6;
+}
+.cat-card.green i {
+  color: #10b981;
+}
+
+/* Transaction List */
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-right: 20px;
+}
+
+.lang-btn {
+  background: var(--card-dark);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
+  padding: 5px 12px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
 .transaction-item {
   display: flex;
   align-items: center;
-  padding: 16px;
-  margin: 0 20px 12px;
+  padding: 14px;
+  margin: 0 20px 10px;
   background: var(--card-dark);
-  border-radius: 22px;
-  gap: 15px;
+  border-radius: 20px;
+  gap: 12px;
 }
 
 .cat-icon {
-  width: 50px;
-  height: 50px;
+  width: 45px;
+  height: 45px;
   background: rgba(59, 130, 246, 0.1);
-  border-radius: 16px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--primary);
+  font-size: 1.1rem;
 }
 
 .trans-info {
   flex: 1;
 }
 .trans-info h4 {
-  font-size: 1rem;
-  margin-bottom: 4px;
+  font-size: 0.95rem;
+  margin-bottom: 2px;
 }
 .trans-info p {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--text-sub);
 }
 
 .trans-amt {
   font-weight: 700;
-  text-align: right;
-}
-.amt-in {
-  color: var(--income);
-}
-.amt-ex {
-  color: var(--expense);
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-/* Modal & Floating Nav */
+.delete-icon {
+  color: var(--text-sub);
+  cursor: pointer;
+  font-size: 0.9rem;
+  opacity: 0.5;
+}
+
+.delete-icon:hover {
+  color: var(--expense);
+  opacity: 1;
+}
+
+/* Modal Styling */
 .modal {
   display: none;
   position: fixed;
-  z-index: 1000;
+  z-index: 2000;
   left: 0;
   top: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(5px);
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
 }
 
 .modal-content {
   background: var(--modal-bg);
   width: 90%;
-  max-width: 400px;
-  margin: 15% auto;
-  padding: 30px;
-  border-radius: 30px;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+  max-width: 380px;
+  margin: 20vh auto;
+  padding: 25px;
+  border-radius: 28px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
 }
 
+.input-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  font-size: 0.8rem;
+  margin-bottom: 5px;
+  color: var(--text-sub);
+}
+
+.input-group input,
+.input-group select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: inherit;
+  outline: none;
+}
+
+.modal-btns {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.main-btn {
+  flex: 1;
+  padding: 12px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sub-btn {
+  flex: 1;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+/* Bottom Nav */
 .bottom-nav {
   position: fixed;
   bottom: 20px;
@@ -269,10 +392,11 @@ body {
   background: var(--modal-bg);
   display: flex;
   justify-content: space-between;
-  padding: 15px 25px;
+  padding: 12px 20px;
   border-radius: 25px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  z-index: 999;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .nav-item {
@@ -283,7 +407,8 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
+  cursor: pointer;
 }
 
 .nav-item.active {
@@ -291,16 +416,16 @@ body {
 }
 
 .add-circle {
-  width: 60px;
-  height: 60px;
+  width: 58px;
+  height: 58px;
   background: var(--primary);
-  color: white;
+  color: white !important;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
-  margin-top: -45px;
-  border: 6px solid var(--bg-dark);
+  font-size: 1.4rem;
+  margin-top: -40px;
+  border: 5px solid var(--bg-dark);
   box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
 }

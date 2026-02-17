@@ -7,6 +7,7 @@ const _supabase = createClient(
 
 let transactions = [];
 let currentLang = "en";
+let currentUser = null;
 
 // Language Data
 const langData = {
@@ -54,9 +55,31 @@ const langData = {
 
 // --- Page Initialization ---
 document.addEventListener("DOMContentLoaded", async () => {
+  await checkUser();
   await fetchTransactions();
   renderTransactions();
 });
+
+// Check User Session & Update Profile
+async function checkUser() {
+  const {
+    data: { user },
+  } = await _supabase.auth.getUser();
+  if (user) {
+    currentUser = user;
+    // Gmail Profile ပုံရှိလျှင် ပြောင်းလဲရန်
+    if (user.user_metadata.avatar_url) {
+      document.getElementById("user-avatar").src =
+        user.user_metadata.avatar_url;
+    } else {
+      const name = user.user_metadata.full_name || user.email;
+      document.getElementById("user-avatar").src =
+        `https://ui-avatars.com/api/?name=${name}&background=3b82f6&color=fff`;
+    }
+  } else {
+    window.location.href = "index.html"; // Login မဝင်ထားလျှင် ပြန်လွှတ်ရန်
+  }
+}
 
 // --- Supabase Database Logic ---
 async function fetchTransactions() {
@@ -114,13 +137,14 @@ document.getElementById("transaction-form").onsubmit = async (e) => {
   const category = document.getElementById("category").value;
   const note = document.getElementById("note").value;
 
-  const { data, error } = await _supabase.from("transactions").insert([
+  // အရေးကြီးသည်: RLS Policy ကြောင့် user_id ကို auth.uid() သို့မဟုတ် တိုက်ရိုက်ထည့်သွင်းရန်
+  const { error } = await _supabase.from("transactions").insert([
     {
       type: type,
       amount: parseFloat(amount),
       category: category,
       note: note,
-      created_at: new Date().toISOString(),
+      user_id: currentUser.id, // User အလိုက် ဒေတာခွဲခြားရန်
     },
   ]);
 
@@ -164,7 +188,7 @@ function renderTransactions() {
       </div>
       <div class="trans-amt ${t.type === "income" ? "amt-in" : "amt-ex"}">
           ${t.type === "income" ? "+" : "-"}$${Math.abs(t.amount)}
-          <i class="fas fa-trash-alt delete-icon" onclick="event.stopPropagation(); deleteTrans(${t.id})"></i>
+          <i class="fas fa-trash-alt delete-icon" onclick="event.stopPropagation(); deleteTrans('${t.id}')"></i>
       </div>
     `;
     list.appendChild(item);
@@ -172,7 +196,7 @@ function renderTransactions() {
   updateSummary();
 }
 
-// --- Event Listeners & Helpers ---
+// --- Theme & Language ---
 document.getElementById("theme-toggle").onclick = () => {
   document.body.classList.toggle("light-mode");
   const icon = document.querySelector("#theme-toggle i");
@@ -195,6 +219,10 @@ document.getElementById("lang-toggle").onclick = () => {
   document.getElementById("qa-reports").innerText = d.rep;
   document.getElementById("title-categories").innerText = d.catTitle;
   document.getElementById("title-recent").innerText = d.recentTitle;
+  document.getElementById("modal-form-title").innerText =
+    document.getElementById("trans-type").value === "income"
+      ? d.modalInc
+      : d.modalExp;
 
   renderTransactions();
 };
@@ -212,9 +240,10 @@ async function deleteTrans(id) {
   }
 }
 
-document.getElementById("profile-btn").onclick = () => {
+// Logout Functionality
+document.getElementById("profile-btn").onclick = async () => {
   if (confirm("Do you want to logout?")) {
-    // Folder မရှိတော့သဖြင့် index.html သို့ တိုက်ရိုက်သွားသည်
+    await _supabase.auth.signOut();
     window.location.href = "index.html";
   }
 };
