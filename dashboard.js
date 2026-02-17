@@ -109,25 +109,20 @@ function setupDropdown() {
   };
 }
 
-// --- Navigation & Sidebar Logic (New) ---
+// --- Navigation & Sidebar Logic ---
 function navigateTo(page) {
-  // Updates active state on bottom nav
   document
     .querySelectorAll(".nav-item")
     .forEach((btn) => btn.classList.remove("active"));
 
-  // Logic for page navigation
   if (page === "dashboard") {
     document.getElementById("nav-dash-btn").classList.add("active");
   } else {
-    // Since other pages (history.html, etc) follow your folder structure:
-    // window.location.href = page + ".html";
     alert("Navigating to " + page + " page...");
   }
 }
 
 function toggleSidebar() {
-  // Placeholder for sidebar logic
   alert("Sidebar menu clicked");
 }
 
@@ -145,7 +140,7 @@ function selectChoice(type) {
   openModal(type);
 }
 
-// --- Quick Category Action (New) ---
+// --- Quick Category Action ---
 function catAction(type, categoryName) {
   openModal(type.toLowerCase());
   const categorySelect = document.getElementById("category");
@@ -235,11 +230,17 @@ function renderTransactions() {
   if (!list) return;
   list.innerHTML = "";
 
+  // Updated categories mapping with icons
   const icons = {
+    // Income
     Salary: "fa-wallet",
-    Food: "fa-utensils",
+    Investment: "fa-chart-line",
+    Bonus: "fa-gift",
+    // Expense
     Shopping: "fa-shopping-bag",
-    Gift: "fa-gift",
+    Food: "fa-utensils",
+    Bill: "fa-file-invoice-dollar",
+    // Shared
     Other: "fa-tags",
   };
 
@@ -291,13 +292,11 @@ document.getElementById("lang-toggle").onclick = () => {
   document.getElementById("title-categories").innerText = d.catTitle;
   document.getElementById("title-recent").innerText = d.recentTitle;
 
-  // Bottom Nav Translations
   document.getElementById("nav-dash").innerText = d.dash;
   document.getElementById("nav-hist").innerText = d.hist;
   document.getElementById("nav-rep").innerText = d.rep;
   document.getElementById("nav-set").innerText = d.set;
 
-  // Choice Modal Translations
   document.getElementById("choice-title").innerText = d.choiceTitle;
   document.querySelectorAll(".choice-btn span")[0].innerText = d.addInc;
   document.querySelectorAll(".choice-btn span")[1].innerText = d.addExp;
