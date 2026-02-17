@@ -147,7 +147,7 @@ body {
   font-size: 0.8rem;
 }
 
-/* Quick Actions (Style Reference) */
+/* Quick Actions */
 .quick-actions {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -164,11 +164,13 @@ body {
   cursor: pointer;
 }
 
-.action-btn:active .icon-box {
+.action-btn:active .icon-box,
+.cat-card:active .cat-icon-wrapper {
   transform: scale(0.9);
 }
 
-.icon-box {
+.icon-box,
+.cat-icon-wrapper {
   width: 55px;
   height: 55px;
   border-radius: 18px;
@@ -181,7 +183,8 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.action-btn span {
+.action-btn span,
+.cat-card p {
   font-size: 0.7rem;
   font-weight: 600;
   color: var(--text-sub);
@@ -199,21 +202,25 @@ body {
 .purple {
   background: #8b5cf6;
 }
+.gold {
+  background: #f59e0b;
+}
 
-/* Categories - MODIFIED TO MATCH QUICK ACTIONS */
+/* Categories & Carousel - UPDATED FOR UNIFORMITY */
 .section-title {
   padding: 0 20px;
   font-size: 1.1rem;
   font-weight: 700;
-  margin-bottom: 12px;
+  margin-bottom: 15px;
 }
 
 .category-carousel {
   display: flex;
   overflow-x: auto;
-  gap: 15px; /* Increased gap for better spacing */
+  gap: 15px;
   padding: 5px 20px 20px;
   scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .category-carousel::-webkit-scrollbar {
@@ -224,32 +231,13 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 65px; /* Thinner profile to match buttons */
-  flex: 0 0 auto;
+  min-width: 65px;
   cursor: pointer;
-  background: none; /* Removed the card background */
+  background: none;
   border: none;
 }
 
-.cat-card:active .cat-icon-wrapper {
-  transform: scale(0.9);
-}
-
-/* This creates the colorful square background for category icons */
-.cat-icon-wrapper {
-  width: 55px;
-  height: 55px;
-  border-radius: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1.2rem;
-  margin-bottom: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-/* Specific Category Color overrides (Apply to the wrapper) */
+/* Specific Category Color overrides (Matching Quick Actions) */
 .cat-card.gold .cat-icon-wrapper {
   background: #f59e0b;
 }
@@ -266,22 +254,22 @@ body {
   background: #8b5cf6;
 }
 
-.cat-card p {
-  font-size: 0.7rem; /* Exactly matches quick action span */
-  font-weight: 600;
-  color: var(--text-sub);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-}
-
 /* Transaction List */
 .list-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding-right: 20px;
+}
+
+.lang-btn {
+  background: var(--card-dark);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
+  padding: 5px 12px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  cursor: pointer;
 }
 
 .transaction-item {
@@ -292,6 +280,7 @@ body {
   background: var(--card-dark);
   border-radius: 20px;
   gap: 12px;
+  box-shadow: var(--shadow);
 }
 
 .cat-icon {
@@ -325,6 +314,7 @@ body {
   align-items: center;
   gap: 10px;
 }
+
 .amt-in {
   color: var(--income);
 }
@@ -332,7 +322,20 @@ body {
   color: var(--expense);
 }
 
-/* Modals */
+.delete-icon {
+  color: var(--text-sub);
+  cursor: pointer;
+  font-size: 0.9rem;
+  opacity: 0.5;
+  padding: 5px;
+}
+
+.delete-icon:hover {
+  color: var(--expense);
+  opacity: 1;
+}
+
+/* Modal Styling */
 .modal {
   display: none;
   position: fixed;
@@ -352,6 +355,7 @@ body {
   margin: 15vh auto;
   padding: 25px;
   border-radius: 28px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
   animation: modalSlideUp 0.4s ease-out;
 }
 
@@ -368,6 +372,7 @@ body {
 
 .input-group {
   margin-bottom: 15px;
+  text-align: left;
 }
 .input-group label {
   display: block;
@@ -375,8 +380,9 @@ body {
   margin-bottom: 5px;
   color: var(--text-sub);
 }
-.input-group input,
-.input-group select {
+
+.input-group select,
+.input-group input {
   width: 100%;
   padding: 14px;
   border-radius: 14px;
@@ -384,31 +390,34 @@ body {
   background: #1e293b;
   color: #ffffff;
   outline: none;
+  font-size: 0.9rem;
+  appearance: none;
 }
 
-/* Choice Modal */
-.choice-options {
+.modal-btns {
   display: flex;
-  gap: 15px;
-  margin: 25px 0;
+  gap: 10px;
+  margin-top: 25px;
 }
-.choice-btn {
+.main-btn {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  padding: 25px 15px;
-  border-radius: 24px;
-  border: none;
-  cursor: pointer;
+  padding: 14px;
+  background: var(--primary);
   color: white;
+  border: none;
+  border-radius: 14px;
+  font-weight: 700;
+  cursor: pointer;
 }
-.income-choice {
-  background: var(--income);
-}
-.expense-choice {
-  background: var(--expense);
+.sub-btn {
+  flex: 1;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  font-weight: 600;
 }
 
 /* Bottom Nav */
@@ -424,7 +433,9 @@ body {
   justify-content: space-between;
   padding: 12px 15px;
   border-radius: 30px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
   z-index: 1000;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .nav-item {
@@ -440,10 +451,15 @@ body {
   flex: 1;
 }
 
+.nav-item.active {
+  color: var(--primary);
+}
+
 .add-circle {
   width: 60px;
   height: 60px;
   background: var(--primary);
+  color: white !important;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -451,4 +467,72 @@ body {
   font-size: 1.5rem;
   margin-top: -45px;
   border: 6px solid var(--bg-dark);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+}
+
+/* Choice Modal Styling */
+.choice-options {
+  display: flex;
+  gap: 15px;
+  margin: 25px 0;
+}
+.choice-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 25px 15px;
+  border-radius: 24px;
+  border: none;
+  cursor: pointer;
+}
+.choice-btn i {
+  font-size: 2rem;
+  color: white;
+}
+.choice-btn span {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: white;
+}
+.income-choice {
+  background: var(--income);
+}
+.expense-choice {
+  background: var(--expense);
+}
+
+/* Profile Dropdown */
+.profile-container {
+  position: relative;
+}
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 55px;
+  right: 0;
+  background: var(--modal-bg);
+  min-width: 210px;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 1000;
+  overflow: hidden;
+  padding: 8px 0;
+}
+.dropdown-menu.show {
+  display: block;
+  animation: fadeInDown 0.3s ease;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
