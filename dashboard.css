@@ -147,7 +147,7 @@ body {
   font-size: 0.8rem;
 }
 
-/* Quick Actions */
+/* Quick Actions & Category Cards Shared Style */
 .quick-actions {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -164,11 +164,13 @@ body {
   cursor: pointer;
 }
 
+/* Shared Active/Press Effect */
 .action-btn:active .icon-box,
 .cat-card:active .cat-icon-wrapper {
   transform: scale(0.9);
 }
 
+/* Icon Box and Cat Wrapper are now identical */
 .icon-box,
 .cat-icon-wrapper {
   width: 55px;
@@ -188,25 +190,32 @@ body {
   font-size: 0.7rem;
   font-weight: 600;
   color: var(--text-sub);
+  text-align: center;
 }
 
-.green {
+/* Standard Colors */
+.green,
+.cat-card.green .cat-icon-wrapper {
   background: var(--income);
 }
-.red {
+.red,
+.cat-card.red .cat-icon-wrapper {
   background: var(--expense);
 }
-.blue {
+.blue,
+.cat-card.blue .cat-icon-wrapper {
   background: var(--primary);
 }
-.purple {
+.purple,
+.cat-card.purple .cat-icon-wrapper {
   background: #8b5cf6;
 }
-.gold {
+.gold,
+.cat-card.gold .cat-icon-wrapper {
   background: #f59e0b;
 }
 
-/* Categories & Carousel - UPDATED FOR UNIFORMITY */
+/* Categories Carousel */
 .section-title {
   padding: 0 20px;
   font-size: 1.1rem;
@@ -235,23 +244,6 @@ body {
   cursor: pointer;
   background: none;
   border: none;
-}
-
-/* Specific Category Color overrides (Matching Quick Actions) */
-.cat-card.gold .cat-icon-wrapper {
-  background: #f59e0b;
-}
-.cat-card.blue .cat-icon-wrapper {
-  background: #3b82f6;
-}
-.cat-card.green .cat-icon-wrapper {
-  background: #10b981;
-}
-.cat-card.red .cat-icon-wrapper {
-  background: #ef4444;
-}
-.cat-card.purple .cat-icon-wrapper {
-  background: #8b5cf6;
 }
 
 /* Transaction List */

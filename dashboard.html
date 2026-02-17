@@ -110,25 +110,50 @@
         <h3 class="section-title" id="title-categories">Categories</h3>
         <div class="category-carousel">
           <div class="cat-card red" onclick="catAction('Expense', 'Food')">
-            <i class="fas fa-utensils"></i>
+            <div class="cat-icon-wrapper">
+              <i class="fas fa-utensils"></i>
+            </div>
             <p id="cat-food">Food</p>
           </div>
+
+          <div class="cat-card blue" onclick="catAction('Expense', 'Health')">
+            <div class="cat-icon-wrapper">
+              <i class="fas fa-heartbeat"></i>
+            </div>
+            <p id="cat-health">Health</p>
+          </div>
+
           <div
             class="cat-card purple"
             onclick="catAction('Expense', 'Shopping')"
           >
-            <i class="fas fa-shopping-bag"></i>
+            <div class="cat-icon-wrapper">
+              <i class="fas fa-shopping-bag"></i>
+            </div>
             <p id="cat-shop">Shopping</p>
           </div>
+
+          <div class="cat-card gold" onclick="catAction('Expense', 'Travel')">
+            <div class="cat-icon-wrapper">
+              <i class="fas fa-plane"></i>
+            </div>
+            <p id="cat-travel">Travel</p>
+          </div>
+
           <div class="cat-card green" onclick="catAction('Income', 'Salary')">
-            <i class="fas fa-wallet"></i>
+            <div class="cat-icon-wrapper">
+              <i class="fas fa-wallet"></i>
+            </div>
             <p id="cat-salary">Salary</p>
           </div>
+
           <div
             class="cat-card blue"
             onclick="catAction('Income', 'Investment')"
           >
-            <i class="fas fa-chart-line"></i>
+            <div class="cat-icon-wrapper">
+              <i class="fas fa-chart-line"></i>
+            </div>
             <p id="cat-invest">Investment</p>
           </div>
         </div>
@@ -197,6 +222,8 @@
                 <optgroup label="─── EXPENSE ───" id="opt-expense">
                   <option value="Shopping" data-type="expense">Shopping</option>
                   <option value="Food" data-type="expense">Food</option>
+                  <option value="Health" data-type="expense">Health</option>
+                  <option value="Travel" data-type="expense">Travel</option>
                   <option value="Bill" data-type="expense">Bill</option>
                   <option value="Other" data-type="both">Other</option>
                 </optgroup>

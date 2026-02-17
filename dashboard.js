@@ -31,6 +31,13 @@ const langData = {
     save: "Save",
     cancel: "Cancel",
     choiceTitle: "Choose Type",
+    // Category Names
+    catFood: "Food",
+    catHealth: "Health",
+    catShop: "Shopping",
+    catTravel: "Travel",
+    catSalary: "Salary",
+    catInvest: "Investment",
   },
   my: {
     totalBal: "လက်ကျန်ငွေစုစုပေါင်း",
@@ -52,6 +59,13 @@ const langData = {
     save: "သိမ်းမည်",
     cancel: "ပယ်ဖျက်မည်",
     choiceTitle: "အမျိုးအစားရွေးချယ်ပါ",
+    // Category Names
+    catFood: "စားစရိတ်",
+    catHealth: "ကျန်းမာရေး",
+    catShop: "စျေးဝယ်",
+    catTravel: "ခရီးသွား",
+    catSalary: "လစာ",
+    catInvest: "ရင်းနှီးမြှုပ်နှံမှု",
   },
 };
 
@@ -142,11 +156,9 @@ function selectChoice(type) {
 
 // --- Quick Category Action ---
 function catAction(type, categoryName) {
-  // Ensure we pass the correct type (income/expense)
   const lowerType = type.toLowerCase();
   openModal(lowerType);
 
-  // Set the specific category after modal opens and filters
   const categorySelect = document.getElementById("category");
   if (categorySelect) {
     categorySelect.value = categoryName;
@@ -195,12 +207,10 @@ function openModal(type) {
   typeInput.value = type;
   title.innerText = type === "income" ? d.modalInc : d.modalExp;
 
-  // --- Visual Filter Logic for Dropdown ---
   const options = categorySelect.querySelectorAll("option");
   const optGroups = categorySelect.querySelectorAll("optgroup");
   let firstValidOption = null;
 
-  // 1. Filter Options
   options.forEach((opt) => {
     const optType = opt.getAttribute("data-type");
     if (optType === type || optType === "both") {
@@ -213,10 +223,8 @@ function openModal(type) {
     }
   });
 
-  // 2. Filter Group Headers (The "Categories Line")
   optGroups.forEach((group) => {
     const label = group.getAttribute("label").toUpperCase();
-    // Logic matches the HTML "─── INCOME ───" or "─── EXPENSE ───"
     if (label.includes(type.toUpperCase())) {
       group.style.display = "";
     } else {
@@ -224,7 +232,6 @@ function openModal(type) {
     }
   });
 
-  // 3. Set default selection
   if (firstValidOption) {
     categorySelect.value = firstValidOption;
   }
@@ -276,6 +283,8 @@ function renderTransactions() {
     Bonus: "fa-gift",
     Shopping: "fa-shopping-bag",
     Food: "fa-utensils",
+    Health: "fa-heartbeat",
+    Travel: "fa-plane",
     Bill: "fa-file-invoice-dollar",
     Other: "fa-tags",
   };
@@ -327,6 +336,14 @@ document.getElementById("lang-toggle").onclick = () => {
   document.getElementById("qa-reports").innerText = d.rep;
   document.getElementById("title-categories").innerText = d.catTitle;
   document.getElementById("title-recent").innerText = d.recentTitle;
+
+  // Category Carousel Labels
+  document.getElementById("cat-food").innerText = d.catFood;
+  document.getElementById("cat-health").innerText = d.catHealth;
+  document.getElementById("cat-shop").innerText = d.catShop;
+  document.getElementById("cat-travel").innerText = d.catTravel;
+  document.getElementById("cat-salary").innerText = d.catSalary;
+  document.getElementById("cat-invest").innerText = d.catInvest;
 
   document.getElementById("nav-dash").innerText = d.dash;
   document.getElementById("nav-hist").innerText = d.hist;
