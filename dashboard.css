@@ -1,4 +1,4 @@
-/* Dashboard Page Custom CSS */
+/* Dashboard Page အတွက် သီးသန့် CSS ဖိုင် */
 
 :root {
   --bg-dark: #020617;
@@ -10,7 +10,6 @@
   --text-sub: #94a3b8;
   --modal-bg: #0f172a;
   --grad: linear-gradient(135deg, #2563eb, #7c3aed);
-  --border: rgba(255, 255, 255, 0.1);
 }
 
 body.light-mode {
@@ -20,7 +19,6 @@ body.light-mode {
   --text-sub: #64748b;
   --modal-bg: #ffffff;
   --grad: linear-gradient(135deg, #3b82f6, #8b5cf6);
-  --border: rgba(0, 0, 0, 0.1);
 }
 
 * {
@@ -28,7 +26,10 @@ body.light-mode {
   padding: 0;
   box-sizing: border-box;
   font-family: "Plus Jakarta Sans", sans-serif;
-  transition: background 0.3s ease, color 0.3s ease;
+  transition:
+    background 0.3s ease,
+    color 0.3s ease,
+    transform 0.2s ease;
 }
 
 body {
@@ -49,7 +50,7 @@ body {
   padding-bottom: 120px;
 }
 
-/* --- Header Section --- */
+/* Header Section */
 .top-header {
   display: flex;
   justify-content: space-between;
@@ -62,6 +63,19 @@ body {
   backdrop-filter: blur(10px);
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.app-logo {
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--primary);
+  font-size: 1.5rem;
+}
+
 .icon-btn {
   background: none;
   border: none;
@@ -70,7 +84,9 @@ body {
   cursor: pointer;
 }
 
-.profile-container { position: relative; }
+.profile-avatar {
+  cursor: pointer;
+}
 
 .profile-avatar img {
   width: 42px;
@@ -80,39 +96,7 @@ body {
   object-fit: cover;
 }
 
-/* --- Profile Dropdown --- */
-.dropdown-menu {
-  display: none;
-  position: absolute;
-  top: 55px;
-  right: 0;
-  background: var(--modal-bg);
-  min-width: 200px;
-  border-radius: 20px;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--border);
-  z-index: 1000;
-  padding: 8px 0;
-}
-
-.dropdown-menu.show { display: block; animation: fadeInDown 0.3s ease; }
-
-.dropdown-item {
-  width: 100%;
-  padding: 12px 15px;
-  border: none;
-  background: none;
-  color: var(--text-main);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  font-size: 0.85rem;
-}
-
-.logout-red { color: var(--expense) !important; }
-
-/* --- Balance Card --- */
+/* Balance Card */
 .balance-card {
   background: var(--grad);
   margin: 10px 20px;
@@ -120,6 +104,12 @@ body {
   border-radius: 30px;
   color: white;
   box-shadow: 0 15px 35px rgba(37, 99, 235, 0.3);
+}
+
+.balance-card h1 {
+  font-size: 2.2rem;
+  margin: 10px 0;
+  font-weight: 800;
 }
 
 .summary-row {
@@ -130,6 +120,21 @@ body {
   border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+.summary-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.summary-item span {
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+
+.summary-item p {
+  font-weight: 700;
+}
+
 .icon-circle {
   width: 35px;
   height: 35px;
@@ -138,56 +143,245 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 0.8rem;
 }
 
-/* --- Form Elements (Select Box Fix) --- */
+/* Quick Actions */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 25px 20px;
+  gap: 10px;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+
+.icon-box {
+  width: 55px;
+  height: 55px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.3rem;
+  margin-bottom: 8px;
+}
+
+.action-btn span {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-sub);
+}
+
+.green {
+  background: var(--income);
+}
+.red {
+  background: var(--expense);
+}
+.blue {
+  background: var(--primary);
+}
+.purple {
+  background: #8b5cf6;
+}
+
+/* Categories & Carousel */
+.section-title {
+  padding: 0 20px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+.category-carousel {
+  display: flex;
+  overflow-x: auto;
+  gap: 15px;
+  padding: 5px 20px 20px;
+  scrollbar-width: none;
+}
+
+.cat-card {
+  min-width: 100px;
+  padding: 15px 10px;
+  border-radius: 20px;
+  background: var(--card-dark);
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+}
+
+.cat-card i {
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.cat-card.gold i {
+  color: #f59e0b;
+}
+.cat-card.blue i {
+  color: #3b82f6;
+}
+.cat-card.green i {
+  color: #10b981;
+}
+
+/* Transaction List */
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-right: 20px;
+}
+
+.lang-btn {
+  background: var(--card-dark);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
+  padding: 5px 12px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.transaction-item {
+  display: flex;
+  align-items: center;
+  padding: 14px;
+  margin: 0 20px 10px;
+  background: var(--card-dark);
+  border-radius: 20px;
+  gap: 12px;
+}
+
+.cat-icon {
+  width: 45px;
+  height: 45px;
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  font-size: 1.1rem;
+}
+
+.trans-info {
+  flex: 1;
+}
+.trans-info h4 {
+  font-size: 0.95rem;
+  margin-bottom: 2px;
+}
+.trans-info p {
+  font-size: 0.75rem;
+  color: var(--text-sub);
+}
+
+.trans-amt {
+  font-weight: 700;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.delete-icon {
+  color: var(--text-sub);
+  cursor: pointer;
+  font-size: 0.9rem;
+  opacity: 0.5;
+}
+
+.delete-icon:hover {
+  color: var(--expense);
+  opacity: 1;
+}
+
+/* Modal Styling */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+}
+
+.modal-content {
+  background: var(--modal-bg);
+  width: 90%;
+  max-width: 380px;
+  margin: 20vh auto;
+  padding: 25px;
+  border-radius: 28px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+}
+
+.input-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  font-size: 0.8rem;
+  margin-bottom: 5px;
+  color: var(--text-sub);
+}
+
+.input-group input,
 .input-group select {
   width: 100%;
   padding: 12px;
   border-radius: 12px;
-  border: 1px solid var(--border);
-  background: var(--card-dark);
-  color: var(--text-main);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: inherit;
   outline: none;
-  cursor: pointer;
 }
 
-/* Dark Mode Dropdown စာသားများ မြင်ရစေရန် */
-select option {
-  background-color: var(--modal-bg);
-  color: var(--text-main);
-}
-
-body.light-mode select option {
-  background-color: #ffffff;
-  color: #1e293b;
-}
-
-/* --- Choice Modal --- */
-.choice-btns {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-  margin-top: 10px;
-}
-
-.choice-item {
+.modal-btns {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   gap: 10px;
-  padding: 20px;
-  border-radius: 20px;
-  border: 1px solid var(--border);
-  background: var(--card-dark);
-  color: var(--text-main);
+  margin-top: 20px;
+}
+
+.main-btn {
+  flex: 1;
+  padding: 12px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
   cursor: pointer;
 }
 
-.choice-item.income i { color: var(--income); font-size: 2rem; }
-.choice-item.expense i { color: var(--expense); font-size: 2rem; }
+.sub-btn {
+  flex: 1;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+}
 
-/* --- Bottom Nav --- */
+/* Bottom Nav */
 .bottom-nav {
   position: fixed;
   bottom: 20px;
@@ -198,11 +392,11 @@ body.light-mode select option {
   background: var(--modal-bg);
   display: flex;
   justify-content: space-between;
-  padding: 12px 15px;
+  padding: 12px 20px;
   border-radius: 25px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   z-index: 1000;
-  border: 1px solid var(--border);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .nav-item {
@@ -217,7 +411,9 @@ body.light-mode select option {
   cursor: pointer;
 }
 
-.nav-item.active { color: var(--primary); }
+.nav-item.active {
+  color: var(--primary);
+}
 
 .add-circle {
   width: 58px;
@@ -233,47 +429,109 @@ body.light-mode select option {
   border: 5px solid var(--bg-dark);
   box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
 }
+/* --- Profile Dropdown Styling (Added Features) --- */
 
-/* --- Category Carousel --- */
-.category-carousel {
-  display: flex;
-  overflow-x: auto;
-  gap: 15px;
-  padding: 5px 20px 20px;
-  scrollbar-width: none;
+.profile-container {
+  position: relative; /* Dropdown နေရာမှန်စေရန် */
 }
 
-.cat-card {
-  min-width: 100px;
-  padding: 15px;
-  border-radius: 20px;
-  background: var(--card-dark);
-  text-align: center;
-  border: 1px solid var(--border);
-}
-
-/* --- Animations --- */
-@keyframes fadeInDown {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 2000;
-  left: 0; top: 0;
-  width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(8px);
-}
-
-.modal-content {
+.dropdown-menu {
+  display: none; /* Default အနေနဲ့ ဖျောက်ထားမည် */
+  position: absolute;
+  top: 55px;
+  right: 0;
   background: var(--modal-bg);
-  width: 90%;
-  max-width: 380px;
-  margin: 20vh auto;
-  padding: 25px;
-  border-radius: 28px;
-  border: 1px solid var(--border);
+  min-width: 200px;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 1000;
+  overflow: hidden;
+  padding: 8px 0;
+}
+
+/* JS ကနေ .show class ထည့်လိုက်ရင် ပေါ်လာစေရန် */
+.dropdown-menu.show {
+  display: block;
+  animation: fadeInDown 0.3s ease;
+}
+
+.dropdown-header {
+  padding: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dropdown-header p {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdown-header small {
+  color: var(--text-sub);
+  font-size: 0.75rem;
+}
+
+.dropdown-menu hr {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  margin: 5px 0;
+}
+
+.dropdown-item {
+  width: 100%;
+  padding: 12px 15px;
+  border: none;
+  background: none;
+  color: var(--text-main);
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: 0.2s;
+}
+
+.dropdown-item i {
+  width: 16px;
+  font-size: 1rem;
+  color: var(--text-sub);
+}
+
+.dropdown-item:hover {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.dropdown-item.logout-red {
+  color: #ef4444;
+}
+
+.dropdown-item.logout-red i {
+  color: #ef4444;
+}
+
+.dropdown-item.logout-red:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* Dropdown Animation */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dark/Light mode compatibility for dropdown borders */
+body.light-mode .dropdown-menu {
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
