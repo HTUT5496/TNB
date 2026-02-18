@@ -14,7 +14,7 @@
   --text-sub: #94a3b8;
   --modal-bg: #0f172a;
   --border: rgba(255, 255, 255, 0.1);
-  --grad: linear-gradient(135deg, #2563eb, #7c3aed);
+  --grad: linear-gradient(135deg, #3b82f6, #8b5cf6);
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   --nav-blur: rgba(15, 23, 42, 0.8);
 }
@@ -59,7 +59,7 @@ body {
   max-width: 450px;
   position: relative;
   min-height: 100vh;
-  padding-bottom: 120px;
+  padding-bottom: 140px; /* Increased for bottom nav clearance */
 }
 
 /* --- Standard Header & Glassmorphism --- */
@@ -178,12 +178,12 @@ body {
   color: var(--expense) !important;
 }
 
-/* --- Balance Widget Card --- */
+/* --- Balance Widget Card (Matches Image) --- */
 .balance-card {
   background: var(--grad);
   margin: 15px 20px;
-  padding: 30px 25px;
-  border-radius: 32px;
+  padding: 25px;
+  border-radius: 25px;
   color: #ffffff;
   box-shadow: 0 15px 35px var(--primary-glow);
   position: relative;
@@ -191,45 +191,58 @@ body {
 }
 
 .balance-card h1 {
-  font-size: 2.5rem;
-  margin: 10px 0 20px;
+  font-size: 3rem;
+  margin: 5px 0 20px;
   font-weight: 800;
   letter-spacing: -1px;
+}
+
+.balance-card span {
+  font-size: 0.9rem;
+  opacity: 0.9;
 }
 
 .summary-row {
   display: flex;
   justify-content: space-between;
-  padding-top: 20px;
+  padding-top: 15px;
   border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .summary-item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 .icon-circle {
-  width: 36px;
-  height: 36px;
-  background: rgba(255, 255, 255, 0.2);
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.25);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
 }
 
-/* --- Quick Action & Categories Grid --- */
+.summary-item div p:first-child {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+.summary-item div p:last-child {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+/* --- Quick Action Grid (Matches Image Icons) --- */
 .quick-actions {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  padding: 15px 20px 25px;
+  padding: 10px 20px 25px;
   gap: 12px;
 }
 
-.action-btn,
-.cat-card {
+.action-btn {
   background: none;
   border: none;
   cursor: pointer;
@@ -238,40 +251,81 @@ body {
   align-items: center;
 }
 
-.icon-box,
-.cat-icon-wrapper {
-  width: 58px;
-  height: 58px;
-  border-radius: 20px;
+.icon-box {
+  width: 50px;
+  height: 50px;
+  border-radius: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 1.4rem;
-  margin-bottom: 8px;
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  font-size: 1.2rem;
+  margin-bottom: 6px;
 }
 
-.action-btn:active .icon-box,
-.cat-card:active .cat-icon-wrapper {
-  transform: scale(0.9);
-}
-.action-btn span,
-.cat-card p {
-  font-size: 0.75rem;
+.action-btn span {
+  font-size: 0.65rem;
   font-weight: 700;
   color: var(--text-sub);
 }
 
-/* Dynamic Background Colors */
+/* --- Categories Carousel (As seen in Image) --- */
+.section-title {
+  padding: 0 22px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+.category-carousel {
+  display: flex;
+  overflow-x: auto;
+  gap: 12px;
+  padding: 0 22px 25px;
+  scrollbar-width: none;
+}
+.category-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.cat-card {
+  min-width: 55px;
+  height: 80px;
+  background: var(--card-bg);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+}
+
+.cat-icon-wrapper {
+  width: 35px;
+  height: 35px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+
+.cat-card p {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--text-sub);
+}
+
+/* Colors */
 .green {
-  background: var(--income);
+  background: #10b981;
 }
 .red {
-  background: var(--expense);
+  background: #ef4444;
 }
 .blue {
-  background: var(--primary);
+  background: #3b82f6;
 }
 .purple {
   background: #8b5cf6;
@@ -279,23 +333,11 @@ body {
 .gold {
   background: #f59e0b;
 }
-
-/* Categories Carousel */
-.section-title {
-  padding: 0 22px;
-  font-size: 1.15rem;
-  font-weight: 800;
-  margin-bottom: 15px;
+.orange {
+  background: #f97316;
 }
-.category-carousel {
-  display: flex;
-  overflow-x: auto;
-  gap: 18px;
-  padding: 5px 22px 30px;
-  scrollbar-width: none;
-}
-.category-carousel::-webkit-scrollbar {
-  display: none;
+.darkblue {
+  background: #1d4ed8;
 }
 
 /* --- Transaction List Section --- */
@@ -303,53 +345,53 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-right: 20px;
+  padding: 0 20px 10px;
 }
 .lang-btn {
   background: var(--card-bg);
   border: 1px solid var(--border);
   color: var(--text-main);
-  padding: 6px 14px;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
   cursor: pointer;
 }
 
 .transaction-item {
   display: flex;
   align-items: center;
-  padding: 16px;
-  margin: 0 20px 12px;
+  padding: 12px 16px;
+  margin: 0 20px 10px;
   background: var(--card-bg);
-  border-radius: 24px;
+  border-radius: 18px;
   border: 1px solid var(--border);
-  box-shadow: var(--shadow);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .cat-icon {
-  width: 48px;
-  height: 48px;
+  width: 42px;
+  height: 42px;
   background: rgba(59, 130, 246, 0.1);
-  border-radius: 16px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--primary);
-  font-size: 1.2rem;
+  font-size: 1.1rem;
 }
 
 .trans-info {
   flex: 1;
-  margin-left: 14px;
+  margin-left: 12px;
 }
 .trans-info h4 {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 700;
   margin-bottom: 2px;
 }
 .trans-info p {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: var(--text-sub);
 }
 
@@ -358,7 +400,7 @@ body {
   text-align: right;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 .amt-in {
   color: var(--income);
@@ -370,139 +412,29 @@ body {
 .delete-icon {
   color: var(--text-sub);
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   opacity: 0.4;
-  padding: 5px;
-}
-.delete-icon:hover {
-  color: var(--expense);
-  opacity: 1;
+  padding: 4px;
 }
 
-/* --- Standard Modals & Choice System --- */
-.modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(10px);
-  z-index: 2000;
-  padding: 20px;
-}
-
-.modal-content {
-  background: var(--modal-bg);
-  width: 100%;
-  max-width: 400px;
-  margin: 8vh auto;
-  padding: 30px;
-  border-radius: 35px;
-  border: 1px solid var(--border);
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-  animation: modalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.input-group {
-  margin-bottom: 20px;
-}
-.input-group label {
-  display: block;
-  font-size: 0.8rem;
-  font-weight: 700;
-  margin-bottom: 8px;
-  color: var(--text-sub);
-}
-.input-group input,
-.input-group select {
-  width: 100%;
-  padding: 15px;
-  border-radius: 15px;
-  border: 1px solid var(--border);
-  background: rgba(0, 0, 0, 0.2);
-  color: #fff;
-  outline: none;
-  font-size: 0.95rem;
-}
-
-.modal-btns {
-  display: flex;
-  gap: 12px;
-  margin-top: 30px;
-}
-.main-btn {
-  flex: 1.5;
-  padding: 16px;
-  background: var(--grad);
-  color: white;
-  border: none;
-  border-radius: 16px;
-  font-weight: 700;
-  cursor: pointer;
-}
-.sub-btn {
-  flex: 1;
-  padding: 16px;
-  background: var(--card-bg);
-  color: var(--text-main);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-/* Choice Logic */
-.choice-options {
-  display: flex;
-  gap: 15px;
-  margin: 25px 0;
-}
-.choice-btn {
-  flex: 1;
-  padding: 30px 15px;
-  border-radius: 28px;
-  border: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-}
-.choice-btn i {
-  font-size: 2.2rem;
-  color: white;
-}
-.choice-btn span {
-  font-weight: 800;
-  font-size: 0.95rem;
-  color: white;
-}
-.income-choice {
-  background: var(--income);
-  box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
-}
-.expense-choice {
-  background: var(--expense);
-  box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);
-}
-
-/* --- Fixed Bottom Navigation Bar --- */
+/* --- Fixed Bottom Navigation Bar (High Precision FAB) --- */
 .bottom-nav {
   position: fixed;
-  bottom: 25px;
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
   width: 90%;
-  max-width: 410px;
+  max-width: 400px;
   background: var(--nav-blur);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  height: 75px;
-  border-radius: 28px;
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  height: 70px;
+  border-radius: 20px;
   display: flex;
   justify-content: space-around;
   align-items: center;
   border: 1px solid var(--border);
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   z-index: 1000;
 }
 
@@ -514,8 +446,8 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  font-size: 0.65rem;
+  gap: 3px;
+  font-size: 0.6rem;
   font-weight: 700;
   cursor: pointer;
 }
@@ -524,30 +456,131 @@ body {
   color: var(--primary);
 }
 .nav-item i {
-  font-size: 1.4rem;
+  font-size: 1.2rem;
 }
 
-/* Central Add Button (Floating Look) */
-.add-placeholder {
-  width: 60px;
-} /* Space for FAB */
+/* The Add Button matching the image Glow */
 .add-circle {
   position: absolute;
-  bottom: 30px;
+  bottom: 25px; /* Offset from bottom */
   left: 50%;
   transform: translateX(-50%);
-  width: 65px;
-  height: 65px;
+  width: 60px;
+  height: 60px;
   background: var(--grad);
   color: white !important;
   border-radius: 50%;
-  border: 6px solid var(--bg-dark);
+  border: 5px solid var(--bg-dark);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.8rem;
-  box-shadow: 0 10px 25px var(--primary-glow);
+  font-size: 1.6rem;
+  box-shadow: 0 0 20px var(--primary-glow);
   z-index: 1001;
+}
+
+/* --- Modals & Choice System --- */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  z-index: 2000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: var(--modal-bg);
+  width: 100%;
+  max-width: 400px;
+  margin: 10vh auto;
+  padding: 30px;
+  border-radius: 30px;
+  border: 1px solid var(--border);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  animation: modalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.input-group {
+  margin-bottom: 15px;
+}
+.input-group label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--text-sub);
+}
+.input-group input,
+.input-group select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.2);
+  color: #fff;
+  outline: none;
+  font-size: 0.9rem;
+}
+
+.modal-btns {
+  display: flex;
+  gap: 10px;
+  margin-top: 25px;
+}
+.main-btn {
+  flex: 1.5;
+  padding: 14px;
+  background: var(--grad);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.sub-btn {
+  flex: 1;
+  padding: 14px;
+  background: var(--card-bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Choice Logic */
+.choice-options {
+  display: flex;
+  gap: 15px;
+  margin: 20px 0;
+}
+.choice-btn {
+  flex: 1;
+  padding: 25px 15px;
+  border-radius: 20px;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+.choice-btn i {
+  font-size: 2rem;
+  color: white;
+}
+.choice-btn span {
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: white;
+}
+.income-choice {
+  background: var(--income);
+}
+.expense-choice {
+  background: var(--expense);
 }
 
 /* Animations */
