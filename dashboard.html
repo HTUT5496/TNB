@@ -22,8 +22,8 @@
         if ("serviceWorker" in navigator) {
             window.addEventListener("load", () => {
                 navigator.serviceWorker.register("sw.js")
-                    .then(reg => console.log("SW Active:", reg.scope))
-                    .catch(err => console.error("SW Error:", err));
+                    .then(reg => console.log("SW Registered"))
+                    .catch(err => console.error("SW Failed", err));
             });
         }
     </script>
@@ -50,8 +50,8 @@
                 </button>
 
                 <div class="profile-wrapper">
-                    <button class="profile-trigger" id="profile-btn" aria-haspopup="true">
-                        <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=06b6d4&color=fff" alt="User Profile" />
+                    <button class="profile-trigger" id="profile-btn">
+                        <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=06b6d4&color=fff" alt="User" />
                     </button>
 
                     <div id="profile-dropdown" class="dropdown-card">
@@ -96,11 +96,11 @@
             </section>
 
             <section class="quick-actions-grid">
-                <button class="action-tile" onclick="openModal('income')">
+                <button class="action-tile" id="qa-btn-income" onclick="openModal('income')">
                     <div class="tile-icon bg-green"><i class="fa-solid fa-plus"></i></div>
                     <span id="qa-add-income">Income</span>
                 </button>
-                <button class="action-tile" onclick="openModal('expense')">
+                <button class="action-tile" id="qa-btn-expense" onclick="openModal('expense')">
                     <div class="tile-icon bg-red"><i class="fa-solid fa-minus"></i></div>
                     <span id="qa-add-expense">Expense</span>
                 </button>
@@ -120,24 +120,24 @@
                 </div>
                 <div class="category-carousel-wrapper">
                     <div class="category-carousel">
-                        <div class="cat-card variant-salary" onclick="catAction('Income', 'Salary')">
-                            <div class="cat-icon"><i class="fas fa-money-bill-trend-up"></i></div>
+                        <div class="cat-card variant-salary" onclick="catAction('income', 'Salary')">
+                            <div class="cat-icon-circle"><i class="fas fa-money-bill-trend-up"></i></div>
                             <p id="cat-salary">Salary</p>
                         </div>
-                        <div class="cat-card variant-invest" onclick="catAction('Income', 'Investment')">
-                            <div class="cat-icon"><i class="fas fa-chart-line"></i></div>
+                        <div class="cat-card variant-invest" onclick="catAction('income', 'Investment')">
+                            <div class="cat-icon-circle"><i class="fas fa-chart-line"></i></div>
                             <p id="cat-invest">Invest</p>
                         </div>
-                        <div class="cat-card variant-food" onclick="catAction('Expense', 'Food')">
-                            <div class="cat-icon"><i class="fas fa-burger"></i></div>
+                        <div class="cat-card variant-food" onclick="catAction('expense', 'Food')">
+                            <div class="cat-icon-circle"><i class="fas fa-burger"></i></div>
                             <p id="cat-food">Food</p>
                         </div>
-                        <div class="cat-card variant-health" onclick="catAction('Expense', 'Health')">
-                            <div class="cat-icon"><i class="fas fa-kit-medical"></i></div>
+                        <div class="cat-card variant-health" onclick="catAction('expense', 'Health')">
+                            <div class="cat-icon-circle"><i class="fas fa-kit-medical"></i></div>
                             <p id="cat-health">Health</p>
                         </div>
-                        <div class="cat-card variant-shop" onclick="catAction('Expense', 'Shopping')">
-                            <div class="cat-icon"><i class="fas fa-bag-shopping"></i></div>
+                        <div class="cat-card variant-shop" onclick="catAction('expense', 'Shopping')">
+                            <div class="cat-icon-circle"><i class="fas fa-bag-shopping"></i></div>
                             <p id="cat-shop">Shop</p>
                         </div>
                     </div>
@@ -146,8 +146,8 @@
 
             <section class="activity-section">
                 <div class="section-header">
-                    <h3 class="section-title" id="title-recent">Recent Activity</h3>
-                    <button class="see-all-link" onclick="navigateTo('history')">See All</button>
+                    <h3 class="section-title" id="title-recent">Activity</h3>
+                    <button class="see-all-btn" onclick="navigateTo('history')">See All</button>
                 </div>
                 <div id="transaction-list" class="transaction-feed">
                     </div>
@@ -157,59 +157,46 @@
         <div id="choice-modal" class="modal-overlay">
             <div class="modal-sheet animate-up">
                 <div class="modal-handle"></div>
-                <h3 id="choice-title">Add New</h3>
+                <h3 id="choice-title">New Entry</h3>
                 <div class="choice-grid">
-                    <button class="choice-card income" onclick="selectChoice('income')">
-                        <i class="fas fa-plus-circle"></i>
+                    <button class="choice-card income-theme" onclick="selectChoice('income')">
+                        <i class="fas fa-circle-plus"></i>
                         <span>Income</span>
                     </button>
-                    <button class="choice-card expense" onclick="selectChoice('expense')">
-                        <i class="fas fa-minus-circle"></i>
+                    <button class="choice-card expense-theme" onclick="selectChoice('expense')">
+                        <i class="fas fa-circle-minus"></i>
                         <span>Expense</span>
                     </button>
                 </div>
-                <button type="button" class="btn-cancel" onclick="closeChoiceModal()">Cancel</button>
+                <button class="btn-cancel-modal" onclick="closeChoiceModal()">Close</button>
             </div>
         </div>
 
         <div id="transaction-modal" class="modal-overlay">
             <div class="modal-card">
-                <h3 id="modal-form-title">Transaction Details</h3>
+                <h3 id="modal-form-title">Details</h3>
                 <form id="transaction-form">
                     <input type="hidden" id="trans-type" value="income" />
                     
-                    <div class="floating-input-group">
+                    <div class="input-field">
                         <label for="amount" id="lbl-amount">Amount</label>
                         <input type="number" id="amount" placeholder="0.00" step="0.01" required />
                     </div>
 
-                    <div class="floating-input-group">
+                    <div class="input-field">
                         <label for="category" id="label-category">Category</label>
                         <select id="category" required>
-                            <optgroup label="Income Sources">
-                                <option value="Salary">Salary</option>
-                                <option value="Investment">Investment</option>
-                                <option value="Other">Other Income</option>
-                            </optgroup>
-                            <optgroup label="Expense Types">
-                                <option value="Food">Food & Dining</option>
-                                <option value="Shopping">Shopping</option>
-                                <option value="Health">Medical</option>
-                                <option value="Travel">Transport</option>
-                                <option value="Bill">Bills</option>
-                                <option value="Other">Other Expense</option>
-                            </optgroup>
-                        </select>
+                            </select>
                     </div>
 
-                    <div class="floating-input-group">
-                        <label for="note" id="lbl-note">Note (Optional)</label>
-                        <input type="text" id="note" placeholder="What was this for?" />
+                    <div class="input-field">
+                        <label for="note" id="lbl-note">Note</label>
+                        <input type="text" id="note" placeholder="Description..." />
                     </div>
 
                     <div class="modal-actions">
-                        <button type="submit" class="btn-primary" id="save-btn">Confirm</button>
-                        <button type="button" class="btn-secondary" onclick="closeModal()">Back</button>
+                        <button type="submit" class="btn-confirm" id="save-btn">Confirm</button>
+                        <button type="button" class="btn-back" onclick="closeModal()">Back</button>
                     </div>
                 </form>
             </div>
@@ -217,7 +204,7 @@
 
         <nav class="bottom-bar">
             <button class="nav-link active" onclick="navigateTo('dashboard')">
-                <i class="fas fa-house-chimney"></i>
+                <i class="fas fa-house"></i>
                 <span id="nav-dash">Home</span>
             </button>
             <button class="nav-link" onclick="navigateTo('history')">
@@ -225,8 +212,8 @@
                 <span id="nav-hist">History</span>
             </button>
             
-            <div class="fab-wrapper">
-                <button class="fab-main" onclick="showChoiceModal()" aria-label="Add Transaction">
+            <div class="fab-space">
+                <button class="fab-main" onclick="showChoiceModal()">
                     <i class="fas fa-plus"></i>
                 </button>
             </div>
@@ -236,7 +223,7 @@
                 <span id="nav-rep">Stats</span>
             </button>
             <button class="nav-link" onclick="navigateTo('settings')">
-                <i class="fas fa-sliders"></i>
+                <i class="fas fa-gear"></i>
                 <span id="nav-set">Settings</span>
             </button>
         </nav>
