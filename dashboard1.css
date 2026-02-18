@@ -1,6 +1,7 @@
 /* TNB Finance - Core Framework & Global Styles */
 
 :root {
+  /* Dark Mode Palette (Default) */
   --bg-dark: #020617;
   --card-bg: rgba(255, 255, 255, 0.05);
   --primary: #3b82f6;
@@ -14,6 +15,8 @@
   --grad: linear-gradient(135deg, #3b82f6, #8b5cf6);
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   --nav-blur: rgba(15, 23, 42, 0.8);
+
+  /* Glass Specifics */
   --glass-bg: rgba(255, 255, 255, 0.03);
   --glass-border: rgba(255, 255, 255, 0.08);
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -32,6 +35,7 @@ body.light-mode {
   --glass-border: rgba(0, 0, 0, 0.08);
 }
 
+/* Base Resets */
 * {
   margin: 0;
   padding: 0;
@@ -47,7 +51,9 @@ body {
   justify-content: center;
   min-height: 100vh;
   overflow-x: hidden;
-  transition: background 0.3s ease;
+  transition:
+    background 0.4s ease,
+    color 0.4s ease;
 }
 
 .mobile-container {
@@ -55,6 +61,8 @@ body {
   max-width: 450px;
   position: relative;
   min-height: 100vh;
+  /* Added padding-top to prevent header overlap */
+  padding-top: 75px;
   padding-bottom: 120px;
 }
 
@@ -63,13 +71,15 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 20px;
-  position: sticky;
+  padding: 12px 20px;
+  position: fixed; /* Fixed instead of sticky for smoother scroll behavior */
   top: 0;
+  width: 100%;
+  max-width: 450px;
   z-index: 1000;
   background: var(--nav-blur);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
 }
 
@@ -77,20 +87,32 @@ body {
 .header-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
+.app-logo {
+  font-weight: 800;
+  font-size: 1.3rem;
+  background: var(--grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
+}
+
+/* Bottom Nav Container */
 .bottom-nav {
   position: fixed;
-  bottom: 20px;
+  bottom: 25px;
   left: 50%;
   transform: translateX(-50%);
-  width: 90%;
+  width: 92%;
   max-width: 400px;
   background: var(--nav-blur);
-  backdrop-filter: blur(20px);
-  height: 70px;
-  border-radius: 22px;
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  height: 72px;
+  border-radius: 24px;
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -107,8 +129,8 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  font-size: 0.6rem;
+  gap: 4px;
+  font-size: 0.65rem;
   font-weight: 700;
   cursor: pointer;
   transition: var(--transition);
@@ -116,38 +138,76 @@ body {
 
 .nav-item.active {
   color: var(--primary);
-}
-.nav-item i {
-  font-size: 1.2rem;
+  transform: translateY(-2px);
 }
 
-/* Global Buttons */
+.nav-item i {
+  font-size: 1.3rem;
+}
+
+/* --- Global Utility Buttons --- */
 .sub-btn {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   color: var(--text-main);
-  padding: 6px 12px;
-  border-radius: 12px;
-  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 14px;
+  font-weight: 700;
   font-size: 0.75rem;
   cursor: pointer;
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sub-btn:hover {
+  background: var(--glass-border);
+  border-color: var(--text-sub);
 }
 
 .sub-btn:active {
-  transform: scale(0.92);
+  transform: scale(0.94);
   background: var(--grad);
   color: #fff;
+  border-color: transparent;
 }
 
 .icon-btn {
   background: none;
   border: none;
   color: var(--text-main);
-  font-size: 1.25rem;
+  font-size: 1.3rem;
   cursor: pointer;
   display: flex;
   align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
   transition: var(--transition);
+}
+
+.icon-btn:active {
+  background: var(--glass-bg);
+  transform: scale(0.9);
+}
+
+/* --- Utility Helpers --- */
+.amt-in {
+  color: var(--income);
+}
+.amt-ex {
+  color: var(--expense);
+}
+
+/* Hide Scrollbars but keep functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
