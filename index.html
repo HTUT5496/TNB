@@ -3,20 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="TNB Financial Management - Login Page" />
     <title>TNB - Login</title>
+
     <link rel="stylesheet" href="login-style.css" />
     <link rel="manifest" href="manifest.json" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body class="dark-mode">
     <div class="glass-container">
       <div class="top-nav">
-        <button id="lang-btn" class="sub-btn">Burmese</button>
-        <button onclick="location.href = 'register.html'" class="sub-btn"
+        <button id="lang-btn" class="sub-btn" aria-label="Change Language">
+          Burmese
+        </button>
+        <button onclick="location.href = 'register.html'" class="sub-btn">
           Sign Up
         </button>
         <button id="theme-btn" class="sub-btn">🌙 Dark</button>
@@ -29,21 +35,41 @@
         </p>
       </div>
 
-      <h1 id="title">Login</h1>
+      <header>
+        <h1 id="title">Login</h1>
+      </header>
 
-      <form id="login-form">
-        <input type="text" id="username" placeholder="UserName" required />
-        <input type="password" id="password" placeholder="Password" required />
-        <button type="submit" id="login-btn" class="main-btn">Login</button>
-      </form>
+      <main>
+        <form id="login-form">
+          <div class="input-group">
+            <input
+              type="text"
+              id="username"
+              placeholder="UserName"
+              required
+              autocomplete="username"
+            />
+          </div>
+          <div class="input-group">
+            <input
+              type="password"
+              id="password"
+              placeholder="Password"
+              required
+              autocomplete="current-password"
+            />
+          </div>
+          <button type="submit" id="login-btn" class="main-btn">Login</button>
+        </form>
 
-      <div class="separator"><span>Or</span></div>
+        <div class="separator"><span>Or</span></div>
 
-      <button type="button" id="gmail-btn" class="social-btn">
-        <i class="fab fa-google"></i> Continue with Gmail
-      </button>
+        <button type="button" id="gmail-btn" class="social-btn">
+          <i class="fab fa-google"></i> Continue with Gmail
+        </button>
+      </main>
 
-      <div class="footer-links">
+      <footer class="footer-links">
         <p id="signup-text">
           If you don't have an account?
           <a href="register.html">Sign Up</a>
@@ -52,10 +78,10 @@
           Forgot password?
           <a href="reset.html">Reset Password</a>
         </p>
-      </div>
+      </footer>
     </div>
 
     <script src="login-script.js"></script>
+    <script src="sw.js"></script>
   </body>
 </html>
-
