@@ -2,16 +2,15 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import fs from "fs";
 import path from "path";
 
-// GitHub Secrets ထဲက GEMINI_API_KEY ကို အသုံးပြုခြင်း
+// GitHub Secrets မှ API Key ကို ယူသုံးခြင်း
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// AI က စစ်ဆေးပြီး ပြုပြင်ပေးမယ့် File အမျိုးအစားများ
+// စစ်ဆေးမည့် ဖိုင်အမျိုးအစားများနှင့် ကျော်သွားမည့် folder များ
 const targetExtensions = [".html", ".css", ".js"];
-// AI မကြည့်ရမယ့် Folder များ
 const ignoreDirs = ["node_modules", ".git", ".github"];
 
 /**
- * Repository ထဲက file အားလုံးကို ရှာဖွေပေးမယ့် function
+ * Repository တစ်ခုလုံးရှိ ဖိုင်များကို ရှာဖွေပေးမည့် function
  */
 async function getAllFiles(dirPath, fileArray = []) {
   const files = fs.readdirSync(dirPath);
@@ -31,50 +30,54 @@ async function getAllFiles(dirPath, fileArray = []) {
 }
 
 /**
- * AI က file တစ်ခုချင်းစီကို review လုပ်ပြီး evolve လုပ်မယ့် ပင်မ function
+ * AI Evolution ပင်မ Logic
  */
 async function runAI() {
-  // ပိုမြန်ပြီး စွမ်းဆောင်ရည်ကောင်းတဲ့ gemini-1.5-flash ကို သုံးထားပါတယ်
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
   const files = await getAllFiles("./");
 
-  console.log(`🚀 Starting Evolution: Scanning ${files.length} files...`);
+  console.log(`🚀 AI Evolution Started: Scanning ${files.length} files...`);
 
   for (const filePath of files) {
-    // ဤ script ကိုယ်တိုင် ပြန်မပြင်မိစေရန် စစ်ဆေးခြင်း
-    if (filePath === "ai-review.js") continue;
+    if (filePath === "ai-review.js") continue; // မိမိဖိုင်ကို ပြန်မပြင်ရန်
 
-    console.log(`✨ Evolving: ${filePath}`);
+    console.log(`✨ Analyzing & Improving: ${filePath}`);
     const originalCode = fs.readFileSync(filePath, "utf8");
 
-    // AI ကို ပိုမိုလွတ်လပ်စွာ စဉ်းစားစေမည့် အဆင့်မြင့် Prompt
-    const prompt = `You are an Autonomous AI Software Architect. Your mission is to evolve this application to become a world-class digital product.
-    1. ANALYZE: Look at the current code and think: "How can I make this UI look more professional, modern (2026 trends), and user-friendly?"
-    2. ENHANCE: Add missing features if necessary (e.g., better animations, responsive layout, dark mode support).
-    3. CLEAN: Optimize the code logic and strictly follow the "No inline CSS" rule. Use separate CSS files.
-    4. STRUCTURE: Maintain existing file links and folder structures.
-    5. OUTPUT: Return ONLY the full updated code for this file. No explanations, no markdown backticks.
-    
-    File Path: ${filePath}`;
+    // AI ကို ပေးမည့် အဆင့်မြင့် ညွှန်ကြားချက် (Prompt)
+    const prompt = `You are an expert Frontend Architect. Improve this file with the following goals:
+
+    SPECIFIC FEATURE REQUEST:
+    - In the Dashboard (dashboard.html/js), implement a dynamic category filter.
+    - If a user clicks 'Add Income', the category dropdown must only show Income categories (e.g., Salary, Gift, Interest).
+    - If a user clicks 'Add Expense', the category dropdown must only show Expense categories (e.g., Food, Transport, Rent, Bills).
+    - Ensure this works smoothly using JavaScript events.
+
+    GENERAL IMPROVEMENTS:
+    1. UI/UX: Make the design more modern, clean, and professional (premium feel).
+    2. STANDARDS: Strictly follow the "No inline CSS" rule. Move all styles to separate CSS files if found.
+    3. CLEAN CODE: Remove redundant code and optimize performance.
+    4. STRUCTURE: Keep existing file links and folder structures intact.
+
+    Return ONLY the full updated code for ${filePath} without any markdown backticks or extra talking.`;
 
     try {
       const result = await model.generateContent([prompt, originalCode]);
       const response = await result.response;
       
-      // Markdown စာသားများ ပါလာပါက ဖယ်ရှားခြင်း
+      // Markdown formatting များကို ဖယ်ရှားခြင်း
       let improvedCode = response.text()
         .replace(/```[a-z]*\n/g, "")
         .replace(/```/g, "")
         .trim();
 
-      // ပြင်ဆင်ထားသော code ကို file ထဲသို့ ပြန်ရေးခြင်း
       fs.writeFileSync(filePath, improvedCode);
-      console.log(`✅ Successfully Evolved: ${filePath}`);
+      console.log(`✅ Completed: ${filePath}`);
     } catch (error) {
-      console.error(`❌ Error evolving ${filePath}:`, error.message);
+      console.error(`❌ Error in ${filePath}:`, error.message);
     }
   }
-  console.log("🏁 Evolution cycle completed.");
+  console.log("🏁 AI Evolution cycle finished.");
 }
 
 runAI();
