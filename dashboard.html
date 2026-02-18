@@ -5,69 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TNB - Finance Dashboard</title>
 
+    <!-- PWA -->
     <link rel="manifest" href="manifest.json" />
 
+    <!-- Fonts -->
     <link
       href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
+
+    <!-- Icons -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
 
+    <!-- Styles -->
     <link rel="stylesheet" href="dashboard1.css" />
     <link rel="stylesheet" href="dashboard2.css" />
 
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Service Worker -->
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
           navigator.serviceWorker
             .register("sw.js")
-            .then(() => console.log("Dashboard Service Worker Registered"))
-            .catch((err) => console.log("SW Registration Failed", err));
+            .then(() => console.log("Service Worker Registered"))
+            .catch((err) => console.error("SW Registration Failed:", err));
         });
       }
     </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
+
   <body class="dark-mode">
     <div class="mobile-container">
+      <!-- ================= HEADER ================= -->
       <header class="top-header">
-        <div
-          class="header-left"
-          style="display: flex; align-items: center; gap: 10px"
-        >
-          <button class="icon-btn" id="menu-btn" onclick="toggleSidebar()">
+        <div class="header-left">
+          <button
+            class="icon-btn"
+            id="menu-btn"
+            onclick="toggleSidebar()"
+            aria-label="Menu"
+          >
             <i class="fa-solid fa-grip-lines"></i>
           </button>
-          <button
-            id="lang-toggle"
-            class="sub-btn"
-            style="padding: 4px 10px; font-size: 0.7rem; min-width: 70px"
-          >
-            Burmese
-          </button>
+
+          <button id="lang-toggle" class="sub-btn small-btn">Burmese</button>
         </div>
 
         <h2 class="app-logo">TNB</h2>
 
         <div class="header-right">
-          <button
-            id="theme-toggle"
-            class="sub-btn"
-            style="padding: 4px 10px; font-size: 0.7rem"
-          >
-            🌙 Dark
-          </button>
+          <button id="theme-toggle" class="sub-btn small-btn">🌙 Dark</button>
 
           <div class="profile-container">
             <div class="profile-avatar" id="profile-btn">
               <img
                 id="user-avatar"
                 src="https://ui-avatars.com/api/?name=User&background=06b6d4&color=fff"
-                alt="Profile"
+                alt="User Avatar"
               />
             </div>
 
@@ -76,29 +76,28 @@
                 <p id="user-display-name">User Name</p>
                 <small id="user-display-email">user@email.com</small>
               </div>
-              <hr style="opacity: 0.1; margin: 8px 0" />
+
+              <hr />
+
               <button class="dropdown-item logout-red" id="logout-confirm-btn">
-                <i class="fas fa-arrow-right-from-bracket"></i> Logout
+                <i class="fas fa-arrow-right-from-bracket"></i>
+                Logout
               </button>
             </div>
           </div>
         </div>
       </header>
 
+      <!-- ================= MAIN ================= -->
       <main class="content">
+        <!-- Balance Card -->
         <section class="balance-card">
-          <span
-            id="label-total-balance"
-            style="
-              font-weight: 600;
-              text-transform: uppercase;
-              font-size: 0.7rem;
-              letter-spacing: 1px;
-            "
-          >
+          <span id="label-total-balance" class="balance-label">
             Available Balance
           </span>
+
           <h1 id="main-balance">$0.00</h1>
+
           <div class="summary-row">
             <div class="summary-item income">
               <div class="icon-circle">
@@ -109,6 +108,7 @@
                 <p id="total-income">+$0</p>
               </div>
             </div>
+
             <div class="summary-item expense">
               <div class="icon-circle">
                 <i class="fas fa-arrow-up-long"></i>
@@ -121,21 +121,25 @@
           </div>
         </section>
 
+        <!-- Quick Actions -->
         <section class="quick-actions">
           <button class="action-btn" onclick="openModal('income')">
             <div class="icon-box green"><i class="fa-solid fa-plus"></i></div>
             <span id="qa-add-income">Income</span>
           </button>
+
           <button class="action-btn" onclick="openModal('expense')">
             <div class="icon-box red"><i class="fa-solid fa-minus"></i></div>
             <span id="qa-add-expense">Expense</span>
           </button>
+
           <button class="action-btn" onclick="navigateTo('history')">
             <div class="icon-box blue">
               <i class="fa-solid fa-clock-rotate-left"></i>
             </div>
             <span id="qa-history">History</span>
           </button>
+
           <button class="action-btn" onclick="navigateTo('reports')">
             <div class="icon-box purple">
               <i class="fa-solid fa-chart-line"></i>
@@ -144,7 +148,9 @@
           </button>
         </section>
 
+        <!-- Categories -->
         <h3 class="section-title" id="title-categories">Categories</h3>
+
         <div class="category-carousel">
           <div class="cat-card green" onclick="catAction('Income', 'Salary')">
             <div class="cat-icon-wrapper">
@@ -152,6 +158,7 @@
             </div>
             <p id="cat-salary">Salary</p>
           </div>
+
           <div
             class="cat-card blue"
             onclick="catAction('Income', 'Investment')"
@@ -161,16 +168,19 @@
             </div>
             <p id="cat-invest">Investment</p>
           </div>
+
           <div class="cat-card red" onclick="catAction('Expense', 'Food')">
             <div class="cat-icon-wrapper"><i class="fas fa-burger"></i></div>
             <p id="cat-food">Food</p>
           </div>
+
           <div class="cat-card blue" onclick="catAction('Expense', 'Health')">
             <div class="cat-icon-wrapper">
               <i class="fas fa-kit-medical"></i>
             </div>
             <p id="cat-health">Health</p>
           </div>
+
           <div
             class="cat-card purple"
             onclick="catAction('Expense', 'Shopping')"
@@ -180,62 +190,71 @@
             </div>
             <p id="cat-shop">Shopping</p>
           </div>
+
           <div class="cat-card gold" onclick="catAction('Expense', 'Travel')">
             <div class="cat-icon-wrapper"><i class="fas fa-route"></i></div>
             <p id="cat-travel">Travel</p>
           </div>
+
           <div class="cat-card gray" onclick="catAction('Expense', 'Other')">
             <div class="cat-icon-wrapper"><i class="fas fa-ellipsis"></i></div>
             <p id="cat-other">Other</p>
           </div>
         </div>
 
+        <!-- Recent Activity -->
         <div class="list-header">
-          <h3 class="section-title" id="title-recent" style="margin-bottom: 0">
-            Activity
-          </h3>
+          <h3 class="section-title" id="title-recent">Activity</h3>
         </div>
 
         <div id="transaction-list" class="transaction-list"></div>
       </main>
 
+      <!-- ================= MODALS ================= -->
+
+      <!-- Choice Modal -->
       <div id="choice-modal" class="modal">
         <div class="modal-content choice-container">
-          <h3 id="choice-title" style="text-align: center; margin-bottom: 20px">
-            New Transaction
-          </h3>
+          <h3 id="choice-title">New Transaction</h3>
+
           <div class="choice-options">
             <button
               class="choice-btn income-choice"
               onclick="selectChoice('income')"
             >
-              <i class="fas fa-plus-circle"></i><span>Income</span>
+              <i class="fas fa-plus-circle"></i>
+              <span>Income</span>
             </button>
+
             <button
               class="choice-btn expense-choice"
               onclick="selectChoice('expense')"
             >
-              <i class="fas fa-minus-circle"></i><span>Expense</span>
+              <i class="fas fa-minus-circle"></i>
+              <span>Expense</span>
             </button>
           </div>
+
           <button
             type="button"
-            class="sub-btn"
+            class="sub-btn full-width"
             onclick="closeChoiceModal()"
-            style="width: 100%"
           >
             Close
           </button>
         </div>
       </div>
 
+      <!-- Transaction Modal -->
       <div id="transaction-modal" class="modal">
         <div class="modal-content">
           <h3 id="modal-form-title">Enter Details</h3>
+
           <form id="transaction-form">
             <input type="hidden" id="trans-type" value="income" />
+
             <div class="input-group">
-              <label id="lbl-amount">Amount</label>
+              <label for="amount" id="lbl-amount">Amount</label>
               <input
                 type="number"
                 id="amount"
@@ -244,16 +263,18 @@
                 required
               />
             </div>
+
             <div class="input-group">
-              <label id="label-category">Category</label>
+              <label for="category" id="label-category">Category</label>
               <select id="category" required>
-                <optgroup label="─── INCOME ───" id="opt-income">
+                <optgroup label="─── INCOME ───">
                   <option value="Salary">Salary</option>
                   <option value="Investment">Investment</option>
                   <option value="Bonus">Bonus</option>
                   <option value="Other">Other</option>
                 </optgroup>
-                <optgroup label="─── EXPENSE ───" id="opt-expense">
+
+                <optgroup label="─── EXPENSE ───">
                   <option value="Shopping">Shopping</option>
                   <option value="Food">Food</option>
                   <option value="Health">Health</option>
@@ -263,10 +284,12 @@
                 </optgroup>
               </select>
             </div>
+
             <div class="input-group">
-              <label id="lbl-note">Note</label>
+              <label for="note" id="lbl-note">Note</label>
               <input type="text" id="note" placeholder="Description..." />
             </div>
+
             <div class="modal-btns">
               <button type="submit" class="main-btn" id="save-btn">
                 Confirm
@@ -279,38 +302,33 @@
         </div>
       </div>
 
+      <!-- ================= BOTTOM NAV ================= -->
+
       <nav class="bottom-nav">
-        <button
-          class="nav-item active"
-          id="nav-dash-btn"
-          onclick="navigateTo('dashboard')"
-        >
-          <i class="fas fa-house-chimney"></i><span id="nav-dash">Home</span>
+        <button class="nav-item active" onclick="navigateTo('dashboard')">
+          <i class="fas fa-house-chimney"></i>
+          <span id="nav-dash">Home</span>
         </button>
-        <button
-          class="nav-item"
-          id="nav-hist-btn"
-          onclick="navigateTo('history')"
-        >
-          <i class="fas fa-receipt"></i><span id="nav-hist">History</span>
+
+        <button class="nav-item" onclick="navigateTo('history')">
+          <i class="fas fa-receipt"></i>
+          <span id="nav-hist">History</span>
         </button>
+
         <div class="add-placeholder"></div>
+
         <button class="nav-item add-circle" onclick="showChoiceModal()">
           <i class="fas fa-plus"></i>
         </button>
-        <button
-          class="nav-item"
-          id="nav-rep-btn"
-          onclick="navigateTo('reports')"
-        >
-          <i class="fas fa-chart-pie"></i><span id="nav-rep">Stats</span>
+
+        <button class="nav-item" onclick="navigateTo('reports')">
+          <i class="fas fa-chart-pie"></i>
+          <span id="nav-rep">Stats</span>
         </button>
-        <button
-          class="nav-item"
-          id="nav-set-btn"
-          onclick="navigateTo('settings')"
-        >
-          <i class="fas fa-sliders"></i><span id="nav-set">Settings</span>
+
+        <button class="nav-item" onclick="navigateTo('settings')">
+          <i class="fas fa-sliders"></i>
+          <span id="nav-set">Settings</span>
         </button>
       </nav>
     </div>

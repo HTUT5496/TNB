@@ -1,26 +1,54 @@
-/* TNB Finance Dashboard - Core Styles & Glassmorphism */
+/* ======================================================
+   TNB Finance Dashboard
+   Version: 3.0 (Glass Pro 2026)
+====================================================== */
+
+/* ===============================
+   DESIGN TOKENS
+================================ */
 
 :root {
-  /* Dark Mode Palette (Default) */
+  /* Core Colors */
   --bg-dark: #020617;
   --card-bg: rgba(255, 255, 255, 0.05);
   --primary: #3b82f6;
-  --primary-glow: rgba(59, 130, 246, 0.3);
+  --primary-glow: rgba(59, 130, 246, 0.35);
   --income: #10b981;
   --expense: #ef4444;
+
+  /* Text */
   --text-main: #f8fafc;
   --text-sub: #94a3b8;
-  --modal-bg: #0f172a;
-  --border: rgba(255, 255, 255, 0.1);
-  --grad: linear-gradient(135deg, #3b82f6, #8b5cf6);
-  --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  --nav-blur: rgba(15, 23, 42, 0.8);
 
-  /* Glass Specifics matching index.html */
-  --glass-bg: rgba(255, 255, 255, 0.03);
+  /* Surfaces */
+  --modal-bg: #0f172a;
+  --border: rgba(255, 255, 255, 0.08);
+  --nav-blur: rgba(15, 23, 42, 0.75);
+
+  /* Glass */
+  --glass-bg: rgba(255, 255, 255, 0.04);
   --glass-border: rgba(255, 255, 255, 0.08);
+
+  /* Gradient */
+  --grad: linear-gradient(135deg, #3b82f6, #8b5cf6);
+
+  /* Shadows */
+  --shadow-lg: 0 15px 40px rgba(0, 0, 0, 0.35);
+  --shadow-sm: 0 5px 20px rgba(0, 0, 0, 0.2);
+
+  /* Motion */
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Radius */
+  --radius-xl: 25px;
+  --radius-lg: 20px;
+  --radius-md: 16px;
+  --radius-sm: 12px;
 }
+
+/* ===============================
+   LIGHT MODE
+================================ */
 
 body.light-mode {
   --bg-dark: #f8fafc;
@@ -29,52 +57,64 @@ body.light-mode {
   --text-sub: #64748b;
   --modal-bg: #ffffff;
   --border: rgba(0, 0, 0, 0.05);
-  --grad: linear-gradient(135deg, #3b82f6, #8b5cf6);
-  --shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-  --nav-blur: rgba(248, 250, 252, 0.8);
+  --nav-blur: rgba(248, 250, 252, 0.75);
   --glass-bg: rgba(0, 0, 0, 0.03);
   --glass-border: rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.08);
 }
 
-/* Base Resets */
-* {
+/* ===============================
+   BASE RESET
+================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
-  font-family: "Plus Jakarta Sans", sans-serif;
-  -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  background-color: var(--bg-dark);
+  font-family: "Plus Jakarta Sans", sans-serif;
+  background: var(--bg-dark);
   color: var(--text-main);
+  min-height: 100vh;
   display: flex;
   justify-content: center;
-  min-height: 100vh;
-  overflow-x: hidden;
-  transition: background 0.3s ease;
+  transition: var(--transition);
+  -webkit-tap-highlight-color: transparent;
 }
+
+/* ===============================
+   CONTAINER
+================================ */
 
 .mobile-container {
   width: 100%;
   max-width: 450px;
-  position: relative;
   min-height: 100vh;
   padding-bottom: 120px;
+  position: relative;
 }
 
-/* --- Header & Navigation Buttons --- */
+/* ===============================
+   HEADER
+================================ */
+
 .top-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 20px;
   position: sticky;
   top: 0;
   z-index: 1000;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 16px 20px;
+
   background: var(--nav-blur);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
+  backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
 }
 
@@ -86,52 +126,60 @@ body {
 }
 
 .app-logo {
+  font-size: 1.5rem;
   font-weight: 800;
-  font-size: 1.4rem;
+  letter-spacing: -0.5px;
   background: var(--grad);
   -webkit-background-clip: text;
-  background-clip: text;
   -webkit-text-fill-color: transparent;
-  letter-spacing: -0.5px;
 }
 
-/* Glass Buttons (Matching index.html sub-btn style) */
+/* ===============================
+   BUTTONS
+================================ */
+
 .sub-btn {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
-  color: var(--text-main);
   padding: 6px 12px;
-  border-radius: 12px;
-  font-weight: 600;
+  border-radius: var(--radius-sm);
   font-size: 0.75rem;
+  font-weight: 600;
   cursor: pointer;
-  backdrop-filter: blur(5px);
+  color: var(--text-main);
+  backdrop-filter: blur(10px);
   transition: var(--transition);
+}
+
+.sub-btn:hover {
+  transform: translateY(-2px);
 }
 
 .sub-btn:active {
   transform: scale(0.92);
   background: var(--grad);
-  color: #fff;
+  color: white;
 }
 
 .icon-btn {
-  background: none;
+  background: transparent;
   border: none;
-  color: var(--text-main);
   font-size: 1.2rem;
+  color: var(--text-main);
   cursor: pointer;
-  display: flex;
-  align-items: center;
 }
 
-/* --- Profile Dropdown --- */
+/* ===============================
+   PROFILE DROPDOWN
+================================ */
+
 .profile-container {
   position: relative;
 }
+
 .profile-avatar img {
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   border: 2px solid var(--primary);
   object-fit: cover;
@@ -140,106 +188,153 @@ body {
 .dropdown-menu {
   display: none;
   position: absolute;
-  top: 55px;
   right: 0;
+  top: 55px;
+
+  width: 220px;
+  padding: 14px;
+
+  border-radius: var(--radius-lg);
   background: var(--modal-bg);
-  min-width: 220px;
-  border-radius: 20px;
   border: 1px solid var(--border);
-  box-shadow: var(--shadow);
-  z-index: 1100;
-  padding: 12px;
+  box-shadow: var(--shadow-lg);
+
+  animation: fadeInDown 0.25s ease;
 }
 
 .dropdown-menu.show {
   display: block;
-  animation: fadeInDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* --- Balance Widget --- */
+/* ===============================
+   BALANCE CARD
+================================ */
+
 .balance-card {
+  margin: 20px;
+  padding: 28px;
+  border-radius: var(--radius-xl);
+
   background: var(--grad);
-  margin: 15px 20px;
-  padding: 25px;
-  border-radius: 25px;
-  color: #ffffff;
-  box-shadow: 0 15px 35px var(--primary-glow);
+  color: white;
+
+  box-shadow: 0 20px 40px var(--primary-glow);
 }
 
 .balance-card h1 {
-  font-size: 2.8rem;
-  margin: 5px 0 18px;
+  font-size: 2.6rem;
   font-weight: 800;
-  letter-spacing: -1px;
+  margin: 8px 0 18px;
 }
 
 .summary-row {
   display: flex;
   justify-content: space-between;
-  padding-top: 15px;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
 }
 
-/* --- Quick Actions & Categories --- */
+/* ===============================
+   QUICK ACTIONS
+================================ */
+
 .quick-actions {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
   padding: 10px 20px 25px;
-  gap: 12px;
 }
 
 .action-btn {
-  background: none;
+  background: transparent;
   border: none;
-  cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
+  cursor: pointer;
 }
 
 .icon-box {
-  width: 52px;
-  height: 52px;
-  border-radius: 16px;
+  width: 54px;
+  height: 54px;
+  border-radius: var(--radius-md);
+
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   color: white;
   margin-bottom: 6px;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
+
+  backdrop-filter: blur(10px);
+  transition: var(--transition);
 }
 
-/* Category Carousel */
+.icon-box:hover {
+  transform: translateY(-4px);
+}
+
+/* ===============================
+   CATEGORY CAROUSEL
+================================ */
+
 .category-carousel {
   display: flex;
+  gap: 14px;
+  padding: 10px 20px 25px;
   overflow-x: auto;
-  gap: 12px;
-  padding: 5px 20px 25px;
   scrollbar-width: none;
 }
 
+.category-carousel::-webkit-scrollbar {
+  display: none;
+}
+
 .cat-card {
-  min-width: 70px;
-  padding: 15px 10px;
+  min-width: 75px;
+  padding: 16px 10px;
+
+  border-radius: var(--radius-lg);
   background: var(--card-bg);
-  border-radius: 20px;
+  border: 1px solid var(--border);
+
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 1px solid var(--border);
+
   cursor: pointer;
+  transition: var(--transition);
 }
 
-/* --- Transaction Items --- */
+.cat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ===============================
+   TRANSACTIONS
+================================ */
+
 .transaction-item {
+  margin: 0 20px 12px;
+  padding: 15px 16px;
+
+  border-radius: var(--radius-lg);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+
   display: flex;
   align-items: center;
-  padding: 14px 16px;
-  margin: 0 20px 10px;
-  background: var(--card-bg);
-  border-radius: 18px;
-  border: 1px solid var(--border);
+  justify-content: space-between;
+
+  transition: var(--transition);
+}
+
+.transaction-item:hover {
+  transform: translateY(-3px);
 }
 
 .trans-amt {
@@ -249,24 +344,62 @@ body {
   gap: 8px;
 }
 
-/* --- Bottom Navigation --- */
+.delete-icon {
+  cursor: pointer;
+  opacity: 0.7;
+  transition: var(--transition);
+}
+
+.delete-icon:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* ===============================
+   BOTTOM NAVIGATION
+================================ */
+
 .bottom-nav {
   position: fixed;
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
+
   width: 90%;
   max-width: 400px;
-  background: var(--nav-blur);
-  backdrop-filter: blur(20px);
   height: 70px;
-  border-radius: 22px;
+
   display: flex;
   justify-content: space-around;
   align-items: center;
+
+  border-radius: var(--radius-xl);
+  background: var(--nav-blur);
+  backdrop-filter: blur(25px);
   border: 1px solid var(--border);
-  box-shadow: var(--shadow);
+
+  box-shadow: var(--shadow-lg);
   z-index: 1000;
+}
+
+.nav-item {
+  background: none;
+  border: none;
+  color: var(--text-sub);
+  font-size: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.nav-item.active {
+  color: var(--primary);
+}
+
+.nav-item:hover {
+  color: var(--primary);
 }
 
 .add-circle {
@@ -274,30 +407,32 @@ body {
   bottom: 25px;
   left: 50%;
   transform: translateX(-50%);
-  width: 60px;
-  height: 60px;
-  background: var(--grad);
-  color: white !important;
+
+  width: 62px;
+  height: 62px;
+
   border-radius: 50%;
+  background: var(--grad);
   border: 5px solid var(--bg-dark);
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   font-size: 1.6rem;
-  box-shadow: 0 0 20px var(--primary-glow);
+  color: white;
+
+  box-shadow: 0 0 25px var(--primary-glow);
+  transition: var(--transition);
 }
 
-/* --- Animations --- */
-@keyframes modalSlideUp {
-  from {
-    transform: translateY(50px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+.add-circle:hover {
+  transform: translateX(-50%) scale(1.05);
 }
+
+/* ===============================
+   ANIMATIONS
+================================ */
 
 @keyframes fadeInDown {
   from {
@@ -310,10 +445,33 @@ body {
   }
 }
 
-/* Utility Colors */
+@keyframes modalSlideUp {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ===============================
+   UTILITIES
+================================ */
+
 .amt-in {
   color: var(--income);
 }
+
 .amt-ex {
   color: var(--expense);
+}
+
+/* Smooth transitions for everything */
+button,
+.cat-card,
+.transaction-item,
+.icon-box {
+  transition: var(--transition);
 }
