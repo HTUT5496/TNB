@@ -1,4 +1,4 @@
-/* TNB Finance - Core Framework & Global Styles */
+/* TNB Finance Dashboard - Core Styles & Glassmorphism */
 
 :root {
   /* Dark Mode Palette (Default) */
@@ -16,7 +16,7 @@
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   --nav-blur: rgba(15, 23, 42, 0.8);
 
-  /* Glass Specifics */
+  /* Glass Specifics matching index.html */
   --glass-bg: rgba(255, 255, 255, 0.03);
   --glass-border: rgba(255, 255, 255, 0.08);
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -29,6 +29,7 @@ body.light-mode {
   --text-sub: #64748b;
   --modal-bg: #ffffff;
   --border: rgba(0, 0, 0, 0.05);
+  --grad: linear-gradient(135deg, #3b82f6, #8b5cf6);
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
   --nav-blur: rgba(248, 250, 252, 0.8);
   --glass-bg: rgba(0, 0, 0, 0.03);
@@ -51,9 +52,7 @@ body {
   justify-content: center;
   min-height: 100vh;
   overflow-x: hidden;
-  transition:
-    background 0.4s ease,
-    color 0.4s ease;
+  transition: background 0.3s ease;
 }
 
 .mobile-container {
@@ -61,25 +60,21 @@ body {
   max-width: 450px;
   position: relative;
   min-height: 100vh;
-  /* Added padding-top to prevent header overlap */
-  padding-top: 75px;
   padding-bottom: 120px;
 }
 
-/* --- Navigation & Header Structure --- */
+/* --- Header & Navigation Buttons --- */
 .top-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 20px;
-  position: fixed; /* Fixed instead of sticky for smoother scroll behavior */
+  padding: 15px 20px;
+  position: sticky;
   top: 0;
-  width: 100%;
-  max-width: 450px;
   z-index: 1000;
   background: var(--nav-blur);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
   border-bottom: 1px solid var(--border);
 }
 
@@ -87,12 +82,12 @@ body {
 .header-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .app-logo {
   font-weight: 800;
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   background: var(--grad);
   -webkit-background-clip: text;
   background-clip: text;
@@ -100,19 +95,172 @@ body {
   letter-spacing: -0.5px;
 }
 
-/* Bottom Nav Container */
+/* Glass Buttons (Matching index.html sub-btn style) */
+.sub-btn {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-main);
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.75rem;
+  cursor: pointer;
+  backdrop-filter: blur(5px);
+  transition: var(--transition);
+}
+
+.sub-btn:active {
+  transform: scale(0.92);
+  background: var(--grad);
+  color: #fff;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  color: var(--text-main);
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+/* --- Profile Dropdown --- */
+.profile-container {
+  position: relative;
+}
+.profile-avatar img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--primary);
+  object-fit: cover;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 55px;
+  right: 0;
+  background: var(--modal-bg);
+  min-width: 220px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  z-index: 1100;
+  padding: 12px;
+}
+
+.dropdown-menu.show {
+  display: block;
+  animation: fadeInDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --- Balance Widget --- */
+.balance-card {
+  background: var(--grad);
+  margin: 15px 20px;
+  padding: 25px;
+  border-radius: 25px;
+  color: #ffffff;
+  box-shadow: 0 15px 35px var(--primary-glow);
+}
+
+.balance-card h1 {
+  font-size: 2.8rem;
+  margin: 5px 0 18px;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* --- Quick Actions & Categories --- */
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 10px 20px 25px;
+  gap: 12px;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.icon-box {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  margin-bottom: 6px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+}
+
+/* Category Carousel */
+.category-carousel {
+  display: flex;
+  overflow-x: auto;
+  gap: 12px;
+  padding: 5px 20px 25px;
+  scrollbar-width: none;
+}
+
+.cat-card {
+  min-width: 70px;
+  padding: 15px 10px;
+  background: var(--card-bg);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+
+/* --- Transaction Items --- */
+.transaction-item {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  margin: 0 20px 10px;
+  background: var(--card-bg);
+  border-radius: 18px;
+  border: 1px solid var(--border);
+}
+
+.trans-amt {
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* --- Bottom Navigation --- */
 .bottom-nav {
   position: fixed;
-  bottom: 25px;
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  width: 92%;
+  width: 90%;
   max-width: 400px;
   background: var(--nav-blur);
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
-  height: 72px;
-  border-radius: 24px;
+  backdrop-filter: blur(20px);
+  height: 70px;
+  border-radius: 22px;
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -121,93 +269,51 @@ body {
   z-index: 1000;
 }
 
-.nav-item {
-  flex: 1;
-  background: none;
-  border: none;
-  color: var(--text-sub);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.65rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.nav-item.active {
-  color: var(--primary);
-  transform: translateY(-2px);
-}
-
-.nav-item i {
-  font-size: 1.3rem;
-}
-
-/* --- Global Utility Buttons --- */
-.sub-btn {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  color: var(--text-main);
-  padding: 8px 14px;
-  border-radius: 14px;
-  font-weight: 700;
-  font-size: 0.75rem;
-  cursor: pointer;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  transition: var(--transition);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.sub-btn:hover {
-  background: var(--glass-border);
-  border-color: var(--text-sub);
-}
-
-.sub-btn:active {
-  transform: scale(0.94);
+.add-circle {
+  position: absolute;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 60px;
   background: var(--grad);
-  color: #fff;
-  border-color: transparent;
-}
-
-.icon-btn {
-  background: none;
-  border: none;
-  color: var(--text-main);
-  font-size: 1.3rem;
-  cursor: pointer;
+  color: white !important;
+  border-radius: 50%;
+  border: 5px solid var(--bg-dark);
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  transition: var(--transition);
+  font-size: 1.6rem;
+  box-shadow: 0 0 20px var(--primary-glow);
 }
 
-.icon-btn:active {
-  background: var(--glass-bg);
-  transform: scale(0.9);
+/* --- Animations --- */
+@keyframes modalSlideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
-/* --- Utility Helpers --- */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Utility Colors */
 .amt-in {
   color: var(--income);
 }
 .amt-ex {
   color: var(--expense);
-}
-
-/* Hide Scrollbars but keep functionality */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
 }

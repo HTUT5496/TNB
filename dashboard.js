@@ -1,8 +1,3 @@
-/**
- * TNB Finance - Dashboard Logic
- * Version: 2.1 (Optimized for 2026)
- */
-
 // Supabase Client Initialization
 const { createClient } = supabase;
 const _supabase = createClient(
@@ -14,7 +9,7 @@ let transactions = [];
 let currentLang = "en";
 let currentUser = null;
 
-// Language Dictionary
+// Language Data
 const langData = {
   en: {
     totalBal: "Available Balance",
@@ -28,7 +23,7 @@ const langData = {
     recentTitle: "Activity",
     dash: "Home",
     set: "Settings",
-    langBtnLabel: "Burmese",
+    langBtnLabel: "Burmese", // What the button shows when in EN
     themeDark: "🌙 Dark",
     themeLight: "☀️ Light",
     confDel: "Are you sure you want to delete this?",
@@ -57,7 +52,7 @@ const langData = {
     recentTitle: "လတ်တလော",
     dash: "ပင်မ",
     set: "ပြင်ဆင်ချက်",
-    langBtnLabel: "English",
+    langBtnLabel: "English", // What the button shows when in MY
     themeDark: "🌙 အမှောင်",
     themeLight: "☀️ အလင်း",
     confDel: "ဖျက်ရန် သေချာပါသလား?",
@@ -80,20 +75,14 @@ const langData = {
 document.addEventListener("DOMContentLoaded", async () => {
   await checkUser();
   await fetchTransactions();
+  renderTransactions();
   setupDropdown();
-
-  // Initialize UI Theme state
-  if (document.body.classList.contains("light-mode")) {
-    document.getElementById("theme-toggle").innerText =
-      langData[currentLang].themeLight;
-  }
 });
 
-// User Session & Profile Data
+// Check User Session
 async function checkUser() {
   const {
     data: { user },
-    error,
   } = await _supabase.auth.getUser();
   if (user) {
     currentUser = user;
@@ -101,7 +90,7 @@ async function checkUser() {
     const email = user.email;
     const avatarUrl =
       user.user_metadata.avatar_url ||
-      `https://ui-avatars.com/api/?name=${name}&background=3b82f6&color=fff`;
+      `https://ui-avatars.com/api/?name=${name}&background=06b6d4&color=fff`;
 
     document.getElementById("user-avatar").src = avatarUrl;
     document.getElementById("user-display-name").innerText = name;
@@ -111,7 +100,7 @@ async function checkUser() {
   }
 }
 
-// --- Dropdown Management ---
+// --- Dropdown Logic ---
 function setupDropdown() {
   const profileBtn = document.getElementById("profile-btn");
   const dropdown = document.getElementById("profile-dropdown");
@@ -121,7 +110,9 @@ function setupDropdown() {
     dropdown.classList.toggle("show");
   });
 
-  document.addEventListener("click", () => dropdown.classList.remove("show"));
+  document.addEventListener("click", () => {
+    dropdown.classList.remove("show");
+  });
 
   document.getElementById("logout-confirm-btn").onclick = async () => {
     if (confirm("Logout from TNB Finance?")) {
@@ -131,17 +122,24 @@ function setupDropdown() {
   };
 }
 
-// --- Navigation Handling ---
+// --- Navigation ---
 function navigateTo(page) {
   document
     .querySelectorAll(".nav-item")
     .forEach((btn) => btn.classList.remove("active"));
-  const btnId = `nav-${page.substring(0, 4)}-btn`;
-  const activeBtn = document.getElementById(btnId);
+  const activeBtn = document.getElementById(`nav-${page.substring(0, 4)}-btn`);
   if (activeBtn) activeBtn.classList.add("active");
+
+  if (page !== "dashboard") {
+    console.log("Navigating to:", page);
+  }
 }
 
-// --- Transaction Modal Logic ---
+function toggleSidebar() {
+  console.log("Sidebar toggled");
+}
+
+// --- Choice & Modal Logic ---
 function showChoiceModal() {
   document.getElementById("choice-modal").style.display = "block";
 }
@@ -165,13 +163,19 @@ function openModal(type) {
   typeInput.value = type;
   title.innerText = type === "income" ? d.modalInc : d.modalExp;
 
-  // Toggle category visibility based on type
-  document.getElementById("opt-income").style.display =
-    type === "income" ? "block" : "none";
-  document.getElementById("opt-expense").style.display =
-    type === "expense" ? "block" : "none";
+  const optIncome = document.getElementById("opt-income");
+  const optExpense = document.getElementById("opt-expense");
 
-  categorySelect.value = type === "income" ? "Salary" : "Food";
+  if (type === "income") {
+    optIncome.style.display = "block";
+    optExpense.style.display = "none";
+    categorySelect.value = "Salary";
+  } else {
+    optIncome.style.display = "none";
+    optExpense.style.display = "block";
+    categorySelect.value = "Food";
+  }
+
   modal.style.display = "block";
 }
 
@@ -185,19 +189,15 @@ function catAction(type, categoryName) {
   document.getElementById("category").value = categoryName;
 }
 
-// --- Supabase Data Logic ---
+// --- Data Management ---
 async function fetchTransactions() {
   const { data, error } = await _supabase
     .from("transactions")
     .select("*")
     .order("created_at", { ascending: false });
 
-  if (error) {
-    console.error("Fetch error:", error.message);
-  } else {
-    transactions = data || [];
-    renderTransactions();
-  }
+  if (error) console.error("Fetch error:", error.message);
+  else transactions = data || [];
 }
 
 document.getElementById("transaction-form").onsubmit = async (e) => {
@@ -215,11 +215,11 @@ document.getElementById("transaction-form").onsubmit = async (e) => {
 
   const { error } = await _supabase.from("transactions").insert([payload]);
 
-  if (error) {
-    alert("Error: " + error.message);
-  } else {
+  if (error) alert("Error: " + error.message);
+  else {
     closeModal();
     await fetchTransactions();
+    renderTransactions();
   }
   btn.disabled = false;
 };
@@ -230,11 +230,14 @@ async function deleteTrans(id) {
       .from("transactions")
       .delete()
       .eq("id", id);
-    if (!error) await fetchTransactions();
+    if (!error) {
+      await fetchTransactions();
+      renderTransactions();
+    }
   }
 }
 
-// --- UI Rendering ---
+// --- Rendering & UI Updates ---
 function updateSummary() {
   let totalIncome = 0;
   let totalExpense = 0;
@@ -299,65 +302,64 @@ function renderTransactions() {
   updateSummary();
 }
 
-// --- Theme & Language Toggles ---
+// --- Updated Theme Toggle (Matches index.html style) ---
 document.getElementById("theme-toggle").onclick = () => {
-  document.body.classList.toggle("light-mode");
-  const isLight = document.body.classList.contains("light-mode");
-  document.getElementById("theme-toggle").innerText = isLight
-    ? langData[currentLang].themeLight
-    : langData[currentLang].themeDark;
+  const body = document.body;
+  const btn = document.getElementById("theme-toggle");
+  const d = langData[currentLang];
+
+  body.classList.toggle("light-mode");
+
+  if (body.classList.contains("light-mode")) {
+    btn.innerText = d.themeLight;
+  } else {
+    btn.innerText = d.themeDark;
+  }
 };
 
+// --- Updated Language Toggle (Matches index.html logic) ---
 document.getElementById("lang-toggle").onclick = () => {
   currentLang = currentLang === "en" ? "my" : "en";
   const d = langData[currentLang];
-  const isLight = document.body.classList.contains("light-mode");
+  const body = document.body;
 
-  // Sync Buttons
+  // Update Buttons
   document.getElementById("lang-toggle").innerText = d.langBtnLabel;
-  document.getElementById("theme-toggle").innerText = isLight
+  document.getElementById("theme-toggle").innerText = body.classList.contains(
+    "light-mode",
+  )
     ? d.themeLight
     : d.themeDark;
 
-  // Sync Dashboard Labels
-  const mappings = {
-    "label-total-balance": d.totalBal,
-    "label-income": d.inc,
-    "label-expense": d.exp,
-    "qa-add-income": d.addInc,
-    "qa-add-expense": d.addExp,
-    "qa-history": d.hist,
-    "qa-reports": d.rep,
-    "title-categories": d.catTitle,
-    "title-recent": d.recentTitle,
-    "nav-dash": d.dash,
-    "nav-hist": d.hist,
-    "nav-rep": d.rep,
-    "nav-set": d.set,
-    "cat-food": d.catFood,
-    "cat-health": d.catHealth,
-    "cat-shop": d.catShop,
-    "cat-travel": d.catTravel,
-    "cat-salary": d.catSalary,
-    "cat-invest": d.catInvest,
-    "cat-other": d.catOther,
-    "choice-title": d.choiceTitle,
-  };
+  // Update Dashboard Text
+  document.getElementById("label-total-balance").innerText = d.totalBal;
+  document.getElementById("label-income").innerText = d.inc;
+  document.getElementById("label-expense").innerText = d.exp;
+  document.getElementById("qa-add-income").innerText = d.addInc;
+  document.getElementById("qa-add-expense").innerText = d.addExp;
+  document.getElementById("qa-history").innerText = d.hist;
+  document.getElementById("qa-reports").innerText = d.rep;
+  document.getElementById("title-categories").innerText = d.catTitle;
+  document.getElementById("title-recent").innerText = d.recentTitle;
+  document.getElementById("nav-dash").innerText = d.dash;
+  document.getElementById("nav-hist").innerText = d.hist;
+  document.getElementById("nav-rep").innerText = d.rep;
+  document.getElementById("nav-set").innerText = d.set;
 
-  Object.entries(mappings).forEach(([id, text]) => {
-    const el = document.getElementById(id);
-    if (el) el.innerText = text;
-  });
+  // Category Carousel Labels
+  document.getElementById("cat-food").innerText = d.catFood;
+  document.getElementById("cat-health").innerText = d.catHealth;
+  document.getElementById("cat-shop").innerText = d.catShop;
+  document.getElementById("cat-travel").innerText = d.catTravel;
+  document.getElementById("cat-salary").innerText = d.catSalary;
+  document.getElementById("cat-invest").innerText = d.catInvest;
+  document.getElementById("cat-other").innerText = d.catOther;
 
-  // Modal Buttons Sync
-  const choiceBtnSpans = document.querySelectorAll(".choice-btn span");
-  if (choiceBtnSpans.length >= 2) {
-    choiceBtnSpans[0].innerText = d.addInc;
-    choiceBtnSpans[1].innerText = d.addExp;
-  }
-
-  const choiceModalSub = document.querySelector("#choice-modal .sub-btn");
-  if (choiceModalSub) choiceModalSub.innerText = d.cancel;
+  // Modal Texts
+  document.getElementById("choice-title").innerText = d.choiceTitle;
+  document.querySelectorAll(".choice-btn span")[0].innerText = d.addInc;
+  document.querySelectorAll(".choice-btn span")[1].innerText = d.addExp;
+  document.querySelector("#choice-modal .sub-btn").innerText = d.cancel;
 
   renderTransactions();
 };

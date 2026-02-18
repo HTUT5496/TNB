@@ -1,4 +1,66 @@
-/* TNB Finance Dashboard - UI Components */
+/* TNB Finance Dashboard - Standardized Premium Styles
+  Optimized for: PWA, Supabase Integration, and Multi-language support
+*/
+
+:root {
+  /* Dark Mode Palette (Default) */
+  --bg-dark: #020617;
+  --card-bg: rgba(255, 255, 255, 0.05);
+  --primary: #3b82f6;
+  --primary-glow: rgba(59, 130, 246, 0.3);
+  --income: #10b981;
+  --expense: #ef4444;
+  --text-main: #f8fafc;
+  --text-sub: #94a3b8;
+  --modal-bg: #0f172a;
+  --border: rgba(255, 255, 255, 0.1);
+  --grad: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  --nav-blur: rgba(15, 23, 42, 0.8);
+}
+
+body.light-mode {
+  --bg-dark: #f8fafc;
+  --card-bg: #ffffff;
+  --text-main: #1e293b;
+  --text-sub: #64748b;
+  --modal-bg: #ffffff;
+  --border: rgba(0, 0, 0, 0.05);
+  --grad: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  --nav-blur: rgba(248, 250, 252, 0.8);
+}
+
+/* Base Resets & Standard Transitions */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background 0.3s ease,
+    color 0.3s ease,
+    transform 0.2s ease,
+    box-shadow 0.3s ease;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.mobile-container {
+  width: 100%;
+  max-width: 450px;
+  position: relative;
+  min-height: 100vh;
+  padding-bottom: 140px; /* Increased for bottom nav clearance */
+}
 
 /* --- Standard Header & Glassmorphism --- */
 .top-header {
@@ -47,10 +109,11 @@
   opacity: 0.7;
 }
 
-/* --- Profile Dropdown --- */
+/* --- Profile Dropdown System --- */
 .profile-container {
   position: relative;
 }
+
 .profile-avatar img {
   width: 42px;
   height: 42px;
@@ -79,6 +142,7 @@
   display: block;
   animation: fadeInDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
 .dropdown-header {
   padding: 8px 10px 12px;
 }
@@ -106,6 +170,7 @@
   align-items: center;
   gap: 10px;
 }
+
 .dropdown-item:active {
   background: var(--card-bg);
 }
@@ -113,7 +178,7 @@
   color: var(--expense) !important;
 }
 
-/* --- Balance Widget Card --- */
+/* --- Balance Widget Card (Matches Image) --- */
 .balance-card {
   background: var(--grad);
   margin: 15px 20px;
@@ -131,6 +196,7 @@
   font-weight: 800;
   letter-spacing: -1px;
 }
+
 .balance-card span {
   font-size: 0.9rem;
   opacity: 0.9;
@@ -158,6 +224,7 @@
   justify-content: center;
   font-size: 0.8rem;
 }
+
 .summary-item div p:first-child {
   font-size: 0.75rem;
   opacity: 0.8;
@@ -167,23 +234,12 @@
   font-size: 0.9rem;
 }
 
-/* --- Quick Actions & Categories --- */
-/* --- Variables for Theme Consistency --- */
-:root {
-  --primary-gradient: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 100%);
-  --glass-bg: rgba(255, 255, 255, 0.03);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --text-main: #f8fafc;
-  --text-sub: #94a3b8;
-  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* --- Quick Actions Grid --- */
+/* --- Quick Action Grid (Matches Image Icons) --- */
 .quick-actions {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  padding: 10px 20px 30px;
-  gap: 15px;
+  padding: 10px 20px 25px;
+  gap: 12px;
 }
 
 .action-btn {
@@ -193,156 +249,75 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  transition: var(--transition);
-  outline: none;
-}
-
-.action-btn:active {
-  transform: scale(0.9);
 }
 
 .icon-box {
-  width: 54px;
-  height: 54px;
-  border-radius: 18px;
+  width: 50px;
+  height: 50px;
+  border-radius: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 1.3rem;
-  margin-bottom: 8px;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: var(--transition);
-}
-
-/* Action Specific Colors */
-.icon-box.green {
-  background: linear-gradient(135deg, #10b981, #059669);
-}
-.icon-box.red {
-  background: linear-gradient(135deg, #f43f5e, #e11d48);
-}
-.icon-box.blue {
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
-}
-.icon-box.purple {
-  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  font-size: 1.2rem;
+  margin-bottom: 6px;
 }
 
 .action-btn span {
-  font-size: 0.7rem;
-  font-weight: 600;
+  font-size: 0.65rem;
+  font-weight: 700;
   color: var(--text-sub);
-  letter-spacing: 0.3px;
 }
 
-/* --- Section Headers --- */
+/* --- Categories Carousel (As seen in Image) --- */
 .section-title {
-  padding: 0 24px;
+  padding: 0 22px;
   font-size: 1.1rem;
   font-weight: 800;
-  margin-bottom: 15px;
-  color: var(--text-main);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  margin-bottom: 12px;
 }
-
-/* --- Category Carousel --- */
 .category-carousel {
   display: flex;
   overflow-x: auto;
-  gap: 14px;
-  padding: 5px 24px 30px;
-  scrollbar-width: none; /* Firefox */
-  scroll-behavior: smooth;
+  gap: 12px;
+  padding: 0 22px 25px;
+  scrollbar-width: none;
 }
-
 .category-carousel::-webkit-scrollbar {
-  display: none; /* Chrome/Safari */
+  display: none;
 }
 
 .cat-card {
-  min-width: 65px;
-  height: 90px;
-  background: var(--glass-bg);
-  border-radius: 20px;
+  min-width: 55px;
+  height: 80px;
+  background: var(--card-bg);
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--glass-border);
-  transition: var(--transition);
-  cursor: pointer;
-}
-
-.cat-card:hover {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(255, 255, 255, 0.2);
-  transform: translateY(-3px);
-}
-
-.cat-card:active {
-  transform: scale(0.95);
+  border: 1px solid var(--border);
 }
 
 .cat-icon-wrapper {
-  width: 40px;
-  height: 40px;
-  border-radius: 14px;
+  width: 35px;
+  height: 35px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 1.1rem;
-  margin-bottom: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-/* Category Semantic Colors */
-.cat-card.red .cat-icon-wrapper {
-  background: #f43f5e;
-}
-.cat-card.blue .cat-icon-wrapper {
-  background: #3b82f6;
-}
-.cat-card.purple .cat-icon-wrapper {
-  background: #8b5cf6;
-}
-.cat-card.gold .cat-icon-wrapper {
-  background: #f59e0b;
-}
-.cat-card.green .cat-icon-wrapper {
-  background: #10b981;
+  font-size: 1rem;
+  margin-bottom: 8px;
 }
 
 .cat-card p {
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   font-weight: 700;
-  color: var(--text-main);
-}
-
-/* --- Language Toggle Button --- */
-.lang-btn {
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
   color: var(--text-sub);
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.65rem;
-  font-weight: 800;
-  cursor: pointer;
-  transition: var(--transition);
 }
 
-.lang-btn:hover {
-  background: var(--primary-gradient);
-  color: white;
-  border-color: transparent;
-}
-/* Utility Colors */
+/* Colors */
 .green {
   background: #10b981;
 }
@@ -365,7 +340,7 @@
   background: #1d4ed8;
 }
 
-/* --- Transaction List --- */
+/* --- Transaction List Section --- */
 .list-header {
   display: flex;
   justify-content: space-between;
@@ -382,6 +357,7 @@
   font-weight: 700;
   cursor: pointer;
 }
+
 .transaction-item {
   display: flex;
   align-items: center;
@@ -392,10 +368,11 @@
   border: 1px solid var(--border);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
+
 .cat-icon {
   width: 42px;
   height: 42px;
-  background: rgba(7, 95, 238, 0.1);
+  background: rgba(59, 130, 246, 0.1);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -403,6 +380,7 @@
   color: var(--primary);
   font-size: 1.1rem;
 }
+
 .trans-info {
   flex: 1;
   margin-left: 12px;
@@ -416,6 +394,7 @@
   font-size: 0.7rem;
   color: var(--text-sub);
 }
+
 .trans-amt {
   font-weight: 800;
   text-align: right;
@@ -429,6 +408,7 @@
 .amt-ex {
   color: var(--expense);
 }
+
 .delete-icon {
   color: var(--text-sub);
   cursor: pointer;
@@ -437,7 +417,7 @@
   padding: 4px;
 }
 
-/* --- Bottom Nav & FAB --- */
+/* --- Fixed Bottom Navigation Bar (High Precision FAB) --- */
 .bottom-nav {
   position: fixed;
   bottom: 20px;
@@ -457,6 +437,7 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   z-index: 1000;
 }
+
 .nav-item {
   flex: 1;
   background: none;
@@ -470,15 +451,18 @@
   font-weight: 700;
   cursor: pointer;
 }
+
 .nav-item.active {
   color: var(--primary);
 }
 .nav-item i {
   font-size: 1.2rem;
 }
+
+/* The Add Button matching the image Glow */
 .add-circle {
   position: absolute;
-  bottom: 25px;
+  bottom: 25px; /* Offset from bottom */
   left: 50%;
   transform: translateX(-50%);
   width: 60px;
@@ -495,7 +479,7 @@
   z-index: 1001;
 }
 
-/* --- Modals & Choices --- */
+/* --- Modals & Choice System --- */
 .modal {
   display: none;
   position: fixed;
@@ -505,6 +489,7 @@
   z-index: 2000;
   padding: 20px;
 }
+
 .modal-content {
   background: var(--modal-bg);
   width: 100%;
@@ -516,6 +501,7 @@
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
   animation: modalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
 .input-group {
   margin-bottom: 15px;
 }
@@ -537,6 +523,7 @@
   outline: none;
   font-size: 0.9rem;
 }
+
 .modal-btns {
   display: flex;
   gap: 10px;
@@ -563,6 +550,7 @@
   cursor: pointer;
 }
 
+/* Choice Logic */
 .choice-options {
   display: flex;
   gap: 15px;
@@ -593,4 +581,26 @@
 }
 .expense-choice {
   background: var(--expense);
+}
+
+/* Animations */
+@keyframes modalSlideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
