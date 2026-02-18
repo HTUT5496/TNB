@@ -1,5 +1,4 @@
-
-  name: AI Evolution Dashboard Update
+name: AI Evolution Dashboard Update
 
 on:
   push:
