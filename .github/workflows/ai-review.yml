@@ -1,24 +1,25 @@
-name: AI Continuous Evolution
+name: AI 30-Min Continuous Evolution
 
 on:
   schedule:
-    # ၁ နာရီခြားတစ်ခါ အလိုအလျောက် run စေရန် (UTC အချိန်ဖြင့်)
-    - cron: '0 * * * *'
-  workflow_dispatch: # Manual နှိပ်ပြီး ခိုင်းချင်ရင်လည်း ရအောင် ထည့်ထားပေးပါသည်
+    # ၃၀ မိနစ်တစ်ခါ အလိုအလျောက် run စေရန် (UTC အချိန်ဖြင့်)
+    - cron: '*/30 * * * *'
+  workflow_dispatch: # ကိုယ်တိုင် manual နှိပ်ပြီး ခိုင်းချင်ရင်လည်း ရပါသည်
 
 jobs:
   ai-evolution:
     runs-on: ubuntu-latest
-    # PR ဆောက်နိုင်ရန်နှင့် code ရေးနိုင်ရန် permission ပေးခြင်း
+    
+    # GitHub Actions ကို PR ဆောက်နိုင်ရန်နှင့် Code ရေးနိုင်ရန် Permission အပြည့်ပေးခြင်း
     permissions:
       contents: write
       pull-requests: write
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -28,22 +29,23 @@ jobs:
           npm init -y
           npm install @google/generative-ai
 
-      - name: Run AI Agent
+      - name: Run AI Evolution Script
         run: node ai-review.js
         env:
-          # GitHub Secrets ထဲက Key ကို အသုံးပြုပါသည်
+          # Settings > Secrets ထဲမှာ ထည့်ထားတဲ့ Key ကို သုံးပါသည်
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 
       - name: Create Evolution Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "AI Evolution: Hourly UI & Code Improvements"
-          branch: ai-hourly-evolution
-          title: "🤖 AI Automated Evolution"
+          commit-message: "AI Evolution: 30-min automated update"
+          # Branch name ကို အမြဲတမ်း အသစ်ဖြစ်နေစေရန် run_id ထည့်ထားပါသည်
+          branch: ai-evolution-task-${{ github.run_id }}
+          title: "🤖 AI Automated Evolution (30-Min Update)"
           body: |
-            Gemini AI က မင်းရဲ့ App ကို ၁ နာရီခြားတစ်ခါ စစ်ဆေးပြီး ပိုကောင်းအောင် ပြင်ဆင်ပေးထားပါသည်။
-            - UI/UX အဆင့်မြှင့်တင်ခြင်း
-            - Code သန့်ရှင်းရေးလုပ်ခြင်း
-            - Responsive ဖြစ်အောင် ပြုပြင်ခြင်း
+            Gemini AI က မင်းရဲ့ App ကို ၃၀ မိနစ်တစ်ခါ စစ်ဆေးပြီး အဆင့်မြှင့်တင်ပေးထားပါသည်။
+            - Dashboard Logic ပြုပြင်ခြင်း (Income/Expense Categories)
+            - UI/UX ပိုမိုလှပအောင် ပြင်ဆင်ခြင်း
+            - Code Clean ဖြစ်အောင် လုပ်ဆောင်ခြင်း
           delete-branch: true
