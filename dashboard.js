@@ -12,26 +12,24 @@ let currentUser = null;
 // Language Data
 const langData = {
   en: {
-    totalBal: "Total Balance",
+    totalBal: "Available Balance",
     inc: "Income",
     exp: "Expense",
-    addInc: "Add Income",
-    addExp: "Add Expense",
+    addInc: "Income",
+    addExp: "Expense",
     hist: "History",
-    rep: "Reports",
+    rep: "Analysis",
     catTitle: "Categories",
-    recentTitle: "Recent Transactions",
-    dash: "Dashboard",
+    recentTitle: "Activity",
+    dash: "Home",
     set: "Settings",
-    langBtn: "Burmese",
-    confDel: "Are you sure to delete?",
-    editNote: "Edit Note:",
-    modalInc: "Add Income",
-    modalExp: "Add Expense",
-    save: "Save",
-    cancel: "Cancel",
-    choiceTitle: "Choose Type",
-    // Category Names
+    langBtn: "EN / MY",
+    confDel: "Are you sure you want to delete this?",
+    modalInc: "New Income",
+    modalExp: "New Expense",
+    save: "Confirm",
+    cancel: "Back",
+    choiceTitle: "New Transaction",
     catFood: "Food",
     catHealth: "Health",
     catShop: "Shopping",
@@ -40,26 +38,24 @@ const langData = {
     catInvest: "Investment",
   },
   my: {
-    totalBal: "လက်ကျန်ငွေစုစုပေါင်း",
+    totalBal: "လက်ကျန်ငွေ",
     inc: "ဝင်ငွေ",
     exp: "ထွက်ငွေ",
-    addInc: "ဝင်ငွေထည့်",
-    addExp: "ထွက်ငွေထည့်",
+    addInc: "ဝင်ငွေ",
+    addExp: "ထွက်ငွေ",
     hist: "မှတ်တမ်း",
-    rep: "အစီရင်ခံစာ",
+    rep: "သုံးသပ်ချက်",
     catTitle: "အမျိုးအစားများ",
-    recentTitle: "လတ်တလောစာရင်းများ",
-    dash: "ပင်မစာမျက်နှာ",
+    recentTitle: "လတ်တလော",
+    dash: "ပင်မ",
     set: "ပြင်ဆင်ချက်",
-    langBtn: "English",
+    langBtn: "MY / EN",
     confDel: "ဖျက်ရန် သေချာပါသလား?",
-    editNote: "မှတ်စုပြင်ရန်:",
-    modalInc: "ဝင်ငွေစာရင်းသွင်းရန်",
-    modalExp: "ထွက်ငွေစာရင်းသွင်းရန်",
-    save: "သိမ်းမည်",
-    cancel: "ပယ်ဖျက်မည်",
+    modalInc: "ဝင်ငွေထည့်သွင်းရန်",
+    modalExp: "ထွက်ငွေထည့်သွင်းရန်",
+    save: "အတည်ပြုမည်",
+    cancel: "နောက်သို့",
     choiceTitle: "အမျိုးအစားရွေးချယ်ပါ",
-    // Category Names
     catFood: "စားစရိတ်",
     catHealth: "ကျန်းမာရေး",
     catShop: "စျေးဝယ်",
@@ -77,19 +73,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   setupDropdown();
 });
 
-// Check User Session & Update Profile
+// Check User Session
 async function checkUser() {
   const {
     data: { user },
   } = await _supabase.auth.getUser();
   if (user) {
     currentUser = user;
-
     const name = user.user_metadata.full_name || "User";
     const email = user.email;
     const avatarUrl =
       user.user_metadata.avatar_url ||
-      `https://ui-avatars.com/api/?name=${name}&background=3b82f6&color=fff`;
+      `https://ui-avatars.com/api/?name=${name}&background=06b6d4&color=fff`;
 
     document.getElementById("user-avatar").src = avatarUrl;
     document.getElementById("user-display-name").innerText = name;
@@ -110,37 +105,36 @@ function setupDropdown() {
   });
 
   document.addEventListener("click", () => {
-    if (dropdown.classList.contains("show")) {
-      dropdown.classList.remove("show");
-    }
+    dropdown.classList.remove("show");
   });
 
   document.getElementById("logout-confirm-btn").onclick = async () => {
-    if (confirm("Do you want to logout?")) {
+    if (confirm("Logout from TNB Finance?")) {
       await _supabase.auth.signOut();
       window.location.href = "index.html";
     }
   };
 }
 
-// --- Navigation & Sidebar Logic ---
+// --- Navigation ---
 function navigateTo(page) {
   document
     .querySelectorAll(".nav-item")
     .forEach((btn) => btn.classList.remove("active"));
+  const activeBtn = document.getElementById(`nav-${page.substring(0, 4)}-btn`);
+  if (activeBtn) activeBtn.classList.add("active");
 
-  if (page === "dashboard") {
-    document.getElementById("nav-dash-btn").classList.add("active");
-  } else {
-    alert("Navigating to " + page + " page...");
+  if (page !== "dashboard") {
+    console.log("Navigating to:", page);
+    // You can implement page routing here later
   }
 }
 
 function toggleSidebar() {
-  alert("Sidebar menu clicked");
+  console.log("Sidebar toggled");
 }
 
-// --- Choice Modal Logic ---
+// --- Choice & Modal Logic ---
 function showChoiceModal() {
   document.getElementById("choice-modal").style.display = "block";
 }
@@ -154,49 +148,6 @@ function selectChoice(type) {
   openModal(type);
 }
 
-// --- Quick Category Action ---
-function catAction(type, categoryName) {
-  const lowerType = type.toLowerCase();
-  openModal(lowerType);
-
-  const categorySelect = document.getElementById("category");
-  if (categorySelect) {
-    categorySelect.value = categoryName;
-  }
-}
-
-// --- Supabase Database Logic ---
-async function fetchTransactions() {
-  const { data, error } = await _supabase
-    .from("transactions")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (error) console.log("Error fetching data:", error.message);
-  else transactions = data || [];
-}
-
-function updateSummary() {
-  let totalIncome = 0;
-  let totalExpense = 0;
-
-  transactions.forEach((t) => {
-    const amt = parseFloat(t.amount);
-    if (t.type === "income") totalIncome += amt;
-    else totalExpense += Math.abs(amt);
-  });
-
-  const balance = totalIncome - totalExpense;
-
-  document.getElementById("main-balance").innerText =
-    `$${balance.toLocaleString()}`;
-  document.getElementById("total-income").innerText =
-    `+$${totalIncome.toLocaleString()}`;
-  document.getElementById("total-expense").innerText =
-    `-$${totalExpense.toLocaleString()}`;
-}
-
-// --- Modal Logic with Category Filtering ---
 function openModal(type) {
   const modal = document.getElementById("transaction-modal");
   const title = document.getElementById("modal-form-title");
@@ -207,33 +158,18 @@ function openModal(type) {
   typeInput.value = type;
   title.innerText = type === "income" ? d.modalInc : d.modalExp;
 
-  const options = categorySelect.querySelectorAll("option");
-  const optGroups = categorySelect.querySelectorAll("optgroup");
-  let firstValidOption = null;
+  // Filter Categories in Select Dropdown
+  const optIncome = document.getElementById("opt-income");
+  const optExpense = document.getElementById("opt-expense");
 
-  options.forEach((opt) => {
-    const optType = opt.getAttribute("data-type");
-    if (optType === type || optType === "both") {
-      opt.style.display = "block";
-      opt.disabled = false;
-      if (!firstValidOption) firstValidOption = opt.value;
-    } else {
-      opt.style.display = "none";
-      opt.disabled = true;
-    }
-  });
-
-  optGroups.forEach((group) => {
-    const label = group.getAttribute("label").toUpperCase();
-    if (label.includes(type.toUpperCase())) {
-      group.style.display = "";
-    } else {
-      group.style.display = "none";
-    }
-  });
-
-  if (firstValidOption) {
-    categorySelect.value = firstValidOption;
+  if (type === "income") {
+    optIncome.style.display = "block";
+    optExpense.style.display = "none";
+    categorySelect.value = "Salary";
+  } else {
+    optIncome.style.display = "none";
+    optExpense.style.display = "block";
+    categorySelect.value = "Food";
   }
 
   modal.style.display = "block";
@@ -244,126 +180,44 @@ function closeModal() {
   document.getElementById("transaction-form").reset();
 }
 
+function catAction(type, categoryName) {
+  openModal(type.toLowerCase());
+  document.getElementById("category").value = categoryName;
+}
+
+// --- Data Management ---
+async function fetchTransactions() {
+  const { data, error } = await _supabase
+    .from("transactions")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) console.error("Fetch error:", error.message);
+  else transactions = data || [];
+}
+
 document.getElementById("transaction-form").onsubmit = async (e) => {
   e.preventDefault();
+  const btn = document.getElementById("save-btn");
+  btn.disabled = true;
 
-  const type = document.getElementById("trans-type").value;
-  const amount = document.getElementById("amount").value;
-  const category = document.getElementById("category").value;
-  const note = document.getElementById("note").value;
+  const payload = {
+    type: document.getElementById("trans-type").value,
+    amount: parseFloat(document.getElementById("amount").value),
+    category: document.getElementById("category").value,
+    note: document.getElementById("note").value,
+    user_id: currentUser.id,
+  };
 
-  const { error } = await _supabase.from("transactions").insert([
-    {
-      type: type,
-      amount: parseFloat(amount),
-      category: category,
-      note: note,
-      user_id: currentUser.id,
-    },
-  ]);
+  const { error } = await _supabase.from("transactions").insert([payload]);
 
-  if (error) {
-    alert("Error saving: " + error.message);
-  } else {
+  if (error) alert("Error: " + error.message);
+  else {
     closeModal();
     await fetchTransactions();
     renderTransactions();
   }
-};
-
-// --- Rendering Logic ---
-function renderTransactions() {
-  const list = document.getElementById("transaction-list");
-  if (!list) return;
-  list.innerHTML = "";
-
-  const icons = {
-    Salary: "fa-wallet",
-    Investment: "fa-chart-line",
-    Bonus: "fa-gift",
-    Shopping: "fa-shopping-bag",
-    Food: "fa-utensils",
-    Health: "fa-heartbeat",
-    Travel: "fa-plane",
-    Bill: "fa-file-invoice-dollar",
-    Other: "fa-tags",
-  };
-
-  transactions.forEach((t) => {
-    const item = document.createElement("div");
-    item.className = "transaction-item";
-    const dateStr = new Date(t.created_at).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    });
-
-    item.innerHTML = `
-      <div class="cat-icon"><i class="fas ${icons[t.category] || "fa-coins"}"></i></div>
-      <div class="trans-info">
-          <h4>${t.category}</h4>
-          <p>${t.note || ""} • ${dateStr}</p>
-      </div>
-      <div class="trans-amt ${t.type === "income" ? "amt-in" : "amt-ex"}">
-          ${t.type === "income" ? "+" : "-"}$${Math.abs(t.amount).toLocaleString()}
-          <i class="fas fa-trash-alt delete-icon" onclick="event.stopPropagation(); deleteTrans('${t.id}')"></i>
-      </div>
-    `;
-    list.appendChild(item);
-  });
-  updateSummary();
-}
-
-// --- Theme & Language ---
-document.getElementById("theme-toggle").onclick = () => {
-  document.body.classList.toggle("light-mode");
-  const icon = document.querySelector("#theme-toggle i");
-  icon.className = document.body.classList.contains("light-mode")
-    ? "fas fa-sun"
-    : "fas fa-moon";
-};
-
-document.getElementById("lang-toggle").onclick = () => {
-  currentLang = currentLang === "en" ? "my" : "en";
-  const d = langData[currentLang];
-
-  document.getElementById("lang-toggle").innerText = d.langBtn;
-  document.getElementById("label-total-balance").innerText = d.totalBal;
-  document.getElementById("label-income").innerText = d.inc;
-  document.getElementById("label-expense").innerText = d.exp;
-  document.getElementById("qa-add-income").innerText = d.addInc;
-  document.getElementById("qa-add-expense").innerText = d.addExp;
-  document.getElementById("qa-history").innerText = d.hist;
-  document.getElementById("qa-reports").innerText = d.rep;
-  document.getElementById("title-categories").innerText = d.catTitle;
-  document.getElementById("title-recent").innerText = d.recentTitle;
-
-  // Category Carousel Labels
-  document.getElementById("cat-food").innerText = d.catFood;
-  document.getElementById("cat-health").innerText = d.catHealth;
-  document.getElementById("cat-shop").innerText = d.catShop;
-  document.getElementById("cat-travel").innerText = d.catTravel;
-  document.getElementById("cat-salary").innerText = d.catSalary;
-  document.getElementById("cat-invest").innerText = d.catInvest;
-
-  document.getElementById("nav-dash").innerText = d.dash;
-  document.getElementById("nav-hist").innerText = d.hist;
-  document.getElementById("nav-rep").innerText = d.rep;
-  document.getElementById("nav-set").innerText = d.set;
-
-  document.getElementById("choice-title").innerText = d.choiceTitle;
-  document.querySelectorAll(".choice-btn span")[0].innerText = d.addInc;
-  document.querySelectorAll(".choice-btn span")[1].innerText = d.addExp;
-  document.querySelector("#choice-modal .sub-btn").innerText = d.cancel;
-
-  const modalTitle = document.getElementById("modal-form-title");
-  if (modalTitle) {
-    modalTitle.innerText =
-      document.getElementById("trans-type").value === "income"
-        ? d.modalInc
-        : d.modalExp;
-  }
-
-  renderTransactions();
+  btn.disabled = false;
 };
 
 async function deleteTrans(id) {
@@ -378,3 +232,113 @@ async function deleteTrans(id) {
     }
   }
 }
+
+// --- Rendering & UI Updates ---
+function updateSummary() {
+  let totalIncome = 0;
+  let totalExpense = 0;
+
+  transactions.forEach((t) => {
+    const amt = parseFloat(t.amount);
+    if (t.type === "income") totalIncome += amt;
+    else totalExpense += Math.abs(amt);
+  });
+
+  const balance = totalIncome - totalExpense;
+  const formatter = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  });
+
+  document.getElementById("main-balance").innerText = formatter.format(balance);
+  document.getElementById("total-income").innerText =
+    "+" + formatter.format(totalIncome);
+  document.getElementById("total-expense").innerText =
+    "-" + formatter.format(totalExpense);
+}
+
+function renderTransactions() {
+  const list = document.getElementById("transaction-list");
+  if (!list) return;
+  list.innerHTML = "";
+
+  const icons = {
+    Salary: "fa-money-bill-trend-up",
+    Investment: "fa-chart-line",
+    Bonus: "fa-gift",
+    Shopping: "fa-bag-shopping",
+    Food: "fa-burger",
+    Health: "fa-kit-medical",
+    Travel: "fa-route",
+    Bill: "fa-file-invoice-dollar",
+    Other: "fa-ellipsis",
+  };
+
+  transactions.forEach((t) => {
+    const item = document.createElement("div");
+    item.className = "transaction-item";
+    const dateStr = new Date(t.created_at).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+
+    item.innerHTML = `
+      <div class="cat-icon"><i class="fas ${icons[t.category] || "fa-coins"}"></i></div>
+      <div class="trans-info">
+          <h4>${t.category}</h4>
+          <p>${t.note || "No details"} • ${dateStr}</p>
+      </div>
+      <div class="trans-amt ${t.type === "income" ? "amt-in" : "amt-ex"}">
+          ${t.type === "income" ? "+" : "-"}$${Math.abs(t.amount).toLocaleString()}
+          <i class="fa-solid fa-trash-can delete-icon" onclick="event.stopPropagation(); deleteTrans('${t.id}')"></i>
+      </div>
+    `;
+    list.appendChild(item);
+  });
+  updateSummary();
+}
+
+// --- Settings/Theme/Language ---
+document.getElementById("theme-toggle").onclick = () => {
+  document.body.classList.toggle("light-mode");
+  const icon = document.querySelector("#theme-toggle i");
+  icon.className = document.body.classList.contains("light-mode")
+    ? "fas fa-sun"
+    : "fas fa-circle-half-stroke";
+};
+
+document.getElementById("lang-toggle").onclick = () => {
+  currentLang = currentLang === "en" ? "my" : "en";
+  const d = langData[currentLang];
+
+  // Update UI Elements
+  document.getElementById("lang-toggle").innerText = d.langBtn;
+  document.getElementById("label-total-balance").innerText = d.totalBal;
+  document.getElementById("label-income").innerText = d.inc;
+  document.getElementById("label-expense").innerText = d.exp;
+  document.getElementById("qa-add-income").innerText = d.addInc;
+  document.getElementById("qa-add-expense").innerText = d.addExp;
+  document.getElementById("qa-history").innerText = d.hist;
+  document.getElementById("qa-reports").innerText = d.rep;
+  document.getElementById("title-categories").innerText = d.catTitle;
+  document.getElementById("title-recent").innerText = d.recentTitle;
+  document.getElementById("nav-dash").innerText = d.dash;
+  document.getElementById("nav-hist").innerText = d.hist;
+  document.getElementById("nav-rep").innerText = d.rep;
+  document.getElementById("nav-set").innerText = d.set;
+
+  // Category Carousel Labels
+  document.getElementById("cat-food").innerText = d.catFood;
+  document.getElementById("cat-health").innerText = d.catHealth;
+  document.getElementById("cat-shop").innerText = d.catShop;
+  document.getElementById("cat-travel").innerText = d.catTravel;
+  document.getElementById("cat-salary").innerText = d.catSalary;
+
+  // Modal Texts
+  document.getElementById("choice-title").innerText = d.choiceTitle;
+  document.querySelectorAll(".choice-btn span")[0].innerText = d.addInc;
+  document.querySelectorAll(".choice-btn span")[1].innerText = d.addExp;
+  document.querySelector("#choice-modal .sub-btn").innerText = d.cancel;
+
+  renderTransactions();
+};

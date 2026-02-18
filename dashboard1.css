@@ -1,0 +1,84 @@
+/* TNB Finance Dashboard - Core Styles & Variables */
+
+:root {
+  /* Dark Mode Palette (Default) */
+  --bg-dark: #020617;
+  --card-bg: rgba(255, 255, 255, 0.05);
+  --primary: #3b82f6;
+  --primary-glow: rgba(59, 130, 246, 0.3);
+  --income: #10b981;
+  --expense: #ef4444;
+  --text-main: #f8fafc;
+  --text-sub: #94a3b8;
+  --modal-bg: #0f172a;
+  --border: rgba(255, 255, 255, 0.1);
+  --grad: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  --nav-blur: rgba(15, 23, 42, 0.8);
+}
+
+body.light-mode {
+  --bg-dark: #f8fafc;
+  --card-bg: #ffffff;
+  --text-main: #1e293b;
+  --text-sub: #64748b;
+  --modal-bg: #ffffff;
+  --border: rgba(0, 0, 0, 0.05);
+  --grad: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  --nav-blur: rgba(248, 250, 252, 0.8);
+}
+
+/* Base Resets & Standard Transitions */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background 0.3s ease,
+    color 0.3s ease,
+    transform 0.2s ease,
+    box-shadow 0.3s ease;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.mobile-container {
+  width: 100%;
+  max-width: 450px;
+  position: relative;
+  min-height: 100vh;
+  padding-bottom: 140px;
+}
+
+/* Animations */
+@keyframes modalSlideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

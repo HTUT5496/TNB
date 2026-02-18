@@ -1,18 +1,30 @@
 {
   "name": "TNB Financial Manager",
   "short_name": "TNB",
-  "description": "Professional assets and losses tracking software.",
+  "description": "Premium assets and expense tracking with real-time analytics.",
+  "id": "/tnb-finance-app",
   "start_url": "index.html",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "minimal-ui"],
   "orientation": "portrait",
   "background_color": "#020617",
-  "theme_color": "#2563eb",
+  "theme_color": "#3b82f6",
+  "categories": ["finance", "productivity", "utilities"],
+  "dir": "ltr",
+  "lang": "en-US",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "icon.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "icon-512.png",
@@ -20,12 +32,42 @@
       "type": "image/png"
     }
   ],
-  "categories": ["finance", "productivity"],
+  "screenshots": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "TNB Mobile Dashboard"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "TNB Desktop Dashboard"
+    }
+  ],
   "shortcuts": [
     {
       "name": "Add Transaction",
-      "url": "dashboard.html",
+      "short_name": "Add",
+      "url": "dashboard.html?action=add",
+      "description": "Quickly add a new income or expense",
       "icons": [{ "src": "icon.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "View History",
+      "short_name": "History",
+      "url": "dashboard.html#history",
+      "description": "Check your past transactions",
+      "icons": [{ "src": "icon.png", "sizes": "192x192" }]
+    }
+  ],
+  "protocol_handlers": [
+    {
+      "protocol": "web+tnb",
+      "url": "dashboard.html?query=%s"
     }
   ]
 }
