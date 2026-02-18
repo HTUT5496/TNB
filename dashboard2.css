@@ -168,12 +168,24 @@
 }
 
 /* --- Quick Actions & Categories --- */
+/* --- Variables for Theme Consistency --- */
+:root {
+  --primary-gradient: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 100%);
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --text-main: #f8fafc;
+  --text-sub: #94a3b8;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- Quick Actions Grid --- */
 .quick-actions {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  padding: 10px 20px 25px;
-  gap: 12px;
+  padding: 10px 20px 30px;
+  gap: 15px;
 }
+
 .action-btn {
   background: none;
   border: none;
@@ -181,69 +193,155 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  transition: var(--transition);
+  outline: none;
 }
+
+.action-btn:active {
+  transform: scale(0.9);
+}
+
 .icon-box {
-  width: 50px;
-  height: 50px;
-  border-radius: 15px;
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 1.2rem;
-  margin-bottom: 6px;
-}
-.action-btn span {
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: var(--text-sub);
+  font-size: 1.3rem;
+  margin-bottom: 8px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: var(--transition);
 }
 
+/* Action Specific Colors */
+.icon-box.green {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+.icon-box.red {
+  background: linear-gradient(135deg, #f43f5e, #e11d48);
+}
+.icon-box.blue {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+.icon-box.purple {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+}
+
+.action-btn span {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-sub);
+  letter-spacing: 0.3px;
+}
+
+/* --- Section Headers --- */
 .section-title {
-  padding: 0 22px;
+  padding: 0 24px;
   font-size: 1.1rem;
   font-weight: 800;
-  margin-bottom: 12px;
+  margin-bottom: 15px;
+  color: var(--text-main);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
+
+/* --- Category Carousel --- */
 .category-carousel {
   display: flex;
   overflow-x: auto;
-  gap: 12px;
-  padding: 0 22px 25px;
-  scrollbar-width: none;
+  gap: 14px;
+  padding: 5px 24px 30px;
+  scrollbar-width: none; /* Firefox */
+  scroll-behavior: smooth;
 }
+
 .category-carousel::-webkit-scrollbar {
-  display: none;
+  display: none; /* Chrome/Safari */
 }
 
 .cat-card {
-  min-width: 55px;
-  height: 80px;
-  background: var(--card-bg);
-  border-radius: 12px;
+  min-width: 65px;
+  height: 90px;
+  background: var(--glass-bg);
+  border-radius: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border);
+  border: 1px solid var(--glass-border);
+  transition: var(--transition);
+  cursor: pointer;
 }
+
+.cat-card:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-3px);
+}
+
+.cat-card:active {
+  transform: scale(0.95);
+}
+
 .cat-icon-wrapper {
-  width: 35px;
-  height: 35px;
-  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 1rem;
-  margin-bottom: 8px;
-}
-.cat-card p {
-  font-size: 0.6rem;
-  font-weight: 700;
-  color: var(--text-sub);
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
+/* Category Semantic Colors */
+.cat-card.red .cat-icon-wrapper {
+  background: #f43f5e;
+}
+.cat-card.blue .cat-icon-wrapper {
+  background: #3b82f6;
+}
+.cat-card.purple .cat-icon-wrapper {
+  background: #8b5cf6;
+}
+.cat-card.gold .cat-icon-wrapper {
+  background: #f59e0b;
+}
+.cat-card.green .cat-icon-wrapper {
+  background: #10b981;
+}
+
+.cat-card p {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+/* --- Language Toggle Button --- */
+.lang-btn {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-sub);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.lang-btn:hover {
+  background: var(--primary-gradient);
+  color: white;
+  border-color: transparent;
+}
 /* Utility Colors */
 .green {
   background: #10b981;
