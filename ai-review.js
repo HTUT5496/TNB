@@ -2,13 +2,11 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import fs from "fs";
 import path from "path";
 
-// Initialize AI with API Key from GitHub Secrets
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 async function runAI() {
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
   
-  // Specific Dashboard files to modify
   const dashboardFiles = [
     "dashboard.html",
     "dashboard.js",
@@ -16,52 +14,39 @@ async function runAI() {
     "dashboard2.css"
   ];
 
-  console.log(`🚀 AI Evolution Started: Upgrading UI/UX...`);
+  console.log(`🚀 Starting Evolution Cycle...`);
 
   for (const filePath of dashboardFiles) {
-    if (!fs.existsSync(filePath)) {
-      console.warn(`⚠️ Skipping: ${filePath} not found.`);
-      continue;
-    }
+    if (!fs.existsSync(filePath)) continue;
 
-    console.log(`✨ Evolving: ${filePath}`);
     const originalCode = fs.readFileSync(filePath, "utf8");
 
-    const prompt = `You are a Senior UI/UX Architect. 
-    TASK: Improve the file: ${filePath}
+    const prompt = `You are a World-Class UI Developer. 
+    CURRENT FILE: ${filePath}
 
-    STRICT EVOLUTION REQUIREMENT:
-    - Every update must make the UI/UX more advanced and feature-rich than the current version.
-    - Add premium design elements (glassmorphism, advanced CSS variables, or smooth micro-interactions).
-    - If it is dashboard.js, optimize the code for high performance.
+    STRICT INSTRUCTIONS:
+    1. You MUST evolve this file to be better than it currently is. 
+    2. Add new features, better animations, or more professional styling (Glassmorphism, Neumorphism, or clean Minimalist).
+    3. If it's dashboard.js/html: Implement/improve a dynamic filter where 'Add Income' shows (Salary, Gift) and 'Add Expense' shows (Food, Rent).
+    4. NO INLINE CSS. Move all styles to dashboard1.css or dashboard2.css.
+    5. Ensure the UI feels more "Premium" than the existing code.
 
-    SPECIFIC FEATURE:
-    - Implement a dynamic category filter.
-    - If 'Add Income' is selected, show: Salary, Gift, Interest.
-    - If 'Add Expense' is selected, show: Food, Transport, Rent, Bills.
-    - If this feature already exists, improve its visual feedback or animation.
-
-    ARCHITECTURE RULES:
-    1. NEVER use inline CSS. Move all styling to dashboard1.css or dashboard2.css.
-    2. Maintain the existing file structure: index.html (Login), register.html, dashboard.html.
-    3. Return ONLY the updated code without any markdown or backticks.`;
+    Return ONLY the updated code. No markdown backticks.`;
 
     try {
       const result = await model.generateContent([prompt, originalCode]);
       const response = await result.response;
-      
-      let improvedCode = response.text()
-        .replace(/```[a-z]*\n/g, "")
-        .replace(/```/g, "")
-        .trim();
+      let improvedCode = response.text().replace(/```[a-z]*\n/g, "").replace(/```/g, "").trim();
 
-      fs.writeFileSync(filePath, improvedCode);
-      console.log(`✅ Evolution Complete: ${filePath}`);
+      // Only write if the AI actually changed something
+      if (improvedCode !== originalCode) {
+        fs.writeFileSync(filePath, improvedCode);
+        console.log(`✅ Evolved: ${filePath}`);
+      }
     } catch (error) {
       console.error(`❌ Error in ${filePath}:`, error.message);
     }
   }
-  console.log("🏁 AI Evolution cycle finished.");
 }
 
 runAI();
