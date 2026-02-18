@@ -23,7 +23,9 @@ const langData = {
     recentTitle: "Activity",
     dash: "Home",
     set: "Settings",
-    langBtn: "EN / MY",
+    langBtnLabel: "Burmese", // What the button shows when in EN
+    themeDark: "🌙 Dark",
+    themeLight: "☀️ Light",
     confDel: "Are you sure you want to delete this?",
     modalInc: "New Income",
     modalExp: "New Expense",
@@ -36,6 +38,7 @@ const langData = {
     catTravel: "Travel",
     catSalary: "Salary",
     catInvest: "Investment",
+    catOther: "Other",
   },
   my: {
     totalBal: "လက်ကျန်ငွေ",
@@ -49,7 +52,9 @@ const langData = {
     recentTitle: "လတ်တလော",
     dash: "ပင်မ",
     set: "ပြင်ဆင်ချက်",
-    langBtn: "MY / EN",
+    langBtnLabel: "English", // What the button shows when in MY
+    themeDark: "🌙 အမှောင်",
+    themeLight: "☀️ အလင်း",
     confDel: "ဖျက်ရန် သေချာပါသလား?",
     modalInc: "ဝင်ငွေထည့်သွင်းရန်",
     modalExp: "ထွက်ငွေထည့်သွင်းရန်",
@@ -62,6 +67,7 @@ const langData = {
     catTravel: "ခရီးသွား",
     catSalary: "လစာ",
     catInvest: "ရင်းနှီးမြှုပ်နှံမှု",
+    catOther: "အခြား",
   },
 };
 
@@ -126,7 +132,6 @@ function navigateTo(page) {
 
   if (page !== "dashboard") {
     console.log("Navigating to:", page);
-    // You can implement page routing here later
   }
 }
 
@@ -158,7 +163,6 @@ function openModal(type) {
   typeInput.value = type;
   title.innerText = type === "income" ? d.modalInc : d.modalExp;
 
-  // Filter Categories in Select Dropdown
   const optIncome = document.getElementById("opt-income");
   const optExpense = document.getElementById("opt-expense");
 
@@ -298,21 +302,36 @@ function renderTransactions() {
   updateSummary();
 }
 
-// --- Settings/Theme/Language ---
+// --- Updated Theme Toggle (Matches index.html style) ---
 document.getElementById("theme-toggle").onclick = () => {
-  document.body.classList.toggle("light-mode");
-  const icon = document.querySelector("#theme-toggle i");
-  icon.className = document.body.classList.contains("light-mode")
-    ? "fas fa-sun"
-    : "fas fa-circle-half-stroke";
+  const body = document.body;
+  const btn = document.getElementById("theme-toggle");
+  const d = langData[currentLang];
+
+  body.classList.toggle("light-mode");
+
+  if (body.classList.contains("light-mode")) {
+    btn.innerText = d.themeLight;
+  } else {
+    btn.innerText = d.themeDark;
+  }
 };
 
+// --- Updated Language Toggle (Matches index.html logic) ---
 document.getElementById("lang-toggle").onclick = () => {
   currentLang = currentLang === "en" ? "my" : "en";
   const d = langData[currentLang];
+  const body = document.body;
 
-  // Update UI Elements
-  document.getElementById("lang-toggle").innerText = d.langBtn;
+  // Update Buttons
+  document.getElementById("lang-toggle").innerText = d.langBtnLabel;
+  document.getElementById("theme-toggle").innerText = body.classList.contains(
+    "light-mode",
+  )
+    ? d.themeLight
+    : d.themeDark;
+
+  // Update Dashboard Text
   document.getElementById("label-total-balance").innerText = d.totalBal;
   document.getElementById("label-income").innerText = d.inc;
   document.getElementById("label-expense").innerText = d.exp;
@@ -333,6 +352,8 @@ document.getElementById("lang-toggle").onclick = () => {
   document.getElementById("cat-shop").innerText = d.catShop;
   document.getElementById("cat-travel").innerText = d.catTravel;
   document.getElementById("cat-salary").innerText = d.catSalary;
+  document.getElementById("cat-invest").innerText = d.catInvest;
+  document.getElementById("cat-other").innerText = d.catOther;
 
   // Modal Texts
   document.getElementById("choice-title").innerText = d.choiceTitle;

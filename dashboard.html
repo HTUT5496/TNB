@@ -20,7 +20,6 @@
     <link rel="stylesheet" href="dashboard2.css" />
 
     <script>
-      // Service Worker Registration for PWA
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
           navigator.serviceWorker
@@ -36,13 +35,31 @@
   <body class="dark-mode">
     <div class="mobile-container">
       <header class="top-header">
-        <button class="icon-btn" id="menu-btn" onclick="toggleSidebar()">
-          <i class="fa-solid fa-grip-lines"></i>
-        </button>
+        <div
+          class="header-left"
+          style="display: flex; align-items: center; gap: 10px"
+        >
+          <button class="icon-btn" id="menu-btn" onclick="toggleSidebar()">
+            <i class="fa-solid fa-grip-lines"></i>
+          </button>
+          <button
+            id="lang-toggle"
+            class="sub-btn"
+            style="padding: 4px 10px; font-size: 0.7rem; min-width: 70px"
+          >
+            Burmese
+          </button>
+        </div>
+
         <h2 class="app-logo">TNB</h2>
+
         <div class="header-right">
-          <button id="theme-toggle" class="icon-btn">
-            <i class="fas fa-circle-half-stroke"></i>
+          <button
+            id="theme-toggle"
+            class="sub-btn"
+            style="padding: 4px 10px; font-size: 0.7rem"
+          >
+            🌙 Dark
           </button>
 
           <div class="profile-container">
@@ -78,8 +95,9 @@
               font-size: 0.7rem;
               letter-spacing: 1px;
             "
-            >Available Balance</span
           >
+            Available Balance
+          </span>
           <h1 id="main-balance">$0.00</h1>
           <div class="summary-row">
             <div class="summary-item income">
@@ -105,15 +123,11 @@
 
         <section class="quick-actions">
           <button class="action-btn" onclick="openModal('income')">
-            <div class="icon-box green">
-              <i class="fa-solid fa-plus-large"></i>+
-            </div>
+            <div class="icon-box green"><i class="fa-solid fa-plus"></i></div>
             <span id="qa-add-income">Income</span>
           </button>
           <button class="action-btn" onclick="openModal('expense')">
-            <div class="icon-box red">
-              <i class="fa-solid fa-minus-large"></i>-
-            </div>
+            <div class="icon-box red"><i class="fa-solid fa-minus"></i></div>
             <span id="qa-add-expense">Expense</span>
           </button>
           <button class="action-btn" onclick="navigateTo('history')">
@@ -138,6 +152,15 @@
             </div>
             <p id="cat-salary">Salary</p>
           </div>
+          <div
+            class="cat-card blue"
+            onclick="catAction('Income', 'Investment')"
+          >
+            <div class="cat-icon-wrapper">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <p id="cat-invest">Investment</p>
+          </div>
           <div class="cat-card red" onclick="catAction('Expense', 'Food')">
             <div class="cat-icon-wrapper"><i class="fas fa-burger"></i></div>
             <p id="cat-food">Food</p>
@@ -161,13 +184,16 @@
             <div class="cat-icon-wrapper"><i class="fas fa-route"></i></div>
             <p id="cat-travel">Travel</p>
           </div>
+          <div class="cat-card gray" onclick="catAction('Expense', 'Other')">
+            <div class="cat-icon-wrapper"><i class="fas fa-ellipsis"></i></div>
+            <p id="cat-other">Other</p>
+          </div>
         </div>
 
         <div class="list-header">
           <h3 class="section-title" id="title-recent" style="margin-bottom: 0">
             Activity
           </h3>
-          <button id="lang-toggle" class="lang-btn">EN / MY</button>
         </div>
 
         <div id="transaction-list" class="transaction-list"></div>
@@ -183,15 +209,13 @@
               class="choice-btn income-choice"
               onclick="selectChoice('income')"
             >
-              <i class="fas fa-plus-circle"></i>
-              <span>Income</span>
+              <i class="fas fa-plus-circle"></i><span>Income</span>
             </button>
             <button
               class="choice-btn expense-choice"
               onclick="selectChoice('expense')"
             >
-              <i class="fas fa-minus-circle"></i>
-              <span>Expense</span>
+              <i class="fas fa-minus-circle"></i><span>Expense</span>
             </button>
           </div>
           <button
@@ -210,7 +234,6 @@
           <h3 id="modal-form-title">Enter Details</h3>
           <form id="transaction-form">
             <input type="hidden" id="trans-type" value="income" />
-
             <div class="input-group">
               <label id="lbl-amount">Amount</label>
               <input
@@ -221,7 +244,6 @@
                 required
               />
             </div>
-
             <div class="input-group">
               <label id="label-category">Category</label>
               <select id="category" required>
@@ -241,12 +263,10 @@
                 </optgroup>
               </select>
             </div>
-
             <div class="input-group">
               <label id="lbl-note">Note</label>
               <input type="text" id="note" placeholder="Description..." />
             </div>
-
             <div class="modal-btns">
               <button type="submit" class="main-btn" id="save-btn">
                 Confirm
@@ -274,12 +294,10 @@
         >
           <i class="fas fa-receipt"></i><span id="nav-hist">History</span>
         </button>
-
         <div class="add-placeholder"></div>
         <button class="nav-item add-circle" onclick="showChoiceModal()">
           <i class="fas fa-plus"></i>
         </button>
-
         <button
           class="nav-item"
           id="nav-rep-btn"
