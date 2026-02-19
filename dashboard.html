@@ -14,60 +14,66 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="dashboard.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        if ("serviceWorker" in navigator) {
-            window.addEventListener("load", () => {
-                navigator.serviceWorker.register("sw.js")
-                    .then(() => console.log("SW Registered"))
-                    .catch(err => console.error("SW Failed", err));
-            });
-        }
-    </script>
 </head>
 <body class="dark-mode">
 
-<!-- ================================================================
-     TOP NAVBAR (Facebook-style, sticky)
-================================================================ -->
+<!-- TOP NAVBAR: TWO ROWS
+     Row 1: Hamburger + Logo | Theme + Lang + Notifications
+     Row 2: +Add Button | Search Bar | Profile Avatar
+-->
 <header class="top-navbar" role="banner">
-    <div class="navbar-left">
-        <!-- Hamburger button (all sizes — collapses sidebar on mobile, toggles icon on desktop) -->
-        <button class="hamburger-btn" id="hamburger-btn" onclick="toggleSidebar()"
-                aria-label="Toggle menu" aria-expanded="false">
-            <span></span><span></span><span></span>
-        </button>
-        <!-- Logo -->
-        <div class="app-logo-mark">
-            <span class="logo-icon"><i class="fas fa-bolt"></i></span>
-            <span class="logo-text">TNB</span>
+
+    <!-- ROW 1 -->
+    <div class="navbar-row navbar-row-1">
+        <div class="navbar-r1-left">
+            <button class="hamburger-btn" id="hamburger-btn" onclick="toggleSidebar()" aria-label="Toggle menu" aria-expanded="false">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="app-logo-mark">
+                <span class="logo-icon"><i class="fas fa-bolt"></i></span>
+                <span class="logo-text">TNB</span>
+            </div>
         </div>
-        <!-- Search bar (desktop) -->
-        <div class="navbar-search">
-            <i class="fas fa-search search-icon"></i>
-            <input type="search" id="search-input" placeholder="Search transactions..."
-                   data-i18n-ph="search_placeholder" autocomplete="off" />
+        <div class="navbar-r1-right">
+            <button id="theme-toggle" class="nav-icon-btn" aria-label="Toggle theme">
+                <i class="fas fa-moon" id="theme-icon"></i>
+            </button>
+            <button id="lang-toggle" class="nav-icon-btn lang-btn" aria-label="Switch language">
+                <span id="lang-label">EN</span>
+            </button>
+            <!-- NOTIFICATION BELL -->
+            <div class="notif-wrapper">
+                <button class="nav-icon-btn notif-btn" id="notif-btn" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-bell"></i>
+                    <span class="notif-badge" id="notif-badge" style="display:none">0</span>
+                </button>
+                <!-- Notification Dropdown Panel -->
+                <div class="notif-dropdown" id="notif-dropdown" role="menu">
+                    <div class="notif-panel-header">
+                        <span class="notif-panel-title" data-i18n="notifications">Notifications</span>
+                        <button class="notif-mark-all" id="notif-mark-all" onclick="markAllNotificationsRead()" data-i18n="mark_all_read">Mark all read</button>
+                    </div>
+                    <div class="notif-list" id="notif-list">
+                        <div class="notif-empty" id="notif-empty">
+                            <i class="fas fa-bell-slash"></i>
+                            <p data-i18n="no_notifications">No notifications yet</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="navbar-right">
-        <!-- Mobile search trigger -->
-        <button class="nav-icon-btn mobile-search-trigger" id="mobile-search-trigger" aria-label="Search">
-            <i class="fas fa-search"></i>
+    <!-- ROW 2 -->
+    <div class="navbar-row navbar-row-2">
+        <button class="add-entry-btn" onclick="showChoiceModal()" aria-label="Add transaction">
+            <i class="fas fa-plus"></i>
+            <span data-i18n="add_new">Add New</span>
         </button>
-        <!-- Language toggle -->
-        <button id="lang-toggle" class="nav-icon-btn lang-btn" aria-label="Switch language">
-            <span id="lang-label">EN</span>
-        </button>
-        <!-- Theme toggle -->
-        <button id="theme-toggle" class="nav-icon-btn" aria-label="Toggle theme">
-            <i class="fas fa-moon" id="theme-icon"></i>
-        </button>
-        <!-- Notifications -->
-        <button class="nav-icon-btn notif-btn" aria-label="Notifications">
-            <i class="fas fa-bell"></i>
-            <span class="notif-badge" id="notif-count">3</span>
-        </button>
-        <!-- Profile dropdown -->
+        <div class="navbar-search">
+            <i class="fas fa-search search-icon"></i>
+            <input type="search" id="search-input" placeholder="Search transactions..." data-i18n-ph="search_placeholder" autocomplete="off" />
+        </div>
         <div class="profile-wrapper">
             <button class="profile-trigger" id="profile-btn" aria-haspopup="true" aria-expanded="false">
                 <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=06b6d4&color=fff&bold=true" alt="User" />
@@ -81,7 +87,6 @@
                     </div>
                 </div>
                 <div class="dropdown-divider"></div>
-                <!-- Mini stats: visible in dropdown on tablet/mobile -->
                 <div class="dropdown-mini-stats">
                     <div class="dms-item">
                         <span class="dms-label" data-i18n="monthly_income">Income</span>
@@ -114,39 +119,31 @@
     </div>
 </header>
 
-<!-- Mobile search bar (slides down) -->
+<!-- Mobile search bar -->
 <div class="mobile-search-bar" id="mobile-search-bar">
     <i class="fas fa-search"></i>
     <input type="search" id="mobile-search-input" placeholder="Search..." autocomplete="off" />
     <button class="msb-close" onclick="closeMobileSearch()"><i class="fas fa-xmark"></i></button>
 </div>
 
-<!-- ================================================================
-     3-COLUMN LAYOUT WRAPPER
-================================================================ -->
+<!-- 3-COLUMN LAYOUT -->
 <div class="layout-wrapper">
 
-    <!-- ============================================================
-         LEFT SIDEBAR
-    ============================================================ -->
+    <!-- LEFT SIDEBAR -->
     <aside class="left-sidebar" id="left-sidebar" role="navigation">
-        <!-- X button visible on mobile -->
         <button class="sidebar-close-btn" onclick="closeSidebar()" aria-label="Close sidebar">
             <i class="fas fa-xmark"></i>
         </button>
-
         <nav class="sidebar-nav">
             <button class="sidebar-link active" onclick="setActiveNav(this); navigateTo('dashboard'); closeSidebarOnMobile()">
                 <span class="sidebar-icon"><i class="fas fa-house"></i></span>
                 <span class="sidebar-label" data-i18n="nav_dashboard">Dashboard</span>
             </button>
-            <button class="sidebar-link income-nav" id="sidebar-add-income"
-                    onclick="setActiveNav(this); openModal('income'); closeSidebarOnMobile()">
+            <button class="sidebar-link income-nav" id="sidebar-add-income" onclick="setActiveNav(this); openModal('income'); closeSidebarOnMobile()">
                 <span class="sidebar-icon"><i class="fas fa-circle-plus"></i></span>
                 <span class="sidebar-label" data-i18n="nav_add_income">Add Income</span>
             </button>
-            <button class="sidebar-link expense-nav" id="sidebar-add-expense"
-                    onclick="setActiveNav(this); openModal('expense'); closeSidebarOnMobile()">
+            <button class="sidebar-link expense-nav" id="sidebar-add-expense" onclick="setActiveNav(this); openModal('expense'); closeSidebarOnMobile()">
                 <span class="sidebar-icon"><i class="fas fa-circle-minus"></i></span>
                 <span class="sidebar-label" data-i18n="nav_add_expense">Add Expense</span>
             </button>
@@ -164,8 +161,6 @@
                 <span class="sidebar-label" data-i18n="nav_settings">Settings</span>
             </button>
         </nav>
-
-        <!-- Quick Category shortcuts -->
         <div class="sidebar-categories">
             <p class="sidebar-section-title" data-i18n="quick_categories">Quick Categories</p>
             <button class="cat-pill variant-salary" onclick="catAction('income','Salary'); closeSidebarOnMobile()">
@@ -189,8 +184,6 @@
                 <span data-i18n="cat_shopping">Shop</span>
             </button>
         </div>
-
-        <!-- Sidebar user mini (bottom of sidebar) -->
         <div class="sidebar-user-mini">
             <img id="sidebar-avatar" src="https://ui-avatars.com/api/?name=User&background=06b6d4&color=fff&bold=true" alt="User" />
             <div class="sidebar-user-info">
@@ -200,23 +193,20 @@
         </div>
     </aside>
 
-    <!-- Mobile overlay -->
     <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
 
-    <!-- ============================================================
-         MAIN CONTENT
-    ============================================================ -->
+    <!-- MAIN CONTENT -->
     <main class="main-content" id="main-content">
-
-        <!-- Greeting bar -->
         <div class="page-greeting">
             <div>
                 <h2 class="greeting-text" id="greeting-text">Good morning 👋</h2>
                 <p class="greeting-sub" data-i18n="greeting_sub">Here's your financial overview</p>
             </div>
+            <button class="nav-icon-btn mobile-search-trigger" id="mobile-search-trigger" aria-label="Search" style="display:none">
+                <i class="fas fa-search"></i>
+            </button>
         </div>
 
-        <!-- Summary Cards -->
         <div class="summary-cards-row">
             <div class="summary-card balance-card">
                 <div class="card-label">
@@ -229,7 +219,7 @@
             <div class="summary-card income-card">
                 <div class="card-label">
                     <span class="card-icon-wrap income-icon"><i class="fas fa-arrow-trend-up"></i></span>
-                    <span data-i18n="total_income" id="label-income">Total Income</span>
+                    <span data-i18n="total_income">Total Income</span>
                 </div>
                 <h2 id="total-income" class="card-amount income-amt">+$0.00</h2>
                 <p class="card-sub" data-i18n="this_period">This period</p>
@@ -237,14 +227,13 @@
             <div class="summary-card expense-card">
                 <div class="card-label">
                     <span class="card-icon-wrap expense-icon"><i class="fas fa-arrow-trend-down"></i></span>
-                    <span data-i18n="total_expense" id="label-expense">Total Expense</span>
+                    <span data-i18n="total_expense">Total Expense</span>
                 </div>
                 <h2 id="total-expense" class="card-amount expense-amt">-$0.00</h2>
                 <p class="card-sub" data-i18n="this_period">This period</p>
             </div>
         </div>
 
-        <!-- Feed header + filters -->
         <div class="feed-header">
             <h3 class="feed-title" data-i18n="recent_activity">Recent Activity</h3>
             <div class="feed-actions">
@@ -254,17 +243,11 @@
             </div>
         </div>
 
-        <!-- Transaction feed -->
         <div id="transaction-list" class="transaction-feed"></div>
-
     </main>
 
-    <!-- ============================================================
-         RIGHT SIDEBAR
-    ============================================================ -->
+    <!-- RIGHT SIDEBAR -->
     <aside class="right-sidebar">
-
-        <!-- Monthly Summary -->
         <div class="right-card">
             <div class="right-card-header">
                 <i class="fas fa-calendar-days"></i>
@@ -273,16 +256,12 @@
             <div class="monthly-summary-bars">
                 <div class="summary-bar-row">
                     <span data-i18n="income">Income</span>
-                    <div class="bar-track">
-                        <div class="bar-fill income-bar" id="income-bar" style="width:0%"></div>
-                    </div>
+                    <div class="bar-track"><div class="bar-fill income-bar" id="income-bar" style="width:0%"></div></div>
                     <span id="rs-income">$0</span>
                 </div>
                 <div class="summary-bar-row">
                     <span data-i18n="expense">Expense</span>
-                    <div class="bar-track">
-                        <div class="bar-fill expense-bar" id="expense-bar" style="width:0%"></div>
-                    </div>
+                    <div class="bar-track"><div class="bar-fill expense-bar" id="expense-bar" style="width:0%"></div></div>
                     <span id="rs-expense">$0</span>
                 </div>
             </div>
@@ -291,8 +270,6 @@
                 <span class="savings-rate-val" id="savings-rate">0%</span>
             </div>
         </div>
-
-        <!-- Category Breakdown -->
         <div class="right-card">
             <div class="right-card-header">
                 <i class="fas fa-chart-pie"></i>
@@ -302,8 +279,6 @@
                 <p class="rs-empty" data-i18n="no_data">No data yet</p>
             </div>
         </div>
-
-        <!-- Quick Stats -->
         <div class="right-card">
             <div class="right-card-header">
                 <i class="fas fa-bolt"></i>
@@ -328,8 +303,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Quick Add (desktop only) -->
         <div class="right-card quick-add-card">
             <div class="right-card-header">
                 <i class="fas fa-plus"></i>
@@ -346,22 +319,17 @@
                 </button>
             </div>
         </div>
-
     </aside>
-</div><!-- /.layout-wrapper -->
+</div>
 
-<!-- ================================================================
-     MOBILE FAB
-================================================================ -->
+<!-- MOBILE FAB -->
 <div class="mobile-fab-wrap">
     <button class="fab-main" onclick="showChoiceModal()" aria-label="Add transaction">
         <i class="fas fa-plus"></i>
     </button>
 </div>
 
-<!-- ================================================================
-     MOBILE BOTTOM NAV
-================================================================ -->
+<!-- MOBILE BOTTOM NAV -->
 <nav class="bottom-bar" id="bottom-bar">
     <button class="nav-link active" onclick="navigateTo('dashboard'); setBottomNav(this)">
         <i class="fas fa-house"></i>
@@ -382,9 +350,7 @@
     </button>
 </nav>
 
-<!-- ================================================================
-     CHOICE MODAL
-================================================================ -->
+<!-- CHOICE MODAL -->
 <div id="choice-modal" class="modal-overlay" role="dialog" aria-modal="true">
     <div class="modal-sheet animate-up">
         <div class="modal-handle"></div>
@@ -406,9 +372,7 @@
     </div>
 </div>
 
-<!-- ================================================================
-     TRANSACTION FORM MODAL
-================================================================ -->
+<!-- TRANSACTION FORM MODAL (ALL FIELDS PRESERVED) -->
 <div id="transaction-modal" class="modal-overlay" role="dialog" aria-modal="true">
     <div class="modal-card">
         <div class="modal-card-header" id="modal-header-bar">
@@ -420,31 +384,24 @@
         </div>
         <form id="transaction-form" novalidate>
             <input type="hidden" id="trans-type" value="income" />
-
             <div class="input-field">
                 <label for="amount" data-i18n="amount">Amount</label>
                 <div class="amount-input-wrap">
                     <span class="currency-symbol">$</span>
-                    <input type="number" id="amount" placeholder="0.00"
-                           step="0.01" min="0.01" required inputmode="decimal" />
+                    <input type="number" id="amount" placeholder="0.00" step="0.01" min="0.01" required inputmode="decimal" />
                 </div>
             </div>
-
             <div class="input-field">
                 <label for="category" data-i18n="category">Category</label>
                 <div class="select-wrap">
-                    <!-- ✅ Populated dynamically by UI.filterCategories() — PRESERVED -->
                     <select id="category" required></select>
                     <i class="fas fa-chevron-down select-arrow"></i>
                 </div>
             </div>
-
             <div class="input-field">
                 <label for="note" data-i18n="note">Note</label>
-                <input type="text" id="note" placeholder="Add a description..."
-                       data-i18n-ph="note_placeholder" maxlength="120" />
+                <input type="text" id="note" placeholder="Add a description..." data-i18n-ph="note_placeholder" maxlength="120" />
             </div>
-
             <div class="modal-actions">
                 <button type="submit" class="btn-confirm" id="save-btn">
                     <i class="fas fa-check"></i>
@@ -456,7 +413,7 @@
     </div>
 </div>
 
-<!-- Toast notification -->
+<!-- Toast -->
 <div id="toast" class="toast" role="alert" aria-live="polite"></div>
 
 <script src="dashboard.js"></script>
