@@ -8,12 +8,12 @@
     <link rel="manifest" href="manifest.json" />
     <meta name="theme-color" content="#06b6d4" />
 
+    <!-- Fonts: Syne (display) + DM Sans (body) for a premium SaaS feel -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
     <link rel="stylesheet" href="dashboard.css" />
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -30,203 +30,342 @@
 </head>
 
 <body class="dark-mode">
-    <div class="mobile-container">
-        
-        <header class="top-header">
-            <div class="header-left">
-                <button class="icon-btn" id="menu-btn" onclick="toggleSidebar()" aria-label="Open Sidebar">
-                    <i class="fa-solid fa-grip-lines"></i>
-                </button>
-                <button id="lang-toggle" class="glass-pill-btn">Burmese</button>
+
+    <!-- ============================================================
+         TOP NAVBAR (Facebook-style, sticky)
+    ============================================================ -->
+    <header class="top-navbar">
+        <div class="navbar-left">
+            <div class="app-logo-mark">
+                <span class="logo-icon"><i class="fas fa-bolt"></i></span>
+                <span class="logo-text">TNB</span>
             </div>
-
-            <div class="app-branding">
-                <h2 class="app-logo">TNB</h2>
+            <div class="navbar-search">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" placeholder="Search transactions..." id="search-input" />
             </div>
+        </div>
 
-            <div class="header-right">
-                <button id="theme-toggle" class="glass-pill-btn" aria-label="Toggle Theme">
-                    <i class="fas fa-moon"></i> <span>Dark</span>
+        <div class="navbar-right">
+            <!-- Language Toggle (preserved) -->
+            <button id="lang-toggle" class="nav-icon-btn" title="Language">
+                <i class="fas fa-globe"></i>
+            </button>
+
+            <!-- Theme Toggle (preserved) -->
+            <button id="theme-toggle" class="nav-icon-btn" title="Toggle Theme">
+                <i class="fas fa-moon" id="theme-icon"></i>
+            </button>
+
+            <!-- Notifications -->
+            <button class="nav-icon-btn notif-btn" title="Notifications">
+                <i class="fas fa-bell"></i>
+                <span class="notif-badge">3</span>
+            </button>
+
+            <!-- Profile Avatar Dropdown (preserved) -->
+            <div class="profile-wrapper">
+                <button class="profile-trigger" id="profile-btn">
+                    <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=06b6d4&color=fff&bold=true" alt="User" />
                 </button>
-
-                <div class="profile-wrapper">
-                    <button class="profile-trigger" id="profile-btn">
-                        <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=06b6d4&color=fff" alt="User" />
-                    </button>
-
-                    <div id="profile-dropdown" class="dropdown-card">
-                        <div class="dropdown-info">
+                <div id="profile-dropdown" class="dropdown-card">
+                    <div class="dropdown-info">
+                        <img id="dropdown-avatar" src="https://ui-avatars.com/api/?name=User&background=06b6d4&color=fff&bold=true" alt="User" />
+                        <div>
                             <strong id="user-display-name">User Name</strong>
                             <small id="user-display-email">user@email.com</small>
                         </div>
-                        <div class="dropdown-divider"></div>
-                        <button class="dropdown-item logout-red" id="logout-confirm-btn">
-                            <i class="fas fa-arrow-right-from-bracket"></i>
-                            <span>Logout</span>
-                        </button>
                     </div>
+                    <div class="dropdown-divider"></div>
+                    <button class="dropdown-item" onclick="navigateTo('settings')">
+                        <i class="fas fa-gear"></i><span>Settings</span>
+                    </button>
+                    <button class="dropdown-item logout-red" id="logout-confirm-btn">
+                        <i class="fas fa-arrow-right-from-bracket"></i><span>Logout</span>
+                    </button>
                 </div>
             </div>
-        </header>
+        </div>
+    </header>
 
-        <main class="content-scroll-area">
-            
-            <section class="hero-balance-section">
-                <div class="balance-card-glass">
-                    <span id="label-total-balance" class="balance-subtext">Available Balance</span>
-                    <h1 id="main-balance" class="balance-amount">$0.00</h1>
-                    
-                    <div class="balance-stats-grid">
-                        <div class="stat-box income">
-                            <div class="stat-icon"><i class="fas fa-arrow-down"></i></div>
-                            <div class="stat-info">
-                                <span id="label-income">Income</span>
-                                <p id="total-income">+$0.00</p>
-                            </div>
-                        </div>
-                        <div class="stat-box expense">
-                            <div class="stat-icon"><i class="fas fa-arrow-up"></i></div>
-                            <div class="stat-info">
-                                <span id="label-expense">Expense</span>
-                                <p id="total-expense">-$0.00</p>
-                            </div>
-                        </div>
+    <!-- ============================================================
+         MAIN LAYOUT: Left Sidebar + Content + Right Sidebar
+    ============================================================ -->
+    <div class="layout-wrapper">
+
+        <!-- LEFT SIDEBAR -->
+        <aside class="left-sidebar" id="left-sidebar">
+            <nav class="sidebar-nav">
+                <button class="sidebar-link active" onclick="setActiveNav(this); navigateTo('dashboard')">
+                    <span class="sidebar-icon"><i class="fas fa-house"></i></span>
+                    <span class="sidebar-label">Dashboard</span>
+                </button>
+                <button class="sidebar-link income-nav" id="sidebar-add-income" onclick="setActiveNav(this); openModal('income')">
+                    <span class="sidebar-icon"><i class="fas fa-circle-plus"></i></span>
+                    <span class="sidebar-label">Add Income</span>
+                </button>
+                <button class="sidebar-link expense-nav" id="sidebar-add-expense" onclick="setActiveNav(this); openModal('expense')">
+                    <span class="sidebar-icon"><i class="fas fa-circle-minus"></i></span>
+                    <span class="sidebar-label">Add Expense</span>
+                </button>
+                <button class="sidebar-link" onclick="setActiveNav(this); navigateTo('history')">
+                    <span class="sidebar-icon"><i class="fas fa-receipt"></i></span>
+                    <span class="sidebar-label">Transactions</span>
+                </button>
+                <button class="sidebar-link" onclick="setActiveNav(this); navigateTo('reports')">
+                    <span class="sidebar-icon"><i class="fas fa-chart-line"></i></span>
+                    <span class="sidebar-label">Reports</span>
+                </button>
+
+                <div class="sidebar-divider"></div>
+
+                <button class="sidebar-link" onclick="setActiveNav(this); navigateTo('settings')">
+                    <span class="sidebar-icon"><i class="fas fa-gear"></i></span>
+                    <span class="sidebar-label">Settings</span>
+                </button>
+            </nav>
+
+            <!-- Category Quick Access (preserved catAction logic) -->
+            <div class="sidebar-categories">
+                <p class="sidebar-section-title">Quick Categories</p>
+                <button class="cat-pill variant-salary" onclick="catAction('income', 'Salary')">
+                    <i class="fas fa-money-bill-trend-up"></i> Salary
+                </button>
+                <button class="cat-pill variant-invest" onclick="catAction('income', 'Investment')">
+                    <i class="fas fa-chart-line"></i> Invest
+                </button>
+                <button class="cat-pill variant-food" onclick="catAction('expense', 'Food')">
+                    <i class="fas fa-burger"></i> Food
+                </button>
+                <button class="cat-pill variant-health" onclick="catAction('expense', 'Health')">
+                    <i class="fas fa-kit-medical"></i> Health
+                </button>
+                <button class="cat-pill variant-shop" onclick="catAction('expense', 'Shopping')">
+                    <i class="fas fa-bag-shopping"></i> Shop
+                </button>
+            </div>
+        </aside>
+
+        <!-- Sidebar Overlay (mobile) -->
+        <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="main-content" id="main-content">
+
+            <!-- Summary Cards Row -->
+            <div class="summary-cards-row">
+                <div class="summary-card balance-card">
+                    <div class="card-label">
+                        <span class="card-icon-wrap balance-icon"><i class="fas fa-wallet"></i></span>
+                        <span id="label-total-balance">Total Balance</span>
                     </div>
+                    <h2 id="main-balance" class="card-amount">$0.00</h2>
+                    <p class="card-sub">Available funds</p>
                 </div>
-            </section>
-
-            <section class="quick-actions-grid">
-                <button class="action-tile" id="qa-btn-income" onclick="openModal('income')">
-                    <div class="tile-icon bg-green"><i class="fa-solid fa-plus"></i></div>
-                    <span id="qa-add-income">Income</span>
-                </button>
-                <button class="action-tile" id="qa-btn-expense" onclick="openModal('expense')">
-                    <div class="tile-icon bg-red"><i class="fa-solid fa-minus"></i></div>
-                    <span id="qa-add-expense">Expense</span>
-                </button>
-                <button class="action-tile" onclick="navigateTo('history')">
-                    <div class="tile-icon bg-blue"><i class="fa-solid fa-clock-rotate-left"></i></div>
-                    <span id="qa-history">History</span>
-                </button>
-                <button class="action-tile" onclick="navigateTo('reports')">
-                    <div class="tile-icon bg-purple"><i class="fa-solid fa-chart-line"></i></div>
-                    <span id="qa-reports">Analysis</span>
-                </button>
-            </section>
-
-            <section class="category-section">
-                <div class="section-header">
-                    <h3 class="section-title" id="title-categories">Categories</h3>
-                </div>
-                <div class="category-carousel-wrapper">
-                    <div class="category-carousel">
-                        <div class="cat-card variant-salary" onclick="catAction('income', 'Salary')">
-                            <div class="cat-icon-circle"><i class="fas fa-money-bill-trend-up"></i></div>
-                            <p id="cat-salary">Salary</p>
-                        </div>
-                        <div class="cat-card variant-invest" onclick="catAction('income', 'Investment')">
-                            <div class="cat-icon-circle"><i class="fas fa-chart-line"></i></div>
-                            <p id="cat-invest">Invest</p>
-                        </div>
-                        <div class="cat-card variant-food" onclick="catAction('expense', 'Food')">
-                            <div class="cat-icon-circle"><i class="fas fa-burger"></i></div>
-                            <p id="cat-food">Food</p>
-                        </div>
-                        <div class="cat-card variant-health" onclick="catAction('expense', 'Health')">
-                            <div class="cat-icon-circle"><i class="fas fa-kit-medical"></i></div>
-                            <p id="cat-health">Health</p>
-                        </div>
-                        <div class="cat-card variant-shop" onclick="catAction('expense', 'Shopping')">
-                            <div class="cat-icon-circle"><i class="fas fa-bag-shopping"></i></div>
-                            <p id="cat-shop">Shop</p>
-                        </div>
+                <div class="summary-card income-card">
+                    <div class="card-label">
+                        <span class="card-icon-wrap income-icon"><i class="fas fa-arrow-trend-up"></i></span>
+                        <span id="label-income">Total Income</span>
                     </div>
+                    <h2 id="total-income" class="card-amount income-amt">+$0.00</h2>
+                    <p class="card-sub">This period</p>
                 </div>
-            </section>
-
-            <section class="activity-section">
-                <div class="section-header">
-                    <h3 class="section-title" id="title-recent">Activity</h3>
-                    <button class="see-all-btn" onclick="navigateTo('history')">See All</button>
-                </div>
-                <div id="transaction-list" class="transaction-feed">
+                <div class="summary-card expense-card">
+                    <div class="card-label">
+                        <span class="card-icon-wrap expense-icon"><i class="fas fa-arrow-trend-down"></i></span>
+                        <span id="label-expense">Total Expense</span>
                     </div>
-            </section>
+                    <h2 id="total-expense" class="card-amount expense-amt">-$0.00</h2>
+                    <p class="card-sub">This period</p>
+                </div>
+            </div>
+
+            <!-- Feed Header -->
+            <div class="feed-header">
+                <h3 class="feed-title" id="title-recent">Recent Activity</h3>
+                <div class="feed-actions">
+                    <button class="feed-filter-btn active" onclick="filterFeed('all', this)">All</button>
+                    <button class="feed-filter-btn" onclick="filterFeed('income', this)">Income</button>
+                    <button class="feed-filter-btn" onclick="filterFeed('expense', this)">Expense</button>
+                </div>
+            </div>
+
+            <!-- Transaction Feed (Facebook-style cards) -->
+            <div id="transaction-list" class="transaction-feed">
+                <!-- Populated by JS renderUI() -->
+                <div class="feed-empty-state" id="empty-state">
+                    <i class="fas fa-receipt"></i>
+                    <p>No transactions yet.</p>
+                    <button onclick="showChoiceModal()">Add your first entry</button>
+                </div>
+            </div>
+
         </main>
 
-        <div id="choice-modal" class="modal-overlay">
-            <div class="modal-sheet animate-up">
-                <div class="modal-handle"></div>
-                <h3 id="choice-title">New Entry</h3>
-                <div class="choice-grid">
-                    <button class="choice-card income-theme" onclick="selectChoice('income')">
-                        <i class="fas fa-circle-plus"></i>
-                        <span>Income</span>
-                    </button>
-                    <button class="choice-card expense-theme" onclick="selectChoice('expense')">
-                        <i class="fas fa-circle-minus"></i>
-                        <span>Expense</span>
-                    </button>
+        <!-- RIGHT SIDEBAR -->
+        <aside class="right-sidebar">
+
+            <!-- Monthly Summary -->
+            <div class="right-card">
+                <div class="right-card-header">
+                    <i class="fas fa-calendar-days"></i>
+                    <h4>Monthly Summary</h4>
                 </div>
-                <button class="btn-cancel-modal" onclick="closeChoiceModal()">Close</button>
+                <div class="monthly-summary-bars">
+                    <div class="summary-bar-row">
+                        <span>Income</span>
+                        <div class="bar-track">
+                            <div class="bar-fill income-bar" id="income-bar" style="width:0%"></div>
+                        </div>
+                        <span id="rs-income">$0</span>
+                    </div>
+                    <div class="summary-bar-row">
+                        <span>Expense</span>
+                        <div class="bar-track">
+                            <div class="bar-fill expense-bar" id="expense-bar" style="width:0%"></div>
+                        </div>
+                        <span id="rs-expense">$0</span>
+                    </div>
+                </div>
+                <div class="savings-rate-wrap">
+                    <span>Savings Rate</span>
+                    <span class="savings-rate-val" id="savings-rate">0%</span>
+                </div>
             </div>
-        </div>
 
-        <div id="transaction-modal" class="modal-overlay">
-            <div class="modal-card">
-                <h3 id="modal-form-title">Details</h3>
-                <form id="transaction-form">
-                    <input type="hidden" id="trans-type" value="income" />
-                    
-                    <div class="input-field">
-                        <label for="amount" id="lbl-amount">Amount</label>
-                        <input type="number" id="amount" placeholder="0.00" step="0.01" required />
-                    </div>
-
-                    <div class="input-field">
-                        <label for="category" id="label-category">Category</label>
-                        <select id="category" required>
-                            </select>
-                    </div>
-
-                    <div class="input-field">
-                        <label for="note" id="lbl-note">Note</label>
-                        <input type="text" id="note" placeholder="Description..." />
-                    </div>
-
-                    <div class="modal-actions">
-                        <button type="submit" class="btn-confirm" id="save-btn">Confirm</button>
-                        <button type="button" class="btn-back" onclick="closeModal()">Back</button>
-                    </div>
-                </form>
+            <!-- Category Breakdown -->
+            <div class="right-card">
+                <div class="right-card-header">
+                    <i class="fas fa-chart-pie"></i>
+                    <h4>Category Breakdown</h4>
+                </div>
+                <div id="category-breakdown" class="category-breakdown-list">
+                    <!-- Populated by JS -->
+                    <p class="rs-empty">No data yet</p>
+                </div>
             </div>
-        </div>
 
-        <nav class="bottom-bar">
-            <button class="nav-link active" onclick="navigateTo('dashboard')">
-                <i class="fas fa-house"></i>
-                <span id="nav-dash">Home</span>
-            </button>
-            <button class="nav-link" onclick="navigateTo('history')">
-                <i class="fas fa-receipt"></i>
-                <span id="nav-hist">History</span>
-            </button>
-            
-            <div class="fab-space">
-                <button class="fab-main" onclick="showChoiceModal()">
-                    <i class="fas fa-plus"></i>
+            <!-- Stats -->
+            <div class="right-card stats-card">
+                <div class="right-card-header">
+                    <i class="fas fa-bolt"></i>
+                    <h4>Quick Stats</h4>
+                </div>
+                <div class="stats-grid-small">
+                    <div class="stat-mini">
+                        <span class="stat-mini-val" id="stat-count">0</span>
+                        <span class="stat-mini-label">Transactions</span>
+                    </div>
+                    <div class="stat-mini">
+                        <span class="stat-mini-val" id="stat-avg">$0</span>
+                        <span class="stat-mini-label">Avg. per Entry</span>
+                    </div>
+                    <div class="stat-mini">
+                        <span class="stat-mini-val" id="stat-largest">$0</span>
+                        <span class="stat-mini-label">Largest Entry</span>
+                    </div>
+                    <div class="stat-mini">
+                        <span class="stat-mini-val" id="stat-cats">0</span>
+                        <span class="stat-mini-label">Categories Used</span>
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+    </div>
+
+    <!-- Mobile Bottom FAB (preserved) -->
+    <div class="mobile-fab-wrap">
+        <button class="fab-main" onclick="showChoiceModal()" title="Add Transaction">
+            <i class="fas fa-plus"></i>
+        </button>
+    </div>
+
+    <!-- Mobile Bottom Nav (preserved navigation) -->
+    <nav class="bottom-bar" id="bottom-bar">
+        <button class="nav-link active" onclick="navigateTo('dashboard'); setBottomNav(this)">
+            <i class="fas fa-house"></i>
+            <span id="nav-dash">Home</span>
+        </button>
+        <button class="nav-link" onclick="navigateTo('history'); setBottomNav(this)">
+            <i class="fas fa-receipt"></i>
+            <span id="nav-hist">History</span>
+        </button>
+        <div class="fab-space"></div>
+        <button class="nav-link" onclick="navigateTo('reports'); setBottomNav(this)">
+            <i class="fas fa-chart-pie"></i>
+            <span id="nav-rep">Stats</span>
+        </button>
+        <button class="nav-link" onclick="navigateTo('settings'); setBottomNav(this)">
+            <i class="fas fa-gear"></i>
+            <span id="nav-set">Settings</span>
+        </button>
+    </nav>
+
+    <!-- ============================================================
+         CHOICE MODAL (preserved)
+    ============================================================ -->
+    <div id="choice-modal" class="modal-overlay">
+        <div class="modal-sheet animate-up">
+            <div class="modal-handle"></div>
+            <h3 id="choice-title">New Entry</h3>
+            <p class="modal-subtitle">What would you like to record?</p>
+            <div class="choice-grid">
+                <button class="choice-card income-theme" onclick="selectChoice('income')">
+                    <div class="choice-icon"><i class="fas fa-circle-plus"></i></div>
+                    <span>Add Income</span>
+                    <small>Salary, Business, etc.</small>
+                </button>
+                <button class="choice-card expense-theme" onclick="selectChoice('expense')">
+                    <div class="choice-icon"><i class="fas fa-circle-minus"></i></div>
+                    <span>Add Expense</span>
+                    <small>Food, Rent, etc.</small>
                 </button>
             </div>
+            <button class="btn-cancel-modal" onclick="closeChoiceModal()">Cancel</button>
+        </div>
+    </div>
 
-            <button class="nav-link" onclick="navigateTo('reports')">
-                <i class="fas fa-chart-pie"></i>
-                <span id="nav-rep">Stats</span>
-            </button>
-            <button class="nav-link" onclick="navigateTo('settings')">
-                <i class="fas fa-gear"></i>
-                <span id="nav-set">Settings</span>
-            </button>
-        </nav>
+    <!-- ============================================================
+         TRANSACTION FORM MODAL (preserved all fields + category logic)
+    ============================================================ -->
+    <div id="transaction-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-card-header" id="modal-header-bar">
+                <span class="modal-type-badge" id="modal-type-badge">Income</span>
+                <h3 id="modal-form-title">Add Income</h3>
+                <button class="modal-close-btn" onclick="closeModal()"><i class="fas fa-xmark"></i></button>
+            </div>
+            <form id="transaction-form">
+                <input type="hidden" id="trans-type" value="income" />
+
+                <div class="input-field">
+                    <label for="amount" id="lbl-amount">Amount</label>
+                    <div class="amount-input-wrap">
+                        <span class="currency-symbol">$</span>
+                        <input type="number" id="amount" placeholder="0.00" step="0.01" required />
+                    </div>
+                </div>
+
+                <div class="input-field">
+                    <label for="category" id="label-category">Category</label>
+                    <!-- Populated dynamically by UI.filterCategories() — logic preserved -->
+                    <select id="category" required></select>
+                </div>
+
+                <div class="input-field">
+                    <label for="note" id="lbl-note">Note</label>
+                    <input type="text" id="note" placeholder="Add a description..." />
+                </div>
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn-confirm" id="save-btn">
+                        <i class="fas fa-check"></i> Confirm
+                    </button>
+                    <button type="button" class="btn-back" onclick="closeModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script src="dashboard.js"></script>
