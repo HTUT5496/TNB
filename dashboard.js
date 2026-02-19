@@ -1,1068 +1,991 @@
-/**
- * TNB Finance Dashboard — dashboard.js (Production Rewrite)
- * ============================================================
- * ✅ ALL finance logic preserved (Supabase, calculations, modals)
- * ✅ EN/Burmese language system preserved and extended
- * ✨ NEW: Full notification system with balance alerts
- * ✨ NEW: 2-row navbar interactions (Row1: logo/lang/notif, Row2: add/search/profile)
- * ✨ NEW: Notifications stored in localStorage, newest first
- * ✨ NEW: Unread badge, mark-all-read, timestamped notifications
- */
+/* ══════════════════════════════════════════════════════
+   NOVAPAY – PREMIUM BANKING DASHBOARD
+   dashboard.js  |  ES6 Vanilla JavaScript
+   ─ Finance Logic  ─ Notifications  ─ i18n  ─ Themes
+══════════════════════════════════════════════════════ */
 
-/* ============================================================
-   SUPABASE CLIENT (✅ PRESERVED)
-============================================================ */
-const SUPABASE_URL = "https://lqfjeamzbxayfbjntarr.supabase.co";
-const SUPABASE_KEY = "sb_publishable_jDExXkASC_jrulY8B7noFw_r9qut-vQ";
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+'use strict';
 
-/* ============================================================
-   APPLICATION STATE
-============================================================ */
-const App = {
-    user:          null,
-    transactions:  [],
-    currentLang:   'en',   // 'en' | 'my'
-    currentFilter: 'all',  // 'all' | 'income' | 'expense'
-
-    // ✅ PRESERVED: Categories for dynamic modal filtering
-    categories: {
-        income:  ["Salary", "Business", "Investment", "Bonus", "Other"],
-        expense: ["Food", "Transport", "Shopping", "Health", "Rent", "Bill", "Other"]
-    }
+/* ═══════════════════════════════════════════
+   1. TRANSLATIONS (English / Burmese)
+═══════════════════════════════════════════ */
+const TRANSLATIONS = {
+  en: {
+    brand: 'NovaPay',
+    nav_dashboard: 'Dashboard',
+    nav_transactions: 'Transactions',
+    nav_reports: 'Reports',
+    nav_settings: 'Settings',
+    premium_member: 'Premium Member',
+    good_morning: 'Good Morning,',
+    good_afternoon: 'Good Afternoon,',
+    good_evening: 'Good Evening,',
+    available_balance: 'Available Balance',
+    income: 'Income',
+    expense: 'Expense',
+    add_income: 'Add Income',
+    add_expense: 'Add Expense',
+    reports: 'Reports',
+    transfer: 'Transfer',
+    spending_overview: 'Spending Overview',
+    last_7: 'Last 7 Days',
+    last_30: 'Last 30 Days',
+    recent_transactions: 'Recent Transactions',
+    see_all: 'See All',
+    all_transactions: 'All Transactions',
+    all: 'All',
+    export_csv: 'Export CSV',
+    total_income: 'Total Income',
+    total_expense: 'Total Expense',
+    net_balance: 'Net Balance',
+    total_transactions: 'Total Transactions',
+    category_breakdown: 'Category Breakdown',
+    settings: 'Settings',
+    dark_mode: 'Dark Mode',
+    dark_mode_sub: 'Switch between dark and light',
+    language: 'Language',
+    language_sub: 'English / Burmese',
+    notifications_setting: 'Notifications',
+    notifications_sub: 'Balance change alerts',
+    clear_data: 'Clear All Data',
+    clear_data_sub: 'Permanently remove all transactions',
+    clear: 'Clear',
+    logout: 'Logout',
+    notifications: 'Notifications',
+    clear_all: 'Clear All',
+    no_notifs: 'No notifications yet',
+    amount: 'Amount ($)',
+    category: 'Category',
+    description: 'Description',
+    date: 'Date',
+    add_transaction: 'Add Transaction',
+    cancel: 'Cancel',
+    confirm: 'Confirm',
+    modal_income_title: 'Add Income',
+    modal_expense_title: 'Add Expense',
+    notif_balance_now: 'Your balance is now',
+    notif_added_income: '↑ Income Added',
+    notif_added_expense: '↓ Expense Added',
+    confirm_delete: 'Delete this transaction?',
+    confirm_delete_msg: 'This action cannot be undone.',
+    confirm_clear: 'Clear all data?',
+    confirm_clear_msg: 'All transactions will be permanently removed.',
+    no_transactions: 'No transactions yet',
+    add_first: 'Add your first transaction',
+    cat_salary: 'Salary',
+    cat_freelance: 'Freelance',
+    cat_investment: 'Investment',
+    cat_gift: 'Gift',
+    cat_other_income: 'Other Income',
+    cat_food: 'Food & Dining',
+    cat_transport: 'Transport',
+    cat_shopping: 'Shopping',
+    cat_bills: 'Bills & Utilities',
+    cat_health: 'Healthcare',
+    cat_entertainment: 'Entertainment',
+    cat_education: 'Education',
+    cat_rent: 'Rent',
+    cat_other_expense: 'Other Expense',
+  },
+  my: {
+    brand: 'NovaPay',
+    nav_dashboard: 'ဒက်ရ်ဘုတ်',
+    nav_transactions: 'ငွေသွင်း/ထုတ်',
+    nav_reports: 'အစီရင်ခံ',
+    nav_settings: 'ဆက်တင်',
+    premium_member: 'ပရီမီယံ အဖွဲ့ဝင်',
+    good_morning: 'မင်္ဂလာနံနက်ခင်းပါ၊',
+    good_afternoon: 'မင်္ဂလာနေ့လည်ပါ၊',
+    good_evening: 'မင်္ဂလာညနေပါ၊',
+    available_balance: 'လက်ကျန်ငွေ',
+    income: 'ဝင်ငွေ',
+    expense: 'ထွက်ငွေ',
+    add_income: 'ဝင်ငွေထည့်',
+    add_expense: 'ထွက်ငွေထည့်',
+    reports: 'အစီရင်ခံ',
+    transfer: 'လွှဲပြောင်း',
+    spending_overview: 'ငွေသုံးမှု အနှစ်ချုပ်',
+    last_7: 'ၿပီးခဲ့သော ၇ ရက်',
+    last_30: 'ၿပီးခဲ့သော ၃၀ ရက်',
+    recent_transactions: 'မကြာမီ ငွေသွင်း/ထုတ်',
+    see_all: 'အားလုံးကြည့်',
+    all_transactions: 'ငွေသွင်း/ထုတ် အားလုံး',
+    all: 'အားလုံး',
+    export_csv: 'CSV ထုတ်ယူ',
+    total_income: 'စုစုပေါင်း ဝင်ငွေ',
+    total_expense: 'စုစုပေါင်း ထွက်ငွေ',
+    net_balance: 'အသားတင် လက်ကျန်',
+    total_transactions: 'စုစုပေါင်း ငွေလွှဲ',
+    category_breakdown: 'အမျိုးအစားအလိုက် ခွဲခြမ်း',
+    settings: 'ဆက်တင်',
+    dark_mode: 'အမဲရောင် မုဒ်',
+    dark_mode_sub: 'အမဲ / အဖြူ ပြောင်းလဲ',
+    language: 'ဘာသာစကား',
+    language_sub: 'အင်္ဂလိပ် / မြန်မာ',
+    notifications_setting: 'အကြောင်းကြားချက်',
+    notifications_sub: 'လက်ကျန်ငွေ ပြောင်းလဲမှု သတိပေး',
+    clear_data: 'ဒေတာ အားလုံး ရှင်းလင်း',
+    clear_data_sub: 'ငွေသွင်း/ထုတ် အားလုံး ဖျက်မည်',
+    clear: 'ရှင်းလင်း',
+    logout: 'ထွက်မည်',
+    notifications: 'အကြောင်းကြားချက်',
+    clear_all: 'အားလုံး ရှင်းလင်း',
+    no_notifs: 'အကြောင်းကြားချက် မရှိသေးပါ',
+    amount: 'ငွေပမာဏ ($)',
+    category: 'အမျိုးအစား',
+    description: 'ဖော်ပြချက်',
+    date: 'ရက်စွဲ',
+    add_transaction: 'ငွေသွင်း/ထုတ် ထည့်',
+    cancel: 'မလုပ်တော့',
+    confirm: 'အတည်ပြု',
+    modal_income_title: 'ဝင်ငွေ ထည့်သည်',
+    modal_expense_title: 'ထွက်ငွေ ထည့်သည်',
+    notif_balance_now: 'သင့်လက်ကျန်ငွေ',
+    notif_added_income: '↑ ဝင်ငွေ ထည့်ပြီး',
+    notif_added_expense: '↓ ထွက်ငွေ ထည့်ပြီး',
+    confirm_delete: 'ဤငွေလွှဲကို ဖျက်မလား?',
+    confirm_delete_msg: 'ဤလုပ်ဆောင်ချက်ကို ပြန်မလုပ်နိုင်ပါ။',
+    confirm_clear: 'ဒေတာ အားလုံး ရှင်းမလား?',
+    confirm_clear_msg: 'ငွေသွင်း/ထုတ် အားလုံး ပြည်တမ်း ဖျက်မည်။',
+    no_transactions: 'ငွေသွင်း/ထုတ် မရှိသေးပါ',
+    add_first: 'ပထမဆုံး ထည့်ပါ',
+    cat_salary: 'လစာ',
+    cat_freelance: 'ဖရီးလန်စ်',
+    cat_investment: 'ရင်းနှီးမြှုပ်နှံမှု',
+    cat_gift: 'လက်ဆောင်',
+    cat_other_income: 'အခြား ဝင်ငွေ',
+    cat_food: 'အစားအသောက်',
+    cat_transport: 'သယ်ယူပို့ဆောင်',
+    cat_shopping: 'ဈေးဝယ်',
+    cat_bills: 'ဘီလ်များ',
+    cat_health: 'ကျန်းမာရေး',
+    cat_entertainment: 'အပျော်အပါး',
+    cat_education: 'ပညာရေး',
+    cat_rent: 'အငှားခ',
+    cat_other_expense: 'အခြား ထွက်ငွေ',
+  }
 };
 
-/* ============================================================
-   NOTIFICATION STATE
-   Stored in localStorage under key "tnb_notifications"
-   Each notification: { id, type, message, subtext, timestamp, read }
-============================================================ */
-const Notif = {
-
-    STORAGE_KEY: 'tnb_notifications',
-    MAX_ITEMS:   50, // cap to avoid unbounded growth
-
-    /** Load all notifications from localStorage */
-    load() {
-        try {
-            return JSON.parse(localStorage.getItem(this.STORAGE_KEY)) || [];
-        } catch {
-            return [];
-        }
-    },
-
-    /** Persist notifications to localStorage */
-    save(list) {
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(list));
-    },
-
-    /**
-     * Add a new balance-change notification.
-     * @param {string} type       - 'income' | 'expense' | 'info'
-     * @param {string} message    - Primary text (e.g. "Your balance is now $300")
-     * @param {string} subtext    - Secondary text (e.g. "Income: +$200 · Salary")
-     */
-    add(type, message, subtext = '') {
-        const list = this.load();
-        const item = {
-            id:        Date.now() + Math.random().toString(36).slice(2, 7),
-            type,      // 'income' | 'expense' | 'info'
-            message,
-            subtext,
-            timestamp: new Date().toISOString(),
-            read:      false
-        };
-        // Newest first; trim to max
-        list.unshift(item);
-        if (list.length > this.MAX_ITEMS) list.length = this.MAX_ITEMS;
-        this.save(list);
-        return item;
-    },
-
-    /** Mark all notifications as read */
-    markAllRead() {
-        const list = this.load().map(n => ({ ...n, read: true }));
-        this.save(list);
-    },
-
-    /** Count unread notifications */
-    unreadCount() {
-        return this.load().filter(n => !n.read).length;
-    },
-
-    /**
-     * Format relative time: "Just now", "2m ago", "1h ago", "3d ago"
-     */
-    formatTime(isoString) {
-        const diff = Math.floor((Date.now() - new Date(isoString).getTime()) / 1000);
-        const T = LANG[App.currentLang];
-        if (diff < 60)   return T.notif_time_now   || 'Just now';
-        if (diff < 3600) return `${Math.floor(diff / 60)}${T.notif_time_m  || 'm'} ago`;
-        if (diff < 86400)return `${Math.floor(diff / 3600)}${T.notif_time_h || 'h'} ago`;
-        return `${Math.floor(diff / 86400)}${T.notif_time_d || 'd'} ago`;
-    }
+/* ═══════════════════════════════════════════
+   2. CATEGORIES
+═══════════════════════════════════════════ */
+const CATEGORIES = {
+  income: [
+    { key: 'cat_salary',       icon: '💼' },
+    { key: 'cat_freelance',    icon: '💻' },
+    { key: 'cat_investment',   icon: '📈' },
+    { key: 'cat_gift',         icon: '🎁' },
+    { key: 'cat_other_income', icon: '💰' },
+  ],
+  expense: [
+    { key: 'cat_food',         icon: '🍜' },
+    { key: 'cat_transport',    icon: '🚗' },
+    { key: 'cat_shopping',     icon: '🛍️' },
+    { key: 'cat_bills',        icon: '📄' },
+    { key: 'cat_health',       icon: '💊' },
+    { key: 'cat_entertainment',icon: '🎬' },
+    { key: 'cat_education',    icon: '📚' },
+    { key: 'cat_rent',         icon: '🏠' },
+    { key: 'cat_other_expense',icon: '💸' },
+  ]
 };
 
-/* ============================================================
-   LANGUAGE / TRANSLATION SYSTEM (✅ PRESERVED + ✨ EXTENDED)
-============================================================ */
-const LANG = {
-    en: {
-        // Navbar
-        search_placeholder:  "Search transactions...",
-        add_new:             "Add New",
-        settings:            "Settings",
-        logout:              "Logout",
-        monthly_income:      "Income",
-        monthly_expense:     "Expense",
-        savings_rate:        "Savings",
-        transactions:        "Transactions",
-
-        // Notifications
-        notifications:       "Notifications",
-        mark_all_read:       "Mark all read",
-        no_notifications:    "No notifications yet",
-        notif_balance_now:   "Your balance is now",
-        notif_income_added:  "Income added",
-        notif_expense_added: "Expense added",
-        notif_deleted:       "Transaction removed",
-        notif_time_now:      "Just now",
-        notif_time_m:        "m",
-        notif_time_h:        "h",
-        notif_time_d:        "d",
-
-        // Sidebar nav
-        nav_dashboard:    "Dashboard",
-        nav_add_income:   "Add Income",
-        nav_add_expense:  "Add Expense",
-        nav_transactions: "Transactions",
-        nav_reports:      "Reports",
-        nav_settings:     "Settings",
-
-        // Quick categories
-        quick_categories: "Quick Categories",
-        cat_salary:       "Salary",
-        cat_investment:   "Invest",
-        cat_food:         "Food",
-        cat_health:       "Health",
-        cat_shopping:     "Shop",
-
-        // Main content
-        greeting_sub:    "Here's your financial overview",
-        total_balance:   "Total Balance",
-        available_funds: "Available funds",
-        total_income:    "Total Income",
-        total_expense:   "Total Expense",
-        this_period:     "This period",
-        recent_activity: "Recent Activity",
-        filter_all:      "All",
-        filter_income:   "Income",
-        filter_expense:  "Expense",
-        no_transactions: "No transactions found.",
-        add_first:       "Add your first entry",
-
-        // Right sidebar
-        monthly_summary:    "Monthly Summary",
-        income:             "Income",
-        expense:            "Expense",
-        category_breakdown: "Category Breakdown",
-        quick_stats:        "Quick Stats",
-        avg_entry:          "Avg. Entry",
-        largest_entry:      "Largest",
-        categories:         "Categories",
-        quick_add:          "Quick Add",
-        no_data:            "No data yet",
-
-        // Modals
-        new_entry:       "New Entry",
-        what_to_record:  "What would you like to record?",
-        income_hint:     "Salary, Business, etc.",
-        expense_hint:    "Food, Rent, etc.",
-        cancel:          "Cancel",
-        add_income:      "Add Income",
-        add_expense:     "Add Expense",
-        amount:          "Amount",
-        category:        "Category",
-        note:            "Note",
-        note_placeholder:"Add a description...",
-        confirm:         "Confirm",
-
-        // Toast
-        toast_added:   "Transaction added! ✓",
-        toast_deleted: "Deleted successfully",
-        toast_error:   "Something went wrong",
-        delete_confirm:"Delete this entry?",
-
-        // Greeting
-        greeting_morning:   "Good morning 👋",
-        greeting_afternoon: "Good afternoon 👋",
-        greeting_evening:   "Good evening 👋",
-        greeting_night:     "Good night 👋",
-    },
-
-    my: {
-        // Navbar
-        search_placeholder:  "ငွေပေးငွေယူ ရှာဖွေမည်...",
-        add_new:             "အသစ် ထည့်မည်",
-        settings:            "ဆက်တင်များ",
-        logout:              "ထွက်မည်",
-        monthly_income:      "ဝင်ငွေ",
-        monthly_expense:     "ကုန်ကျငွေ",
-        savings_rate:        "စုဆောင်းမှု",
-        transactions:        "ငွေပေးငွေယူ",
-
-        // Notifications
-        notifications:       "အကြောင်းကြားချက်များ",
-        mark_all_read:       "အားလုံး ဖတ်ပြီးပြု",
-        no_notifications:    "အကြောင်းကြားချက် မရှိသေးပါ",
-        notif_balance_now:   "လက်ကျန်ငွေ ယခု",
-        notif_income_added:  "ဝင်ငွေ ထည့်ပြီး",
-        notif_expense_added: "ကုန်ကျငွေ ထည့်ပြီး",
-        notif_deleted:       "ငွေပေးငွေယူ ဖျက်လိုက်ပြီ",
-        notif_time_now:      "ယခုလေးတင်",
-        notif_time_m:        "မိနစ်",
-        notif_time_h:        "နာရီ",
-        notif_time_d:        "ရက်",
-
-        // Sidebar nav
-        nav_dashboard:    "ပင်မစာမျက်နှာ",
-        nav_add_income:   "ဝင်ငွေ ထည့်မည်",
-        nav_add_expense:  "ကုန်ကျငွေ ထည့်မည်",
-        nav_transactions: "ငွေပေးငွေယူ",
-        nav_reports:      "အစီရင်ခံစာ",
-        nav_settings:     "ဆက်တင်များ",
-
-        // Quick categories
-        quick_categories: "အမျိုးအစားများ",
-        cat_salary:       "လစာ",
-        cat_investment:   "ရင်းနှီးမြှုပ်နှံမှု",
-        cat_food:         "အစားအသောက်",
-        cat_health:       "ကျန်းမာရေး",
-        cat_shopping:     "ကုန်ဝယ်ခြင်း",
-
-        // Main content
-        greeting_sub:    "သင်၏ ငွေကြေးခြုံငုံသုံးသပ်ချက်",
-        total_balance:   "စုစုပေါင်းလက်ကျန်ငွေ",
-        available_funds: "ရရှိနိုင်သောငွေ",
-        total_income:    "စုစုပေါင်းဝင်ငွေ",
-        total_expense:   "စုစုပေါင်းကုန်ကျငွေ",
-        this_period:     "ယခုကာလ",
-        recent_activity: "မကြာသေးမီ လုပ်ဆောင်ချက်",
-        filter_all:      "အားလုံး",
-        filter_income:   "ဝင်ငွေ",
-        filter_expense:  "ကုန်ကျငွေ",
-        no_transactions: "ငွေပေးငွေယူ မတွေ့ပါ။",
-        add_first:       "ပထမဆုံး ထည့်မည်",
-
-        // Right sidebar
-        monthly_summary:    "လစဉ် အကျဉ်းချုပ်",
-        income:             "ဝင်ငွေ",
-        expense:            "ကုန်ကျငွေ",
-        category_breakdown: "အမျိုးအစားအလိုက်",
-        quick_stats:        "အမြန်စာရင်းအင်း",
-        avg_entry:          "ပျမ်းမျှ",
-        largest_entry:      "အများဆုံး",
-        categories:         "အမျိုးအစား",
-        quick_add:          "အမြန် ထည့်မည်",
-        no_data:            "ဒေတာ မရှိသေးပါ",
-
-        // Modals
-        new_entry:       "အသစ် ထည့်မည်",
-        what_to_record:  "ဘာကို မှတ်တမ်းတင်မည်နည်း?",
-        income_hint:     "လစာ၊ စီးပွားရေး၊ စသည်",
-        expense_hint:    "အစားအသောက်၊ အငှား၊ စသည်",
-        cancel:          "မလုပ်တော့ပါ",
-        add_income:      "ဝင်ငွေ ထည့်မည်",
-        add_expense:     "ကုန်ကျငွေ ထည့်မည်",
-        amount:          "ပမာဏ",
-        category:        "အမျိုးအစား",
-        note:            "မှတ်ချက်",
-        note_placeholder:"ဖော်ပြချက် ထည့်ပါ...",
-        confirm:         "အတည်ပြု",
-
-        // Toast
-        toast_added:   "ထည့်သွင်းပြီးပါပြီ ✓",
-        toast_deleted: "ဖျက်ပြီးပါပြီ",
-        toast_error:   "တစ်ခုခု မှားယွင်းနေသည်",
-        delete_confirm:"ဤ မှတ်တမ်းကို ဖျက်မည်လား?",
-
-        // Greeting
-        greeting_morning:   "မင်္ဂလာနံနက်ခင်း 👋",
-        greeting_afternoon: "မင်္ဂလာနေ့လည်ခင်း 👋",
-        greeting_evening:   "မင်္ဂလာညနေခင်း 👋",
-        greeting_night:     "မင်္ဂလာညမနက် 👋",
-    }
+/* ═══════════════════════════════════════════
+   3. APP STATE
+═══════════════════════════════════════════ */
+const state = {
+  transactions: [],
+  notifications: [],
+  lang: 'en',
+  theme: 'dark',
+  notifEnabled: true,
+  userName: 'Alex Morgan',
+  currentFilter: 'all',
+  dateFilter: '',
+  confirmCallback: null,
 };
 
-/* ============================================================
-   UI HELPER — dynamic category filtering (✅ PRESERVED)
-============================================================ */
-const UI = {
-    filterCategories(type) {
-        const select = document.getElementById("category");
-        if (!select) return;
-        select.innerHTML = "";
-        const list = App.categories[type] || App.categories.expense;
-        list.forEach(cat => {
-            const opt = document.createElement("option");
-            opt.value = cat;
-            opt.textContent = UI.translateCategory(cat);
-            select.appendChild(opt);
-        });
-    },
-
-    catTranslations: {
-        my: {
-            Salary:     "လစာ",
-            Business:   "စီးပွားရေး",
-            Investment: "ရင်းနှီးမြှုပ်နှံမှု",
-            Bonus:      "ဘောနပ်စ်",
-            Other:      "အခြား",
-            Food:       "အစားအသောက်",
-            Transport:  "သယ်ယူပို့ဆောင်ရေး",
-            Shopping:   "ကုန်ဝယ်ခြင်း",
-            Health:     "ကျန်းမာရေး",
-            Rent:       "အငှားဝင်ငွေ",
-            Bill:       "ဘေလ်",
-        }
-    },
-
-    translateCategory(cat) {
-        if (App.currentLang === 'my' && UI.catTranslations.my[cat]) {
-            return UI.catTranslations.my[cat];
-        }
-        return cat;
-    }
+/* ═══════════════════════════════════════════
+   4. LOCAL STORAGE HELPERS
+═══════════════════════════════════════════ */
+const LS_KEYS = {
+  transactions: 'novapay_transactions',
+  notifications: 'novapay_notifications',
+  lang: 'novapay_lang',
+  theme: 'novapay_theme',
+  notifEnabled: 'novapay_notif',
+  userName: 'novapay_username',
 };
 
-/* ============================================================
-   TRANSLATION SYSTEM (✅ PRESERVED + EXTENDED)
-============================================================ */
-function applyTranslations() {
-    const T = LANG[App.currentLang];
+function saveToLS(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch(e) { /* quota */ }
+}
+function loadFromLS(key, fallback) {
+  try {
+    const v = localStorage.getItem(key);
+    return v !== null ? JSON.parse(v) : fallback;
+  } catch { return fallback; }
+}
+function loadState() {
+  state.transactions  = loadFromLS(LS_KEYS.transactions, []);
+  state.notifications = loadFromLS(LS_KEYS.notifications, []);
+  state.lang          = loadFromLS(LS_KEYS.lang, 'en');
+  state.theme         = loadFromLS(LS_KEYS.theme, 'dark');
+  state.notifEnabled  = loadFromLS(LS_KEYS.notifEnabled, true);
+  state.userName      = loadFromLS(LS_KEYS.userName, 'Alex Morgan');
+}
+function saveTransactions()  { saveToLS(LS_KEYS.transactions, state.transactions); }
+function saveNotifications() { saveToLS(LS_KEYS.notifications, state.notifications); }
 
-    // data-i18n → textContent
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (T[key] !== undefined) el.textContent = T[key];
-    });
+/* ═══════════════════════════════════════════
+   5. FINANCE CALCULATIONS
+═══════════════════════════════════════════ */
+function calcTotals() {
+  let income = 0, expense = 0;
+  for (const t of state.transactions) {
+    if (t.type === 'income') income += t.amount;
+    else expense += t.amount;
+  }
+  return { income, expense, balance: income - expense };
+}
 
-    // data-i18n-ph → placeholder
-    document.querySelectorAll('[data-i18n-ph]').forEach(el => {
-        const key = el.getAttribute('data-i18n-ph');
-        if (T[key] !== undefined) el.placeholder = T[key];
-    });
+function fmt(n) {
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2, maximumFractionDigits: 2
+  }).format(n);
+}
 
-    // Lang label
-    const langLabel = document.getElementById('lang-label');
-    if (langLabel) langLabel.textContent = App.currentLang === 'en' ? 'EN' : 'မြ';
+/* ═══════════════════════════════════════════
+   6. UI UPDATES
+═══════════════════════════════════════════ */
+function updateBalanceCard() {
+  const { income, expense, balance } = calcTotals();
+  animateNumber('balanceDisplay', balance);
+  document.getElementById('totalIncomeDisplay').textContent  = '$' + fmt(income);
+  document.getElementById('totalExpenseDisplay').textContent = '$' + fmt(expense);
+  // Reports section
+  document.getElementById('reportIncome').textContent  = '$' + fmt(income);
+  document.getElementById('reportExpense').textContent = '$' + fmt(expense);
+  document.getElementById('reportBalance').textContent = '$' + fmt(balance);
+  document.getElementById('reportCount').textContent   = state.transactions.length;
+  const balEl = document.getElementById('reportBalance');
+  balEl.style.color = balance >= 0 ? 'var(--income)' : 'var(--expense)';
+}
 
-    document.documentElement.lang = App.currentLang === 'en' ? 'en' : 'my';
+// Animated number counter
+function animateNumber(elId, target) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  const start = parseFloat(el.textContent.replace(/,/g, '')) || 0;
+  const diff = target - start;
+  const duration = 700;
+  let startTime = null;
+  function step(ts) {
+    if (!startTime) startTime = ts;
+    const progress = Math.min((ts - startTime) / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 3);
+    el.textContent = fmt(start + diff * ease);
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
 
-    updateGreeting();
+/* ─── TRANSACTION LIST RENDERER ─── */
+function getCategoryMeta(type, categoryKey) {
+  const list = CATEGORIES[type] || [];
+  return list.find(c => c.key === categoryKey) || { icon: type === 'income' ? '💰' : '💸' };
+}
 
-    // Refresh notification panel text if open
-    renderNotifPanel();
+function renderTransactionItem(txn, idx) {
+  const meta = getCategoryMeta(txn.type, txn.categoryKey);
+  const t = TRANSLATIONS[state.lang];
+  const label = t[txn.categoryKey] || txn.category;
+  const sign  = txn.type === 'income' ? '+' : '-';
+  const dateStr = txn.date ? new Date(txn.date + 'T00:00:00').toLocaleDateString('en-US', {
+    month: 'short', day: 'numeric', year: 'numeric'
+  }) : '';
 
-    if (App.transactions.length === 0) renderFeed();
+  const div = document.createElement('div');
+  div.className = 'txn-item';
+  div.style.animationDelay = (idx * 0.04) + 's';
+  div.innerHTML = `
+    <div class="txn-icon ${txn.type}">${meta.icon}</div>
+    <div class="txn-details">
+      <div class="txn-category">${label}</div>
+      <div class="txn-desc">${txn.description || ''}</div>
+    </div>
+    <div class="txn-meta">
+      <div class="txn-amount ${txn.type}">${sign}$${fmt(txn.amount)}</div>
+      <div class="txn-date">${dateStr}</div>
+    </div>
+    <button class="txn-delete" data-id="${txn.id}" title="Delete">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>
+        <path d="M10 11v6M14 11v6M9 6V4h6v2"/>
+      </svg>
+    </button>
+  `;
+  div.querySelector('.txn-delete').addEventListener('click', e => {
+    e.stopPropagation();
+    const id = e.currentTarget.dataset.id;
+    showConfirm(
+      TRANSLATIONS[state.lang].confirm_delete,
+      TRANSLATIONS[state.lang].confirm_delete_msg,
+      () => deleteTransaction(id)
+    );
+  });
+  return div;
+}
+
+function getFilteredTransactions() {
+  return state.transactions.filter(t => {
+    const matchType = state.currentFilter === 'all' || t.type === state.currentFilter;
+    const matchDate = !state.dateFilter || t.date === state.dateFilter;
+    return matchType && matchDate;
+  });
+}
+
+function renderDashTransList() {
+  const el = document.getElementById('dashTransList');
+  const recent = [...state.transactions].reverse().slice(0, 5);
+  el.innerHTML = '';
+  if (recent.length === 0) {
+    el.appendChild(emptyState());
+    return;
+  }
+  recent.forEach((t, i) => el.appendChild(renderTransactionItem(t, i)));
+}
+
+function renderFullTransList() {
+  const el = document.getElementById('fullTransList');
+  const filtered = getFilteredTransactions().slice().reverse();
+  el.innerHTML = '';
+  if (filtered.length === 0) {
+    el.appendChild(emptyState());
+    return;
+  }
+  filtered.forEach((t, i) => el.appendChild(renderTransactionItem(t, i)));
+}
+
+function emptyState() {
+  const div = document.createElement('div');
+  div.className = 'empty-state';
+  div.innerHTML = `
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M20 7H4a2 2 0 00-2 2v9a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
+      <path d="M16 3H8v4h8V3z"/>
+    </svg>
+    <p>${TRANSLATIONS[state.lang].no_transactions}</p>
+    <p style="font-size:0.75rem">${TRANSLATIONS[state.lang].add_first}</p>
+  `;
+  return div;
+}
+
+function renderAll() {
+  updateBalanceCard();
+  renderDashTransList();
+  renderFullTransList();
+  renderCategoryBreakdown();
+  drawSpendingChart();
+}
+
+/* ─── CATEGORY BREAKDOWN ─── */
+const CHART_COLORS = [
+  '#4f8ef7','#22c55e','#f43f5e','#8b5cf6','#f59e0b',
+  '#06b6d4','#ec4899','#10b981','#f97316','#6366f1'
+];
+function renderCategoryBreakdown() {
+  const el = document.getElementById('categoryBreakdown');
+  el.innerHTML = '';
+  const t = TRANSLATIONS[state.lang];
+  const map = {};
+  for (const txn of state.transactions) {
+    const label = t[txn.categoryKey] || txn.category;
+    if (!map[label]) map[label] = { total: 0, type: txn.type };
+    map[label].total += txn.amount;
+  }
+  const entries = Object.entries(map).sort((a, b) => b[1].total - a[1].total);
+  if (entries.length === 0) {
+    el.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;text-align:center;padding:20px">No data</p>';
+    return;
+  }
+  const max = entries[0][1].total;
+  entries.forEach(([name, data], i) => {
+    const pct = (data.total / max) * 100;
+    const color = data.type === 'income' ? 'var(--income)' : CHART_COLORS[i % CHART_COLORS.length];
+    const row = document.createElement('div');
+    row.className = 'cat-row';
+    row.innerHTML = `
+      <span class="cat-name">${name}</span>
+      <div class="cat-bar-wrap"><div class="cat-bar" style="width:0%;background:${color}" data-w="${pct}"></div></div>
+      <span class="cat-amount" style="color:${color}">$${fmt(data.total)}</span>
+    `;
+    el.appendChild(row);
+    setTimeout(() => {
+      row.querySelector('.cat-bar').style.width = pct + '%';
+    }, 80 + i * 60);
+  });
+}
+
+/* ─── MINI SPENDING CHART (pure canvas, no library) ─── */
+function drawSpendingChart() {
+  const canvas = document.getElementById('spendingCanvas');
+  if (!canvas) return;
+  const days = parseInt(document.getElementById('chartPeriod').value) || 7;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width  = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  canvas.style.width  = rect.width + 'px';
+  canvas.style.height = rect.height + 'px';
+  ctx.scale(dpr, dpr);
+
+  const W = rect.width, H = rect.height;
+  const PAD = { top: 10, right: 10, bottom: 24, left: 42 };
+  const now = new Date();
+
+  // Build daily expense totals
+  const buckets = {};
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i);
+    buckets[d.toISOString().split('T')[0]] = 0;
+  }
+  for (const txn of state.transactions) {
+    if (txn.type === 'expense' && buckets[txn.date] !== undefined) {
+      buckets[txn.date] += txn.amount;
+    }
+  }
+
+  const labels = Object.keys(buckets);
+  const values = Object.values(buckets);
+  const maxV = Math.max(...values, 1);
+
+  const chartW = W - PAD.left - PAD.right;
+  const chartH = H - PAD.top  - PAD.bottom;
+  const step   = chartW / (labels.length - 1 || 1);
+
+  const pts = labels.map((_, i) => ({
+    x: PAD.left + i * step,
+    y: PAD.top + chartH - (values[i] / maxV) * chartH
+  }));
+
+  // Gradient fill
+  const grad = ctx.createLinearGradient(0, PAD.top, 0, PAD.top + chartH);
+  grad.addColorStop(0, 'rgba(79,142,247,0.35)');
+  grad.addColorStop(1, 'rgba(79,142,247,0.00)');
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Draw filled area
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i = 1; i < pts.length; i++) {
+    const cp1x = (pts[i-1].x + pts[i].x) / 2;
+    ctx.bezierCurveTo(cp1x, pts[i-1].y, cp1x, pts[i].y, pts[i].x, pts[i].y);
+  }
+  ctx.lineTo(pts[pts.length-1].x, PAD.top + chartH);
+  ctx.lineTo(pts[0].x, PAD.top + chartH);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Draw line
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i = 1; i < pts.length; i++) {
+    const cp1x = (pts[i-1].x + pts[i].x) / 2;
+    ctx.bezierCurveTo(cp1x, pts[i-1].y, cp1x, pts[i].y, pts[i].x, pts[i].y);
+  }
+  ctx.strokeStyle = '#4f8ef7';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Y-axis label
+  ctx.fillStyle = getComputedStyle(document.documentElement)
+    .getPropertyValue('--text-muted').trim() || '#4a5980';
+  ctx.font = '10px Sora, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText('$' + Math.round(maxV), PAD.left - 6, PAD.top + 8);
+
+  // X-axis labels (first and last)
+  ctx.textAlign = 'left';
+  ctx.fillStyle = ctx.fillStyle;
+  const fmtDate = d => {
+    const obj = new Date(d + 'T00:00:00');
+    return obj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+  ctx.fillText(fmtDate(labels[0]), PAD.left, H - 4);
+  ctx.textAlign = 'right';
+  ctx.fillText(fmtDate(labels[labels.length-1]), W - PAD.right, H - 4);
+
+  // Dots on points
+  pts.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+    ctx.fillStyle = '#4f8ef7';
+    ctx.fill();
+  });
+}
+
+/* ═══════════════════════════════════════════
+   7. NOTIFICATIONS
+═══════════════════════════════════════════ */
+function addNotification(type, amount, newBalance) {
+  if (!state.notifEnabled) return;
+  const t = TRANSLATIONS[state.lang];
+  const msg = type === 'income'
+    ? `${t.notif_added_income} $${fmt(amount)}. ${t.notif_balance_now} $${fmt(newBalance)}`
+    : `${t.notif_added_expense} $${fmt(amount)}. ${t.notif_balance_now} $${fmt(newBalance)}`;
+  const notif = {
+    id: Date.now().toString(),
+    type,
+    message: msg,
+    time: new Date().toISOString(),
+    read: false,
+  };
+  state.notifications.unshift(notif);
+  if (state.notifications.length > 50) state.notifications.pop();
+  saveNotifications();
+  renderNotifications();
+}
+
+function renderNotifications() {
+  const list  = document.getElementById('notifList');
+  const badge = document.getElementById('notifBadge');
+  list.innerHTML = '';
+
+  const unread = state.notifications.filter(n => !n.read).length;
+  if (unread > 0) {
+    badge.style.display = 'grid';
+    badge.textContent = unread > 9 ? '9+' : unread;
+  } else {
+    badge.style.display = 'none';
+  }
+
+  if (state.notifications.length === 0) {
+    list.innerHTML = `<div class="notif-empty" data-i18n="no_notifs">${TRANSLATIONS[state.lang].no_notifs}</div>`;
+    return;
+  }
+
+  state.notifications.forEach(n => {
+    const item = document.createElement('div');
+    item.className = 'notif-item';
+    const relTime = getRelativeTime(new Date(n.time));
+    item.innerHTML = `
+      <div class="notif-item-dot ${n.type}"></div>
+      <div>
+        <div class="notif-item-text">${n.message}</div>
+        <div class="notif-item-time">${relTime}</div>
+      </div>
+    `;
+    list.appendChild(item);
+  });
+}
+
+function getRelativeTime(date) {
+  const secs = Math.floor((Date.now() - date) / 1000);
+  if (secs < 60)   return 'Just now';
+  if (secs < 3600) return Math.floor(secs / 60) + 'm ago';
+  if (secs < 86400)return Math.floor(secs / 3600) + 'h ago';
+  return Math.floor(secs / 86400) + 'd ago';
+}
+
+/* ═══════════════════════════════════════════
+   8. TRANSACTION CRUD
+═══════════════════════════════════════════ */
+function addTransaction(type, amount, categoryKey, category, description, date) {
+  const txn = {
+    id: Date.now().toString(),
+    type, amount, categoryKey, category, description, date
+  };
+  state.transactions.push(txn);
+  saveTransactions();
+  const { balance } = calcTotals();
+  addNotification(type, amount, balance);
+  renderAll();
+}
+
+function deleteTransaction(id) {
+  state.transactions = state.transactions.filter(t => t.id !== id);
+  saveTransactions();
+  renderAll();
+}
+
+/* ═══════════════════════════════════════════
+   9. MODAL MANAGEMENT
+═══════════════════════════════════════════ */
+function openTxnModal(type) {
+  const modal = document.getElementById('txnModal');
+  const box   = document.getElementById('txnModalBox');
+  const t     = TRANSLATIONS[state.lang];
+  document.getElementById('txnType').value = type;
+  document.getElementById('modalTitle').textContent =
+    type === 'income' ? t.modal_income_title : t.modal_expense_title;
+  box.className = `modal-box modal-${type}`;
+
+  // Populate categories
+  const sel = document.getElementById('txnCategory');
+  sel.innerHTML = `<option value="">${t.category}</option>`;
+  CATEGORIES[type].forEach(cat => {
+    const opt = document.createElement('option');
+    opt.value = cat.key;
+    opt.textContent = cat.icon + ' ' + (t[cat.key] || cat.key);
+    sel.appendChild(opt);
+  });
+
+  // Set today's date
+  document.getElementById('txnDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('txnAmount').value = '';
+  document.getElementById('txnDesc').value = '';
+  document.getElementById('txnSubmit').textContent = t.add_transaction;
+
+  modal.classList.add('open');
+  setTimeout(() => document.getElementById('txnAmount').focus(), 200);
+}
+
+function closeTxnModal() {
+  document.getElementById('txnModal').classList.remove('open');
+}
+
+function showConfirm(title, msg, callback) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMsg').textContent   = msg;
+  state.confirmCallback = callback;
+  document.getElementById('confirmModal').classList.add('open');
+}
+
+function closeConfirm() {
+  document.getElementById('confirmModal').classList.remove('open');
+  state.confirmCallback = null;
+}
+
+/* ═══════════════════════════════════════════
+   10. NAVIGATION
+═══════════════════════════════════════════ */
+function navigateTo(section) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('section-' + section)?.classList.add('active');
+  document.querySelector(`.nav-item[data-section="${section}"]`)?.classList.add('active');
+  if (section === 'reports') { renderCategoryBreakdown(); }
+  closeSidebar();
+}
+
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+}
+
+/* ═══════════════════════════════════════════
+   11. THEME
+═══════════════════════════════════════════ */
+function applyTheme(theme) {
+  state.theme = theme;
+  document.documentElement.dataset.theme = theme;
+  document.getElementById('themeCheckbox').checked = theme === 'dark';
+  saveToLS(LS_KEYS.theme, theme);
+  setTimeout(drawSpendingChart, 50);
+}
+
+/* ═══════════════════════════════════════════
+   12. LANGUAGE / i18n
+═══════════════════════════════════════════ */
+function applyLanguage(lang) {
+  state.lang = lang;
+  const t = TRANSLATIONS[lang];
+  saveToLS(LS_KEYS.lang, lang);
+  document.getElementById('langLabel').textContent = lang === 'en' ? 'EN' : 'MM';
+  document.getElementById('langBtnLabel').textContent = lang === 'en' ? 'English' : 'မြန်မာ';
+
+  // Translate all [data-i18n] elements
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    if (t[key]) el.textContent = t[key];
+  });
+
+  // Update greeting
+  updateGreeting();
+  // Re-render lists (category names change)
+  renderAll();
+  renderNotifications();
 }
 
 function toggleLanguage() {
-    App.currentLang = App.currentLang === 'en' ? 'my' : 'en';
-    applyTranslations();
-    const transType = document.getElementById('trans-type')?.value;
-    if (transType && document.getElementById('transaction-modal')?.style.display === 'flex') {
-        UI.filterCategories(transType);
-    }
-    showToast(App.currentLang === 'en' ? 'Switched to English' : 'မြန်မာဘာသာ ပြောင်းလဲပြီ');
+  applyLanguage(state.lang === 'en' ? 'my' : 'en');
 }
 
+/* ═══════════════════════════════════════════
+   13. GREETING & DATE
+═══════════════════════════════════════════ */
 function updateGreeting() {
-    const T = LANG[App.currentLang];
-    const h = new Date().getHours();
-    let key = 'greeting_morning';
-    if (h >= 12 && h < 17)       key = 'greeting_afternoon';
-    else if (h >= 17 && h < 21)  key = 'greeting_evening';
-    else if (h >= 21 || h < 5)   key = 'greeting_night';
-    const greetEl = document.getElementById('greeting-text');
-    if (greetEl) greetEl.textContent = T[key];
+  const hour = new Date().getHours();
+  const t = TRANSLATIONS[state.lang];
+  let greeting;
+  if (hour < 12) greeting = t.good_morning;
+  else if (hour < 17) greeting = t.good_afternoon;
+  else greeting = t.good_evening;
+  document.getElementById('greetingText').textContent = greeting;
+  const name = state.userName.split(' ')[0];
+  document.getElementById('greetingName').textContent = name + ' 👋';
 }
 
-/** Shorthand translation getter */
-function t(key) {
-    return LANG[App.currentLang][key] || key;
+function updateDateBadge() {
+  const now = new Date();
+  document.getElementById('dateBadge').textContent = now.toLocaleDateString('en-US', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  });
 }
 
-/* ============================================================
-   NOTIFICATION PANEL RENDERING
-============================================================ */
+/* ═══════════════════════════════════════════
+   14. EXPORT CSV
+═══════════════════════════════════════════ */
+function exportCSV() {
+  const t = TRANSLATIONS[state.lang];
+  const header = ['Date', 'Type', 'Category', 'Description', 'Amount'].join(',');
+  const rows = getFilteredTransactions().map(txn => [
+    txn.date,
+    txn.type,
+    (t[txn.categoryKey] || txn.category).replace(/,/g, ';'),
+    (txn.description || '').replace(/,/g, ';'),
+    txn.amount.toFixed(2)
+  ].join(','));
+  const csv = [header, ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = `novapay-transactions-${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
-/**
- * Render all notifications into the dropdown panel.
- * Called after every add/delete and on lang switch.
- */
-function renderNotifPanel() {
-    const list     = Notif.load();
-    const listEl   = document.getElementById('notif-list');
-    const emptyEl  = document.getElementById('notif-empty');
-    const badgeEl  = document.getElementById('notif-badge');
-    const markAll  = document.getElementById('notif-mark-all');
-    if (!listEl) return;
+/* ═══════════════════════════════════════════
+   15. PROFILE
+═══════════════════════════════════════════ */
+function updateProfileUI() {
+  const name = state.userName;
+  const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  document.getElementById('sidebarAvatar').textContent  = initials[0] || 'A';
+  document.getElementById('sidebarName').textContent    = name;
+  document.getElementById('profileAvatarLarge').textContent = initials[0] || 'A';
+  document.getElementById('profileNameInput').value     = name;
+  updateGreeting();
+}
 
-    // Empty state
-    if (list.length === 0) {
-        listEl.innerHTML = '';
-        if (emptyEl) {
-            emptyEl.style.display = 'block';
-            const p = emptyEl.querySelector('p');
-            if (p) p.textContent = t('no_notifications');
-        }
-        badgeEl && (badgeEl.style.display = 'none');
-        return;
+/* ═══════════════════════════════════════════
+   16. EVENT WIRING
+═══════════════════════════════════════════ */
+function wireEvents() {
+  // Sidebar navigation
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', e => {
+      e.preventDefault();
+      navigateTo(item.dataset.section);
+    });
+  });
+
+  // Hamburger
+  document.getElementById('hamburgerBtn').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('open');
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click', closeSidebar);
+
+  // Quick actions
+  document.getElementById('addIncomeBtn').addEventListener('click',  () => openTxnModal('income'));
+  document.getElementById('addExpenseBtn').addEventListener('click', () => openTxnModal('expense'));
+  document.getElementById('reportsNavBtn').addEventListener('click', () => navigateTo('reports'));
+  document.getElementById('seeAllBtn').addEventListener('click',     () => navigateTo('transactions'));
+
+  // Modal
+  document.getElementById('modalClose').addEventListener('click', closeTxnModal);
+  document.getElementById('txnModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('txnModal')) closeTxnModal();
+  });
+
+  document.getElementById('txnSubmit').addEventListener('click', () => {
+    const type   = document.getElementById('txnType').value;
+    const amount = parseFloat(document.getElementById('txnAmount').value);
+    const catKey = document.getElementById('txnCategory').value;
+    const desc   = document.getElementById('txnDesc').value.trim();
+    const date   = document.getElementById('txnDate').value;
+    const t      = TRANSLATIONS[state.lang];
+
+    if (!amount || amount <= 0) {
+      document.getElementById('txnAmount').focus();
+      document.getElementById('txnAmount').style.borderColor = 'var(--expense)';
+      setTimeout(() => document.getElementById('txnAmount').style.borderColor = '', 1400);
+      return;
     }
+    const catObj = CATEGORIES[type]?.find(c => c.key === catKey) || {};
+    const catName = t[catKey] || catKey || (type === 'income' ? t.cat_other_income : t.cat_other_expense);
 
-    // Hide built-in empty state if we have items
-    if (emptyEl) emptyEl.style.display = 'none';
+    addTransaction(type, amount, catKey || `cat_other_${type}`, catName, desc, date);
+    closeTxnModal();
+  });
 
-    // Update badge
-    const unread = Notif.unreadCount();
-    if (badgeEl) {
-        if (unread > 0) {
-            badgeEl.style.display = 'flex';
-            badgeEl.textContent   = unread > 9 ? '9+' : unread;
-        } else {
-            badgeEl.style.display = 'none';
-        }
+  // Allow Enter key to submit modal
+  document.getElementById('txnModal').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('txnSubmit').click();
+  });
+
+  // Confirm modal
+  document.getElementById('confirmCancel').addEventListener('click', closeConfirm);
+  document.getElementById('confirmModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('confirmModal')) closeConfirm();
+  });
+  document.getElementById('confirmOk').addEventListener('click', () => {
+    if (state.confirmCallback) state.confirmCallback();
+    closeConfirm();
+  });
+
+  // Filter tabs
+  document.getElementById('filterTabs').addEventListener('click', e => {
+    const btn = e.target.closest('.filter-tab');
+    if (!btn) return;
+    document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.currentFilter = btn.dataset.filter;
+    renderFullTransList();
+  });
+
+  // Date filter
+  document.getElementById('dateFilter').addEventListener('change', e => {
+    state.dateFilter = e.target.value;
+    renderFullTransList();
+  });
+
+  // Export CSV
+  document.getElementById('exportCsvBtn').addEventListener('click', exportCSV);
+
+  // Theme toggle (topbar)
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    applyTheme(state.theme === 'dark' ? 'light' : 'dark');
+  });
+
+  // Theme toggle (settings checkbox)
+  document.getElementById('themeCheckbox').addEventListener('change', e => {
+    applyTheme(e.target.checked ? 'dark' : 'light');
+  });
+
+  // Language toggle
+  document.getElementById('langToggle').addEventListener('click', toggleLanguage);
+  document.getElementById('langBtnSettings').addEventListener('click', toggleLanguage);
+
+  // Notifications toggle
+  document.getElementById('notifBtn').addEventListener('click', e => {
+    e.stopPropagation();
+    const dd = document.getElementById('notifDropdown');
+    dd.classList.toggle('open');
+    // Mark all as read
+    state.notifications.forEach(n => n.read = true);
+    saveNotifications();
+    renderNotifications();
+  });
+  document.addEventListener('click', e => {
+    if (!document.getElementById('notifWrap').contains(e.target)) {
+      document.getElementById('notifDropdown').classList.remove('open');
     }
+  });
+  document.getElementById('notifClear').addEventListener('click', () => {
+    state.notifications = [];
+    saveNotifications();
+    renderNotifications();
+  });
 
-    // Update "Mark all read" visibility
-    if (markAll) markAll.style.display = unread > 0 ? 'block' : 'none';
+  // Notification enabled toggle
+  document.getElementById('notifToggle').addEventListener('change', e => {
+    state.notifEnabled = e.target.checked;
+    saveToLS(LS_KEYS.notifEnabled, state.notifEnabled);
+  });
 
-    // Build notification items HTML
-    listEl.innerHTML = list.map((n, idx) => {
-        const iconClass   = n.type === 'income'  ? 'income-notif'
-                          : n.type === 'expense' ? 'expense-notif'
-                          : 'info-notif';
-        const iconSymbol  = n.type === 'income'  ? 'fas fa-arrow-trend-up'
-                          : n.type === 'expense' ? 'fas fa-arrow-trend-down'
-                          : 'fas fa-bell';
-        const unreadClass = n.read ? '' : 'unread';
-        const timeStr     = Notif.formatTime(n.timestamp);
+  // Profile name input
+  document.getElementById('profileNameInput').addEventListener('input', e => {
+    state.userName = e.target.value || 'User';
+    saveToLS(LS_KEYS.userName, state.userName);
+    updateProfileUI();
+  });
 
-        return `
-            <div class="notif-item ${unreadClass}" data-id="${n.id}" style="animation-delay:${idx * 0.04}s">
-                <div class="notif-icon-wrap ${iconClass}">
-                    <i class="${iconSymbol}"></i>
-                </div>
-                <div class="notif-body">
-                    <div class="notif-msg">${escHtml(n.message)}</div>
-                    ${n.subtext ? `<div class="notif-sub">${escHtml(n.subtext)}</div>` : ''}
-                </div>
-                <div class="notif-time">${timeStr}</div>
-            </div>
-        `;
-    }).join('');
-}
+  // Clear data
+  document.getElementById('clearDataBtn').addEventListener('click', () => {
+    showConfirm(
+      TRANSLATIONS[state.lang].confirm_clear,
+      TRANSLATIONS[state.lang].confirm_clear_msg,
+      () => {
+        state.transactions = [];
+        saveTransactions();
+        renderAll();
+      }
+    );
+  });
 
-/**
- * Generate and store a balance-change notification after a transaction.
- * Called from renderUI() every time data re-renders after a DB write.
- * @param {number} newBalance   - Calculated new balance
- * @param {string} txType       - 'income' | 'expense'
- * @param {number} txAmount     - Transaction amount just added
- * @param {string} txCategory   - Category of transaction
- */
-function pushBalanceNotification(newBalance, txType, txAmount, txCategory) {
-    const isInc = txType === 'income';
-    const sign  = isInc ? '+' : '-';
+  // Logout
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    showConfirm('Logout?', 'Your data is safely stored. You can return anytime.', () => {
+      localStorage.clear();
+      location.reload();
+    });
+  });
 
-    const message = `${t('notif_balance_now')} $${newBalance.toFixed(2)}`;
-    const subtext = `${isInc ? t('notif_income_added') : t('notif_expense_added')}: ${sign}$${txAmount.toFixed(2)} · ${UI.translateCategory(txCategory)}`;
+  // Chart period
+  document.getElementById('chartPeriod').addEventListener('change', drawSpendingChart);
 
-    Notif.add(txType, message, subtext);
-    renderNotifPanel(); // refresh panel immediately
-}
-
-/**
- * Generate a "deleted" notification after a transaction is removed.
- * @param {number} newBalance - Balance after deletion
- */
-function pushDeleteNotification(newBalance) {
-    const message = `${t('notif_deleted')} · ${t('notif_balance_now')} $${newBalance.toFixed(2)}`;
-    Notif.add('info', message, '');
-    renderNotifPanel();
-}
-
-/** Toggle the notification dropdown panel */
-window.toggleNotifPanel = function() {
-    const panel = document.getElementById('notif-dropdown');
-    const btn   = document.getElementById('notif-btn');
-    if (!panel) return;
-
-    const isOpen = panel.classList.toggle('show');
-    btn?.setAttribute('aria-expanded', isOpen);
-
-    if (isOpen) {
-        // Close profile dropdown if open
-        document.getElementById('profile-dropdown')?.classList.remove('show');
-        // Render fresh content
-        renderNotifPanel();
+  // Keyboard shortcuts
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      closeTxnModal();
+      closeConfirm();
+      document.getElementById('notifDropdown').classList.remove('open');
     }
-};
+  });
 
-/** Mark all notifications as read and re-render */
-window.markAllNotificationsRead = function() {
-    Notif.markAllRead();
-    renderNotifPanel();
-};
-
-/* ============================================================
-   TOAST NOTIFICATIONS
-============================================================ */
-let toastTimer = null;
-
-function showToast(message, type = 'default') {
-    const toast = document.getElementById('toast');
-    if (!toast) return;
-    clearTimeout(toastTimer);
-    toast.textContent = message;
-    toast.className   = `toast ${type} show`;
-    toastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+  // Resize: redraw chart
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(drawSpendingChart, 200);
+  });
 }
 
-/* ============================================================
-   INITIALIZATION
-============================================================ */
-document.addEventListener("DOMContentLoaded", async () => {
-    applyTranslations();
-    renderNotifPanel();   // show any persisted notifications immediately
-    await initUser();
-    setupEventListeners();
-});
+/* ═══════════════════════════════════════════
+   17. INIT
+═══════════════════════════════════════════ */
+function init() {
+  loadState();
+  applyTheme(state.theme);
+  applyLanguage(state.lang);
+  updateDateBadge();
+  updateProfileUI();
+  document.getElementById('notifToggle').checked = state.notifEnabled;
+  wireEvents();
+  renderAll();
+  renderNotifications();
 
-async function initUser() {
-    const { data, error } = await db.auth.getUser();
-    if (error || !data.user) {
-        window.location.href = "index.html";
-        return;
-    }
-    App.user = data.user;
-    updateUserProfileUI();
-    fetchData();
+  // Seed demo data if empty
+  if (state.transactions.length === 0) {
+    const today = new Date().toISOString().split('T')[0];
+    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+    const twoDaysAgo = new Date(Date.now() - 172800000).toISOString().split('T')[0];
+    // Add silently without notifications
+    state.transactions = [
+      { id: '1', type:'income',  amount:5200,  categoryKey:'cat_salary',       category:'Salary',       description:'Monthly salary',     date: twoDaysAgo },
+      { id: '2', type:'expense', amount:120,   categoryKey:'cat_food',          category:'Food',         description:'Lunch & dinner',      date: twoDaysAgo },
+      { id: '3', type:'expense', amount:45,    categoryKey:'cat_transport',     category:'Transport',    description:'Grab rides',          date: yesterday },
+      { id: '4', type:'income',  amount:850,   categoryKey:'cat_freelance',     category:'Freelance',    description:'Design project',      date: yesterday },
+      { id: '5', type:'expense', amount:299,   categoryKey:'cat_shopping',      category:'Shopping',     description:'Online order',        date: today },
+    ];
+    saveTransactions();
+    renderAll();
+  }
+
+  console.log('%c NovaPay Dashboard Ready ✓ ', 'background:#4f8ef7;color:#fff;padding:4px 10px;border-radius:4px;font-weight:bold;');
 }
 
-/* ============================================================
-   EVENT LISTENERS
-============================================================ */
-function setupEventListeners() {
-
-    // Language toggle
-    document.getElementById("lang-toggle")?.addEventListener("click", toggleLanguage);
-
-    // Theme toggle
-    document.getElementById("theme-toggle")?.addEventListener("click", () => {
-        const isLight = document.body.classList.toggle("light-mode");
-        document.body.classList.toggle("dark-mode", !isLight);
-        const icon = document.getElementById("theme-icon");
-        if (icon) icon.className = isLight ? "fas fa-sun" : "fas fa-moon";
-    });
-
-    // Notification bell → toggle panel
-    document.getElementById("notif-btn")?.addEventListener("click", (e) => {
-        e.stopPropagation();
-        toggleNotifPanel();
-    });
-
-    // Profile dropdown
-    document.getElementById("profile-btn")?.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const dropdown = document.getElementById("profile-dropdown");
-        const btn      = document.getElementById("profile-btn");
-        const isOpen   = dropdown.classList.toggle("show");
-        btn.setAttribute("aria-expanded", isOpen);
-        if (isOpen) {
-            // Close notif panel if open
-            document.getElementById('notif-dropdown')?.classList.remove('show');
-            document.getElementById('notif-btn')?.setAttribute('aria-expanded', 'false');
-        }
-    });
-
-    // Close all dropdowns on outside click
-    document.addEventListener("click", (e) => {
-        if (!e.target.closest('.profile-wrapper')) {
-            document.getElementById("profile-dropdown")?.classList.remove("show");
-            document.getElementById("profile-btn")?.setAttribute("aria-expanded", "false");
-        }
-        if (!e.target.closest('.notif-wrapper')) {
-            document.getElementById("notif-dropdown")?.classList.remove("show");
-            document.getElementById("notif-btn")?.setAttribute("aria-expanded", "false");
-        }
-    });
-
-    // Transaction form
-    document.getElementById("transaction-form")?.addEventListener("submit", handleFormSubmit);
-
-    // Logout
-    document.getElementById("logout-confirm-btn")?.addEventListener("click", async () => {
-        await db.auth.signOut();
-        window.location.href = "index.html";
-    });
-
-    // Desktop search
-    document.getElementById("search-input")?.addEventListener("input", (e) => {
-        renderFeed(e.target.value.trim().toLowerCase());
-    });
-
-    // Mobile search trigger (inside greeting row)
-    document.getElementById("mobile-search-trigger")?.addEventListener("click", () => {
-        const bar = document.getElementById("mobile-search-bar");
-        bar?.classList.toggle("show");
-        if (bar?.classList.contains("show")) {
-            document.getElementById("mobile-search-input")?.focus();
-        }
-    });
-
-    // Mobile search input
-    document.getElementById("mobile-search-input")?.addEventListener("input", (e) => {
-        renderFeed(e.target.value.trim().toLowerCase());
-    });
-
-    // Escape key
-    document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") {
-            closeModal();
-            closeChoiceModal();
-            closeSidebar();
-            document.getElementById("notif-dropdown")?.classList.remove("show");
-            document.getElementById("profile-dropdown")?.classList.remove("show");
-        }
-    });
-}
-
-/* ============================================================
-   DATA OPERATIONS (✅ PRESERVED)
-============================================================ */
-async function fetchData() {
-    const { data, error } = await db
-        .from("transactions")
-        .select("*")
-        .eq("user_id", App.user.id)
-        .order("created_at", { ascending: false });
-
-    if (!error) {
-        App.transactions = data;
-        renderUI();
-    } else {
-        showToast(t('toast_error'), 'error');
-    }
-}
-
-/**
- * ✅ PRESERVED: Insert transaction.
- * ✨ ENHANCED: Captures pre-insert balance, calculates post-insert balance,
- *              pushes a "Your balance is now $X" notification.
- */
-async function handleFormSubmit(e) {
-    e.preventDefault();
-    const saveBtn  = document.getElementById("save-btn");
-    saveBtn.disabled = true;
-
-    const txType     = document.getElementById("trans-type").value;
-    const txAmount   = parseFloat(document.getElementById("amount").value);
-    const txCategory = document.getElementById("category").value;
-    const txNote     = document.getElementById("note").value.trim();
-
-    const payload = {
-        user_id:  App.user.id,
-        type:     txType,
-        amount:   txAmount,
-        category: txCategory,
-        note:     txNote
-    };
-
-    const { error } = await db.from("transactions").insert([payload]);
-
-    if (!error) {
-        closeModal();
-        showToast(t('toast_added'), 'success');
-
-        // Calculate new balance from current state + new transaction
-        let incomeTotal  = 0, expenseTotal = 0;
-        App.transactions.forEach(tr => {
-            const a = Number(tr.amount);
-            tr.type === 'income' ? incomeTotal += a : expenseTotal += a;
-        });
-        if (txType === 'income')  incomeTotal  += txAmount;
-        else                      expenseTotal += txAmount;
-        const newBalance = incomeTotal - expenseTotal;
-
-        // ✨ Push balance notification
-        pushBalanceNotification(newBalance, txType, txAmount, txCategory);
-
-        await fetchData();
-    } else {
-        showToast(t('toast_error'), 'error');
-    }
-    saveBtn.disabled = false;
-}
-
-/**
- * ✅ PRESERVED: Delete transaction.
- * ✨ ENHANCED: Calculates new balance after deletion, pushes notification.
- */
-async function deleteTransaction(id) {
-    if (!confirm(t('delete_confirm'))) return;
-
-    // Find transaction to get its values before deleting
-    const tx = App.transactions.find(tr => String(tr.id) === String(id));
-
-    const { error } = await db.from("transactions").delete().eq("id", id);
-    if (!error) {
-        showToast(t('toast_deleted'));
-
-        // Compute new balance excluding this transaction
-        let incomeTotal = 0, expenseTotal = 0;
-        App.transactions.forEach(tr => {
-            if (String(tr.id) === String(id)) return; // skip deleted
-            const a = Number(tr.amount);
-            tr.type === 'income' ? incomeTotal += a : expenseTotal += a;
-        });
-        const newBalance = incomeTotal - expenseTotal;
-
-        // ✨ Push deletion notification
-        pushDeleteNotification(newBalance);
-
-        await fetchData();
-    } else {
-        showToast(t('toast_error'), 'error');
-    }
-}
-
-/* ============================================================
-   RENDER UI (✅ PRESERVED CALCULATIONS)
-============================================================ */
-function renderUI() {
-    let incomeTotal = 0, expenseTotal = 0;
-
-    App.transactions.forEach(tr => {
-        const amt = Number(tr.amount);
-        tr.type === 'income' ? incomeTotal += amt : expenseTotal += amt;
-    });
-
-    const balance = incomeTotal - expenseTotal;
-
-    // ✅ PRESERVED: Balance display
-    setEl("main-balance",  `$${balance.toFixed(2)}`);
-    setEl("total-income",  `+$${incomeTotal.toFixed(2)}`);
-    setEl("total-expense", `-$${expenseTotal.toFixed(2)}`);
-
-    renderFeed();
-    renderRightSidebar(incomeTotal, expenseTotal);
-    renderDropdownStats(incomeTotal, expenseTotal);
-}
-
-/* ============================================================
-   FEED RENDERING (✅ PRESERVED)
-============================================================ */
-function renderFeed(searchTerm = '') {
-    const list = document.getElementById("transaction-list");
-    if (!list) return;
-    list.innerHTML = '';
-
-    const catIcons = {
-        salary: 'fas fa-money-bill-trend-up', business: 'fas fa-briefcase',
-        investment: 'fas fa-chart-line', bonus: 'fas fa-gift',
-        food: 'fas fa-burger', transport: 'fas fa-car',
-        shopping: 'fas fa-bag-shopping', health: 'fas fa-kit-medical',
-        rent: 'fas fa-house', bill: 'fas fa-file-invoice',
-        other: 'fas fa-circle-dot',
-    };
-
-    const filtered = App.transactions.filter(tr => {
-        const typeOk   = App.currentFilter === 'all' || tr.type === App.currentFilter;
-        const term     = searchTerm.toLowerCase();
-        const searchOk = !term
-            || (tr.category || '').toLowerCase().includes(term)
-            || (tr.note || '').toLowerCase().includes(term);
-        return typeOk && searchOk;
-    });
-
-    if (filtered.length === 0) {
-        list.innerHTML = `
-            <div class="feed-empty-state">
-                <i class="fas fa-receipt"></i>
-                <p>${t('no_transactions')}</p>
-                <button onclick="showChoiceModal()">${t('add_first')}</button>
-            </div>`;
-        return;
-    }
-
-    filtered.forEach((tr, i) => {
-        const amt       = Number(tr.amount);
-        const isInc     = tr.type === 'income';
-        const catKey    = (tr.category || '').toLowerCase();
-        const icon      = catIcons[catKey] || 'fas fa-circle-dot';
-        const dateStr   = tr.created_at
-            ? new Date(tr.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-            : '';
-        const displayCat = UI.translateCategory(tr.category || '');
-
-        const item = document.createElement("div");
-        item.className = `transaction-item type-${tr.type}`;
-        item.style.animationDelay = `${Math.min(i * 0.045, 0.55)}s`;
-        item.setAttribute('role', 'article');
-
-        item.innerHTML = `
-            <div class="trans-cat-icon ${isInc ? 'income-bg' : 'expense-bg'}">
-                <i class="${icon}"></i>
-            </div>
-            <div class="trans-body">
-                <div class="trans-category">${displayCat}</div>
-                <div class="trans-note">${tr.note || '—'}</div>
-            </div>
-            <div class="trans-meta">
-                <span class="trans-amount ${isInc ? 'income-color' : 'expense-color'}">
-                    ${isInc ? '+' : '-'}$${amt.toFixed(2)}
-                </span>
-                <span class="trans-date">${dateStr}</span>
-                <span class="trans-type-badge ${isInc ? 'income-badge' : 'expense-badge'}">
-                    ${isInc ? t('income') : t('expense')}
-                </span>
-            </div>
-            <button class="delete-btn" onclick="deleteTransaction('${tr.id}')" title="Delete">
-                <i class="fas fa-trash-alt"></i>
-            </button>
-        `;
-        list.appendChild(item);
-    });
-}
-
-/* ============================================================
-   RIGHT SIDEBAR (✅ PRESERVED)
-============================================================ */
-function renderRightSidebar(incomeTotal, expenseTotal) {
-    const max = Math.max(incomeTotal, expenseTotal, 1);
-
-    const incBar = document.getElementById('income-bar');
-    const expBar = document.getElementById('expense-bar');
-    if (incBar) incBar.style.width = `${((incomeTotal  / max) * 100).toFixed(1)}%`;
-    if (expBar) expBar.style.width = `${((expenseTotal / max) * 100).toFixed(1)}%`;
-
-    setEl('rs-income',  `$${incomeTotal.toFixed(0)}`);
-    setEl('rs-expense', `$${expenseTotal.toFixed(0)}`);
-
-    const savingsRate = incomeTotal > 0
-        ? Math.max(0, ((incomeTotal - expenseTotal) / incomeTotal) * 100)
-        : 0;
-    const srEl = document.getElementById('savings-rate');
-    if (srEl) {
-        srEl.textContent = `${savingsRate.toFixed(1)}%`;
-        srEl.style.color = savingsRate >= 30 ? 'var(--income)'
-                         : savingsRate  > 0  ? 'var(--primary)'
-                         : 'var(--expense)';
-    }
-
-    // Category breakdown
-    const catMap    = {};
-    const catColors = ['#06b6d4','#10b981','#f59e0b','#8b5cf6','#f43f5e','#3b82f6','#ec4899','#f97316'];
-    App.transactions.forEach(tr => {
-        const cat = tr.category || 'Other';
-        catMap[cat] = (catMap[cat] || 0) + Number(tr.amount);
-    });
-
-    const breakdown = document.getElementById('category-breakdown');
-    if (breakdown) {
-        const sorted = Object.entries(catMap).sort((a, b) => b[1] - a[1]).slice(0, 6);
-        breakdown.innerHTML = sorted.length === 0
-            ? `<p class="rs-empty">${t('no_data')}</p>`
-            : sorted.map(([cat, amt], idx) => `
-                <div class="cat-breakdown-row">
-                    <span class="cat-breakdown-dot" style="background:${catColors[idx % catColors.length]}"></span>
-                    <span class="cat-breakdown-name">${UI.translateCategory(cat)}</span>
-                    <span class="cat-breakdown-amt">$${amt.toFixed(0)}</span>
-                </div>`).join('');
-    }
-
-    // Quick stats
-    const count   = App.transactions.length;
-    const amounts = App.transactions.map(tr => Number(tr.amount));
-    const avg     = count > 0 ? amounts.reduce((a, b) => a + b, 0) / count : 0;
-    const largest = count > 0 ? Math.max(...amounts) : 0;
-    const cats    = new Set(App.transactions.map(tr => tr.category)).size;
-
-    setEl('stat-count',   count);
-    setEl('stat-avg',     `$${avg.toFixed(0)}`);
-    setEl('stat-largest', `$${largest.toFixed(0)}`);
-    setEl('stat-cats',    cats);
-}
-
-/* ============================================================
-   DROPDOWN MINI STATS (✅ PRESERVED)
-============================================================ */
-function renderDropdownStats(incomeTotal, expenseTotal) {
-    const savingsRate = incomeTotal > 0
-        ? Math.max(0, ((incomeTotal - expenseTotal) / incomeTotal) * 100)
-        : 0;
-    setEl('dm-income',  `$${incomeTotal.toFixed(0)}`);
-    setEl('dm-expense', `$${expenseTotal.toFixed(0)}`);
-    setEl('dm-savings', `${savingsRate.toFixed(0)}%`);
-    setEl('dm-count',   App.transactions.length);
-}
-
-/* ============================================================
-   USER PROFILE (✅ PRESERVED)
-============================================================ */
-function updateUserProfileUI() {
-    const name     = App.user.user_metadata?.full_name || "User";
-    const email    = App.user.email || "";
-    const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=06b6d4&color=fff&bold=true`;
-
-    setEl('user-display-name',  name);
-    setEl('user-display-email', email);
-    setSrcAttr('user-avatar',       avatarUrl);
-    setSrcAttr('dropdown-avatar',   avatarUrl);
-    setSrcAttr('sidebar-avatar',    avatarUrl);
-    setEl('sidebar-username',   name);
-    setEl('sidebar-useremail',  email);
-}
-
-/* ============================================================
-   MODAL CONTROLS (✅ PRESERVED)
-============================================================ */
-window.openModal = function(type) {
-    document.getElementById("trans-type").value = type;
-
-    // ✅ PRESERVED: dynamic category filtering
-    UI.filterCategories(type);
-
-    const isInc = type === 'income';
-    setEl("modal-form-title", t(isInc ? 'add_income' : 'add_expense'));
-
-    const header = document.getElementById("modal-header-bar");
-    const badge  = document.getElementById("modal-type-badge");
-    if (header) header.className = `modal-card-header ${type}-header`;
-    if (badge)  badge.textContent = isInc ? `💰 ${t('income')}` : `💸 ${t('expense')}`;
-
-    document.getElementById("transaction-modal").style.display = "flex";
-    setTimeout(() => document.getElementById("amount")?.focus(), 80);
-};
-
-window.closeModal = function() {
-    document.getElementById("transaction-modal").style.display = "none";
-    document.getElementById("transaction-form").reset();
-};
-
-window.showChoiceModal = function() {
-    document.getElementById("choice-modal").style.display = "flex";
-};
-
-window.closeChoiceModal = function() {
-    document.getElementById("choice-modal").style.display = "none";
-};
-
-// ✅ PRESERVED: selectChoice
-window.selectChoice = function(type) {
-    closeChoiceModal();
-    openModal(type);
-};
-
-// ✅ PRESERVED: catAction — pre-selects category
-window.catAction = function(type, categoryName) {
-    openModal(type);
-    setTimeout(() => {
-        const select = document.getElementById("category");
-        if (select) {
-            Array.from(select.options).forEach(opt => {
-                if (opt.value === categoryName) select.value = categoryName;
-            });
-        }
-    }, 60);
-};
-
-/* ============================================================
-   NAVIGATION (✅ PRESERVED)
-============================================================ */
-window.navigateTo = function(page) {
-    console.log("Navigate to:", page);
-    // Extend with actual routing as needed
-};
-
-window.setActiveNav = function(el) {
-    document.querySelectorAll(".sidebar-link").forEach(l => l.classList.remove("active"));
-    el?.classList.add("active");
-};
-
-window.setBottomNav = function(el) {
-    document.querySelectorAll(".nav-link").forEach(l => l.classList.remove("active"));
-    el?.classList.add("active");
-};
-
-/* ============================================================
-   FEED FILTER (✅ PRESERVED)
-============================================================ */
-window.filterFeed = function(type, btn) {
-    App.currentFilter = type;
-    document.querySelectorAll(".feed-filter-btn").forEach(b => b.classList.remove("active"));
-    if (btn) btn.classList.add("active");
-    const search = document.getElementById("search-input")?.value?.toLowerCase()
-                || document.getElementById("mobile-search-input")?.value?.toLowerCase()
-                || '';
-    renderFeed(search);
-};
-
-/* ============================================================
-   SIDEBAR TOGGLE (✅ PRESERVED)
-============================================================ */
-window.toggleSidebar = function() {
-    const sidebar = document.getElementById("left-sidebar");
-    const overlay = document.getElementById("sidebar-overlay");
-    const btn     = document.getElementById("hamburger-btn");
-    const isOpen  = sidebar?.classList.toggle("open");
-    overlay?.classList.toggle("show", isOpen);
-    btn?.classList.toggle("is-open", isOpen);
-    btn?.setAttribute("aria-expanded", isOpen);
-};
-
-window.closeSidebar = function() {
-    document.getElementById("left-sidebar")?.classList.remove("open");
-    document.getElementById("sidebar-overlay")?.classList.remove("show");
-    const btn = document.getElementById("hamburger-btn");
-    btn?.classList.remove("is-open");
-    btn?.setAttribute("aria-expanded", "false");
-};
-
-window.closeSidebarOnMobile = function() {
-    if (window.innerWidth <= 699) closeSidebar();
-};
-
-/* ============================================================
-   MOBILE SEARCH
-============================================================ */
-window.closeMobileSearch = function() {
-    const bar = document.getElementById("mobile-search-bar");
-    bar?.classList.remove("show");
-    const input = document.getElementById("mobile-search-input");
-    if (input) { input.value = ''; renderFeed(''); }
-};
-
-/* ============================================================
-   UTILITY HELPERS
-============================================================ */
-function setEl(id, val) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = val;
-}
-
-function setSrcAttr(id, src) {
-    const el = document.getElementById(id);
-    if (el) el.src = src;
-}
-
-/** HTML-escape user text to prevent XSS in notification messages */
-function escHtml(str) {
-    return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
+// Bootstrap
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
 }
