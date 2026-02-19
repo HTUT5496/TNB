@@ -1,51 +1,326 @@
 /**
- * TNB Finance - Dashboard Logic (Preserved + Enhanced)
- * ✅ Supabase auth & data operations unchanged
- * ✅ Category filtering logic preserved
- * ✅ Modal open/close logic preserved
- * ✅ catAction / selectChoice / navigateTo preserved
- * ✨ Added: right sidebar rendering, feed filter, sidebar toggle
+ * TNB Finance Dashboard — dashboard.js
+ * ✅ ALL existing finance logic preserved (Supabase, calculations, modals)
+ * ✨ NEW: Full EN/Burmese language system, hamburger, mobile search,
+ *         toast notifications, greeting, dropdown mini-stats, sidebar user footer
  */
 
+/* ============================================================
+   SUPABASE CLIENT (✅ PRESERVED)
+============================================================ */
 const SUPABASE_URL = "https://lqfjeamzbxayfbjntarr.supabase.co";
 const SUPABASE_KEY = "sb_publishable_jDExXkASC_jrulY8B7noFw_r9qut-vQ";
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+/* ============================================================
+   APPLICATION STATE
+============================================================ */
 const App = {
     user: null,
     transactions: [],
-    currentLang: 'en',
-    currentFilter: 'all', // ✨ New: for feed filtering
+    currentLang: 'en',      // Active language
+    currentFilter: 'all',   // Feed filter: all | income | expense
 
-    // ✅ PRESERVED: Category logic for dynamic filtering
+    // ✅ PRESERVED: Category lists for dynamic modal filtering
     categories: {
-        income: ["Salary", "Business", "Investment", "Bonus", "Other"],
+        income:  ["Salary", "Business", "Investment", "Bonus", "Other"],
         expense: ["Food", "Transport", "Shopping", "Health", "Rent", "Bill", "Other"]
     }
 };
 
-// ✅ PRESERVED: UI object with filterCategories logic
+/* ============================================================
+   ✨ LANGUAGE / TRANSLATION SYSTEM
+   Full EN ↔ Burmese (Myanmar) translation object.
+   All UI text is keyed here — no page reload needed.
+============================================================ */
+const LANG = {
+    en: {
+        // Navbar & general
+        search_placeholder: "Search transactions...",
+        settings:           "Settings",
+        logout:             "Logout",
+        monthly_income:     "Income",
+        monthly_expense:    "Expense",
+        savings_rate:       "Savings",
+        transactions:       "Transactions",
+
+        // Sidebar nav
+        nav_dashboard:    "Dashboard",
+        nav_add_income:   "Add Income",
+        nav_add_expense:  "Add Expense",
+        nav_transactions: "Transactions",
+        nav_reports:      "Reports",
+        nav_settings:     "Settings",
+
+        // Quick categories
+        quick_categories: "Quick Categories",
+        cat_salary:       "Salary",
+        cat_investment:   "Invest",
+        cat_food:         "Food",
+        cat_health:       "Health",
+        cat_shopping:     "Shop",
+
+        // Main content
+        greeting_sub:    "Here's your financial overview",
+        total_balance:   "Total Balance",
+        available_funds: "Available funds",
+        total_income:    "Total Income",
+        total_expense:   "Total Expense",
+        this_period:     "This period",
+        recent_activity: "Recent Activity",
+        filter_all:      "All",
+        filter_income:   "Income",
+        filter_expense:  "Expense",
+        no_transactions: "No transactions found.",
+        add_first:       "Add your first entry",
+
+        // Right sidebar
+        monthly_summary:    "Monthly Summary",
+        income:             "Income",
+        expense:            "Expense",
+        category_breakdown: "Category Breakdown",
+        quick_stats:        "Quick Stats",
+        avg_entry:          "Avg. Entry",
+        largest_entry:      "Largest",
+        categories:         "Categories",
+        quick_add:          "Quick Add",
+        no_data:            "No data yet",
+
+        // Modals
+        new_entry:       "New Entry",
+        what_to_record:  "What would you like to record?",
+        income_hint:     "Salary, Business, etc.",
+        expense_hint:    "Food, Rent, etc.",
+        cancel:          "Cancel",
+        add_income:      "Add Income",
+        add_expense:     "Add Expense",
+        amount:          "Amount",
+        category:        "Category",
+        note:            "Note",
+        note_placeholder:"Add a description...",
+        confirm:         "Confirm",
+
+        // Toast messages
+        toast_added:   "Transaction added! ✓",
+        toast_deleted: "Deleted successfully",
+        toast_error:   "Something went wrong",
+        delete_confirm:"Delete this entry?",
+
+        // Greeting
+        greeting_morning:   "Good morning 👋",
+        greeting_afternoon: "Good afternoon 👋",
+        greeting_evening:   "Good evening 👋",
+        greeting_night:     "Good night 👋",
+    },
+
+    my: {
+        // Navbar & general
+        search_placeholder: "ငွေပေးငွေယူ ရှာဖွေမည်...",
+        settings:           "ဆက်တင်များ",
+        logout:             "ထွက်မည်",
+        monthly_income:     "ဝင်ငွေ",
+        monthly_expense:    "ကုန်ကျငွေ",
+        savings_rate:       "စုဆောင်းမှု",
+        transactions:       "ငွေပေးငွေယူ",
+
+        // Sidebar nav
+        nav_dashboard:    "ပင်မစာမျက်နှာ",
+        nav_add_income:   "ဝင်ငွေ ထည့်မည်",
+        nav_add_expense:  "ကုန်ကျငွေ ထည့်မည်",
+        nav_transactions: "ငွေပေးငွေယူ",
+        nav_reports:      "အစီရင်ခံစာ",
+        nav_settings:     "ဆက်တင်များ",
+
+        // Quick categories
+        quick_categories: "အမျိုးအစားများ",
+        cat_salary:       "လစာ",
+        cat_investment:   "ရင်းနှီးမြှုပ်နှံမှု",
+        cat_food:         "အစားအသောက်",
+        cat_health:       "ကျန်းမာရေး",
+        cat_shopping:     "ကုန်ဝယ်ခြင်း",
+
+        // Main content
+        greeting_sub:    "သင်၏ ငွေကြေးခြုံငုံသုံးသပ်ချက်",
+        total_balance:   "စုစုပေါင်းလက်ကျန်ငွေ",
+        available_funds: "ရရှိနိုင်သောငွေ",
+        total_income:    "စုစုပေါင်းဝင်ငွေ",
+        total_expense:   "စုစုပေါင်းကုန်ကျငွေ",
+        this_period:     "ယခုကာလ",
+        recent_activity: "မကြာသေးမီ လုပ်ဆောင်ချက်",
+        filter_all:      "အားလုံး",
+        filter_income:   "ဝင်ငွေ",
+        filter_expense:  "ကုန်ကျငွေ",
+        no_transactions: "ငွေပေးငွေယူ မတွေ့ပါ။",
+        add_first:       "ပထမဆုံး ထည့်မည်",
+
+        // Right sidebar
+        monthly_summary:    "လစဉ် အကျဉ်းချုပ်",
+        income:             "ဝင်ငွေ",
+        expense:            "ကုန်ကျငွေ",
+        category_breakdown: "အမျိုးအစားအလိုက်",
+        quick_stats:        "အမြန်စာရင်းအင်း",
+        avg_entry:          "ပျမ်းမျှ",
+        largest_entry:      "အများဆုံး",
+        categories:         "အမျိုးအစား",
+        quick_add:          "အမြန် ထည့်မည်",
+        no_data:            "ဒေတာ မရှိသေးပါ",
+
+        // Modals
+        new_entry:       "အသစ် ထည့်မည်",
+        what_to_record:  "ဘာကို မှတ်တမ်းတင်မည်နည်း?",
+        income_hint:     "လစာ၊ စီးပွားရေး၊ စသည်",
+        expense_hint:    "အစားအသောက်၊ အငှား၊ စသည်",
+        cancel:          "မလုပ်တော့ပါ",
+        add_income:      "ဝင်ငွေ ထည့်မည်",
+        add_expense:     "ကုန်ကျငွေ ထည့်မည်",
+        amount:          "ပမာဏ",
+        category:        "အမျိုးအစား",
+        note:            "မှတ်ချက်",
+        note_placeholder:"ဖော်ပြချက် ထည့်ပါ...",
+        confirm:         "အတည်ပြု",
+
+        // Toast messages
+        toast_added:   "ထည့်သွင်းပြီးပါပြီ ✓",
+        toast_deleted: "ဖျက်ပြီးပါပြီ",
+        toast_error:   "တစ်ခုခု မှားယွင်းနေသည်",
+        delete_confirm:"ဤ မှတ်တမ်းကို ဖျက်မည်လား?",
+
+        // Greeting
+        greeting_morning:   "မင်္ဂလာနံနက်ခင်း 👋",
+        greeting_afternoon: "မင်္ဂလာနေ့လည်ခင်း 👋",
+        greeting_evening:   "မင်္ဂလာညနေခင်း 👋",
+        greeting_night:     "မင်္ဂလာညမနက် 👋",
+    }
+};
+
+/* ============================================================
+   ✅ PRESERVED: UI helper — dynamic category filtering
+============================================================ */
 const UI = {
     filterCategories(type) {
         const select = document.getElementById("category");
         if (!select) return;
-
         select.innerHTML = "";
         const list = App.categories[type] || App.categories.expense;
-
         list.forEach(cat => {
             const opt = document.createElement("option");
             opt.value = cat;
-            opt.textContent = cat;
+            // Translate category names in Burmese mode
+            opt.textContent = UI.translateCategory(cat);
             select.appendChild(opt);
         });
+    },
+
+    // Category translations for the select dropdown
+    catTranslations: {
+        my: {
+            Salary:     "လစာ",
+            Business:   "စီးပွားရေး",
+            Investment: "ရင်းနှီးမြှုပ်နှံမှု",
+            Bonus:      "ဘောနပ်စ်",
+            Other:      "အခြား",
+            Food:       "အစားအသောက်",
+            Transport:  "သယ်ယူပို့ဆောင်ရေး",
+            Shopping:   "ကုန်ဝယ်ခြင်း",
+            Health:     "ကျန်းမာရေး",
+            Rent:       "အငှားဝင်ငွေ",
+            Bill:       "ဘေလ်",
+        }
+    },
+
+    translateCategory(cat) {
+        if (App.currentLang === 'my' && UI.catTranslations.my[cat]) {
+            return UI.catTranslations.my[cat];
+        }
+        return cat;
     }
 };
 
-/* ==============================
+/* ============================================================
+   ✨ LANGUAGE SYSTEM FUNCTIONS
+============================================================ */
+
+/** Apply all translations to the DOM */
+function applyTranslations() {
+    const T = LANG[App.currentLang];
+
+    // Elements with data-i18n attribute (text content)
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (T[key] !== undefined) el.textContent = T[key];
+    });
+
+    // Elements with data-i18n-ph (placeholder)
+    document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+        const key = el.getAttribute('data-i18n-ph');
+        if (T[key] !== undefined) el.placeholder = T[key];
+    });
+
+    // Lang label in navbar
+    const langLabel = document.getElementById('lang-label');
+    if (langLabel) langLabel.textContent = App.currentLang === 'en' ? 'EN' : 'မြ';
+
+    // html lang attribute
+    document.documentElement.lang = App.currentLang === 'en' ? 'en' : 'my';
+
+    // Update greeting
+    updateGreeting();
+
+    // Re-render feed to get translated empty state if visible
+    if (App.transactions.length === 0) renderFeed();
+}
+
+/** Toggle between EN and Burmese */
+function toggleLanguage() {
+    App.currentLang = App.currentLang === 'en' ? 'my' : 'en';
+    applyTranslations();
+    // Re-populate category dropdown if modal is open
+    const transType = document.getElementById('trans-type')?.value;
+    if (transType && document.getElementById('transaction-modal')?.style.display === 'flex') {
+        UI.filterCategories(transType);
+    }
+    showToast(App.currentLang === 'en' ? 'Switched to English' : 'မြန်မာဘာသာ ပြောင်းလဲပြီ');
+}
+
+/** Set time-based greeting */
+function updateGreeting() {
+    const T = LANG[App.currentLang];
+    const h = new Date().getHours();
+    let key = 'greeting_morning';
+    if (h >= 12 && h < 17) key = 'greeting_afternoon';
+    else if (h >= 17 && h < 21) key = 'greeting_evening';
+    else if (h >= 21 || h < 5) key = 'greeting_night';
+
+    const greetEl = document.getElementById('greeting-text');
+    if (greetEl) greetEl.textContent = T[key];
+}
+
+/** Get current translation string */
+function t(key) {
+    return LANG[App.currentLang][key] || key;
+}
+
+/* ============================================================
+   ✨ TOAST NOTIFICATION
+============================================================ */
+let toastTimer = null;
+
+function showToast(message, type = 'default') {
+    const toast = document.getElementById('toast');
+    if (!toast) return;
+    clearTimeout(toastTimer);
+    toast.textContent = message;
+    toast.className = `toast ${type} show`;
+    toastTimer = setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000);
+}
+
+/* ============================================================
    INITIALIZATION
-============================== */
+============================================================ */
 document.addEventListener("DOMContentLoaded", async () => {
+    applyTranslations(); // Apply language before auth check
     await initUser();
     setupEventListeners();
 });
@@ -61,7 +336,14 @@ async function initUser() {
     fetchData();
 }
 
+/* ============================================================
+   EVENT LISTENERS
+============================================================ */
 function setupEventListeners() {
+
+    // ✨ Language toggle (NOW FUNCTIONAL — was stub before)
+    document.getElementById("lang-toggle")?.addEventListener("click", toggleLanguage);
+
     // ✅ PRESERVED: Theme toggle
     document.getElementById("theme-toggle")?.addEventListener("click", () => {
         const isLight = document.body.classList.toggle("light-mode");
@@ -73,16 +355,22 @@ function setupEventListeners() {
     // ✅ PRESERVED: Profile dropdown
     document.getElementById("profile-btn")?.addEventListener("click", (e) => {
         e.stopPropagation();
-        document.getElementById("profile-dropdown").classList.toggle("show");
+        const dropdown = document.getElementById("profile-dropdown");
+        const btn = document.getElementById("profile-btn");
+        const isOpen = dropdown.classList.toggle("show");
+        btn.setAttribute("aria-expanded", isOpen);
+    });
+
+    // ✅ PRESERVED: Close dropdown on outside click
+    document.addEventListener("click", (e) => {
+        if (!e.target.closest('.profile-wrapper')) {
+            document.getElementById("profile-dropdown")?.classList.remove("show");
+            document.getElementById("profile-btn")?.setAttribute("aria-expanded", "false");
+        }
     });
 
     // ✅ PRESERVED: Transaction form submit
     document.getElementById("transaction-form")?.addEventListener("submit", handleFormSubmit);
-
-    // ✅ PRESERVED: Close dropdown on outside click
-    document.addEventListener("click", () => {
-        document.getElementById("profile-dropdown")?.classList.remove("show");
-    });
 
     // ✅ PRESERVED: Logout
     document.getElementById("logout-confirm-btn")?.addEventListener("click", async () => {
@@ -90,21 +378,38 @@ function setupEventListeners() {
         window.location.href = "index.html";
     });
 
-    // ✅ PRESERVED: Language toggle (stub)
-    document.getElementById("lang-toggle")?.addEventListener("click", () => {
-        App.currentLang = App.currentLang === 'en' ? 'my' : 'en';
-        console.log("Language toggled:", App.currentLang);
-    });
-
-    // ✨ NEW: Search input live filter
+    // ✨ Desktop search: live filter
     document.getElementById("search-input")?.addEventListener("input", (e) => {
         renderFeed(e.target.value.trim().toLowerCase());
     });
+
+    // ✨ Mobile search trigger
+    document.getElementById("mobile-search-trigger")?.addEventListener("click", () => {
+        const bar = document.getElementById("mobile-search-bar");
+        bar?.classList.toggle("show");
+        if (bar?.classList.contains("show")) {
+            document.getElementById("mobile-search-input")?.focus();
+        }
+    });
+
+    // ✨ Mobile search input live filter
+    document.getElementById("mobile-search-input")?.addEventListener("input", (e) => {
+        renderFeed(e.target.value.trim().toLowerCase());
+    });
+
+    // ✨ Keyboard: close modal on Escape
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+            closeModal();
+            closeChoiceModal();
+            closeSidebar();
+        }
+    });
 }
 
-/* ==============================
+/* ============================================================
    DATA OPERATIONS (✅ PRESERVED)
-============================== */
+============================================================ */
 async function fetchData() {
     const { data, error } = await db
         .from("transactions")
@@ -115,45 +420,54 @@ async function fetchData() {
     if (!error) {
         App.transactions = data;
         renderUI();
+    } else {
+        showToast(t('toast_error'), 'error');
     }
 }
 
+/** ✅ PRESERVED: Insert transaction */
 async function handleFormSubmit(e) {
     e.preventDefault();
     const saveBtn = document.getElementById("save-btn");
     saveBtn.disabled = true;
 
     const payload = {
-        user_id: App.user.id,
-        type: document.getElementById("trans-type").value,
-        amount: parseFloat(document.getElementById("amount").value),
+        user_id:  App.user.id,
+        type:     document.getElementById("trans-type").value,
+        amount:   parseFloat(document.getElementById("amount").value),
         category: document.getElementById("category").value,
-        note: document.getElementById("note").value
+        note:     document.getElementById("note").value.trim()
     };
 
     const { error } = await db.from("transactions").insert([payload]);
 
     if (!error) {
         closeModal();
+        showToast(t('toast_added'), 'success');
         fetchData();
     } else {
-        alert("Error: " + error.message);
+        showToast(t('toast_error'), 'error');
     }
     saveBtn.disabled = false;
 }
 
+/** ✅ PRESERVED: Delete transaction */
 async function deleteTransaction(id) {
-    if (!confirm("Delete this entry?")) return;
+    if (!confirm(t('delete_confirm'))) return;
     const { error } = await db.from("transactions").delete().eq("id", id);
-    if (!error) fetchData();
+    if (!error) {
+        showToast(t('toast_deleted'));
+        fetchData();
+    } else {
+        showToast(t('toast_error'), 'error');
+    }
 }
 
-/* ==============================
-   RENDER UI (✅ PRESERVED + ✨ ENHANCED)
-============================== */
+/* ============================================================
+   RENDER UI (✅ PRESERVED CALCULATIONS + ✨ ENHANCED)
+============================================================ */
 function renderUI() {
-    let incomeTotal = 0;
-    let expenseTotal = 0;
+    let incomeTotal = 0, expenseTotal = 0;
 
     App.transactions.forEach(t => {
         const amt = Number(t.amount);
@@ -162,27 +476,28 @@ function renderUI() {
 
     const balance = incomeTotal - expenseTotal;
 
-    // ✅ PRESERVED: Main balance update
-    document.getElementById("main-balance").textContent  = `$${balance.toFixed(2)}`;
-    document.getElementById("total-income").textContent  = `+$${incomeTotal.toFixed(2)}`;
-    document.getElementById("total-expense").textContent = `-$${expenseTotal.toFixed(2)}`;
+    // ✅ PRESERVED: Core balance display
+    setEl("main-balance",  `$${balance.toFixed(2)}`);
+    setEl("total-income",  `+$${incomeTotal.toFixed(2)}`);
+    setEl("total-expense", `-$${expenseTotal.toFixed(2)}`);
 
-    // ✨ NEW: Render transaction feed cards
+    // Render feed
     renderFeed();
 
-    // ✨ NEW: Render right sidebar
+    // Render right sidebar stats
     renderRightSidebar(incomeTotal, expenseTotal);
+
+    // ✨ NEW: Update profile dropdown mini stats
+    renderDropdownStats(incomeTotal, expenseTotal);
 }
 
-// ✨ NEW: Feed rendering with type filter + search support
+/** ✨ NEW: Feed rendering with filter + search + animation delay */
 function renderFeed(searchTerm = '') {
     const list = document.getElementById("transaction-list");
-    const emptyState = document.getElementById("empty-state");
     if (!list) return;
-
     list.innerHTML = '';
 
-    // Category icon mapping
+    // Category → icon mapping
     const catIcons = {
         salary:     'fas fa-money-bill-trend-up',
         business:   'fas fa-briefcase',
@@ -197,45 +512,47 @@ function renderFeed(searchTerm = '') {
         other:      'fas fa-circle-dot',
     };
 
-    const filtered = App.transactions.filter(t => {
-        const typeMatch  = App.currentFilter === 'all' || t.type === App.currentFilter;
-        const searchMatch = !searchTerm ||
-            t.category.toLowerCase().includes(searchTerm) ||
-            (t.note || '').toLowerCase().includes(searchTerm);
-        return typeMatch && searchMatch;
+    const filtered = App.transactions.filter(tr => {
+        const typeOk = App.currentFilter === 'all' || tr.type === App.currentFilter;
+        const term   = searchTerm.toLowerCase();
+        const searchOk = !term ||
+            (tr.category || '').toLowerCase().includes(term) ||
+            (tr.note || '').toLowerCase().includes(term);
+        return typeOk && searchOk;
     });
 
     if (filtered.length === 0) {
-        const empty = document.createElement('div');
-        empty.className = 'feed-empty-state';
-        empty.innerHTML = `
-            <i class="fas fa-receipt"></i>
-            <p>No transactions found.</p>
-            <button onclick="showChoiceModal()">Add your first entry</button>
-        `;
-        list.appendChild(empty);
+        list.innerHTML = `
+            <div class="feed-empty-state">
+                <i class="fas fa-receipt"></i>
+                <p>${t('no_transactions')}</p>
+                <button onclick="showChoiceModal()">${t('add_first')}</button>
+            </div>`;
         return;
     }
 
-    filtered.forEach((t, i) => {
-        const amt    = Number(t.amount);
-        const isInc  = t.type === 'income';
-        const icon   = catIcons[(t.category || '').toLowerCase()] || 'fas fa-circle-dot';
-        const dateStr = t.created_at
-            ? new Date(t.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    filtered.forEach((tr, i) => {
+        const amt    = Number(tr.amount);
+        const isInc  = tr.type === 'income';
+        const catKey = (tr.category || '').toLowerCase();
+        const icon   = catIcons[catKey] || 'fas fa-circle-dot';
+        const dateStr = tr.created_at
+            ? new Date(tr.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
             : '';
+        const displayCat = UI.translateCategory(tr.category || '');
 
         const item = document.createElement("div");
-        item.className = `transaction-item type-${t.type}`;
-        item.style.animationDelay = `${i * 0.05}s`;
+        item.className = `transaction-item type-${tr.type}`;
+        item.style.animationDelay = `${Math.min(i * 0.045, 0.5)}s`;
+        item.setAttribute('role', 'article');
 
         item.innerHTML = `
             <div class="trans-cat-icon ${isInc ? 'income-bg' : 'expense-bg'}">
-                <i class="${icon}"></i>
+                <i class="${icon}" aria-hidden="true"></i>
             </div>
             <div class="trans-body">
-                <div class="trans-category">${t.category}</div>
-                <div class="trans-note">${t.note || 'No description'}</div>
+                <div class="trans-category">${displayCat}</div>
+                <div class="trans-note">${tr.note || '—'}</div>
             </div>
             <div class="trans-meta">
                 <span class="trans-amount ${isInc ? 'income-color' : 'expense-color'}">
@@ -243,121 +560,133 @@ function renderFeed(searchTerm = '') {
                 </span>
                 <span class="trans-date">${dateStr}</span>
                 <span class="trans-type-badge ${isInc ? 'income-badge' : 'expense-badge'}">
-                    ${t.type}
+                    ${isInc ? t('income') : t('expense')}
                 </span>
             </div>
-            <button class="delete-btn" onclick="deleteTransaction('${t.id}')" title="Delete">
-                <i class="fas fa-trash-alt"></i>
+            <button class="delete-btn" onclick="deleteTransaction('${tr.id}')"
+                    aria-label="Delete transaction" title="Delete">
+                <i class="fas fa-trash-alt" aria-hidden="true"></i>
             </button>
         `;
         list.appendChild(item);
     });
 }
 
-// ✨ NEW: Right sidebar rendering
+/** ✨ NEW: Right sidebar data rendering */
 function renderRightSidebar(incomeTotal, expenseTotal) {
     const max = Math.max(incomeTotal, expenseTotal, 1);
 
-    // Animated bars
-    const incBar  = document.getElementById("income-bar");
-    const expBar  = document.getElementById("expense-bar");
-    if (incBar)  incBar.style.width  = `${((incomeTotal / max) * 100).toFixed(1)}%`;
+    // Progress bars
+    setSrc('income-bar',  'style', `width:${((incomeTotal / max) * 100).toFixed(1)}%`);
+    setSrc('expense-bar', 'style', `width:${((expenseTotal / max) * 100).toFixed(1)}%`);
+
+    // Tiny hack — just use direct style
+    const incBar = document.getElementById('income-bar');
+    const expBar = document.getElementById('expense-bar');
+    if (incBar)  incBar.style.width  = `${((incomeTotal  / max) * 100).toFixed(1)}%`;
     if (expBar)  expBar.style.width  = `${((expenseTotal / max) * 100).toFixed(1)}%`;
 
-    const rsIncome  = document.getElementById("rs-income");
-    const rsExpense = document.getElementById("rs-expense");
-    if (rsIncome)  rsIncome.textContent  = `$${incomeTotal.toFixed(0)}`;
-    if (rsExpense) rsExpense.textContent = `$${expenseTotal.toFixed(0)}`;
+    setEl('rs-income',  `$${incomeTotal.toFixed(0)}`);
+    setEl('rs-expense', `$${expenseTotal.toFixed(0)}`);
 
-    // Savings Rate
+    // Savings rate
     const savingsRate = incomeTotal > 0
         ? Math.max(0, ((incomeTotal - expenseTotal) / incomeTotal) * 100)
         : 0;
-    const srEl = document.getElementById("savings-rate");
+    const srEl = document.getElementById('savings-rate');
     if (srEl) {
         srEl.textContent = `${savingsRate.toFixed(1)}%`;
-        srEl.style.color = savingsRate >= 0 ? 'var(--income)' : 'var(--expense)';
+        srEl.style.color = savingsRate >= 30
+            ? 'var(--income)'
+            : savingsRate > 0 ? 'var(--primary)' : 'var(--expense)';
     }
 
-    // Category Breakdown
+    // Category breakdown
     const catMap = {};
     const catColors = ['#06b6d4','#10b981','#f59e0b','#8b5cf6','#f43f5e','#3b82f6','#ec4899','#f97316'];
-    App.transactions.forEach(t => {
-        const cat = t.category || 'Other';
-        catMap[cat] = (catMap[cat] || 0) + Number(t.amount);
+    App.transactions.forEach(tr => {
+        const cat = tr.category || 'Other';
+        catMap[cat] = (catMap[cat] || 0) + Number(tr.amount);
     });
 
-    const breakdown = document.getElementById("category-breakdown");
+    const breakdown = document.getElementById('category-breakdown');
     if (breakdown) {
         const sorted = Object.entries(catMap).sort((a, b) => b[1] - a[1]).slice(0, 6);
-        if (sorted.length === 0) {
-            breakdown.innerHTML = '<p class="rs-empty">No data yet</p>';
-        } else {
-            breakdown.innerHTML = sorted.map(([cat, amt], idx) => `
+        breakdown.innerHTML = sorted.length === 0
+            ? `<p class="rs-empty">${t('no_data')}</p>`
+            : sorted.map(([cat, amt], idx) => `
                 <div class="cat-breakdown-row">
                     <span class="cat-breakdown-dot" style="background:${catColors[idx % catColors.length]}"></span>
-                    <span class="cat-breakdown-name">${cat}</span>
+                    <span class="cat-breakdown-name">${UI.translateCategory(cat)}</span>
                     <span class="cat-breakdown-amt">$${amt.toFixed(0)}</span>
-                </div>
-            `).join('');
-        }
+                </div>`).join('');
     }
 
-    // Quick Stats
+    // Quick stats
     const count = App.transactions.length;
-    const allAmounts = App.transactions.map(t => Number(t.amount));
-    const avg = count > 0 ? allAmounts.reduce((a, b) => a + b, 0) / count : 0;
-    const largest = count > 0 ? Math.max(...allAmounts) : 0;
-    const cats = new Set(App.transactions.map(t => t.category)).size;
+    const amounts = App.transactions.map(tr => Number(tr.amount));
+    const avg     = count > 0 ? amounts.reduce((a, b) => a + b, 0) / count : 0;
+    const largest = count > 0 ? Math.max(...amounts) : 0;
+    const cats    = new Set(App.transactions.map(tr => tr.category)).size;
 
-    const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-    set('stat-count',   count);
-    set('stat-avg',     `$${avg.toFixed(0)}`);
-    set('stat-largest', `$${largest.toFixed(0)}`);
-    set('stat-cats',    cats);
+    setEl('stat-count',   count);
+    setEl('stat-avg',     `$${avg.toFixed(0)}`);
+    setEl('stat-largest', `$${largest.toFixed(0)}`);
+    setEl('stat-cats',    cats);
 }
 
-/* ==============================
-   USER PROFILE (✅ PRESERVED)
-============================== */
+/** ✨ NEW: Update profile dropdown mini stats (visible on tablet/mobile) */
+function renderDropdownStats(incomeTotal, expenseTotal) {
+    const savingsRate = incomeTotal > 0
+        ? Math.max(0, ((incomeTotal - expenseTotal) / incomeTotal) * 100)
+        : 0;
+
+    setEl('dm-income',  `$${incomeTotal.toFixed(0)}`);
+    setEl('dm-expense', `$${expenseTotal.toFixed(0)}`);
+    setEl('dm-savings', `${savingsRate.toFixed(0)}%`);
+    setEl('dm-count',   App.transactions.length);
+}
+
+/* ============================================================
+   USER PROFILE (✅ PRESERVED + ✨ SIDEBAR FOOTER)
+============================================================ */
 function updateUserProfileUI() {
     const name  = App.user.user_metadata?.full_name || "User";
-    const email = App.user.email;
-    const initials = name.split(' ').map(n => n[0]).join('').slice(0, 2);
+    const email = App.user.email || "";
     const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=06b6d4&color=fff&bold=true`;
-
-    const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-    const setSrc = (id, val) => { const el = document.getElementById(id); if (el) el.src = val; };
 
     setEl('user-display-name', name);
     setEl('user-display-email', email);
-    setSrc('user-avatar', avatarUrl);
-    setSrc('dropdown-avatar', avatarUrl);
+    setSrcAttr('user-avatar',    avatarUrl);
+    setSrcAttr('dropdown-avatar',avatarUrl);
+
+    // ✨ NEW: Sidebar footer user info
+    setSrcAttr('sidebar-avatar', avatarUrl);
+    setEl('sidebar-username',  name);
+    setEl('sidebar-useremail', email);
 }
 
-/* ==============================
-   MODAL CONTROLS (✅ PRESERVED)
-============================== */
+/* ============================================================
+   MODAL CONTROLS (✅ PRESERVED + ✨ ENHANCED)
+============================================================ */
 window.openModal = function(type) {
     document.getElementById("trans-type").value = type;
 
-    const title = type === 'income' ? "Add Income" : "Add Expense";
-    document.getElementById("modal-form-title").textContent = title;
-
-    // ✅ PRESERVED: Dynamic category filtering
+    // ✅ PRESERVED: Dynamic category filtering (income vs expense)
     UI.filterCategories(type);
 
-    // ✨ NEW: Header theming
+    // ✨ Update modal title + badge using translation
+    const isInc = type === 'income';
+    setEl("modal-form-title", t(isInc ? 'add_income' : 'add_expense'));
+
     const header = document.getElementById("modal-header-bar");
     const badge  = document.getElementById("modal-type-badge");
-    if (header) {
-        header.className = `modal-card-header ${type}-header`;
-    }
-    if (badge) {
-        badge.textContent = type === 'income' ? '💰 Income' : '💸 Expense';
-    }
+    if (header) header.className = `modal-card-header ${type}-header`;
+    if (badge)  badge.textContent = isInc ? `💰 ${t('income')}` : `💸 ${t('expense')}`;
 
     document.getElementById("transaction-modal").style.display = "flex";
+    // Focus amount field for fast entry
+    setTimeout(() => document.getElementById("amount")?.focus(), 80);
 };
 
 window.closeModal = function() {
@@ -373,59 +702,112 @@ window.closeChoiceModal = function() {
     document.getElementById("choice-modal").style.display = "none";
 };
 
-// ✅ PRESERVED: selectChoice logic
+// ✅ PRESERVED: selectChoice
 window.selectChoice = function(type) {
     closeChoiceModal();
     openModal(type);
 };
 
-// ✅ PRESERVED: catAction — opens modal with category pre-selected
+// ✅ PRESERVED: catAction — pre-selects category
 window.catAction = function(type, categoryName) {
     openModal(type);
-    // Wait for filterCategories to populate, then set value
+    // filterCategories has already run; set the value directly
     setTimeout(() => {
         const select = document.getElementById("category");
-        if (select) select.value = categoryName;
-    }, 50);
+        if (select) {
+            // match by original English value (options are keyed to original names)
+            Array.from(select.options).forEach(opt => {
+                if (opt.value === categoryName) select.value = categoryName;
+            });
+        }
+    }, 60);
 };
 
-/* ==============================
-   NAVIGATION
-============================== */
-// ✅ PRESERVED: navigateTo (stub — extend with actual routing)
+/* ============================================================
+   NAVIGATION (✅ PRESERVED + EXTENDED)
+============================================================ */
 window.navigateTo = function(page) {
+    // Stub — extend with actual routing logic as needed
     console.log("Navigate to:", page);
-    // Add routing logic here when ready
 };
 
-// ✨ NEW: Sidebar active state management
 window.setActiveNav = function(el) {
     document.querySelectorAll(".sidebar-link").forEach(l => l.classList.remove("active"));
-    el.classList.add("active");
+    el?.classList.add("active");
 };
 
 window.setBottomNav = function(el) {
     document.querySelectorAll(".nav-link").forEach(l => l.classList.remove("active"));
-    el.classList.add("active");
+    el?.classList.add("active");
 };
 
-// ✨ NEW: Feed filter (All / Income / Expense)
+/* ============================================================
+   FEED FILTER (✅ PRESERVED)
+============================================================ */
 window.filterFeed = function(type, btn) {
     App.currentFilter = type;
     document.querySelectorAll(".feed-filter-btn").forEach(b => b.classList.remove("active"));
     if (btn) btn.classList.add("active");
-    renderFeed(document.getElementById("search-input")?.value?.toLowerCase() || '');
+    const search = document.getElementById("search-input")?.value?.toLowerCase()
+                || document.getElementById("mobile-search-input")?.value?.toLowerCase()
+                || '';
+    renderFeed(search);
 };
 
-// ✨ NEW: Sidebar toggle (mobile)
+/* ============================================================
+   SIDEBAR TOGGLE (✨ FULLY IMPLEMENTED)
+============================================================ */
 window.toggleSidebar = function() {
-    const sidebar  = document.getElementById("left-sidebar");
-    const overlay  = document.getElementById("sidebar-overlay");
-    sidebar?.classList.toggle("open");
-    overlay?.classList.toggle("show");
+    const sidebar = document.getElementById("left-sidebar");
+    const overlay = document.getElementById("sidebar-overlay");
+    const btn     = document.getElementById("hamburger-btn");
+    const isOpen  = sidebar?.classList.toggle("open");
+    overlay?.classList.toggle("show", isOpen);
+    btn?.classList.toggle("is-open", isOpen);
+    btn?.setAttribute("aria-expanded", isOpen);
 };
 
 window.closeSidebar = function() {
     document.getElementById("left-sidebar")?.classList.remove("open");
     document.getElementById("sidebar-overlay")?.classList.remove("show");
+    const btn = document.getElementById("hamburger-btn");
+    btn?.classList.remove("is-open");
+    btn?.setAttribute("aria-expanded", "false");
 };
+
+/** Close sidebar only on mobile screen widths */
+window.closeSidebarOnMobile = function() {
+    if (window.innerWidth <= 699) closeSidebar();
+};
+
+/* ============================================================
+   MOBILE SEARCH
+============================================================ */
+window.closeMobileSearch = function() {
+    const bar = document.getElementById("mobile-search-bar");
+    bar?.classList.remove("show");
+    const input = document.getElementById("mobile-search-input");
+    if (input) {
+        input.value = '';
+        renderFeed('');
+    }
+};
+
+/* ============================================================
+   UTILITY HELPERS
+============================================================ */
+function setEl(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+}
+
+function setSrcAttr(id, src) {
+    const el = document.getElementById(id);
+    if (el) el.src = src;
+}
+
+// Unused helper from original — kept for safety
+function setSrc(id, prop, val) {
+    const el = document.getElementById(id);
+    if (el) el[prop] = val;
+}
