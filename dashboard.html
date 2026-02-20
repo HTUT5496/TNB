@@ -5,21 +5,20 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
   <title>FinPay – Smart Finance</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="dashboard.css"/>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════════════
+<!-- ══════════════════════════════════════════
      TOP COMMAND BAR — TWO ROWS
      ROW 1 : Avatar | Search | 3-Dots
      ROW 2 : Balance · Income · Expense | Bell
-════════════════════════════════════════════════════════ -->
+══════════════════════════════════════════ -->
 <header class="cmd-bar" id="cmdBar">
 
-  <!-- ── ROW 1 ──────────────────────────────────────── -->
+  <!-- ── ROW 1 ─────────────────────────── -->
   <div class="cmd-row cmd-row1">
-    <!-- Avatar → jumps to Settings -->
     <button class="avatar-pill" id="avatarBtn" aria-label="Profile">
       <span class="avatar-ring">
         <span class="avatar-letter" id="avatarLetter">A</span>
@@ -27,20 +26,17 @@
       <span class="avatar-name" id="avatarName">Alex</span>
     </button>
 
-    <!-- Telegram-style search -->
     <div class="search-shell">
       <svg class="search-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <input class="search-input" id="searchInput" type="search" placeholder="Search transactions…" autocomplete="off"/>
       <button class="search-clear" id="searchClear" aria-label="Clear search">✕</button>
     </div>
 
-    <!-- 3-dots -->
     <div class="dots-shell" id="dotsShell">
       <button class="dots-btn" id="dotsBtn" aria-label="Menu" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
       <div class="dots-menu" id="dotsMenu" role="menu">
-        <!-- Dark mode toggle -->
         <label class="dmenu-row dmenu-toggle" role="menuitem">
           <span class="dmenu-icon">🌙</span>
           <span class="dmenu-label" data-i18n="dark_mode">Dark Mode</span>
@@ -50,7 +46,6 @@
           </span>
         </label>
         <div class="dmenu-divider"></div>
-        <!-- Add Transaction -->
         <button class="dmenu-row" id="menuAddIncome" role="menuitem">
           <span class="dmenu-icon income-ico">＋</span>
           <span class="dmenu-label" data-i18n="add_income">Add Income</span>
@@ -60,12 +55,10 @@
           <span class="dmenu-label" data-i18n="add_expense">Add Expense</span>
         </button>
         <div class="dmenu-divider"></div>
-        <!-- History -->
         <button class="dmenu-row" id="menuHistory" role="menuitem">
           <span class="dmenu-icon">📋</span>
           <span class="dmenu-label" data-i18n="nav_transactions">History</span>
         </button>
-        <!-- Language -->
         <button class="dmenu-row" id="menuLang" role="menuitem">
           <span class="dmenu-icon">🌐</span>
           <span class="dmenu-label" id="menuLangLabel">Switch to မြန်မာ</span>
@@ -74,7 +67,7 @@
     </div>
   </div>
 
-  <!-- ── ROW 2 — inline summary + bell ────────────── -->
+  <!-- ── ROW 2 — inline summary + bell ── -->
   <div class="cmd-row cmd-row2">
     <div class="summary-strip">
       <div class="ss-item">
@@ -93,16 +86,15 @@
       </div>
     </div>
 
-    <!-- Bell -->
     <div class="bell-shell" id="bellShell">
       <button class="bell-btn" id="bellBtn" aria-label="Notifications" aria-expanded="false">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
         <span class="bell-dot" id="bellDot" style="display:none"></span>
       </button>
-      <!-- Notification panel -->
       <div class="notif-panel" id="notifPanel">
         <div class="np-head">
           <span class="np-title" data-i18n="notifications">Notifications</span>
+          <button class="np-markread" id="npMarkRead">Mark all read</button>
           <button class="np-clear" id="npClear" data-i18n="clear_all">Clear All</button>
         </div>
         <div class="np-body" id="npBody">
@@ -113,9 +105,9 @@
   </div>
 </header>
 
-<!-- ═══════════════════════════════════════════════════════
+<!-- ══════════════════════════════════════════
      MAIN SCROLL AREA
-════════════════════════════════════════════════════════ -->
+══════════════════════════════════════════ -->
 <main class="app-main" id="appMain">
 
   <!-- SEARCH RESULTS -->
@@ -129,7 +121,6 @@
   <!-- DASHBOARD -->
   <section class="page active" id="page-dashboard">
 
-    <!-- Greeting -->
     <div class="greet-row">
       <div>
         <p class="greet-sub" id="greetText">Good morning,</p>
@@ -140,10 +131,12 @@
 
     <!-- Hero balance card -->
     <div class="hero-card" id="heroCard">
-      <div class="hc-noise"></div>
+      <div class="hc-orb hc-orb1"></div>
+      <div class="hc-orb hc-orb2"></div>
+      <div class="hc-grid-lines"></div>
       <div class="hc-top">
         <span class="hc-label" data-i18n="available_balance">Available Balance</span>
-        <div class="hc-chip"><span></span><span></span><span></span></div>
+        <div class="hc-badge">LIVE</div>
       </div>
       <div class="hc-amount">
         <sup class="hc-cur">$</sup>
@@ -151,7 +144,9 @@
       </div>
       <div class="hc-stats">
         <div class="hcs-item">
-          <span class="hcs-arrow up">▲</span>
+          <div class="hcs-icon up">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg>
+          </div>
           <div>
             <span class="hcs-l" data-i18n="income">Income</span>
             <span class="hcs-v income-col" id="totalIncomeDisplay">$0.00</span>
@@ -159,7 +154,9 @@
         </div>
         <div class="hcs-div"></div>
         <div class="hcs-item">
-          <span class="hcs-arrow dn">▼</span>
+          <div class="hcs-icon dn">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
           <div>
             <span class="hcs-l" data-i18n="expense">Expense</span>
             <span class="hcs-v expense-col" id="totalExpenseDisplay">$0.00</span>
@@ -172,12 +169,11 @@
       </div>
     </div>
 
-    <!-- Quick category grid -->
+    <!-- Quick Actions -->
     <div class="section-row">
       <h2 class="section-label" data-i18n="quick_actions">Quick Actions</h2>
     </div>
     <div class="qcat-grid" id="qcatGrid">
-      <!-- Income quick cats -->
       <button class="qcat-btn qcat-income" data-type="income" data-cat="cat_salary">
         <span class="qcat-ico">💼</span><span class="qcat-txt" data-i18n="cat_salary">Salary</span>
       </button>
@@ -187,7 +183,6 @@
       <button class="qcat-btn qcat-income" data-type="income" data-cat="cat_investment">
         <span class="qcat-ico">📈</span><span class="qcat-txt" data-i18n="cat_investment">Invest</span>
       </button>
-      <!-- Expense quick cats -->
       <button class="qcat-btn qcat-expense" data-type="expense" data-cat="cat_food">
         <span class="qcat-ico">🍜</span><span class="qcat-txt" data-i18n="cat_food">Food</span>
       </button>
@@ -205,7 +200,7 @@
       </button>
     </div>
 
-    <!-- Recent Activity header -->
+    <!-- Recent Activity -->
     <div class="section-row">
       <h2 class="section-label" data-i18n="recent_transactions">Recent Activity</h2>
       <button class="csv-btn" id="csvBtnDash">
@@ -214,7 +209,6 @@
       </button>
     </div>
 
-    <!-- Filter bar -->
     <div class="filter-bar" id="dashFilterBar">
       <div class="filter-tabs" id="dashTabs">
         <button class="ftab active" data-filter="all"     data-i18n="all">All</button>
@@ -224,7 +218,6 @@
       <input type="date" class="date-pick" id="dashDate" title="Filter by date"/>
     </div>
 
-    <!-- Dashboard feed -->
     <div class="txn-feed" id="dashFeed"></div>
   </section>
 
@@ -282,7 +275,6 @@
       </div>
     </div>
 
-    <!-- Chart -->
     <div class="chart-card">
       <div class="cc-head">
         <h3 class="section-label" data-i18n="spending_overview">Spending Overview</h3>
@@ -294,7 +286,6 @@
       <div class="chart-wrap"><canvas id="spendingCanvas"></canvas></div>
     </div>
 
-    <!-- Category breakdown -->
     <h3 class="section-label" style="margin:20px 0 10px" data-i18n="category_breakdown">Category Breakdown</h3>
     <div class="cat-breakdown" id="catBreakdown"></div>
   </section>
@@ -351,9 +342,9 @@
 
 </main>
 
-<!-- ═══════════════════════════════════════════════════════
+<!-- ══════════════════════════════════════════
      BOTTOM NAV
-════════════════════════════════════════════════════════ -->
+══════════════════════════════════════════ -->
 <nav class="bot-nav" id="botNav">
   <button class="bn-btn active" data-page="dashboard" id="bn-dashboard">
     <svg class="bn-ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
@@ -392,10 +383,9 @@
   </button>
 </nav>
 
-<!-- ═══════════════════════════════════════════════════════
+<!-- ══════════════════════════════════════════
      MODALS
-════════════════════════════════════════════════════════ -->
-<!-- Transaction modal -->
+══════════════════════════════════════════ -->
 <div class="modal-veil" id="txnVeil">
   <div class="modal-card" id="txnCard">
     <div class="mc-head">
@@ -428,7 +418,6 @@
   </div>
 </div>
 
-<!-- Confirm modal -->
 <div class="modal-veil" id="cfmVeil">
   <div class="modal-card cfm-card">
     <div class="cfm-icon">⚠️</div>
@@ -440,6 +429,9 @@
     </div>
   </div>
 </div>
+
+<!-- Toast notification -->
+<div class="toast-container" id="toastContainer"></div>
 
 <script src="dashboard.js"></script>
 </body>
