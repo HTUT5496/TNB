@@ -1,254 +1,204 @@
 /* ══════════════════════════════════════════════════════
    FINPAY – SMART FINANCE  |  dashboard.js  v5.0
-   ──────────────────────────────────────────────────────
-   Architecture:
-     1.  Supabase Client Init
-     2.  Translations (EN / MY)
-     3.  Categories
-     4.  App State
-     5.  LocalStorage Helpers
-     6.  Finance Calculations
-     7.  DOM Helpers
-     8.  Animated Counter
-     9.  Update Totals
-    10.  Transaction Card Builder
-    11.  Render Feeds
-    12.  Usage Summary
-    13.  Category Breakdown
-    14.  Spending Chart
-    15.  Quick Actions
-    16.  Notification System
-    17.  Toast System
-    18.  Transaction CRUD
-    19.  Filter Logic
-    20.  Render All
-    21.  Navigation
-    22.  Modals
-    23.  Theme System
-    24.  Language System
-    25.  Greeting & Date
-    26.  Export CSV
-    27.  Profile
-    28.  Avatar Upload
-    29.  Password Change
-    30.  FAB
-    31.  Close All Panels
-    32.  Search
-    33.  Auth (Supabase)
-    34.  Event Wiring
-    35.  Init
 ══════════════════════════════════════════════════════ */
 'use strict';
 
 /* ═══════════════════════════════════════════
-   1. SUPABASE CLIENT INIT
-═══════════════════════════════════════════ */
-const SUPABASE_URL      = 'https://vnemlphmqmrjpenxlsxx.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_7nh01CaeLQs9TyhA_Qu8Yw_UzwXgOvq';
-
-const { createClient } = supabase;
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-/* ═══════════════════════════════════════════
-   2. TRANSLATIONS (English / Burmese)
+   1. TRANSLATIONS
 ═══════════════════════════════════════════ */
 const TRANSLATIONS = {
   en: {
     brand: 'FinPay',
-    nav_dashboard:        'Home',
-    nav_transactions:     'History',
-    nav_reports:          'Reports',
-    nav_settings:         'Settings',
-    premium_member:       'Premium Member',
-    good_morning:         'Good morning,',
-    good_afternoon:       'Good afternoon,',
-    good_evening:         'Good evening,',
-    available_balance:    'Balance',
-    income:               'Income',
-    expense:              'Expense',
-    add_income:           'Add Income',
-    add_expense:          'Add Expense',
-    reports:              'Reports',
-    spending_overview:    'Spending Overview',
-    last_7:               'Last 7 Days',
-    last_30:              'Last 30 Days',
-    recent_transactions:  'Recent Activity',
-    all_transactions:     'All Transactions',
-    all:                  'All',
-    export_csv:           'Export CSV',
-    total_income:         'Total Income',
-    total_expense:        'Total Expense',
-    net_balance:          'Net Balance',
-    total_transactions:   'Transactions',
-    category_breakdown:   'Category Breakdown',
-    settings:             'Settings',
-    dark_mode:            'Dark Mode',
-    dark_mode_sub:        'Switch between dark and light',
-    language:             'Language',
-    language_sub:         'English / Burmese',
+    nav_dashboard:      'Home',
+    nav_transactions:   'History',
+    nav_reports:        'Reports',
+    nav_settings:       'Settings',
+    premium_member:     'Premium Member',
+    good_morning:       'Good morning,',
+    good_afternoon:     'Good afternoon,',
+    good_evening:       'Good evening,',
+    available_balance:  'Balance',
+    income:             'Income',
+    expense:            'Expense',
+    add_income:         'Add Income',
+    add_expense:        'Add Expense',
+    reports:            'Reports',
+    spending_overview:  'Spending Overview',
+    last_7:             'Last 7 Days',
+    last_30:            'Last 30 Days',
+    recent_transactions:'Recent Activity',
+    all_transactions:   'All Transactions',
+    all:                'All',
+    export_csv:         'Export CSV',
+    total_income:       'Total Income',
+    total_expense:      'Total Expense',
+    net_balance:        'Net Balance',
+    total_transactions: 'Transactions',
+    category_breakdown: 'Category Breakdown',
+    settings:           'Settings',
+    dark_mode:          'Dark Mode',
+    dark_mode_sub:      'Switch between dark and light',
+    language:           'Language',
+    language_sub:       'English / Burmese',
     notifications_setting:'Notifications',
-    notifications_sub:    'Balance change alerts',
-    clear_data:           'Clear All Data',
-    clear_data_sub:       'Remove all transactions',
-    clear:                'Clear',
-    logout:               'Logout',
-    notifications:        'Notifications',
-    clear_all:            'Clear All',
-    no_notifs:            'No notifications yet',
-    amount:               'Amount ($)',
-    category:             'Category',
-    description:          'Description',
-    date:                 'Date',
-    add_transaction:      'Add Transaction',
-    cancel:               'Cancel',
-    confirm:              'Confirm',
-    modal_income_title:   'Add Income',
-    modal_expense_title:  'Add Expense',
-    notif_balance_now:    'Your balance is now',
-    notif_added_income:   '↑ Income Added',
-    notif_added_expense:  '↓ Expense Added',
-    confirm_delete:       'Delete this transaction?',
-    confirm_delete_msg:   'This action cannot be undone.',
-    confirm_clear:        'Clear all data?',
-    confirm_clear_msg:    'All transactions will be permanently removed.',
-    no_transactions:      'No transactions yet',
-    add_first:            'Tap + to add your first entry',
-    search_results:       'Search Results',
-    quick_actions:        'Quick Actions',
-    tap_to_add:           'Tap to add transaction',
-    usage_summary:        'Usage Summary',
-    qa_total_added:       'Total Added',
-    qa_total_used:        'Total Used',
-    filter_type:          'Type',
-    start_date:           'From',
-    end_date:             'To',
-    apply_filter:         'Apply Filter',
-    reset_filter:         'Reset',
-    err_date_range:       'Start date must be before end date.',
-    err_date_required:    'Please select both start and end dates.',
-    filter_active:        'Filter active',
-    change_password:      'Change Password',
-    change_password_sub:  'Update your account password',
-    set_password:         'Set Password',
-    set_password_sub:     'Create a password for manual login',
-    change:               'Change',
-    social_account:       'Social Account',
-    provider_label:       'Provider:',
-    cat_salary:           'Salary',
-    cat_freelance:        'Freelance',
-    cat_investment:       'Invest',
-    cat_gift:             'Gift',
-    cat_other_income:     'Other Income',
-    cat_food:             'Food',
-    cat_transport:        'Transport',
-    cat_shopping:         'Shopping',
-    cat_bills:            'Bills',
-    cat_health:           'Health',
-    cat_entertainment:    'Entertain',
-    cat_education:        'Education',
-    cat_rent:             'Rent',
-    cat_other_expense:    'Other',
+    notifications_sub:  'Balance change alerts',
+    clear_data:         'Clear All Data',
+    clear_data_sub:     'Remove all transactions',
+    clear:              'Clear',
+    logout:             'Logout',
+    notifications:      'Notifications',
+    clear_all:          'Clear All',
+    no_notifs:          'No notifications yet',
+    amount:             'Amount ($)',
+    category:           'Category',
+    description:        'Description',
+    date:               'Date',
+    add_transaction:    'Add Transaction',
+    cancel:             'Cancel',
+    confirm:            'Confirm',
+    modal_income_title:  'Add Income',
+    modal_expense_title: 'Add Expense',
+    notif_balance_now:   'Your balance is now',
+    notif_added_income:  '↑ Income Added',
+    notif_added_expense: '↓ Expense Added',
+    confirm_delete:      'Delete this transaction?',
+    confirm_delete_msg:  'This action cannot be undone.',
+    confirm_clear:       'Clear all data?',
+    confirm_clear_msg:   'All transactions will be permanently removed.',
+    no_transactions:     'No transactions yet',
+    add_first:           'Tap + to add your first entry',
+    search_results:      'Search Results',
+    quick_actions:       'Quick Actions',
+    tap_to_add:          'Tap to add transaction',
+    usage_summary:       'Usage Summary',
+    qa_total_added:      'Total Added',
+    qa_total_used:       'Total Used',
+    filter_type:         'Type',
+    start_date:          'From',
+    end_date:            'To',
+    apply_filter:        'Apply Filter',
+    reset_filter:        'Reset',
+    err_date_range:      'Start date must be before end date.',
+    err_date_required:   'Please select both start and end dates.',
+    filter_active:       'Filter active',
+    change_password:     'Change Password',
+    change_password_sub: 'Update your account password',
+    change:              'Change',
+    social_account:      'Social Account',
+    provider_label:      'Provider:',
+    cat_salary:          'Salary',
+    cat_freelance:       'Freelance',
+    cat_investment:      'Invest',
+    cat_gift:            'Gift',
+    cat_other_income:    'Other Income',
+    cat_food:            'Food',
+    cat_transport:       'Transport',
+    cat_shopping:        'Shopping',
+    cat_bills:           'Bills',
+    cat_health:          'Health',
+    cat_entertainment:   'Entertain',
+    cat_education:       'Education',
+    cat_rent:            'Rent',
+    cat_other_expense:   'Other',
   },
   my: {
     brand: 'FinPay',
-    nav_dashboard:        'ဒက်ရ်ဘုတ်',
-    nav_transactions:     'မှတ်တမ်း',
-    nav_reports:          'အစီရင်ခံ',
-    nav_settings:         'ဆက်တင်',
-    premium_member:       'ပရီမီယံ အဖွဲ့ဝင်',
-    good_morning:         'မင်္ဂလာနံနက်ခင်းပါ၊',
-    good_afternoon:       'မင်္ဂလာနေ့လည်ပါ၊',
-    good_evening:         'မင်္ဂလာညနေပါ၊',
-    available_balance:    'လက်ကျန်',
-    income:               'ဝင်ငွေ',
-    expense:              'ထွက်ငွေ',
-    add_income:           'ဝင်ငွေထည့်',
-    add_expense:          'ထွက်ငွေထည့်',
-    reports:              'အစီရင်ခံ',
-    spending_overview:    'ငွေသုံးမှု အနှစ်ချုပ်',
-    last_7:               'ၿပီးခဲ့သော ၇ ရက်',
-    last_30:              'ၿပီးခဲ့သော ၃၀ ရက်',
-    recent_transactions:  'မကြာမီ လုပ်ဆောင်ချက်',
-    all_transactions:     'ငွေသွင်း/ထုတ် အားလုံး',
-    all:                  'အားလုံး',
-    export_csv:           'CSV ထုတ်ယူ',
-    total_income:         'စုစုပေါင်း ဝင်ငွေ',
-    total_expense:        'စုစုပေါင်း ထွက်ငွေ',
-    net_balance:          'အသားတင် လက်ကျန်',
-    total_transactions:   'ငွေလွှဲ စုစုပေါင်း',
-    category_breakdown:   'အမျိုးအစားအလိုက်',
-    settings:             'ဆက်တင်',
-    dark_mode:            'အမဲရောင် မုဒ်',
-    dark_mode_sub:        'အမဲ / အဖြူ ပြောင်းလဲ',
-    language:             'ဘာသာစကား',
-    language_sub:         'အင်္ဂလိပ် / မြန်မာ',
-    notifications_setting:'အကြောင်းကြားချက်',
-    notifications_sub:    'လက်ကျန်ငွေ သတိပေး',
-    clear_data:           'ဒေတာ အားလုံး ရှင်းလင်း',
-    clear_data_sub:       'ငွေသွင်း/ထုတ် အားလုံး ဖျက်မည်',
-    clear:                'ရှင်းလင်း',
-    logout:               'ထွက်မည်',
-    notifications:        'အကြောင်းကြားချက်',
-    clear_all:            'အားလုံး ရှင်းလင်း',
-    no_notifs:            'အကြောင်းကြားချက် မရှိသေးပါ',
-    amount:               'ငွေပမာဏ ($)',
-    category:             'အမျိုးအစား',
-    description:          'ဖော်ပြချက်',
-    date:                 'ရက်စွဲ',
-    add_transaction:      'ငွေသွင်း/ထုတ် ထည့်',
-    cancel:               'မလုပ်တော့',
-    confirm:              'အတည်ပြု',
-    modal_income_title:   'ဝင်ငွေ ထည့်သည်',
-    modal_expense_title:  'ထွက်ငွေ ထည့်သည်',
-    notif_balance_now:    'သင့်လက်ကျန်ငွေ',
-    notif_added_income:   '↑ ဝင်ငွေ ထည့်ပြီး',
-    notif_added_expense:  '↓ ထွက်ငွေ ထည့်ပြီး',
-    confirm_delete:       'ဤငွေလွှဲကို ဖျက်မလား?',
-    confirm_delete_msg:   'ဤလုပ်ဆောင်ချက်ကို ပြန်မလုပ်နိုင်ပါ။',
-    confirm_clear:        'ဒေတာ အားလုံး ရှင်းမလား?',
-    confirm_clear_msg:    'ငွေသွင်း/ထုတ် အားလုံး ပြည်တမ်း ဖျက်မည်။',
-    no_transactions:      'ငွေသွင်း/ထုတ် မရှိသေးပါ',
-    add_first:            '+ ကိုနှိပ်၍ ထည့်ပါ',
-    search_results:       'ရှာဖွေမှု ရလဒ်',
-    quick_actions:        'မြန်ဆန်သော လုပ်ဆောင်ချက်',
-    tap_to_add:           'ငွေသွင်း/ထုတ် ထည့်ရန် နှိပ်ပါ',
-    usage_summary:        'အသုံးပြုမှု အနှစ်ချုပ်',
-    qa_total_added:       'စုစုပေါင်း ထည့်သည်',
-    qa_total_used:        'စုစုပေါင်း သုံးသည်',
-    filter_type:          'အမျိုးအစား',
-    start_date:           'စတင်ရက်',
-    end_date:             'ပြီးဆုံးရက်',
-    apply_filter:         'စစ်ထုတ်မည်',
-    reset_filter:         'ပြန်သတ်မှတ်',
-    err_date_range:       'စတင်ရက်သည် ပြီးဆုံးရက်မတိုင်မီ ဖြစ်ရမည်။',
-    err_date_required:    'ရက်စွဲ နှစ်ခု ရွေးပါ။',
-    filter_active:        'စစ်ထုတ်မှု ဖွင့်ထားသည်',
-    change_password:      'စကားဝှက် ပြောင်းရန်',
-    change_password_sub:  'အကောင့် စကားဝှက် ပြောင်းမည်',
-    set_password:         'စကားဝှက် သတ်မှတ်ရန်',
-    set_password_sub:     'ကိုယ်တိုင် ဝင်ရောက်ရန် စကားဝှက် ဖန်တီးပါ',
-    change:               'ပြောင်းမည်',
-    social_account:       'ဆိုရှယ် အကောင့်',
-    provider_label:       'ဝန်ဆောင်မှု:',
-    cat_salary:           'လစာ',
-    cat_freelance:        'ဖရီးလန်စ်',
-    cat_investment:       'ရင်းနှီး',
-    cat_gift:             'လက်ဆောင်',
-    cat_other_income:     'အခြား ဝင်ငွေ',
-    cat_food:             'အစားအသောက်',
-    cat_transport:        'သယ်ယူ',
-    cat_shopping:         'ဈေးဝယ်',
-    cat_bills:            'ဘီလ်',
-    cat_health:           'ကျန်းမာ',
-    cat_entertainment:    'အပျော်',
-    cat_education:        'ပညာ',
-    cat_rent:             'အငှားခ',
-    cat_other_expense:    'အခြား',
+    nav_dashboard:      'ဒက်ရ်ဘုတ်',
+    nav_transactions:   'မှတ်တမ်း',
+    nav_reports:        'အစီရင်ခံ',
+    nav_settings:       'ဆက်တင်',
+    premium_member:     'ပရီမီယံ အဖွဲ့ဝင်',
+    good_morning:       'မင်္ဂလာနံနက်ခင်းပါ၊',
+    good_afternoon:     'မင်္ဂလာနေ့လည်ပါ၊',
+    good_evening:       'မင်္ဂလာညနေပါ၊',
+    available_balance:  'လက်ကျန်',
+    income:             'ဝင်ငွေ',
+    expense:            'ထွက်ငွေ',
+    add_income:         'ဝင်ငွေထည့်',
+    add_expense:        'ထွက်ငွေထည့်',
+    reports:            'အစီရင်ခံ',
+    spending_overview:  'ငွေသုံးမှု အနှစ်ချုပ်',
+    last_7:             'ၿပီးခဲ့သော ၇ ရက်',
+    last_30:            'ၿပီးခဲ့သော ၃၀ ရက်',
+    recent_transactions:'မကြာမီ လုပ်ဆောင်ချက်',
+    all_transactions:   'ငွေသွင်း/ထုတ် အားလုံး',
+    all:                'အားလုံး',
+    export_csv:         'CSV ထုတ်ယူ',
+    total_income:       'စုစုပေါင်း ဝင်ငွေ',
+    total_expense:      'စုစုပေါင်း ထွက်ငွေ',
+    net_balance:        'အသားတင် လက်ကျန်',
+    total_transactions: 'ငွေလွှဲ စုစုပေါင်း',
+    category_breakdown: 'အမျိုးအစားအလိုက်',
+    settings:           'ဆက်တင်',
+    dark_mode:          'အမဲရောင် မုဒ်',
+    dark_mode_sub:      'အမဲ / အဖြူ ပြောင်းလဲ',
+    language:           'ဘာသာစကား',
+    language_sub:       'အင်္ဂလိပ် / မြန်မာ',
+    notifications_setting: 'အကြောင်းကြားချက်',
+    notifications_sub:  'လက်ကျန်ငွေ သတိပေး',
+    clear_data:         'ဒေတာ အားလုံး ရှင်းလင်း',
+    clear_data_sub:     'ငွေသွင်း/ထုတ် အားလုံး ဖျက်မည်',
+    clear:              'ရှင်းလင်း',
+    logout:             'ထွက်မည်',
+    notifications:      'အကြောင်းကြားချက်',
+    clear_all:          'အားလုံး ရှင်းလင်း',
+    no_notifs:          'အကြောင်းကြားချက် မရှိသေးပါ',
+    amount:             'ငွေပမာဏ ($)',
+    category:           'အမျိုးအစား',
+    description:        'ဖော်ပြချက်',
+    date:               'ရက်စွဲ',
+    add_transaction:    'ငွေသွင်း/ထုတ် ထည့်',
+    cancel:             'မလုပ်တော့',
+    confirm:            'အတည်ပြု',
+    modal_income_title:  'ဝင်ငွေ ထည့်သည်',
+    modal_expense_title: 'ထွက်ငွေ ထည့်သည်',
+    notif_balance_now:   'သင့်လက်ကျန်ငွေ',
+    notif_added_income:  '↑ ဝင်ငွေ ထည့်ပြီး',
+    notif_added_expense: '↓ ထွက်ငွေ ထည့်ပြီး',
+    confirm_delete:      'ဤငွေလွှဲကို ဖျက်မလား?',
+    confirm_delete_msg:  'ဤလုပ်ဆောင်ချက်ကို ပြန်မလုပ်နိုင်ပါ။',
+    confirm_clear:       'ဒေတာ အားလုံး ရှင်းမလား?',
+    confirm_clear_msg:   'ငွေသွင်း/ထုတ် အားလုံး ပြည်တမ်း ဖျက်မည်။',
+    no_transactions:     'ငွေသွင်း/ထုတ် မရှိသေးပါ',
+    add_first:           '+ ကိုနှိပ်၍ ထည့်ပါ',
+    search_results:      'ရှာဖွေမှု ရလဒ်',
+    quick_actions:       'မြန်ဆန်သော လုပ်ဆောင်ချက်',
+    tap_to_add:          'ငွေသွင်း/ထုတ် ထည့်ရန် နှိပ်ပါ',
+    usage_summary:       'အသုံးပြုမှု အနှစ်ချုပ်',
+    qa_total_added:      'စုစုပေါင်း ထည့်သည်',
+    qa_total_used:       'စုစုပေါင်း သုံးသည်',
+    filter_type:         'အမျိုးအစား',
+    start_date:          'စတင်ရက်',
+    end_date:            'ပြီးဆုံးရက်',
+    apply_filter:        'စစ်ထုတ်မည်',
+    reset_filter:        'ပြန်သတ်မှတ်',
+    err_date_range:      'စတင်ရက်သည် ပြီးဆုံးရက်မတိုင်မီ ဖြစ်ရမည်။',
+    err_date_required:   'ရက်စွဲ နှစ်ခု ရွေးပါ။',
+    filter_active:       'စစ်ထုတ်မှု ဖွင့်ထားသည်',
+    change_password:     'စကားဝှက် ပြောင်းရန်',
+    change_password_sub: 'အကောင့် စကားဝှက် ပြောင်းမည်',
+    change:              'ပြောင်းမည်',
+    social_account:      'ဆိုရှယ် အကောင့်',
+    provider_label:      'ဝန်ဆောင်မှု:',
+    cat_salary:          'လစာ',
+    cat_freelance:       'ဖရီးလန်စ်',
+    cat_investment:      'ရင်းနှီး',
+    cat_gift:            'လက်ဆောင်',
+    cat_other_income:    'အခြား ဝင်ငွေ',
+    cat_food:            'အစားအသောက်',
+    cat_transport:       'သယ်ယူ',
+    cat_shopping:        'ဈေးဝယ်',
+    cat_bills:           'ဘီလ်',
+    cat_health:          'ကျန်းမာ',
+    cat_entertainment:   'အပျော်',
+    cat_education:       'ပညာ',
+    cat_rent:            'အငှားခ',
+    cat_other_expense:   'အခြား',
   }
 };
 
 /* ═══════════════════════════════════════════
-   3. CATEGORIES
+   2. CATEGORIES
 ═══════════════════════════════════════════ */
 const CATEGORIES = {
   income: [
@@ -283,58 +233,66 @@ const QUICK_ACTIONS = [
 ];
 
 /* ═══════════════════════════════════════════
-   4. APP STATE
+   3. APP STATE
 ═══════════════════════════════════════════ */
 const S = {
-  /* Data */
   transactions:  [],
   notifications: [],
-  /* Auth */
-  supabaseUser:  null,
-  userId:        null,
   lang:          'en',
   theme:         'dark',
   notifEnabled:  true,
-  userName:      'User',
+  userName:      'Alex Morgan',
   userAvatar:    '',
   userEmail:     '',
   userProvider:  '',
   isSocialLogin: false,
-  /* Filters */
-  txnFilter:       'all',
-  txnDateFrom:     '',
-  txnDateTo:       '',
+  dashFilter: 'all',
+  txnFilter:  'all',
+  txnDateFrom: '',
+  txnDateTo:   '',
   txnFilterActive: false,
-  searchQuery:     '',
-  /* UI */
+  searchQuery: '',
   fabOpen:    false,
   confirmCb:  null,
 };
 
 /* ═══════════════════════════════════════════
-   5. LOCAL STORAGE HELPERS
+   4. LOCAL STORAGE
 ═══════════════════════════════════════════ */
 const LS = {
-  notifications: 'finpay_notifications',
-  lang:          'finpay_lang',
-  theme:         'finpay_theme',
-  notifEnabled:  'finpay_notif',
+  transactions:  'novapay_transactions',
+  notifications: 'novapay_notifications',
+  lang:          'novapay_lang',
+  theme:         'novapay_theme',
+  notifEnabled:  'novapay_notif',
+  userName:      'novapay_username',
+  userAvatar:    'novapay_avatar',
+  userEmail:     'novapay_email',
+  userProvider:  'novapay_provider',
+  isSocialLogin: 'novapay_social',
 };
 
-const lsSet = (k, v)  => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 const lsGet = (k, fb) => { try { const v = localStorage.getItem(k); return v !== null ? JSON.parse(v) : fb; } catch { return fb; } };
 
-function loadPrefs() {
-  S.lang         = lsGet(LS.lang,  'en');
-  S.theme        = lsGet(LS.theme, 'dark');
-  S.notifEnabled = lsGet(LS.notifEnabled, true);
+function loadState() {
+  S.transactions  = lsGet(LS.transactions,  []);
   S.notifications = lsGet(LS.notifications, []);
+  S.lang          = lsGet(LS.lang,  'en');
+  S.theme         = lsGet(LS.theme, 'dark');
+  S.notifEnabled  = lsGet(LS.notifEnabled, true);
+  S.userName      = lsGet(LS.userName,     'Alex Morgan');
+  S.userAvatar    = lsGet(LS.userAvatar,    '');
+  S.userEmail     = lsGet(LS.userEmail,     '');
+  S.userProvider  = lsGet(LS.userProvider,  '');
+  S.isSocialLogin = lsGet(LS.isSocialLogin, false);
 }
 
+const saveTxns   = () => lsSet(LS.transactions,  S.transactions);
 const saveNotifs = () => lsSet(LS.notifications, S.notifications);
 
 /* ═══════════════════════════════════════════
-   6. FINANCE CALCULATIONS
+   5. FINANCE CALCULATIONS
 ═══════════════════════════════════════════ */
 function calcTotals() {
   let inc = 0, exp = 0;
@@ -358,24 +316,26 @@ function groupByCategory() {
   return map;
 }
 
-const fmt = n => new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
+const fmt = n => new Intl.NumberFormat('en-US', {
+  minimumFractionDigits: 2, maximumFractionDigits: 2
+}).format(n);
 
 /* ═══════════════════════════════════════════
-   7. DOM HELPERS
+   6. DOM HELPERS
 ═══════════════════════════════════════════ */
 const $       = id => document.getElementById(id);
 const setText = (id, v) => { const e = $(id); if (e) e.textContent = v; };
 
 /* ═══════════════════════════════════════════
-   8. ANIMATED COUNTER
+   7. ANIMATED COUNTER
 ═══════════════════════════════════════════ */
 function animCount(elId, target) {
   const el = $(elId);
   if (!el) return;
   const from = parseFloat(el.textContent.replace(/,/g, '')) || 0;
   const diff = target - from;
-  const dur  = 660;
-  let t0 = null;
+  const dur  = 680;
+  let t0     = null;
   const step = ts => {
     if (!t0) t0 = ts;
     const p    = Math.min((ts - t0) / dur, 1);
@@ -387,26 +347,34 @@ function animCount(elId, target) {
 }
 
 /* ═══════════════════════════════════════════
-   9. UPDATE TOTALS
+   8. UPDATE TOTALS
 ═══════════════════════════════════════════ */
 function updateTotals() {
   const { inc, exp, bal } = calcTotals();
+
+  animCount('balanceDisplay', bal);
+  setText('totalIncomeDisplay',  '$' + fmt(inc));
+  setText('totalExpenseDisplay', '$' + fmt(exp));
+
   setText('r2Balance', '$' + fmt(bal));
   setText('r2Income',  '$' + fmt(inc));
   setText('r2Expense', '$' + fmt(exp));
+
   setText('repIncome',  '$' + fmt(inc));
   setText('repExpense', '$' + fmt(exp));
   setText('repBalance', '$' + fmt(bal));
   setText('repCount',   S.transactions.length);
+
   const rb = $('repBalance');
   if (rb) rb.style.color = bal >= 0 ? 'var(--inc)' : 'var(--exp)';
 }
 
 /* ═══════════════════════════════════════════
-   10. TRANSACTION CARD BUILDER
+   9. TRANSACTION CARD BUILDER
 ═══════════════════════════════════════════ */
 function getCatMeta(type, key) {
-  return (CATEGORIES[type] || []).find(c => c.key === key) || { icon: type === 'income' ? '💰' : '💸' };
+  return (CATEGORIES[type] || []).find(c => c.key === key)
+    || { icon: type === 'income' ? '💰' : '💸' };
 }
 
 function makeTxnCard(txn, idx) {
@@ -415,7 +383,8 @@ function makeTxnCard(txn, idx) {
   const lbl  = T[txn.categoryKey] || txn.category;
   const sign = txn.type === 'income' ? '+' : '-';
   const ds   = txn.date
-    ? new Date(txn.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    ? new Date(txn.date + 'T00:00:00').toLocaleDateString('en-US',
+        { month: 'short', day: 'numeric', year: 'numeric' })
     : '';
 
   const div = document.createElement('div');
@@ -438,10 +407,12 @@ function makeTxnCard(txn, idx) {
         <path d="M10 11v6M14 11v6M9 6V4h6v2"/>
       </svg>
     </button>`;
+
   div.querySelector('.txn-del').addEventListener('click', e => {
     e.stopPropagation();
+    const id = e.currentTarget.dataset.id;
     const T2 = TRANSLATIONS[S.lang];
-    showConfirm(T2.confirm_delete, T2.confirm_delete_msg, () => deleteTxn(e.currentTarget.dataset.id));
+    showConfirm(T2.confirm_delete, T2.confirm_delete_msg, () => deleteTxn(id));
   });
   return div;
 }
@@ -461,11 +432,12 @@ function emptyEl() {
 }
 
 /* ═══════════════════════════════════════════
-   11. RENDER FEEDS
+   10. RENDER FEEDS
 ═══════════════════════════════════════════ */
 function renderTxnFeed() {
   const el = $('txnFeed');
   if (!el) return;
+
   let list = [...S.transactions].reverse().filter(t => {
     const typeOk = S.txnFilter === 'all' || t.type === S.txnFilter;
     let dateOk   = true;
@@ -475,6 +447,7 @@ function renderTxnFeed() {
     }
     return typeOk && dateOk;
   });
+
   el.innerHTML = '';
   if (!list.length) { el.appendChild(emptyEl()); return; }
   list.forEach((t, i) => el.appendChild(makeTxnCard(t, i)));
@@ -497,13 +470,15 @@ function renderSearch(q) {
 }
 
 /* ═══════════════════════════════════════════
-   12. USAGE SUMMARY
+   11. USAGE SUMMARY
 ═══════════════════════════════════════════ */
 function renderUsageSummary(catTotals) {
   const el = $('usageSummary');
   if (!el) return;
+
   const T = TRANSLATIONS[S.lang];
   el.innerHTML = '';
+
   if (!catTotals.size) {
     const empty = document.createElement('div');
     empty.className = 'empty-state';
@@ -512,20 +487,25 @@ function renderUsageSummary(catTotals) {
     el.appendChild(empty);
     return;
   }
+
   const entries = [...catTotals.entries()]
     .sort((a, b) => b[1].total - a[1].total)
     .slice(0, 8);
+
   const maxTotal = entries[0][1].total;
+
   entries.forEach(([key, data], i) => {
-    const label     = T[key] || key;
-    const pct       = (data.total / maxTotal) * 100;
-    const color     = data.type === 'income' ? 'var(--inc)' : 'var(--exp)';
+    const label = T[key] || key;
+    const pct   = (data.total / maxTotal) * 100;
+    const color = data.type === 'income' ? 'var(--inc)' : 'var(--exp)';
     const typeLabel = data.type === 'income'
       ? (T.qa_total_added || 'Total Added')
       : (T.qa_total_used  || 'Total Used');
+
     const row = document.createElement('div');
     row.className = 'usage-row';
     row.style.animationDelay = (i * 0.04) + 's';
+
     row.innerHTML = `
       <div class="usage-ico ${data.type}">${data.icon}</div>
       <div class="usage-info">
@@ -536,7 +516,9 @@ function renderUsageSummary(catTotals) {
         <div class="usage-bar" style="width:0%;background:${color}"></div>
       </div>
       <div class="usage-amount ${data.type}">$${fmt(data.total)}</div>`;
+
     el.appendChild(row);
+
     requestAnimationFrame(() =>
       setTimeout(() => {
         const bar = row.querySelector('.usage-bar');
@@ -547,9 +529,12 @@ function renderUsageSummary(catTotals) {
 }
 
 /* ═══════════════════════════════════════════
-   13. CATEGORY BREAKDOWN
+   12. CATEGORY BREAKDOWN
 ═══════════════════════════════════════════ */
-const CAT_COLORS = ['#f5a623','#00e896','#ff3d71','#a78bfa','#38bdf8','#34d399','#f97316','#e879f9','#60a5fa','#fb923c'];
+const CAT_COLORS = [
+  '#4f8aff','#00d97e','#ff4369','#a78bfa','#38bdf8',
+  '#34d399','#f97316','#e879f9','#60a5fa','#fb923c'
+];
 
 function renderCatBreakdown() {
   const el = $('catBreakdown');
@@ -574,7 +559,7 @@ function renderCatBreakdown() {
     const row   = document.createElement('div');
     row.className = 'cat-row';
     row.innerHTML = `
-      <div class="cat-dot" style="background:${color}"></div>
+      <div class="cat-dot" style="background:${color};box-shadow:0 0 6px ${color}60"></div>
       <span class="cat-name">${name}</span>
       <div class="cat-bar-wrap"><div class="cat-bar" style="width:0%;background:${color}"></div></div>
       <span class="cat-amt" style="color:${color}">$${fmt(data.total)}</span>`;
@@ -586,7 +571,7 @@ function renderCatBreakdown() {
 }
 
 /* ═══════════════════════════════════════════
-   14. SPENDING CHART
+   13. SPENDING CHART
 ═══════════════════════════════════════════ */
 function drawChart() {
   const canvas = $('spendingCanvas');
@@ -600,9 +585,11 @@ function drawChart() {
   canvas.style.width  = rect.width  + 'px';
   canvas.style.height = rect.height + 'px';
   ctx.scale(dpr, dpr);
+
   const W = rect.width, H = rect.height;
   const PAD = { t: 12, r: 12, b: 26, l: 46 };
   const now = new Date();
+
   const buckets = {};
   for (let i = days - 1; i >= 0; i--) {
     const d = new Date(now);
@@ -613,92 +600,114 @@ function drawChart() {
     if (txn.type === 'expense' && buckets[txn.date] !== undefined)
       buckets[txn.date] += txn.amount;
   }
+
   const labels = Object.keys(buckets);
   const vals   = Object.values(buckets);
   const maxV   = Math.max(...vals, 1);
   const cW     = W - PAD.l - PAD.r;
   const cH     = H - PAD.t - PAD.b;
   const step   = cW / (labels.length - 1 || 1);
-  const pts    = labels.map((_, i) => ({
+
+  const pts = labels.map((_, i) => ({
     x: PAD.l + i * step,
     y: PAD.t + cH - (vals[i] / maxV) * cH
   }));
+
   ctx.clearRect(0, 0, W, H);
+
+  // Gradient fill
   const g = ctx.createLinearGradient(0, PAD.t, 0, PAD.t + cH);
-  g.addColorStop(0, 'rgba(245,166,35,0.30)');
-  g.addColorStop(1, 'rgba(245,166,35,0.00)');
+  g.addColorStop(0, 'rgba(79,138,255,0.28)');
+  g.addColorStop(0.6, 'rgba(79,138,255,0.08)');
+  g.addColorStop(1, 'rgba(79,138,255,0.00)');
   ctx.beginPath();
   ctx.moveTo(pts[0].x, pts[0].y);
   for (let i = 1; i < pts.length; i++) {
     const cx = (pts[i-1].x + pts[i].x) / 2;
     ctx.bezierCurveTo(cx, pts[i-1].y, cx, pts[i].y, pts[i].x, pts[i].y);
   }
-  ctx.lineTo(pts[pts.length-1].x, PAD.t + cH);
+  ctx.lineTo(pts[pts.length - 1].x, PAD.t + cH);
   ctx.lineTo(pts[0].x, PAD.t + cH);
   ctx.closePath();
   ctx.fillStyle = g;
   ctx.fill();
+
+  // Line stroke
   ctx.beginPath();
   ctx.moveTo(pts[0].x, pts[0].y);
   for (let i = 1; i < pts.length; i++) {
     const cx = (pts[i-1].x + pts[i].x) / 2;
     ctx.bezierCurveTo(cx, pts[i-1].y, cx, pts[i].y, pts[i].x, pts[i].y);
   }
-  ctx.strokeStyle = '#f5a623';
+  ctx.strokeStyle = '#4f8aff';
   ctx.lineWidth   = 2.4;
   ctx.stroke();
-  const muted = '#2e3d55';
+
+  // Labels
+  const muted = document.documentElement.dataset.theme === 'light' ? '#526080' : '#2a3650';
   ctx.fillStyle = muted;
-  ctx.font = '10px DM Mono, monospace';
+  ctx.font      = '10px DM Mono, monospace';
   ctx.textAlign = 'right';
   ctx.fillText('$' + Math.round(maxV), PAD.l - 6, PAD.t + 10);
   const fd = d => new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  ctx.textAlign = 'left';  ctx.fillText(fd(labels[0]),               PAD.l,     H - 5);
-  ctx.textAlign = 'right'; ctx.fillText(fd(labels[labels.length-1]), W - PAD.r, H - 5);
+  ctx.textAlign = 'left';  ctx.fillText(fd(labels[0]),                  PAD.l,        H - 5);
+  ctx.textAlign = 'right'; ctx.fillText(fd(labels[labels.length - 1]),  W - PAD.r,    H - 5);
+
+  // Data points
   pts.forEach(p => {
     ctx.beginPath();
-    ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
-    ctx.fillStyle = '#f5a623';
+    ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#4f8aff';
     ctx.fill();
-    ctx.strokeStyle = 'rgba(245,166,35,0.3)';
-    ctx.lineWidth = 3;
+    ctx.strokeStyle = 'rgba(79,138,255,0.3)';
+    ctx.lineWidth = 4;
     ctx.stroke();
   });
 }
 
 /* ═══════════════════════════════════════════
-   15. QUICK ACTIONS
+   14. QUICK ACTIONS
 ═══════════════════════════════════════════ */
 function renderQuickActions(catTotals) {
   const grid = $('qcatGrid');
   if (!grid) return;
+
   const T = TRANSLATIONS[S.lang];
   grid.innerHTML = '';
+
   QUICK_ACTIONS.forEach((qa, idx) => {
     const entry   = catTotals.get(qa.key);
     const total   = entry ? entry.total : 0;
     const hasData = total > 0;
+
     const subtitle = qa.type === 'income'
       ? (T.qa_total_added || 'Total Added')
       : (T.qa_total_used  || 'Total Used');
+
+    const amountText = hasData ? '$' + fmt(total) : '$0.00';
+
     const card = document.createElement('button');
     card.className    = `qcat-card qcat-${qa.type}`;
     card.dataset.type = qa.type;
     card.dataset.cat  = qa.key;
     card.style.cssText = `animation: cardSlide 0.28s cubic-bezier(0.4,0,0.2,1) ${idx * 0.05}s both`;
+
     card.innerHTML = `
-      <div class="qcat-icon-wrap"><span class="qcat-emoji">${qa.icon}</span></div>
+      <div class="qcat-icon-wrap">
+        <span class="qcat-emoji">${qa.icon}</span>
+      </div>
       <span class="qcat-name">${T[qa.key] || qa.key}</span>
       <span class="qcat-subtitle">${subtitle}</span>
-      <span class="qcat-amount${hasData ? '' : ' zero'}">$${fmt(total)}</span>
+      <span class="qcat-amount${hasData ? '' : ' zero'}">${amountText}</span>
       <span class="qcat-add-chip" aria-hidden="true">+</span>`;
+
     card.addEventListener('click', () => openModal(qa.type, qa.key));
     grid.appendChild(card);
   });
 }
 
 /* ═══════════════════════════════════════════
-   16. NOTIFICATION SYSTEM
+   15. NOTIFICATION SYSTEM
 ═══════════════════════════════════════════ */
 function addNotif(type, amount, newBalance) {
   if (!S.notifEnabled) return;
@@ -706,7 +715,14 @@ function addNotif(type, amount, newBalance) {
   const msg = type === 'income'
     ? `${T.notif_added_income} $${fmt(amount)}. ${T.notif_balance_now} $${fmt(newBalance)}`
     : `${T.notif_added_expense} $${fmt(amount)}. ${T.notif_balance_now} $${fmt(newBalance)}`;
-  S.notifications.unshift({ id: Date.now().toString(), type, msg, time: new Date().toISOString(), read: false });
+
+  S.notifications.unshift({
+    id:   Date.now().toString(),
+    type,
+    msg,
+    time: new Date().toISOString(),
+    read: false
+  });
   if (S.notifications.length > 20) S.notifications.length = 20;
   saveNotifs();
   renderNotifPanel();
@@ -719,12 +735,19 @@ function renderNotifPanel() {
   const dot   = $('bellDot');
   const bell  = $('bellBtn');
   if (!body) return;
+
   const unread = S.notifications.filter(n => !n.read).length;
   if (dot)  dot.style.display = unread > 0 ? 'block' : 'none';
   if (bell) bell.classList.toggle('ringing', unread > 0);
+
   body.querySelectorAll('.np-item').forEach(el => el.remove());
-  if (!S.notifications.length) { if (empty) empty.style.display = 'block'; return; }
+
+  if (!S.notifications.length) {
+    if (empty) empty.style.display = 'block';
+    return;
+  }
   if (empty) empty.style.display = 'none';
+
   S.notifications.forEach((n, i) => {
     const div = document.createElement('div');
     div.className = 'np-item';
@@ -755,14 +778,16 @@ function relTime(date) {
 }
 
 /* ═══════════════════════════════════════════
-   17. TOAST SYSTEM
+   16. TOAST SYSTEM
 ═══════════════════════════════════════════ */
 function showToast(type, msg) {
   const container = $('toastContainer');
   if (!container) return;
   const toast = document.createElement('div');
   toast.className = 'toast';
-  toast.innerHTML = `<div class="toast-dot ${type}"></div><div class="toast-msg">${msg}</div>`;
+  toast.innerHTML = `
+    <div class="toast-dot ${type}"></div>
+    <div class="toast-msg">${msg}</div>`;
   container.appendChild(toast);
   setTimeout(() => {
     toast.classList.add('out');
@@ -771,13 +796,14 @@ function showToast(type, msg) {
 }
 
 /* ═══════════════════════════════════════════
-   18. TRANSACTION CRUD
+   17. TRANSACTION CRUD
 ═══════════════════════════════════════════ */
 function addTxn(type, amount, categoryKey, category, description, date) {
   S.transactions.push({
     id: Date.now().toString(),
     type, amount, categoryKey, category, description, date
   });
+  saveTxns();
   const { bal } = calcTotals();
   addNotif(type, amount, bal);
   renderAll();
@@ -785,29 +811,41 @@ function addTxn(type, amount, categoryKey, category, description, date) {
 
 function deleteTxn(id) {
   S.transactions = S.transactions.filter(t => t.id !== id);
+  saveTxns();
   renderAll();
 }
 
 /* ═══════════════════════════════════════════
-   19. FILTER LOGIC
+   18. FILTER LOGIC
 ═══════════════════════════════════════════ */
 function applyTxnFilter() {
-  const T     = TRANSLATIONS[S.lang];
-  const from  = $('txnDateFrom')?.value || '';
-  const to    = $('txnDateTo')?.value   || '';
+  const T    = TRANSLATIONS[S.lang];
+  const from = $('txnDateFrom')?.value || '';
+  const to   = $('txnDateTo')?.value   || '';
   const errEl = $('afpError');
+
   if (errEl) errEl.style.display = 'none';
+
   if ((from && !to) || (!from && to)) {
-    if (errEl) { errEl.textContent = T.err_date_required; errEl.style.display = 'block'; }
+    if (errEl) {
+      errEl.textContent    = T.err_date_required;
+      errEl.style.display  = 'block';
+    }
     return;
   }
+
   if (from && to && from > to) {
-    if (errEl) { errEl.textContent = T.err_date_range; errEl.style.display = 'block'; }
+    if (errEl) {
+      errEl.textContent    = T.err_date_range;
+      errEl.style.display  = 'block';
+    }
     return;
   }
+
   S.txnDateFrom     = from;
   S.txnDateTo       = to;
   S.txnFilterActive = !!(from || to);
+
   updateFilterBadge();
   renderTxnFeed();
 }
@@ -817,35 +855,44 @@ function resetTxnFilter() {
   S.txnDateFrom     = '';
   S.txnDateTo       = '';
   S.txnFilterActive = false;
+
   const fromEl = $('txnDateFrom');
   const toEl   = $('txnDateTo');
   const errEl  = $('afpError');
   if (fromEl) fromEl.value = '';
   if (toEl)   toEl.value   = '';
   if (errEl)  errEl.style.display = 'none';
+
   $('txnTabs')?.querySelectorAll('.ftab').forEach(b => {
     b.classList.toggle('active', b.dataset.filter === 'all');
   });
+
   updateFilterBadge();
   renderTxnFeed();
 }
 
 function updateFilterBadge() {
-  const T     = TRANSLATIONS[S.lang];
-  const badge = $('afpActiveBadge');
-  const text  = $('afpActiveText');
+  const T      = TRANSLATIONS[S.lang];
+  const badge  = $('afpActiveBadge');
+  const text   = $('afpActiveText');
   if (!badge || !text) return;
-  if (!S.txnFilterActive && S.txnFilter === 'all') { badge.style.display = 'none'; return; }
-  const parts = [];
+
+  if (!S.txnFilterActive && S.txnFilter === 'all') {
+    badge.style.display = 'none';
+    return;
+  }
+
+  let parts = [];
   if (S.txnFilter !== 'all') parts.push(T[S.txnFilter] || S.txnFilter);
   if (S.txnDateFrom) parts.push(S.txnDateFrom);
   if (S.txnDateTo)   parts.push('→ ' + S.txnDateTo);
+
   text.textContent    = (T.filter_active || 'Filter active') + ': ' + parts.join(' · ');
   badge.style.display = 'flex';
 }
 
 /* ═══════════════════════════════════════════
-   20. RENDER ALL
+   19. RENDER ALL
 ═══════════════════════════════════════════ */
 function renderAll() {
   const catTotals = groupByCategory();
@@ -858,24 +905,31 @@ function renderAll() {
 }
 
 /* ═══════════════════════════════════════════
-   21. NAVIGATION
+   20. NAVIGATION
 ═══════════════════════════════════════════ */
 function goTo(page) {
   document.querySelectorAll('.page').forEach(p => {
-    p.classList.remove('active'); p.classList.add('hidden');
+    p.classList.remove('active');
+    p.classList.add('hidden');
   });
   const target = $('page-' + page);
-  if (target) { target.classList.remove('hidden'); target.classList.add('active'); }
+  if (target) {
+    target.classList.remove('hidden');
+    target.classList.add('active');
+  }
   document.querySelectorAll('.bn-btn').forEach(b => b.classList.remove('active'));
   const btn = $('bn-' + page);
   if (btn) btn.classList.add('active');
+
   closeAll();
   if (page === 'reports') { renderCatBreakdown(); setTimeout(drawChart, 80); }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function goSearch() {
-  document.querySelectorAll('.page').forEach(p => { p.classList.remove('active'); p.classList.add('hidden'); });
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('active'); p.classList.add('hidden');
+  });
   const p = $('page-search');
   if (p) { p.classList.remove('hidden'); p.classList.add('active'); }
   document.querySelectorAll('.bn-btn').forEach(b => b.classList.remove('active'));
@@ -883,7 +937,7 @@ function goSearch() {
 }
 
 /* ═══════════════════════════════════════════
-   22. MODALS
+   21. MODAL
 ═══════════════════════════════════════════ */
 function openModal(type, prefillCat = '') {
   const T   = TRANSLATIONS[S.lang];
@@ -891,6 +945,7 @@ function openModal(type, prefillCat = '') {
   $('txnType').value = type;
   setText('mcTitle', type === 'income' ? T.modal_income_title : T.modal_expense_title);
   box.className = `modal-card modal-${type}`;
+
   const sel = $('txnCategory');
   sel.innerHTML = '';
   CATEGORIES[type].forEach(cat => {
@@ -900,12 +955,14 @@ function openModal(type, prefillCat = '') {
     sel.appendChild(opt);
   });
   if (prefillCat) sel.value = prefillCat;
+
   $('txnDate').value   = new Date().toISOString().split('T')[0];
   $('txnAmount').value = '';
   $('txnDesc').value   = '';
   setText('txnSubmit', T.add_transaction);
+
   $('txnVeil').classList.add('open');
-  setTimeout(() => $('txnAmount')?.focus(), 230);
+  setTimeout(() => $('txnAmount')?.focus(), 240);
 }
 
 function closeModal() { $('txnVeil').classList.remove('open'); }
@@ -919,7 +976,7 @@ function showConfirm(title, msg, cb) {
 function closeConfirm() { $('cfmVeil').classList.remove('open'); S.confirmCb = null; }
 
 /* ═══════════════════════════════════════════
-   23. THEME SYSTEM
+   22. THEME SYSTEM
 ═══════════════════════════════════════════ */
 function applyTheme(t) {
   S.theme = t;
@@ -931,19 +988,22 @@ function applyTheme(t) {
 }
 
 /* ═══════════════════════════════════════════
-   24. LANGUAGE SYSTEM
+   23. LANGUAGE SYSTEM
 ═══════════════════════════════════════════ */
 function applyLang(lang) {
   S.lang = lang;
   const T = TRANSLATIONS[lang];
   lsSet(LS.lang, lang);
+
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const k = el.dataset.i18n;
     if (T[k] !== undefined) el.textContent = T[k];
   });
+
   const isEn = lang === 'en';
   setText('langBtnLbl',    isEn ? 'English' : 'မြန်မာ');
   setText('menuLangLabel', isEn ? 'Switch to မြန်မာ' : 'Switch to English');
+
   updateFilterBadge();
   updateGreeting();
   renderAll();
@@ -953,29 +1013,30 @@ function applyLang(lang) {
 const toggleLang = () => applyLang(S.lang === 'en' ? 'my' : 'en');
 
 /* ═══════════════════════════════════════════
-   25. GREETING & DATE
+   24. GREETING & DATE
 ═══════════════════════════════════════════ */
 function updateGreeting() {
   const h = new Date().getHours();
   const T = TRANSLATIONS[S.lang];
   setText('greetText', h < 12 ? T.good_morning : h < 17 ? T.good_afternoon : T.good_evening);
-  setText('greetName', (S.userName || 'User').split(' ')[0] + ' 👋');
+  setText('greetName', S.userName.split(' ')[0] + ' 👋');
 }
 
 function updateDate() {
   const el = $('dateChip');
-  if (el) el.textContent = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  if (el) el.textContent = new Date().toLocaleDateString('en-US',
+    { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 /* ═══════════════════════════════════════════
-   26. EXPORT CSV
+   25. EXPORT CSV
 ═══════════════════════════════════════════ */
 function exportCSV() {
   const T   = TRANSLATIONS[S.lang];
   const hdr = ['Date','Type','Category','Description','Amount'].join(',');
   const rows = S.transactions.map(t => [
     t.date, t.type,
-    (T[t.categoryKey] || t.category || '').replace(/,/g, ';'),
+    (T[t.categoryKey] || t.category).replace(/,/g, ';'),
     (t.description || '').replace(/,/g, ';'),
     t.amount.toFixed(2)
   ].join(','));
@@ -989,23 +1050,18 @@ function exportCSV() {
 }
 
 /* ═══════════════════════════════════════════
-   27. PROFILE RENDER
-   Handles both Google social login and manual login.
-   Social: shows Google photo, provider badge, email; name read-only
-   Manual: shows letter avatar, editable name, upload button
+   26. PROFILE
 ═══════════════════════════════════════════ */
 function updateProfile() {
-  const name = S.userName || 'User';
+  const name = S.userName;
   const init = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'A';
-  const T    = TRANSLATIONS[S.lang];
 
-  /* Navbar avatar */
   const avatarImg    = $('avatarImg');
   const avatarLetter = $('avatarLetter');
   if (avatarImg && avatarLetter) {
     if (S.userAvatar) {
-      avatarImg.src            = S.userAvatar;
-      avatarImg.alt            = name;
+      avatarImg.src          = S.userAvatar;
+      avatarImg.alt          = name;
       avatarImg.style.display  = 'block';
       avatarLetter.style.display = 'none';
     } else {
@@ -1015,158 +1071,78 @@ function updateProfile() {
     }
   }
 
-  /* Navbar provider label */
   const providerEl = $('avatarProvider');
   if (providerEl) {
     if (S.isSocialLogin && S.userProvider) {
-      providerEl.textContent   = S.userProvider;
+      providerEl.textContent = S.userProvider;
       providerEl.style.display = 'block';
     } else {
       providerEl.style.display = 'none';
     }
   }
+
   setText('avatarName', name.split(' ')[0]);
 
-  /* Profile card avatar */
   const pcAvatar = $('pcAvatar');
   if (pcAvatar) {
     if (S.userAvatar) {
-      let img = pcAvatar.querySelector('img');
-      if (!img) {
-        img = document.createElement('img');
+      if (!pcAvatar.querySelector('img')) {
+        const img = document.createElement('img');
         img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover;';
         pcAvatar.appendChild(img);
       }
-      img.src = S.userAvatar;
-      pcAvatar.childNodes.forEach(n => { if (n.nodeType === 3) n.remove(); });
+      pcAvatar.querySelector('img').src = S.userAvatar;
+      pcAvatar.textContent = '';
+      pcAvatar.appendChild(pcAvatar.querySelector('img'));
     } else {
       pcAvatar.innerHTML = init[0];
     }
   }
 
-  /* Avatar upload button — only for manual login */
-  const uploadBtn = $('pcAvatarUpload');
-  if (uploadBtn) uploadBtn.classList.toggle('hidden', S.isSocialLogin);
-
-  /* Name input */
   const ni = $('profileNameInput');
-  if (ni) {
-    ni.value    = name;
-    ni.readOnly = S.isSocialLogin;
-  }
+  if (ni) ni.value = name;
 
-  /* Social info block */
   const socialInfo     = $('pcSocialInfo');
   const socialBadge    = $('pcSocialBadge');
   const socialProvider = $('pcSocialProvider');
   const emailEl        = $('pcEmail');
-  const manualInfo     = $('pcManualInfo');
-  const manualEmail    = $('pcManualEmail');
   const passwordRow    = $('passwordRow');
-  const pwdTitle       = $('passwordRowTitle');
-  const pwdSub         = $('passwordRowSub');
 
   if (S.isSocialLogin) {
-    if (socialInfo)     socialInfo.style.display  = 'flex';
-    if (manualInfo)     manualInfo.style.display  = 'none';
-    if (socialBadge)    socialBadge.textContent   = T.social_account || 'Social Account';
+    if (socialInfo) socialInfo.style.display = 'flex';
+    if (socialBadge) socialBadge.textContent =
+      TRANSLATIONS[S.lang].social_account || 'Social Account';
     if (socialProvider && S.userProvider)
-      socialProvider.textContent = (T.provider_label || 'Provider:') + ' ' + S.userProvider;
+      socialProvider.textContent =
+        (TRANSLATIONS[S.lang].provider_label || 'Provider:') + ' ' + S.userProvider;
     if (emailEl && S.userEmail) emailEl.textContent = S.userEmail;
-    /* Social login can SET a password (for future manual login) */
-    if (passwordRow) passwordRow.style.display = 'flex';
-    if (pwdTitle) pwdTitle.textContent = T.set_password  || 'Set Password';
-    if (pwdSub)   pwdSub.textContent   = T.set_password_sub || 'Create a password for manual login';
+    if (passwordRow) passwordRow.style.display = 'none';
+    if (ni) ni.readOnly = true;
   } else {
-    if (socialInfo) socialInfo.style.display   = 'none';
-    if (manualInfo) manualInfo.style.display   = 'flex';
-    if (manualEmail && S.userEmail) manualEmail.textContent = S.userEmail;
+    if (socialInfo) socialInfo.style.display = 'none';
     if (passwordRow) passwordRow.style.display = 'flex';
-    if (pwdTitle) pwdTitle.textContent = T.change_password     || 'Change Password';
-    if (pwdSub)   pwdSub.textContent   = T.change_password_sub || 'Update your account password';
+    if (ni) ni.readOnly = false;
   }
 
   updateGreeting();
 }
 
-/* ═══════════════════════════════════════════
-   28. AVATAR UPLOAD (manual login only)
-═══════════════════════════════════════════ */
-function handleAvatarUpload(file) {
-  if (!file || S.isSocialLogin) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    S.userAvatar = e.target.result;
-    updateProfile();
-    showToast('success', 'Profile photo updated!');
-  };
-  reader.readAsDataURL(file);
+function setGoogleUser(name, avatarUrl, email = '', provider = 'Google') {
+  S.userName      = name     || S.userName;
+  S.userAvatar    = avatarUrl || '';
+  S.userEmail     = email    || '';
+  S.userProvider  = provider || 'Google';
+  S.isSocialLogin = true;
+  lsSet(LS.userName,      S.userName);
+  lsSet(LS.userAvatar,    S.userAvatar);
+  lsSet(LS.userEmail,     S.userEmail);
+  lsSet(LS.userProvider,  S.userProvider);
+  lsSet(LS.isSocialLogin, true);
+  updateProfile();
 }
 
 /* ═══════════════════════════════════════════
-   29. PASSWORD CHANGE
-   - Manual users: requires current password + new password
-   - Social users: sets a new password (no current password needed
-     if they've never set one; Supabase handles this)
-═══════════════════════════════════════════ */
-function openPasswordModal() {
-  const currentField = $('currentPwdField');
-  const pwdTitle     = $('pwdModalTitle');
-  const T            = TRANSLATIONS[S.lang];
-
-  /* For social login, hide "Current Password" field */
-  if (currentField) currentField.style.display = S.isSocialLogin ? 'none' : 'flex';
-  if (pwdTitle) pwdTitle.textContent = S.isSocialLogin
-    ? (T.set_password    || 'Set Password')
-    : (T.change_password || 'Change Password');
-
-  /* Reset fields */
-  [$('currentPwd'), $('newPwd'), $('confirmPwd')].forEach(el => { if (el) el.value = ''; });
-  const errEl = $('pwdError');
-  if (errEl) errEl.style.display = 'none';
-
-  $('pwdVeil').classList.add('open');
-  setTimeout(() => (S.isSocialLogin ? $('newPwd') : $('currentPwd'))?.focus(), 230);
-}
-
-function closePwdModal() { $('pwdVeil').classList.remove('open'); }
-
-async function submitPasswordChange() {
-  const newPwd     = $('newPwd')?.value     || '';
-  const confirmPwd = $('confirmPwd')?.value || '';
-  const errEl      = $('pwdError');
-  const submitBtn  = $('pwdSubmit');
-
-  if (errEl) errEl.style.display = 'none';
-
-  if (newPwd.length < 6) {
-    if (errEl) { errEl.textContent = 'Password must be at least 6 characters.'; errEl.style.display = 'block'; }
-    return;
-  }
-  if (newPwd !== confirmPwd) {
-    if (errEl) { errEl.textContent = 'Passwords do not match.'; errEl.style.display = 'block'; }
-    return;
-  }
-
-  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Updating…'; }
-
-  try {
-    const { error } = await sb.auth.updateUser({ password: newPwd });
-    if (error) throw error;
-    closePwdModal();
-    showToast('success', 'Password updated successfully!');
-  } catch (err) {
-    if (errEl) {
-      errEl.textContent = err.message || 'Failed to update password.';
-      errEl.style.display = 'block';
-    }
-  } finally {
-    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Update Password'; }
-  }
-}
-
-/* ═══════════════════════════════════════════
-   30. FAB
+   27. FAB
 ═══════════════════════════════════════════ */
 function toggleFab(force) {
   const open = force !== undefined ? force : !S.fabOpen;
@@ -1177,7 +1153,7 @@ function toggleFab(force) {
 }
 
 /* ═══════════════════════════════════════════
-   31. CLOSE ALL PANELS
+   28. CLOSE ALL PANELS
 ═══════════════════════════════════════════ */
 function closeAll() {
   $('dotsMenu')?.classList.remove('open');
@@ -1187,150 +1163,43 @@ function closeAll() {
 }
 
 /* ═══════════════════════════════════════════
-   32. SEARCH
+   29. SEARCH
 ═══════════════════════════════════════════ */
 function handleSearch(q) {
   S.searchQuery = q;
   const clear = $('searchClear');
   if (clear) clear.classList.toggle('show', q.length > 0);
+
   if (q.trim()) {
     goSearch();
     renderSearch(q);
-    setText('searchResultLabel', TRANSLATIONS[S.lang].search_results + ': "' + q + '"');
+    setText('searchResultLabel',
+      TRANSLATIONS[S.lang].search_results + ': "' + q + '"');
   } else {
     goTo('dashboard');
   }
 }
 
 /* ═══════════════════════════════════════════
-   33. AUTH — SUPABASE
-═══════════════════════════════════════════ */
-
-/** Hide auth loader and show app */
-function showApp() {
-  const loader = $('authLoader');
-  if (loader) {
-    loader.classList.add('hidden');
-    setTimeout(() => loader.remove(), 500);
-  }
-}
-
-/** Populate S from a Supabase session/user object */
-function hydratUserFromSession(session) {
-  if (!session?.user) return;
-  const user      = session.user;
-  const meta      = user.user_metadata || {};
-  const provider  = user.app_metadata?.provider || 'email';
-  const isSocial  = provider !== 'email';
-
-  S.supabaseUser  = user;
-  S.userId        = user.id;
-  S.userEmail     = user.email || '';
-  S.isSocialLogin = isSocial;
-
-  if (isSocial) {
-    S.userName     = meta.full_name || meta.name || user.email || 'User';
-    S.userAvatar   = meta.avatar_url || meta.picture || '';
-    S.userProvider = provider.charAt(0).toUpperCase() + provider.slice(1);
-  } else {
-    /* Manual login: use stored name preference, fall back to email prefix */
-    S.userName     = meta.full_name || meta.name || user.email?.split('@')[0] || 'User';
-    S.userAvatar   = meta.avatar_url || '';
-    S.userProvider = '';
-  }
-}
-
-/**
- * LOGOUT — works for both manual and Google/social users.
- * 1. Calls Supabase signOut (invalidates server session)
- * 2. Replaces history state so back button can't return
- * 3. Redirects to index.html
- */
-async function logout() {
-  try {
-    await sb.auth.signOut();
-  } catch (err) {
-    console.warn('Supabase signOut error:', err.message);
-  }
-
-  /* Clear any local session/UI state */
-  S.supabaseUser  = null;
-  S.userId        = null;
-  S.transactions  = [];
-  S.notifications = [];
-  S.userAvatar    = '';
-  S.isSocialLogin = false;
-
-  /* Replace current history entry so back button lands elsewhere */
-  history.replaceState(null, '', 'index.html');
-  window.location.replace('index.html');
-}
-
-/** Called by Supabase onAuthStateChange on every auth event */
-function handleAuthChange(event, session) {
-  if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
-    if (!session?.user) {
-      /* No active session → redirect to login */
-      window.location.replace('index.html');
-      return;
-    }
-    hydratUserFromSession(session);
-    updateProfile();
-    renderAll();
-    renderNotifPanel();
-    showApp();
-  } else if (event === 'SIGNED_OUT') {
-    history.replaceState(null, '', 'index.html');
-    window.location.replace('index.html');
-  } else if (event === 'TOKEN_REFRESHED') {
-    /* Session refreshed silently — nothing to do */
-  } else if (event === 'USER_UPDATED') {
-    hydratUserFromSession(session);
-    updateProfile();
-  }
-}
-
-/** Check session on page load — redirect if no active session */
-async function checkSession() {
-  try {
-    const { data: { session }, error } = await sb.auth.getSession();
-    if (error) throw error;
-
-    if (!session?.user) {
-      /* No session → go to login immediately */
-      history.replaceState(null, '', 'index.html');
-      window.location.replace('index.html');
-      return;
-    }
-
-    hydratUserFromSession(session);
-  } catch (err) {
-    console.error('Session check failed:', err.message);
-    history.replaceState(null, '', 'index.html');
-    window.location.replace('index.html');
-  }
-}
-
-/* ═══════════════════════════════════════════
-   34. EVENT WIRING
+   30. EVENT WIRING
 ═══════════════════════════════════════════ */
 function wire() {
 
-  /* ── Bottom nav ── */
+  /* Bottom nav */
   document.querySelectorAll('.bn-btn[data-page]').forEach(btn => {
     btn.addEventListener('click', () => goTo(btn.dataset.page));
   });
 
-  /* ── FAB ── */
-  $('fabMain')?.addEventListener('click',     e => { e.stopPropagation(); toggleFab(); });
+  /* FAB */
+  $('fabMain')?.addEventListener('click', e => { e.stopPropagation(); toggleFab(); });
   $('fabIncome')?.addEventListener('click',   () => { toggleFab(false); openModal('income'); });
   $('fabExpense')?.addEventListener('click',  () => { toggleFab(false); openModal('expense'); });
   $('fabBackdrop')?.addEventListener('click', () => toggleFab(false));
 
-  /* ── Avatar → Settings ── */
+  /* Avatar → Settings */
   $('avatarBtn')?.addEventListener('click', () => goTo('settings'));
 
-  /* ── 3-dots button ── */
+  /* 3-dots */
   $('dotsBtn')?.addEventListener('click', e => {
     e.stopPropagation();
     const open = $('dotsMenu').classList.toggle('open');
@@ -1338,20 +1207,13 @@ function wire() {
     if (open) $('notifPanel')?.classList.remove('open');
   });
 
-  /* 3-dots menu items */
-  $('themeCheck')?.addEventListener('change',    e => applyTheme(e.target.checked ? 'dark' : 'light'));
+  $('themeCheck')?.addEventListener('change',   e => applyTheme(e.target.checked ? 'dark' : 'light'));
   $('menuAddIncome')?.addEventListener('click',  () => { closeAll(); openModal('income'); });
   $('menuAddExpense')?.addEventListener('click', () => { closeAll(); openModal('expense'); });
-  $('menuHistory')?.addEventListener('click',    () => { closeAll(); goTo('transactions'); });
-  $('menuLang')?.addEventListener('click',       () => { toggleLang(); closeAll(); });
+  $('menuHistory')?.addEventListener('click',   () => { closeAll(); goTo('transactions'); });
+  $('menuLang')?.addEventListener('click',      () => { toggleLang(); closeAll(); });
 
-  /* Logout from 3-dots menu */
-  $('menuLogout')?.addEventListener('click', () => {
-    closeAll();
-    showConfirm('Logout?', 'You will be signed out of your account.', logout);
-  });
-
-  /* ── Search ── */
+  /* Search */
   $('searchInput')?.addEventListener('input',   e => handleSearch(e.target.value));
   $('searchInput')?.addEventListener('keydown', e => {
     if (e.key === 'Escape') { $('searchInput').value = ''; handleSearch(''); }
@@ -1362,7 +1224,7 @@ function wire() {
     $('searchInput')?.focus();
   });
 
-  /* ── Bell / Notifications ── */
+  /* Bell / Notifications */
   $('bellBtn')?.addEventListener('click', e => {
     e.stopPropagation();
     const open = $('notifPanel').classList.toggle('open');
@@ -1379,7 +1241,7 @@ function wire() {
     renderNotifPanel();
   });
 
-  /* ── Close panels on outside click ── */
+  /* Close panels on outside click */
   document.addEventListener('click', e => {
     if (!$('dotsShell')?.contains(e.target)) {
       $('dotsMenu')?.classList.remove('open');
@@ -1390,7 +1252,7 @@ function wire() {
     }
   });
 
-  /* ── History: Type filter tabs ── */
+  /* History: type filter tabs */
   $('txnTabs')?.addEventListener('click', e => {
     const btn = e.target.closest('.ftab');
     if (!btn) return;
@@ -1401,19 +1263,25 @@ function wire() {
     renderTxnFeed();
   });
 
-  /* ── History: Apply/reset date range filter ── */
-  $('afpApply')?.addEventListener('click',    applyTxnFilter);
-  $('afpReset')?.addEventListener('click',    resetTxnFilter);
+  $('afpApply')?.addEventListener('click', applyTxnFilter);
+  $('afpReset')?.addEventListener('click', resetTxnFilter);
   $('afpBadgeClear')?.addEventListener('click', resetTxnFilter);
-  $('txnDateFrom')?.addEventListener('change', () => { const e = $('afpError'); if (e) e.style.display = 'none'; });
-  $('txnDateTo')?.addEventListener('change',   () => { const e = $('afpError'); if (e) e.style.display = 'none'; });
 
-  /* ── CSV export ── */
+  $('txnDateFrom')?.addEventListener('change', () => {
+    const errEl = $('afpError');
+    if (errEl) errEl.style.display = 'none';
+  });
+  $('txnDateTo')?.addEventListener('change', () => {
+    const errEl = $('afpError');
+    if (errEl) errEl.style.display = 'none';
+  });
+
   $('csvBtnTxn')?.addEventListener('click', exportCSV);
 
-  /* ── Transaction modal ── */
+  /* Transaction modal */
   $('mcClose')?.addEventListener('click', closeModal);
   $('txnVeil')?.addEventListener('click', e => { if (e.target === $('txnVeil')) closeModal(); });
+
   $('txnSubmit')?.addEventListener('click', () => {
     const type   = $('txnType').value;
     const amount = parseFloat($('txnAmount').value);
@@ -1421,6 +1289,7 @@ function wire() {
     const desc   = $('txnDesc').value.trim();
     const date   = $('txnDate').value;
     const T      = TRANSLATIONS[S.lang];
+
     if (!amount || amount <= 0) {
       const inp = $('txnAmount');
       inp.style.borderColor = 'var(--exp)';
@@ -1434,72 +1303,60 @@ function wire() {
       }, 1600);
       return;
     }
-    const catName = T[catKey] || catKey || (type === 'income' ? T.cat_other_income : T.cat_other_expense);
+
+    const catName = T[catKey] || catKey
+      || (type === 'income' ? T.cat_other_income : T.cat_other_expense);
     addTxn(type, amount, catKey || 'cat_other_' + type, catName, desc, date);
     closeModal();
   });
 
-  /* ── Confirm modal ── */
-  $('cfmCancel')?.addEventListener('click',  closeConfirm);
-  $('cfmVeil')?.addEventListener('click',    e => { if (e.target === $('cfmVeil')) closeConfirm(); });
-  $('cfmOk')?.addEventListener('click',      () => { S.confirmCb?.(); closeConfirm(); });
+  /* Confirm modal */
+  $('cfmCancel')?.addEventListener('click', closeConfirm);
+  $('cfmVeil')?.addEventListener('click',   e => { if (e.target === $('cfmVeil')) closeConfirm(); });
+  $('cfmOk')?.addEventListener('click',     () => { S.confirmCb?.(); closeConfirm(); });
 
-  /* ── Password modal ── */
-  $('pwdClose')?.addEventListener('click',  closePwdModal);
-  $('pwdVeil')?.addEventListener('click',   e => { if (e.target === $('pwdVeil')) closePwdModal(); });
-  $('pwdSubmit')?.addEventListener('click', submitPasswordChange);
-  $('changePasswordBtn')?.addEventListener('click', openPasswordModal);
-
-  /* ── Settings ── */
-  $('themeToggle')?.addEventListener('change', e => applyTheme(e.target.checked ? 'dark' : 'light'));
-  $('langBtn')?.addEventListener('click',       toggleLang);
-  $('notifToggle')?.addEventListener('change',  e => {
+  /* Settings */
+  $('themeToggle')?.addEventListener('change',    e => applyTheme(e.target.checked ? 'dark' : 'light'));
+  $('langBtn')?.addEventListener('click',          toggleLang);
+  $('notifToggle')?.addEventListener('change',     e => {
     S.notifEnabled = e.target.checked;
     lsSet(LS.notifEnabled, S.notifEnabled);
   });
-
-  /* Name input (manual login only) */
-  $('profileNameInput')?.addEventListener('input', async e => {
+  $('profileNameInput')?.addEventListener('input', e => {
     if (S.isSocialLogin) return;
-    const newName = e.target.value.trim() || 'User';
-    S.userName = newName;
+    S.userName = e.target.value || 'User';
+    lsSet(LS.userName, S.userName);
     updateProfile();
-    /* Optionally update Supabase user metadata */
-    try {
-      await sb.auth.updateUser({ data: { full_name: newName } });
-    } catch {}
   });
-
-  /* Avatar file input (manual login only) */
-  $('avatarFileInput')?.addEventListener('change', e => {
-    const file = e.target.files?.[0];
-    if (file) handleAvatarUpload(file);
-    e.target.value = ''; // reset for re-select
-  });
-
-  /* ── Clear data ── */
   $('clearBtn')?.addEventListener('click', () => {
     const T = TRANSLATIONS[S.lang];
     showConfirm(T.confirm_clear, T.confirm_clear_msg, () => {
       S.transactions = [];
+      saveTxns();
       renderAll();
     });
   });
 
-  /* ── Logout button in settings ── */
+  /* ══ LOGOUT → index.html ══ */
   $('logoutBtn')?.addEventListener('click', () => {
-    showConfirm('Logout?', 'You will be signed out of your account.', logout);
+    showConfirm('Logout?', 'Your data is safely stored locally.', () => {
+      localStorage.clear();
+      window.location.href = 'index.html';
+    });
   });
 
-  /* ── Chart period selector ── */
+  $('changePasswordBtn')?.addEventListener('click', () => {
+    showToast('info', 'Password change is not available in demo mode.');
+  });
+
+  /* Chart period */
   $('chartPeriod')?.addEventListener('change', drawChart);
 
-  /* ── Global keyboard shortcuts ── */
+  /* Global keyboard shortcuts */
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       closeModal();
       closeConfirm();
-      closePwdModal();
       closeAll();
       const si = $('searchInput');
       if (si && si.value) { si.value = ''; handleSearch(''); }
@@ -1510,7 +1367,7 @@ function wire() {
     }
   });
 
-  /* ── Window resize: redraw chart ── */
+  /* Window resize: redraw chart */
   let resizeTimer;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
@@ -1519,54 +1376,46 @@ function wire() {
 }
 
 /* ═══════════════════════════════════════════
-   35. INIT
-   Boot sequence:
-   1. Load preferences (theme, lang, notifs)
-   2. Apply theme + lang immediately (no flash)
-   3. Wire events
-   4. Check Supabase session (redirects to index.html if none)
-   5. Listen for auth state changes (handles refresh, sign-out)
-   6. Seed demo data if empty (only for demo purposes)
+   31. INIT
 ═══════════════════════════════════════════ */
-async function init() {
-  loadPrefs();
+function init() {
+  loadState();
   applyTheme(S.theme);
   applyLang(S.lang);
   updateDate();
+  updateProfile();
 
   const nt = $('notifToggle');
   if (nt) nt.checked = S.notifEnabled;
 
   wire();
+  renderAll();
+  renderNotifPanel();
 
-  /* ── Supabase Auth ── */
-
-  /* Listen for auth state changes (fires immediately with current session) */
-  sb.auth.onAuthStateChange((event, session) => {
-    handleAuthChange(event, session);
-  });
-
-  /* Also explicitly check session to redirect early on first load */
-  await checkSession();
-
-  /* Seed demo transactions ONLY if user has none */
+  /* Seed demo data only if empty */
   if (!S.transactions.length) {
     const td = new Date().toISOString().split('T')[0];
     const yd = new Date(Date.now() - 86400000).toISOString().split('T')[0];
     const d2 = new Date(Date.now() - 172800000).toISOString().split('T')[0];
     S.transactions = [
-      { id:'1', type:'income',  amount:3000, categoryKey:'cat_salary',      category:'Salary',    description:'Monthly salary',     date:d2 },
-      { id:'2', type:'income',  amount:2000, categoryKey:'cat_freelance',    category:'Freelance', description:'Design project',     date:yd },
-      { id:'3', type:'expense', amount:450,  categoryKey:'cat_food',         category:'Food',      description:'Groceries & dining', date:d2 },
-      { id:'4', type:'expense', amount:120,  categoryKey:'cat_transport',    category:'Transport', description:'Grab rides',         date:yd },
-      { id:'5', type:'expense', amount:299,  categoryKey:'cat_shopping',     category:'Shopping',  description:'Online order',       date:td },
-      { id:'6', type:'expense', amount:85,   categoryKey:'cat_bills',        category:'Bills',     description:'Electricity',        date:td },
+      { id:'1', type:'income',  amount:3000, categoryKey:'cat_salary',      category:'Salary',    description:'Monthly salary',    date:d2 },
+      { id:'2', type:'income',  amount:2000, categoryKey:'cat_freelance',    category:'Freelance',  description:'Design project',    date:yd },
+      { id:'3', type:'expense', amount:450,  categoryKey:'cat_food',         category:'Food',       description:'Groceries & dining', date:d2 },
+      { id:'4', type:'expense', amount:120,  categoryKey:'cat_transport',    category:'Transport',  description:'Grab rides',        date:yd },
+      { id:'5', type:'expense', amount:299,  categoryKey:'cat_shopping',     category:'Shopping',   description:'Online order',      date:td },
+      { id:'6', type:'expense', amount:85,   categoryKey:'cat_bills',        category:'Bills',      description:'Electricity',       date:td },
     ];
+    saveTxns();
     renderAll();
   }
 
-  console.log('%c FinPay v5.0 Ready ✓ ', 'background:#f5a623;color:#1a0f00;padding:4px 12px;border-radius:4px;font-weight:bold;font-family:monospace');
-  console.log('%c Auth: Supabase | Logout: signOut() + redirect | Session: auto-redirect on reload ', 'background:#00e896;color:#001a0d;padding:2px 8px;border-radius:4px;font-size:11px');
+  /* Re-init Lucide icons after dynamic renders */
+  if (window.lucide) {
+    lucide.createIcons();
+    setTimeout(() => lucide.createIcons(), 400);
+  }
+
+  console.log('%c FinPay v5.0 Ready ✓ ', 'background:#4f8aff;color:#fff;padding:4px 12px;border-radius:4px;font-weight:bold;font-family:monospace');
 }
 
 /* Boot */
