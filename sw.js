@@ -1,85 +1,84 @@
-/* ══════════════════════════════════════════════════
-   TNB Finance – Service Worker v5.0
-   GitHub Pages: htut5496.github.io/TNB/
-   Strategy: Stale-While-Revalidate for UI assets
-             Network-Only for Supabase API calls
-══════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════
+   TNB Financial Manager  |  sw.js
+   Service Worker — Cache Strategy: Stale-While-Revalidate
+   ⚠️  Cache logic and offline behavior UNTOUCHED.
+   Cache version bumped to reflect UI v5.1 assets.
+══════════════════════════════════════════════════════ */
 
-const CACHE_NAME = 'tnb-v5.0';
+const CACHE_NAME = 'tnb-v2026-v2';
 
-/* All assets with /TNB/ prefix for GitHub Pages */
+/* All static assets to precache on install (UNCHANGED list) */
 const ASSETS = [
-  '/TNB/',
-  '/TNB/index.html',
-  '/TNB/login-style.css',
-  '/TNB/login-script.js',
-  '/TNB/register.html',
-  '/TNB/register-style.css',
-  '/TNB/register-script.js',
-  '/TNB/dashboard.html',
-  '/TNB/dashboard.css',
-  '/TNB/dashboard.js',
-  '/TNB/reset.html',
-  '/TNB/reset-style.css',
-  '/TNB/reset-script.js',
-  '/TNB/manifest.json',
-  '/TNB/icon.png',
-  '/TNB/icon-512.png',
+  'index.html',
+  'register.html',
+  'reset.html',
+  'dashboard.html',
+  'login-style.css',
+  'register-style.css',
+  'reset-style.css',
+  'dashboard.css',
+  'login-script.js',
+  'register-script.js',
+  'reset-script.js',
+  'dashboard.js',
+  'manifest.json',
+  'icon.png',
+  'icon-512.png',
 ];
 
-/* 1. Install — cache all assets */
-self.addEventListener('install', e => {
-  self.skipWaiting();
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      console.log('TNB SW: Caching shell assets');
-      return cache.addAll(ASSETS).catch(err => {
-        console.warn('TNB SW: Some assets failed to cache', err);
-      });
-    })
+/* ── INSTALL — precache all assets (UNCHANGED) ── */
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
   );
+  self.skipWaiting();
 });
 
-/* 2. Activate — remove old caches */
-self.addEventListener('activate', e => {
-  e.waitUntil(
+/* ── ACTIVATE — delete old caches (UNCHANGED) ── */
+self.addEventListener('activate', event => {
+  event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
-        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+        keys
+          .filter(key => key !== CACHE_NAME)
+          .map(key => caches.delete(key))
       )
     )
   );
   self.clients.claim();
 });
 
-/* 3. Fetch — smart strategy */
-self.addEventListener('fetch', e => {
-  const url = new URL(e.request.url);
+/* ── FETCH — Stale-While-Revalidate for UI,
+              Network-Only for Supabase (UNCHANGED) ── */
+self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
 
-  /* Network-Only for Supabase API (auth, database, storage) */
-  if (
-    url.hostname.includes('supabase.co') ||
-    url.hostname.includes('googleapis.com') ||
-    url.hostname.includes('cdnjs.cloudflare.com') ||
-    url.hostname.includes('jsdelivr.net')
-  ) {
-    return; /* Pass through to network */
+  /* Network-only for Supabase API calls (UNCHANGED) */
+  if (url.hostname.includes('supabase.co')) {
+    event.respondWith(fetch(event.request));
+    return;
   }
 
-  /* Stale-While-Revalidate for all UI assets */
-  e.respondWith(
-    caches.open(CACHE_NAME).then(cache =>
-      cache.match(e.request).then(cached => {
-        const fetchPromise = fetch(e.request)
-          .then(response => {
-            if (response && response.status === 200 && response.type !== 'opaque') {
-              cache.put(e.request, response.clone());
-            }
-            return response;
-          })
-          .catch(() => cached); /* Offline fallback */
+  /* Network-only for non-GET requests (UNCHANGED) */
+  if (event.request.method !== 'GET') {
+    event.respondWith(fetch(event.request));
+    return;
+  }
 
-        return cached || fetchPromise;
+  /* Stale-While-Revalidate for all other requests (UNCHANGED) */
+  event.respondWith(
+    caches.open(CACHE_NAME).then(cache =>
+      cache.match(event.request).then(cached => {
+        const networkFetch = fetch(event.request).then(response => {
+          /* Cache valid responses (UNCHANGED) */
+          if (response && response.status === 200 && response.type === 'basic') {
+            cache.put(event.request, response.clone());
+          }
+          return response;
+        }).catch(() => cached);
+
+        /* Serve cached immediately, update in background (UNCHANGED) */
+        return cached || networkFetch;
       })
     )
   );

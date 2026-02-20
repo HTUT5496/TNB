@@ -3,109 +3,144 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0F172A" />
     <title>TNB – Reset Password</title>
-    <link rel="stylesheet" href="reset-style.css" />
     <link rel="manifest" href="manifest.json" />
+    <link rel="stylesheet" href="reset-style.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body class="dark-mode">
-    <div class="bg-grid"></div>
-    <div class="bg-orb orb1"></div>
-    <div class="bg-orb orb2"></div>
+
+    <!-- Animated background orbs -->
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
 
     <div class="glass-container">
+
+      <!-- Top Navigation -->
       <div class="top-nav">
-        <button onclick="location.href='index.html'" class="sub-btn">
-          <i class="fas fa-arrow-left"></i> Back
+        <button onclick="location.href = 'index.html'" class="sub-btn">
+          <i class="fas fa-chevron-left"></i> Back
         </button>
         <button id="lang-btn" class="sub-btn">
           <i class="fas fa-language"></i> Burmese
         </button>
-        <button id="theme-btn" class="sub-btn">
-          <i class="fas fa-moon"></i> Dark
-        </button>
+        <button id="theme-btn" class="sub-btn">🌙 Dark</button>
       </div>
 
-      <div class="brand-row">
-        <div class="brand-icon"><i class="fas fa-key"></i></div>
-        <div>
-          <h2 class="brand-name">Reset Password</h2>
-          <p class="brand-sub">We'll send you a recovery code</p>
-        </div>
-      </div>
-
-      <div class="note-box">
-        <i class="fas fa-envelope note-icon"></i>
-        <p id="note-text">Enter your registered Gmail to receive an OTP code for password recovery.</p>
+      <!-- Brand Mark -->
+      <div class="brand-mark">
+        <span class="brand-icon"><i class="fas fa-key"></i></span>
+        <span class="brand-name">TNB</span>
       </div>
 
       <h1 id="title">Reset Password</h1>
+      <p class="page-sub">We'll send you a recovery code</p>
 
+      <!-- Note Box -->
+      <div class="note-box">
+        <i class="fas fa-envelope note-icon"></i>
+        <p id="note-text">
+          Enter your registered Gmail to receive an OTP code for password
+          recovery.
+        </p>
+      </div>
+
+      <!-- Email + Send OTP -->
       <div class="form-group">
         <div class="input-group">
-          <label class="input-label">Gmail Address</label>
-          <div class="input-wrapper">
-            <i class="fas fa-envelope input-icon"></i>
-            <input type="email" id="reset-email" placeholder="Enter your Gmail" required />
-          </div>
+          <span class="input-icon"><i class="fas fa-envelope"></i></span>
+          <input
+            type="email"
+            id="reset-email"
+            placeholder="Enter your Gmail"
+            required
+          />
         </div>
-
         <button id="send-otp-btn" class="main-btn">
-          <span id="otp-btn-text">Send OTP Code</span>
-          <i class="fas fa-paper-plane btn-icon" id="otp-btn-icon"></i>
-          <span class="btn-spinner hidden" id="otp-btn-spinner"><i class="fas fa-circle-notch fa-spin"></i></span>
+          <i class="fas fa-paper-plane"></i>
+          <span class="btn-text">Send OTP</span>
+          <span class="btn-loader" style="display:none"><i class="fas fa-circle-notch fa-spin"></i></span>
         </button>
       </div>
 
       <!-- OTP Modal -->
       <div id="otp-modal" class="modal">
         <div class="modal-content">
+
           <div class="modal-header">
-            <div class="modal-icon"><i class="fas fa-shield-alt"></i></div>
+            <div class="modal-icon"><i class="fas fa-shield-check"></i></div>
             <h3 id="modal-title">Verify OTP</h3>
-            <p id="modal-desc" class="modal-sub-text">Enter the code sent to your email</p>
+            <p id="modal-desc" class="modal-sub-text">
+              Enter the code sent to your email
+            </p>
           </div>
 
-          <div class="modal-body">
+          <div class="modal-fields">
             <div class="input-group">
-              <label class="input-label">OTP Code</label>
-              <div class="input-wrapper">
-                <i class="fas fa-hashtag input-icon"></i>
-                <input type="text" id="otp-code" placeholder="6-digit code" maxlength="6" required />
-              </div>
+              <span class="input-icon"><i class="fas fa-hashtag"></i></span>
+              <input type="text" id="otp-code" placeholder="OTP Code" required />
             </div>
-
             <div class="input-group">
-              <label class="input-label">New Password</label>
-              <div class="input-wrapper">
-                <i class="fas fa-lock input-icon"></i>
-                <input type="password" id="new-password" placeholder="New password (min 6 chars)" required />
-              </div>
+              <span class="input-icon"><i class="fas fa-lock"></i></span>
+              <input
+                type="password"
+                id="new-password"
+                placeholder="New Password"
+                required
+              />
             </div>
-
             <div class="input-group">
-              <label class="input-label">Confirm Password</label>
-              <div class="input-wrapper">
-                <i class="fas fa-lock input-icon"></i>
-                <input type="password" id="confirm-new-password" placeholder="Re-enter new password" required />
-              </div>
-            </div>
-
-            <div class="modal-btns">
-              <button id="verify-btn" class="main-btn">
-                <span id="verify-btn-text">Update & Login</span>
-                <i class="fas fa-check btn-icon"></i>
-              </button>
-              <button id="close-modal" class="cancel-btn">
-                <i class="fas fa-times"></i> Cancel
-              </button>
+              <span class="input-icon"><i class="fas fa-lock"></i></span>
+              <input
+                type="password"
+                id="confirm-new-password"
+                placeholder="Confirm Password"
+                required
+              />
             </div>
           </div>
+
+          <div class="modal-btns">
+            <button id="verify-btn" class="main-btn">
+              <i class="fas fa-check-circle"></i>
+              <span class="btn-text">Update &amp; Login</span>
+              <span class="btn-loader" style="display:none"><i class="fas fa-circle-notch fa-spin"></i></span>
+            </button>
+            <button id="close-modal" class="sub-btn">
+              <i class="fas fa-times"></i> Cancel
+            </button>
+          </div>
+
         </div>
       </div>
+
     </div>
 
     <script src="reset-script.js"></script>
+    <script>
+      // Loading state helpers (UI only — no auth logic)
+      function setLoading(btnId, loading) {
+        const btn    = document.getElementById(btnId);
+        if (!btn) return;
+        const text   = btn.querySelector('.btn-text');
+        const loader = btn.querySelector('.btn-loader');
+        if (text)   text.style.display   = loading ? 'none'   : 'inline';
+        if (loader) loader.style.display = loading ? 'inline' : 'none';
+        btn.disabled = loading;
+      }
+      // Attach loading to send OTP button
+      const sendBtn = document.getElementById('send-otp-btn');
+      if (sendBtn) {
+        const origClick = sendBtn.onclick;
+        sendBtn.addEventListener('click', () => setLoading('send-otp-btn', true));
+      }
+      // Attach loading to verify button
+      const verifyBtn = document.getElementById('verify-btn');
+      if (verifyBtn) {
+        verifyBtn.addEventListener('click', () => setLoading('verify-btn', true));
+      }
+    </script>
   </body>
 </html>
