@@ -3,61 +3,98 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TNB - Register</title>
+    <title>TNB – Register</title>
     <link rel="stylesheet" href="register-style.css" />
     <link rel="manifest" href="manifest.json" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body class="dark-mode">
+    <div class="bg-grid"></div>
+    <div class="bg-orb orb1"></div>
+    <div class="bg-orb orb2"></div>
+
     <div class="glass-container">
       <div class="top-nav">
-        <button id="lang-btn" class="sub-btn">Burmese</button>
-        <button onclick="location.href = 'index.html'" class="sub-btn">
-          Login
+        <button id="lang-btn" class="sub-btn">
+          <i class="fas fa-language"></i> Burmese
         </button>
-        <button id="theme-btn" class="sub-btn">🌙 Dark</button>
+        <button onclick="location.href='index.html'" class="sub-btn">
+          <i class="fas fa-arrow-left"></i> Login
+        </button>
+        <button id="theme-btn" class="sub-btn">
+          <i class="fas fa-moon"></i> Dark
+        </button>
+      </div>
+
+      <div class="brand-row">
+        <div class="brand-icon"><i class="fas fa-chart-line"></i></div>
+        <div>
+          <h2 class="brand-name">TNB Finance</h2>
+          <p class="brand-sub">Create your account</p>
+        </div>
       </div>
 
       <div class="note-box">
-        <p id="note-text">
-          Welcome to the financial management software. Create your account to
-          start tracking your assets.
-        </p>
+        <i class="fas fa-info-circle note-icon"></i>
+        <p id="note-text">Welcome to the financial management software. Create your account to start tracking your assets.</p>
       </div>
 
       <h1 id="title">Register</h1>
+      <p class="form-subtitle" id="form-subtitle">Join thousands managing their finances</p>
 
       <form id="reg-form">
-        <input type="text" id="username" placeholder="UserName" required />
-        <input
-          type="password"
-          id="password"
-          placeholder="Password (min 6 chars)"
-          minlength="6"
-          required
-        />
-        <input
-          type="password"
-          id="confirm-password"
-          placeholder="Confirm Password"
-          required
-        />
-        <button type="submit" id="reg-btn" class="main-btn">Register</button>
+        <div class="input-group">
+          <label class="input-label" id="label-user">Username</label>
+          <div class="input-wrapper">
+            <i class="fas fa-user input-icon"></i>
+            <input type="text" id="username" placeholder="Choose a username" required />
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" id="label-pass">Password</label>
+          <div class="input-wrapper">
+            <i class="fas fa-lock input-icon"></i>
+            <input type="password" id="password" placeholder="Min. 6 characters" minlength="6" required />
+            <button type="button" class="eye-btn" id="togglePass">
+              <i class="fas fa-eye" id="eyeIcon"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" id="label-confirm">Confirm Password</label>
+          <div class="input-wrapper">
+            <i class="fas fa-lock input-icon"></i>
+            <input type="password" id="confirm-password" placeholder="Re-enter password" required />
+          </div>
+        </div>
+
+        <div class="strength-bar-wrap" id="strengthWrap" style="display:none">
+          <div class="strength-bar">
+            <div class="strength-fill" id="strengthFill"></div>
+          </div>
+          <span class="strength-label" id="strengthLabel"></span>
+        </div>
+
+        <button type="submit" id="reg-btn" class="main-btn">
+          <span id="btn-text">Create Account</span>
+          <i class="fas fa-arrow-right btn-icon" id="btn-icon"></i>
+          <span class="btn-spinner hidden" id="btn-spinner"><i class="fas fa-circle-notch fa-spin"></i></span>
+        </button>
       </form>
 
       <div class="separator"><span>Or</span></div>
 
       <button type="button" id="gmail-btn" class="social-btn">
-        Continue with Gmail
+        <i class="fab fa-google social-icon google-icon"></i>
+        <span>Sign up with Google</span>
       </button>
 
       <div class="footer-links">
-        <p id="login-text">
-          If you already have account? <a href="index.html">Login</a>
-        </p>
-        <p id="reset-text">
-          <a href="reset.html">Forgot Password? Reset Password</a>
-        </p>
+        <p id="login-text">Already have an account? <a href="index.html">Login</a></p>
+        <p id="reset-text"><a href="reset.html">Forgot Password? Reset</a></p>
       </div>
     </div>
 

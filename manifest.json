@@ -2,13 +2,13 @@
   "name": "TNB Financial Manager",
   "short_name": "TNB",
   "description": "Premium assets and expense tracking with real-time analytics.",
-  "id": "/tnb-finance-app",
-  "start_url": "index.html",
+  "id": "/TNB/",
+  "start_url": "/TNB/index.html",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "minimal-ui"],
   "orientation": "portrait",
-  "background_color": "#020617",
-  "theme_color": "#3b82f6",
+  "background_color": "#0F172A",
+  "theme_color": "#2563EB",
   "categories": ["finance", "productivity", "utilities"],
   "dir": "ltr",
   "lang": "en-US",
@@ -52,14 +52,14 @@
     {
       "name": "Add Transaction",
       "short_name": "Add",
-      "url": "dashboard.html?action=add",
+      "url": "/TNB/dashboard.html?action=add",
       "description": "Quickly add a new income or expense",
       "icons": [{ "src": "icon.png", "sizes": "192x192" }]
     },
     {
       "name": "View History",
       "short_name": "History",
-      "url": "dashboard.html#history",
+      "url": "/TNB/dashboard.html#history",
       "description": "Check your past transactions",
       "icons": [{ "src": "icon.png", "sizes": "192x192" }]
     }
@@ -67,7 +67,7 @@
   "protocol_handlers": [
     {
       "protocol": "web+tnb",
-      "url": "dashboard.html?query=%s"
+      "url": "/TNB/dashboard.html?query=%s"
     }
   ]
 }

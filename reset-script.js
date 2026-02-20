@@ -1,125 +1,150 @@
-// Supabase Client Initialization
+/* ══════════════════════════════════════════════════
+   TNB Finance – Reset Password Script
+   Supabase: vnemlphmqmrjpenxlsxx.supabase.co
+══════════════════════════════════════════════════ */
+'use strict';
+
 const { createClient } = supabase;
 const _supabase = createClient(
-  "https://lqfjeamzbxayfbjntarr.supabase.co",
-  "sb_publishable_jDExXkASC_jrulY8B7noFw_r9qut-vQ",
+  'https://vnemlphmqmrjpenxlsxx.supabase.co',
+  'sb_publishable_7nh01CaeLQs9TyhA_Qu8Yw_UzwXgOvq'
 );
 
 const langData = {
   en: {
-    title: "Reset Password",
-    emailPlaceholder: "Enter your Gmail",
-    sendBtn: "Send OTP",
-    modalTitle: "Verify OTP",
-    otpPlaceholder: "OTP Code",
-    newPassPlaceholder: "New Password",
-    confirmPassPlaceholder: "Confirm Password",
-    updateBtn: "Update & Login",
-    cancelBtn: "Cancel",
-    alertEmail: "Please enter email!",
-    alertSent: "OTP Code has been sent to your Gmail.",
-    alertMismatch: "Passwords do not match!",
-    alertInvalid: "Invalid OTP Code!",
-    alertSuccess: "Success! Password updated.",
+    title:               'Reset Password',
+    emailPlaceholder:    'Enter your Gmail',
+    sendBtn:             'Send OTP Code',
+    modalTitle:          'Verify OTP',
+    otpPlaceholder:      '6-digit code',
+    newPassPlaceholder:  'New password (min 6 chars)',
+    confirmPlaceholder:  'Re-enter new password',
+    updateBtn:           'Update & Login',
+    cancelBtn:           'Cancel',
+    alertEmail:          'Please enter your Gmail address!',
+    alertSent:           '✓ OTP code sent to your Gmail. Check your inbox.',
+    alertMismatch:       'Passwords do not match!',
+    alertInvalid:        'Invalid OTP code. Please try again.',
+    alertSuccess:        '✓ Password updated successfully!',
+    label:               'Burmese',
   },
   my: {
-    title: "လျှို့ဝှက်နံပါတ် ပြောင်းရန်",
-    emailPlaceholder: "သင်၏ Gmail ကိုရိုက်ထည့်ပါ",
-    sendBtn: "OTP ပို့မည်",
-    modalTitle: "OTP စစ်ဆေးခြင်း",
-    otpPlaceholder: "OTP နံပါတ်",
-    newPassPlaceholder: "လျှို့ဝှက်နံပါတ်အသစ်",
-    confirmPassPlaceholder: "လျှို့ဝှက်နံပါတ်ကို ထပ်မံရိုက်ပါ",
-    updateBtn: "ပြင်ဆင်ပြီး ဝင်မည်",
-    cancelBtn: "ပယ်ဖျက်မည်",
-    alertEmail: "Gmail ရိုက်ထည့်ပေးပါ!",
-    alertSent: "OTP နံပါတ်ကို သင်၏ Gmail သို့ ပို့လိုက်ပါပြီ။",
-    alertMismatch: "လျှို့ဝှက်နံပါတ်များ တူညီမှုမရှိပါ။",
-    alertInvalid: "OTP နံပါတ် မှားယွင်းနေပါသည်။",
-    alertSuccess: "အောင်မြင်ပါသည်။ လျှို့ဝှက်နံပါတ် ပြောင်းလဲပြီးပါပြီ။",
-  },
+    title:               'လျှို့ဝှက်နံပါတ် ပြောင်းရန်',
+    emailPlaceholder:    'Gmail ကိုရိုက်ထည့်ပါ',
+    sendBtn:             'OTP ပို့မည်',
+    modalTitle:          'OTP စစ်ဆေးခြင်း',
+    otpPlaceholder:      '၆ လုံး နံပါတ်',
+    newPassPlaceholder:  'လျှို့ဝှက်နံပါတ်အသစ်',
+    confirmPlaceholder:  'ထပ်မံရိုက်ပါ',
+    updateBtn:           'ပြင်ဆင်ပြီး ဝင်မည်',
+    cancelBtn:           'ပယ်ဖျက်မည်',
+    alertEmail:          'Gmail ရိုက်ထည့်ပေးပါ!',
+    alertSent:           '✓ OTP နံပါတ်ကို Gmail သို့ ပို့လိုက်ပါပြီ။',
+    alertMismatch:       'လျှို့ဝှက်နံပါတ်များ တူညီမှုမရှိပါ။',
+    alertInvalid:        'OTP နံပါတ် မှားယွင်းနေပါသည်။',
+    alertSuccess:        '✓ လျှို့ဝှက်နံပါတ် ပြောင်းလဲပြီးပါပြီ။',
+    label:               'English',
+  }
 };
 
-let currentLang = "en";
+let currentLang = 'en';
 
-// Language Switcher
-document.getElementById("lang-btn").onclick = () => {
-  currentLang = currentLang === "en" ? "my" : "en";
+/* ── Theme ── */
+document.getElementById('theme-btn').onclick = () => {
+  const isLight = document.body.classList.toggle('light-mode');
+  document.body.classList.toggle('dark-mode', !isLight);
+  document.getElementById('theme-btn').innerHTML = isLight
+    ? '<i class="fas fa-sun"></i> Light'
+    : '<i class="fas fa-moon"></i> Dark';
+};
+
+/* ── Language ── */
+document.getElementById('lang-btn').onclick = () => {
+  currentLang = currentLang === 'en' ? 'my' : 'en';
+  applyLang();
+};
+
+function applyLang() {
   const d = langData[currentLang];
+  document.getElementById('lang-btn').innerHTML           = `<i class="fas fa-language"></i> ${d.label}`;
+  document.getElementById('title').textContent            = d.title;
+  document.getElementById('reset-email').placeholder      = d.emailPlaceholder;
+  document.getElementById('otp-btn-text').textContent     = d.sendBtn;
+  document.getElementById('modal-title').textContent      = d.modalTitle;
+  document.getElementById('otp-code').placeholder         = d.otpPlaceholder;
+  document.getElementById('new-password').placeholder     = d.newPassPlaceholder;
+  document.getElementById('confirm-new-password').placeholder = d.confirmPlaceholder;
+  document.getElementById('verify-btn-text').textContent  = d.updateBtn;
+  document.getElementById('close-modal').innerHTML        = `<i class="fas fa-times"></i> ${d.cancelBtn}`;
+}
 
-  document.getElementById("lang-btn").innerText =
-    currentLang === "en" ? "Burmese" : "English";
-  document.getElementById("title").innerText = d.title;
-  document.getElementById("reset-email").placeholder = d.emailPlaceholder;
-  document.getElementById("send-otp-btn").innerText = d.sendBtn;
-  document.getElementById("modal-title").innerText = d.modalTitle;
-  document.getElementById("otp-code").placeholder = d.otpPlaceholder;
-  document.getElementById("new-password").placeholder = d.newPassPlaceholder;
-  document.getElementById("confirm-new-password").placeholder =
-    d.confirmPassPlaceholder;
-  document.getElementById("verify-btn").innerText = d.updateBtn;
-  document.getElementById("close-modal").innerText = d.cancelBtn;
-};
+/* ── Send OTP ── */
+document.getElementById('send-otp-btn').onclick = async () => {
+  const d     = langData[currentLang];
+  const email = document.getElementById('reset-email').value.trim();
+  if (!email) { alert(d.alertEmail); return; }
 
-// Theme Toggle
-document.getElementById("theme-btn").onclick = () => {
-  document.body.classList.toggle("dark-mode");
-  document.body.classList.toggle("light-mode");
-  document.getElementById("theme-btn").innerText =
-    document.body.classList.contains("dark-mode") ? "🌙 Dark" : "☀️ Light";
-};
+  const btnText    = document.getElementById('otp-btn-text');
+  const btnIcon    = document.getElementById('otp-btn-icon');
+  const btnSpinner = document.getElementById('otp-btn-spinner');
+  const btn        = document.getElementById('send-otp-btn');
 
-// Send OTP Logic
-document.getElementById("send-otp-btn").onclick = async () => {
-  const d = langData[currentLang];
-  const email = document.getElementById("reset-email").value;
-  if (!email) return alert(d.alertEmail);
+  btnText.textContent = 'Sending…';
+  btnIcon.classList.add('hidden');
+  btnSpinner.classList.remove('hidden');
+  btn.disabled = true;
 
-  const { error } = await _supabase.auth.resetPasswordForEmail(email);
+  const { error } = await _supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: 'https://htut5496.github.io/TNB/reset.html',
+  });
+
+  btnText.textContent = d.sendBtn;
+  btnIcon.classList.remove('hidden');
+  btnSpinner.classList.add('hidden');
+  btn.disabled = false;
 
   if (error) {
     alert(error.message);
   } else {
-    document.getElementById("otp-modal").style.display = "block";
+    document.getElementById('otp-modal').style.display = 'block';
     alert(d.alertSent);
   }
 };
 
-// Modal Close
-document.getElementById("close-modal").onclick = () => {
-  document.getElementById("otp-modal").style.display = "none";
+/* ── Close modal ── */
+document.getElementById('close-modal').onclick = () => {
+  document.getElementById('otp-modal').style.display = 'none';
 };
 
-// Verify & Update Logic
-document.getElementById("verify-btn").onclick = async () => {
-  const d = langData[currentLang];
-  const email = document.getElementById("reset-email").value;
-  const otp = document.getElementById("otp-code").value;
-  const newPass = document.getElementById("new-password").value;
-  const confirmPass = document.getElementById("confirm-new-password").value;
+/* ── Verify & Update ── */
+document.getElementById('verify-btn').onclick = async () => {
+  const d           = langData[currentLang];
+  const email       = document.getElementById('reset-email').value.trim();
+  const otp         = document.getElementById('otp-code').value.trim();
+  const newPass     = document.getElementById('new-password').value;
+  const confirmPass = document.getElementById('confirm-new-password').value;
 
-  if (newPass !== confirmPass) return alert(d.alertMismatch);
+  if (newPass !== confirmPass) { alert(d.alertMismatch); return; }
 
-  // OTP Verification
-  const { data, error } = await _supabase.auth.verifyOtp({
-    email: email,
+  /* Verify OTP */
+  const { error } = await _supabase.auth.verifyOtp({
+    email,
     token: otp,
-    type: "recovery",
+    type:  'recovery',
   });
 
   if (error) {
     alert(d.alertInvalid);
+    return;
+  }
+
+  /* Update password */
+  const { error: updateError } = await _supabase.auth.updateUser({ password: newPass });
+
+  if (updateError) {
+    alert(updateError.message);
   } else {
-    // Update password
-    const { error: updateError } = await _supabase.auth.updateUser({
-      password: newPass,
-    });
-    if (updateError) {
-      alert(updateError.message);
-    } else {
-      alert(d.alertSuccess);
-      // Folder မရှိတော့သဖြင့် dashboard.html သို့ တိုက်ရိုက်သွားရန် ပြင်ဆင်သည်
-      location.href = "dashboard.html";
-    }
+    alert(d.alertSuccess);
+    location.href = 'dashboard.html';
   }
 };

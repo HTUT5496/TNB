@@ -1,14 +1,31 @@
-/* Login Page အတွက် သီးသန့် CSS ဖိုင် */
+/* ══════════════════════════════════════════════════
+   TNB Finance – Login Page CSS
+   Color System: Primary #2563EB | Secondary #7C3AED
+   Background: #0F172A | Glass: rgba(255,255,255,0.05)
+══════════════════════════════════════════════════ */
 
-* {
-  box-sizing: border-box;
-  transition:
-    background 0.3s ease,
-    color 0.3s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-  margin: 0;
-  padding: 0;
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --primary:    #2563EB;
+  --primary-d:  #1D4ED8;
+  --primary-l:  rgba(37,99,235,0.15);
+  --secondary:  #7C3AED;
+  --success:    #10B981;
+  --danger:     #EF4444;
+  --bg:         #0F172A;
+  --surface:    #1E293B;
+  --card:       rgba(255,255,255,0.05);
+  --cardH:      rgba(255,255,255,0.08);
+  --border:     rgba(255,255,255,0.08);
+  --borderH:    rgba(255,255,255,0.15);
+  --tx1: #F1F5F9;
+  --tx2: #94A3B8;
+  --tx3: #475569;
+  --ease: cubic-bezier(0.4,0,0.2,1);
+  --spring: cubic-bezier(0.34,1.56,0.64,1);
 }
 
 body {
@@ -16,198 +33,218 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  font-family: "Plus Jakarta Sans", sans-serif;
-  overflow-x: hidden; /* ဘေးတိုက် scroll မပေါ်စေရန် */
+  font-family: 'DM Sans', sans-serif;
+  overflow-x: hidden;
+  position: relative;
 }
 
-/* Dark Mode Styles (Default) */
-body.dark-mode {
-  background: #020617;
-  color: #ffffff;
+body.dark-mode  { background: var(--bg); color: var(--tx1); }
+body.light-mode { background: #F1F5F9; color: #0F172A; }
+
+/* ── Background effects ── */
+.bg-grid {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(37,99,235,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37,99,235,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
 }
 
-/* Light Mode Styles */
-body.light-mode {
-  background: #f8fafc;
-  color: #1e293b;
+.bg-orb {
+  position: fixed; border-radius: 50%; pointer-events: none; z-index: 0;
+  filter: blur(80px); opacity: 0.12;
+}
+.orb1 {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, #2563EB, transparent 70%);
+  top: -200px; right: -100px;
+  animation: orb-float 12s ease-in-out infinite alternate;
+}
+.orb2 {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, #7C3AED, transparent 70%);
+  bottom: -150px; left: -100px;
+  animation: orb-float 16s ease-in-out infinite alternate-reverse;
+}
+@keyframes orb-float {
+  from { transform: translate(0,0) scale(1); }
+  to   { transform: translate(30px,-20px) scale(1.08); }
 }
 
-/* Container Styling */
+/* ── Container ── */
 .glass-container {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px); /* Safari support */
-  padding: 35px 25px;
-  border-radius: 28px;
-  width: 90%;
-  max-width: 400px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  text-align: center;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  position: relative; z-index: 1;
+  background: rgba(15,23,42,0.80);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  padding: 28px 24px 24px;
+  border-radius: 24px;
+  width: 90%; max-width: 420px;
+  border: 1px solid var(--border);
+  box-shadow: 0 32px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.03);
 }
 
 body.light-mode .glass-container {
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  background: rgba(255,255,255,0.90);
+  border: 1px solid rgba(0,0,0,0.07);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.12);
 }
 
+/* ── Top Nav ── */
 .top-nav {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 25px;
-  gap: 10px;
-}
-
-/* Note Box */
-.note-box {
-  background: rgba(59, 130, 246, 0.12);
-  padding: 15px;
-  border-radius: 16px;
-  font-size: 0.85rem;
-  margin-bottom: 25px;
-  line-height: 1.5;
-  border-left: 4px solid #3b82f6;
-  text-align: left; /* စာဖတ်ရ လွယ်ကူစေရန် */
-}
-
-h1 {
-  margin-bottom: 25px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-  font-size: 2rem;
-}
-
-/* Input Styling */
-input {
-  width: 100%;
-  padding: 14px 18px;
-  margin: 10px 0;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.05);
-  color: inherit;
-  font-size: 0.95rem;
-  outline: none;
-}
-
-input:focus {
-  border-color: #3b82f6;
-  background: rgba(59, 130, 246, 0.05);
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-}
-
-body.light-mode input {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-}
-
-/* Button Styling */
-.main-btn {
-  width: 100%;
-  padding: 15px;
-  background: #2563eb;
-  color: white;
-  border: none;
-  border-radius: 14px;
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 1rem;
-  margin-top: 15px;
-  box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
-}
-
-.main-btn:hover {
-  background: #1d4ed8;
-  transform: translateY(-2px);
-  box-shadow: 0 15px 25px -5px rgba(37, 99, 235, 0.4);
+  display: flex; justify-content: space-between; margin-bottom: 22px; gap: 8px;
 }
 
 .sub-btn {
-  background: rgba(255, 255, 255, 0.1);
-  color: inherit;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 12px;
-  cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: 600;
+  display: flex; align-items: center; gap: 6px;
+  background: var(--card); border: 1px solid var(--border);
+  color: var(--tx2); padding: 8px 12px; border-radius: 10px;
+  cursor: pointer; font-size: 0.76rem; font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.2s var(--ease);
 }
-
-body.light-mode .sub-btn {
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-}
-
-.social-btn {
-  width: 100%;
-  padding: 14px;
-  margin-top: 15px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  cursor: pointer;
-  background: #ffffff;
-  color: #1e293b;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-}
-
-.social-btn:hover {
-  background: #f8fafc;
+.sub-btn:hover {
+  background: var(--cardH); border-color: var(--borderH); color: var(--tx1);
   transform: translateY(-1px);
 }
+body.light-mode .sub-btn {
+  background: #EFF2F9; border: 1px solid #CBD5E1; color: #475569;
+}
 
-/* Separator Styling */
+/* ── Brand Row ── */
+.brand-row {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+}
+.brand-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  display: grid; place-items: center;
+  color: white; font-size: 1.1rem;
+  box-shadow: 0 8px 24px rgba(37,99,235,0.35);
+}
+.brand-name {
+  font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800;
+  color: var(--tx1); letter-spacing: -0.02em;
+}
+body.light-mode .brand-name { color: #0F172A; }
+.brand-sub { font-size: 0.72rem; color: var(--tx2); margin-top: 1px; }
+
+/* ── Note Box ── */
+.note-box {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: rgba(37,99,235,0.08);
+  border: 1px solid rgba(37,99,235,0.20);
+  padding: 12px 14px; border-radius: 12px;
+  font-size: 0.82rem; margin-bottom: 22px;
+  line-height: 1.5; border-left: 3px solid var(--primary);
+  color: var(--tx2);
+}
+.note-icon { color: var(--primary); margin-top: 2px; flex-shrink: 0; }
+
+/* ── Header ── */
+header { margin-bottom: 20px; }
+h1 {
+  font-family: 'Syne', sans-serif; font-size: 1.7rem; font-weight: 800;
+  letter-spacing: -0.03em; margin-bottom: 4px; color: var(--tx1);
+}
+body.light-mode h1 { color: #0F172A; }
+.form-subtitle { font-size: 0.82rem; color: var(--tx2); }
+
+/* ── Input Groups ── */
+.input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.input-label { font-size: 0.72rem; font-weight: 700; color: var(--tx2); text-transform: uppercase; letter-spacing: 0.06em; }
+.input-wrapper { position: relative; display: flex; align-items: center; }
+.input-icon {
+  position: absolute; left: 14px; color: var(--tx3);
+  font-size: 0.88rem; pointer-events: none;
+  transition: color 0.2s var(--ease);
+}
+.input-wrapper input {
+  width: 100%; padding: 13px 16px 13px 40px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; color: var(--tx1);
+  font-family: 'DM Sans', sans-serif; font-size: 0.92rem;
+  outline: none; transition: all 0.2s var(--ease);
+}
+.input-wrapper input:focus {
+  border-color: var(--primary);
+  background: rgba(37,99,235,0.06);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+}
+.input-wrapper input:focus + .input-icon,
+.input-wrapper:has(input:focus) .input-icon { color: var(--primary); }
+.input-wrapper input::placeholder { color: var(--tx3); }
+body.light-mode .input-wrapper input {
+  background: #FFFFFF; border: 1px solid #CBD5E1; color: #0F172A;
+}
+
+.eye-btn {
+  position: absolute; right: 12px; background: none; border: none;
+  color: var(--tx3); cursor: pointer; padding: 4px;
+  font-size: 0.85rem; transition: color 0.2s var(--ease);
+}
+.eye-btn:hover { color: var(--primary); }
+
+/* ── Main Button ── */
+.main-btn {
+  width: 100%; padding: 14px 20px; margin-top: 6px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-d));
+  color: white; border: none; border-radius: 12px;
+  cursor: pointer; font-weight: 700; font-size: 0.96rem;
+  font-family: 'Syne', sans-serif;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  box-shadow: 0 8px 24px rgba(37,99,235,0.35);
+  transition: all 0.25s var(--ease); position: relative; overflow: hidden;
+}
+.main-btn::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+  opacity: 0; transition: opacity 0.2s var(--ease);
+}
+.main-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px rgba(37,99,235,0.45);
+}
+.main-btn:hover::before { opacity: 1; }
+.main-btn:active { transform: scale(0.97); }
+.btn-icon { font-size: 0.85rem; }
+.hidden { display: none !important; }
+
+/* ── Separator ── */
 .separator {
-  margin: 25px 0;
-  position: relative;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 22px 0; position: relative;
+  border-bottom: 1px solid var(--border);
 }
-
-body.light-mode .separator {
-  border-bottom: 1px solid #e2e8f0;
-}
-
 .separator span {
-  position: absolute;
-  top: 50%;
-  left: 50%;
+  position: absolute; top: 50%; left: 50%;
   transform: translate(-50%, -50%);
-  padding: 0 15px;
-  font-size: 0.8rem;
-  color: #94a3b8;
-  font-weight: 600;
-  text-transform: uppercase;
+  padding: 0 14px; font-size: 0.74rem; color: var(--tx3);
+  font-weight: 600; background: inherit; white-space: nowrap;
 }
+body.dark-mode .separator span { background: #0F172A; }
+body.light-mode .separator span { background: #F1F5F9; }
 
-body.dark-mode .separator span {
-  background: #0c1427;
-} /* Container dark color နှင့် ကိုက်ညီရန် */
-body.light-mode .separator span {
-  background: #f8fafc;
+/* ── Social Button ── */
+.social-btn {
+  width: 100%; padding: 13px 20px; border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--card); color: var(--tx1);
+  font-weight: 600; font-size: 0.9rem; font-family: 'DM Sans', sans-serif;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  cursor: pointer; transition: all 0.2s var(--ease);
 }
+.social-btn:hover {
+  background: var(--cardH); border-color: var(--borderH);
+  transform: translateY(-1px); box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+body.light-mode .social-btn {
+  background: #FFFFFF; border: 1px solid #CBD5E1; color: #1E293B;
+}
+.social-icon { font-size: 1rem; }
+.google-icon { color: #EA4335; }
 
-/* Footer Links */
-.footer-links {
-  margin-top: 30px;
-  font-size: 0.85rem;
-}
-
-.footer-links p {
-  margin: 10px 0;
-  color: #94a3b8;
-}
-
-.footer-links a {
-  color: #3b82f6;
-  text-decoration: none;
-  font-weight: 700;
-  margin-left: 5px;
-}
-
-.footer-links a:hover {
-  text-decoration: underline;
-}
+/* ── Footer Links ── */
+.footer-links { margin-top: 22px; font-size: 0.82rem; text-align: center; }
+.footer-links p { margin: 8px 0; color: var(--tx2); }
+.footer-links a { color: var(--primary); text-decoration: none; font-weight: 700; margin-left: 4px; }
+.footer-links a:hover { text-decoration: underline; }

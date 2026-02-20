@@ -1,10 +1,43 @@
 /* ══════════════════════════════════════════════════════
-   FINPAY – SMART FINANCE  |  dashboard.js  v5.0
+   FINPAY – SMART FINANCE  |  dashboard.js  v4.0
+   ──────────────────────────────────────────────────────
+   Architecture (modules):
+     1.  Translations          ← PRESERVED + new keys
+     2.  Categories            ← PRESERVED
+     3.  App State             ← PRESERVED + filter state
+     4.  LocalStorage          ← PRESERVED
+     5.  Finance Calculations  ← PRESERVED (groupByCategory)
+     6.  DOM Helpers           ← PRESERVED
+     7.  Animated Counter      ← PRESERVED
+     8.  Update Totals         ← PRESERVED
+     9.  Transaction Card      ← PRESERVED
+    10.  Render Feeds          ← PRESERVED
+    11.  Usage Summary         ← NEW (replaces Recent Activity on Home)
+    12.  Category Breakdown    ← PRESERVED
+    13.  Spending Chart        ← PRESERVED
+    14.  Quick Actions v3.0    ← PRESERVED
+    15.  Notification System   ← PRESERVED
+    16.  Toast System          ← PRESERVED
+    17.  Transaction CRUD      ← PRESERVED
+    18.  Filter Logic          ← UPGRADED (date range + validation)
+    19.  Render All            ← PRESERVED
+    20.  Navigation            ← PRESERVED
+    21.  Modal                 ← PRESERVED
+    22.  Theme System          ← PRESERVED
+    23.  Language System       ← PRESERVED + new keys
+    24.  Greeting & Date       ← PRESERVED
+    25.  Export CSV            ← PRESERVED
+    26.  Profile               ← PRESERVED + social login support
+    27.  FAB                   ← PRESERVED
+    28.  Close All Panels      ← PRESERVED
+    29.  Search                ← PRESERVED
+    30.  Event Wiring          ← PRESERVED + new filter wiring
+    31.  Init                  ← PRESERVED
 ══════════════════════════════════════════════════════ */
 'use strict';
 
 /* ═══════════════════════════════════════════
-   1. TRANSLATIONS
+   1. TRANSLATIONS (English / Burmese) ← PRESERVED + new keys
 ═══════════════════════════════════════════ */
 const TRANSLATIONS = {
   en: {
@@ -73,6 +106,7 @@ const TRANSLATIONS = {
     usage_summary:       'Usage Summary',
     qa_total_added:      'Total Added',
     qa_total_used:       'Total Used',
+    /* History filter */
     filter_type:         'Type',
     start_date:          'From',
     end_date:            'To',
@@ -81,11 +115,13 @@ const TRANSLATIONS = {
     err_date_range:      'Start date must be before end date.',
     err_date_required:   'Please select both start and end dates.',
     filter_active:       'Filter active',
+    /* Profile / Social */
     change_password:     'Change Password',
     change_password_sub: 'Update your account password',
     change:              'Change',
     social_account:      'Social Account',
     provider_label:      'Provider:',
+    /* Categories */
     cat_salary:          'Salary',
     cat_freelance:       'Freelance',
     cat_investment:      'Invest',
@@ -198,7 +234,7 @@ const TRANSLATIONS = {
 };
 
 /* ═══════════════════════════════════════════
-   2. CATEGORIES
+   2. CATEGORIES ← PRESERVED
 ═══════════════════════════════════════════ */
 const CATEGORIES = {
   income: [
@@ -221,6 +257,7 @@ const CATEGORIES = {
   ]
 };
 
+/* Quick Actions shown on home screen */
 const QUICK_ACTIONS = [
   { key: 'cat_salary',     type: 'income',  icon: '💼' },
   { key: 'cat_freelance',  type: 'income',  icon: '💻' },
@@ -233,7 +270,7 @@ const QUICK_ACTIONS = [
 ];
 
 /* ═══════════════════════════════════════════
-   3. APP STATE
+   3. APP STATE ← PRESERVED + txn date range
 ═══════════════════════════════════════════ */
 const S = {
   transactions:  [],
@@ -244,20 +281,23 @@ const S = {
   userName:      'Alex Morgan',
   userAvatar:    '',
   userEmail:     '',
-  userProvider:  '',
+  userProvider:  '',   // e.g. 'Google', 'Email'
   isSocialLogin: false,
+  supabaseUserId: null,  /* Supabase user.id */
+  /* filters */
   dashFilter: 'all',
   txnFilter:  'all',
   txnDateFrom: '',
   txnDateTo:   '',
   txnFilterActive: false,
   searchQuery: '',
+  /* ui */
   fabOpen:    false,
   confirmCb:  null,
 };
 
 /* ═══════════════════════════════════════════
-   4. LOCAL STORAGE
+   4. LOCAL STORAGE ← PRESERVED
 ═══════════════════════════════════════════ */
 const LS = {
   transactions:  'novapay_transactions',
@@ -292,8 +332,10 @@ const saveTxns   = () => lsSet(LS.transactions,  S.transactions);
 const saveNotifs = () => lsSet(LS.notifications, S.notifications);
 
 /* ═══════════════════════════════════════════
-   5. FINANCE CALCULATIONS
+   5. FINANCE CALCULATIONS ← PRESERVED
 ═══════════════════════════════════════════ */
+
+/** Returns { inc, exp, bal } totals */
 function calcTotals() {
   let inc = 0, exp = 0;
   for (const t of S.transactions) {
@@ -302,6 +344,11 @@ function calcTotals() {
   return { inc, exp, bal: inc - exp };
 }
 
+/**
+ * Single-pass grouping of all transactions by categoryKey.
+ * O(n) — called once per renderAll().
+ * @returns {Map<string, {total: number, type: string, icon: string}>}
+ */
 function groupByCategory() {
   const map = new Map();
   for (const t of S.transactions) {
@@ -316,6 +363,7 @@ function groupByCategory() {
   return map;
 }
 
+/** Format number to USD string */
 const fmt = n => new Intl.NumberFormat('en-US', {
   minimumFractionDigits: 2, maximumFractionDigits: 2
 }).format(n);
@@ -327,14 +375,14 @@ const $       = id => document.getElementById(id);
 const setText = (id, v) => { const e = $(id); if (e) e.textContent = v; };
 
 /* ═══════════════════════════════════════════
-   7. ANIMATED COUNTER
+   7. ANIMATED COUNTER ← PRESERVED
 ═══════════════════════════════════════════ */
 function animCount(elId, target) {
   const el = $(elId);
   if (!el) return;
   const from = parseFloat(el.textContent.replace(/,/g, '')) || 0;
   const diff = target - from;
-  const dur  = 680;
+  const dur  = 660;
   let t0     = null;
   const step = ts => {
     if (!t0) t0 = ts;
@@ -347,19 +395,22 @@ function animCount(elId, target) {
 }
 
 /* ═══════════════════════════════════════════
-   8. UPDATE TOTALS
+   8. UPDATE TOTALS ← PRESERVED
 ═══════════════════════════════════════════ */
 function updateTotals() {
   const { inc, exp, bal } = calcTotals();
 
+  /* Hero balance card */
   animCount('balanceDisplay', bal);
   setText('totalIncomeDisplay',  '$' + fmt(inc));
   setText('totalExpenseDisplay', '$' + fmt(exp));
 
+  /* Row-2 summary strip */
   setText('r2Balance', '$' + fmt(bal));
   setText('r2Income',  '$' + fmt(inc));
   setText('r2Expense', '$' + fmt(exp));
 
+  /* Reports page */
   setText('repIncome',  '$' + fmt(inc));
   setText('repExpense', '$' + fmt(exp));
   setText('repBalance', '$' + fmt(bal));
@@ -370,7 +421,7 @@ function updateTotals() {
 }
 
 /* ═══════════════════════════════════════════
-   9. TRANSACTION CARD BUILDER
+   9. TRANSACTION CARD BUILDER ← PRESERVED
 ═══════════════════════════════════════════ */
 function getCatMeta(type, key) {
   return (CATEGORIES[type] || []).find(c => c.key === key)
@@ -432,8 +483,12 @@ function emptyEl() {
 }
 
 /* ═══════════════════════════════════════════
-   10. RENDER FEEDS
+   10. RENDER FEEDS ← PRESERVED
+       (Dashboard feed removed from Home page —
+        Home now shows Quick Actions + Usage Summary only)
 ═══════════════════════════════════════════ */
+
+/** Transactions page feed — respects type + date range filters */
 function renderTxnFeed() {
   const el = $('txnFeed');
   if (!el) return;
@@ -453,6 +508,7 @@ function renderTxnFeed() {
   list.forEach((t, i) => el.appendChild(makeTxnCard(t, i)));
 }
 
+/** Search results feed */
 function renderSearch(q) {
   const el = $('searchFeed');
   if (!el) return;
@@ -470,7 +526,11 @@ function renderSearch(q) {
 }
 
 /* ═══════════════════════════════════════════
-   11. USAGE SUMMARY
+   11. USAGE SUMMARY — NEW
+   Real-time category breakdown shown on Home page.
+   Shows each category with amount, type badge,
+   and a mini proportional bar.
+   @param {Map} catTotals - result of groupByCategory()
 ═══════════════════════════════════════════ */
 function renderUsageSummary(catTotals) {
   const el = $('usageSummary');
@@ -488,6 +548,7 @@ function renderUsageSummary(catTotals) {
     return;
   }
 
+  /* Sort by total descending, show top 8 */
   const entries = [...catTotals.entries()]
     .sort((a, b) => b[1].total - a[1].total)
     .slice(0, 8);
@@ -519,6 +580,7 @@ function renderUsageSummary(catTotals) {
 
     el.appendChild(row);
 
+    /* Animate the bar after append */
     requestAnimationFrame(() =>
       setTimeout(() => {
         const bar = row.querySelector('.usage-bar');
@@ -529,10 +591,10 @@ function renderUsageSummary(catTotals) {
 }
 
 /* ═══════════════════════════════════════════
-   12. CATEGORY BREAKDOWN
+   12. CATEGORY BREAKDOWN ← PRESERVED
 ═══════════════════════════════════════════ */
 const CAT_COLORS = [
-  '#4f8aff','#00d97e','#ff4369','#a78bfa','#38bdf8',
+  '#f5a623','#00e896','#ff3d71','#a78bfa','#38bdf8',
   '#34d399','#f97316','#e879f9','#60a5fa','#fb923c'
 ];
 
@@ -559,7 +621,7 @@ function renderCatBreakdown() {
     const row   = document.createElement('div');
     row.className = 'cat-row';
     row.innerHTML = `
-      <div class="cat-dot" style="background:${color};box-shadow:0 0 6px ${color}60"></div>
+      <div class="cat-dot" style="background:${color}"></div>
       <span class="cat-name">${name}</span>
       <div class="cat-bar-wrap"><div class="cat-bar" style="width:0%;background:${color}"></div></div>
       <span class="cat-amt" style="color:${color}">$${fmt(data.total)}</span>`;
@@ -571,7 +633,7 @@ function renderCatBreakdown() {
 }
 
 /* ═══════════════════════════════════════════
-   13. SPENDING CHART
+   13. SPENDING CHART ← PRESERVED
 ═══════════════════════════════════════════ */
 function drawChart() {
   const canvas = $('spendingCanvas');
@@ -615,11 +677,9 @@ function drawChart() {
 
   ctx.clearRect(0, 0, W, H);
 
-  // Gradient fill
   const g = ctx.createLinearGradient(0, PAD.t, 0, PAD.t + cH);
-  g.addColorStop(0, 'rgba(79,138,255,0.28)');
-  g.addColorStop(0.6, 'rgba(79,138,255,0.08)');
-  g.addColorStop(1, 'rgba(79,138,255,0.00)');
+  g.addColorStop(0, 'rgba(37,99,235,0.30)');
+  g.addColorStop(1, 'rgba(37,99,235,0.00)');
   ctx.beginPath();
   ctx.moveTo(pts[0].x, pts[0].y);
   for (let i = 1; i < pts.length; i++) {
@@ -632,19 +692,17 @@ function drawChart() {
   ctx.fillStyle = g;
   ctx.fill();
 
-  // Line stroke
   ctx.beginPath();
   ctx.moveTo(pts[0].x, pts[0].y);
   for (let i = 1; i < pts.length; i++) {
     const cx = (pts[i-1].x + pts[i].x) / 2;
     ctx.bezierCurveTo(cx, pts[i-1].y, cx, pts[i].y, pts[i].x, pts[i].y);
   }
-  ctx.strokeStyle = '#4f8aff';
+  ctx.strokeStyle = '#2563EB';
   ctx.lineWidth   = 2.4;
   ctx.stroke();
 
-  // Labels
-  const muted = document.documentElement.dataset.theme === 'light' ? '#526080' : '#2a3650';
+  const muted = '#2e3d55';
   ctx.fillStyle = muted;
   ctx.font      = '10px DM Mono, monospace';
   ctx.textAlign = 'right';
@@ -653,20 +711,20 @@ function drawChart() {
   ctx.textAlign = 'left';  ctx.fillText(fd(labels[0]),                  PAD.l,        H - 5);
   ctx.textAlign = 'right'; ctx.fillText(fd(labels[labels.length - 1]),  W - PAD.r,    H - 5);
 
-  // Data points
   pts.forEach(p => {
     ctx.beginPath();
-    ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
-    ctx.fillStyle = '#4f8aff';
+    ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
+    ctx.fillStyle = '#2563EB';
     ctx.fill();
-    ctx.strokeStyle = 'rgba(79,138,255,0.3)';
-    ctx.lineWidth = 4;
+    ctx.strokeStyle = 'rgba(37,99,235,0.3)';
+    ctx.lineWidth = 3;
     ctx.stroke();
   });
 }
 
 /* ═══════════════════════════════════════════
-   14. QUICK ACTIONS
+   14. QUICK ACTIONS ← PRESERVED
+   @param {Map} catTotals - from groupByCategory()
 ═══════════════════════════════════════════ */
 function renderQuickActions(catTotals) {
   const grid = $('qcatGrid');
@@ -707,7 +765,7 @@ function renderQuickActions(catTotals) {
 }
 
 /* ═══════════════════════════════════════════
-   15. NOTIFICATION SYSTEM
+   15. NOTIFICATION SYSTEM ← PRESERVED
 ═══════════════════════════════════════════ */
 function addNotif(type, amount, newBalance) {
   if (!S.notifEnabled) return;
@@ -778,7 +836,7 @@ function relTime(date) {
 }
 
 /* ═══════════════════════════════════════════
-   16. TOAST SYSTEM
+   16. TOAST SYSTEM ← PRESERVED
 ═══════════════════════════════════════════ */
 function showToast(type, msg) {
   const container = $('toastContainer');
@@ -796,7 +854,7 @@ function showToast(type, msg) {
 }
 
 /* ═══════════════════════════════════════════
-   17. TRANSACTION CRUD
+   17. TRANSACTION CRUD ← PRESERVED
 ═══════════════════════════════════════════ */
 function addTxn(type, amount, categoryKey, category, description, date) {
   S.transactions.push({
@@ -816,16 +874,27 @@ function deleteTxn(id) {
 }
 
 /* ═══════════════════════════════════════════
-   18. FILTER LOGIC
+   18. FILTER LOGIC — UPGRADED
+   Advanced date range filtering for History page.
+   Validates: start ≤ end, both required if either set.
+   No page reload. No full re-render. Smooth update.
 ═══════════════════════════════════════════ */
+
+/**
+ * Validate the date range inputs and apply filters.
+ * Shows friendly error messages on invalid input.
+ * Updates the active filter badge.
+ */
 function applyTxnFilter() {
   const T    = TRANSLATIONS[S.lang];
   const from = $('txnDateFrom')?.value || '';
   const to   = $('txnDateTo')?.value   || '';
   const errEl = $('afpError');
 
+  /* Clear error */
   if (errEl) errEl.style.display = 'none';
 
+  /* Validation */
   if ((from && !to) || (!from && to)) {
     if (errEl) {
       errEl.textContent    = T.err_date_required;
@@ -842,6 +911,7 @@ function applyTxnFilter() {
     return;
   }
 
+  /* Apply */
   S.txnDateFrom     = from;
   S.txnDateTo       = to;
   S.txnFilterActive = !!(from || to);
@@ -850,12 +920,14 @@ function applyTxnFilter() {
   renderTxnFeed();
 }
 
+/** Reset all history filters to default state */
 function resetTxnFilter() {
   S.txnFilter       = 'all';
   S.txnDateFrom     = '';
   S.txnDateTo       = '';
   S.txnFilterActive = false;
 
+  /* Reset UI */
   const fromEl = $('txnDateFrom');
   const toEl   = $('txnDateTo');
   const errEl  = $('afpError');
@@ -863,6 +935,7 @@ function resetTxnFilter() {
   if (toEl)   toEl.value   = '';
   if (errEl)  errEl.style.display = 'none';
 
+  /* Reset tab to All */
   $('txnTabs')?.querySelectorAll('.ftab').forEach(b => {
     b.classList.toggle('active', b.dataset.filter === 'all');
   });
@@ -871,6 +944,7 @@ function resetTxnFilter() {
   renderTxnFeed();
 }
 
+/** Update the active filter badge below filter panel */
 function updateFilterBadge() {
   const T      = TRANSLATIONS[S.lang];
   const badge  = $('afpActiveBadge');
@@ -892,10 +966,14 @@ function updateFilterBadge() {
 }
 
 /* ═══════════════════════════════════════════
-   19. RENDER ALL
+   19. RENDER ALL ← PRESERVED
+       Home page: Quick Actions + Usage Summary only
+       No Recent Activity on Home (per spec)
 ═══════════════════════════════════════════ */
 function renderAll() {
+  /* O(n) single pass — shared by quick actions + usage summary */
   const catTotals = groupByCategory();
+
   updateTotals();
   renderQuickActions(catTotals);
   renderUsageSummary(catTotals);
@@ -905,7 +983,7 @@ function renderAll() {
 }
 
 /* ═══════════════════════════════════════════
-   20. NAVIGATION
+   20. NAVIGATION ← PRESERVED
 ═══════════════════════════════════════════ */
 function goTo(page) {
   document.querySelectorAll('.page').forEach(p => {
@@ -937,7 +1015,7 @@ function goSearch() {
 }
 
 /* ═══════════════════════════════════════════
-   21. MODAL
+   21. MODAL ← PRESERVED
 ═══════════════════════════════════════════ */
 function openModal(type, prefillCat = '') {
   const T   = TRANSLATIONS[S.lang];
@@ -962,7 +1040,7 @@ function openModal(type, prefillCat = '') {
   setText('txnSubmit', T.add_transaction);
 
   $('txnVeil').classList.add('open');
-  setTimeout(() => $('txnAmount')?.focus(), 240);
+  setTimeout(() => $('txnAmount')?.focus(), 230);
 }
 
 function closeModal() { $('txnVeil').classList.remove('open'); }
@@ -976,7 +1054,7 @@ function showConfirm(title, msg, cb) {
 function closeConfirm() { $('cfmVeil').classList.remove('open'); S.confirmCb = null; }
 
 /* ═══════════════════════════════════════════
-   22. THEME SYSTEM
+   22. THEME SYSTEM ← PRESERVED
 ═══════════════════════════════════════════ */
 function applyTheme(t) {
   S.theme = t;
@@ -988,7 +1066,7 @@ function applyTheme(t) {
 }
 
 /* ═══════════════════════════════════════════
-   23. LANGUAGE SYSTEM
+   23. LANGUAGE SYSTEM ← PRESERVED + new keys
 ═══════════════════════════════════════════ */
 function applyLang(lang) {
   S.lang = lang;
@@ -1004,6 +1082,7 @@ function applyLang(lang) {
   setText('langBtnLbl',    isEn ? 'English' : 'မြန်မာ');
   setText('menuLangLabel', isEn ? 'Switch to မြန်မာ' : 'Switch to English');
 
+  /* Update filter badge text in new language */
   updateFilterBadge();
   updateGreeting();
   renderAll();
@@ -1013,7 +1092,7 @@ function applyLang(lang) {
 const toggleLang = () => applyLang(S.lang === 'en' ? 'my' : 'en');
 
 /* ═══════════════════════════════════════════
-   24. GREETING & DATE
+   24. GREETING & DATE ← PRESERVED
 ═══════════════════════════════════════════ */
 function updateGreeting() {
   const h = new Date().getHours();
@@ -1029,7 +1108,7 @@ function updateDate() {
 }
 
 /* ═══════════════════════════════════════════
-   25. EXPORT CSV
+   25. EXPORT CSV ← PRESERVED
 ═══════════════════════════════════════════ */
 function exportCSV() {
   const T   = TRANSLATIONS[S.lang];
@@ -1050,12 +1129,16 @@ function exportCSV() {
 }
 
 /* ═══════════════════════════════════════════
-   26. PROFILE
+   26. PROFILE ← PRESERVED + social login display
+   Social login: shows Google photo, provider badge,
+   disables password change option, shows email.
+   Normal login: shows letter initial, allows password change.
 ═══════════════════════════════════════════ */
 function updateProfile() {
   const name = S.userName;
   const init = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'A';
 
+  /* ── Navbar avatar ring ── */
   const avatarImg    = $('avatarImg');
   const avatarLetter = $('avatarLetter');
   if (avatarImg && avatarLetter) {
@@ -1071,6 +1154,7 @@ function updateProfile() {
     }
   }
 
+  /* Provider label in navbar (shown for social login) */
   const providerEl = $('avatarProvider');
   if (providerEl) {
     if (S.isSocialLogin && S.userProvider) {
@@ -1083,9 +1167,11 @@ function updateProfile() {
 
   setText('avatarName', name.split(' ')[0]);
 
+  /* ── Settings profile card ── */
   const pcAvatar = $('pcAvatar');
   if (pcAvatar) {
     if (S.userAvatar) {
+      /* Show Google photo in settings avatar */
       if (!pcAvatar.querySelector('img')) {
         const img = document.createElement('img');
         img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover;';
@@ -1102,7 +1188,8 @@ function updateProfile() {
   const ni = $('profileNameInput');
   if (ni) ni.value = name;
 
-  const socialInfo     = $('pcSocialInfo');
+  /* Social account info block */
+  const socialInfo = $('pcSocialInfo');
   const socialBadge    = $('pcSocialBadge');
   const socialProvider = $('pcSocialProvider');
   const emailEl        = $('pcEmail');
@@ -1116,7 +1203,9 @@ function updateProfile() {
       socialProvider.textContent =
         (TRANSLATIONS[S.lang].provider_label || 'Provider:') + ' ' + S.userProvider;
     if (emailEl && S.userEmail) emailEl.textContent = S.userEmail;
+    /* Disable password change for social login */
     if (passwordRow) passwordRow.style.display = 'none';
+    /* Make name input read-only for social login */
     if (ni) ni.readOnly = true;
   } else {
     if (socialInfo) socialInfo.style.display = 'none';
@@ -1127,6 +1216,28 @@ function updateProfile() {
   updateGreeting();
 }
 
+/**
+ * setGoogleUser — called by Supabase onAuthStateChange when a user
+ * signs in via Google or another social provider.
+ *
+ * Usage (in your Supabase auth file):
+ *   supabase.auth.onAuthStateChange((event, session) => {
+ *     if (session?.user) {
+ *       const meta = session.user.user_metadata;
+ *       setGoogleUser(
+ *         meta.full_name || meta.name || session.user.email,
+ *         meta.avatar_url || meta.picture || '',
+ *         session.user.email || '',
+ *         'Google'   // or detect from session.user.app_metadata.provider
+ *       );
+ *     }
+ *   });
+ *
+ * @param {string} name       - Display name from Google
+ * @param {string} avatarUrl  - Google profile picture URL
+ * @param {string} email      - Google email
+ * @param {string} provider   - Provider name, e.g. 'Google'
+ */
 function setGoogleUser(name, avatarUrl, email = '', provider = 'Google') {
   S.userName      = name     || S.userName;
   S.userAvatar    = avatarUrl || '';
@@ -1142,7 +1253,7 @@ function setGoogleUser(name, avatarUrl, email = '', provider = 'Google') {
 }
 
 /* ═══════════════════════════════════════════
-   27. FAB
+   27. FAB ← PRESERVED
 ═══════════════════════════════════════════ */
 function toggleFab(force) {
   const open = force !== undefined ? force : !S.fabOpen;
@@ -1153,7 +1264,7 @@ function toggleFab(force) {
 }
 
 /* ═══════════════════════════════════════════
-   28. CLOSE ALL PANELS
+   28. CLOSE ALL PANELS ← PRESERVED
 ═══════════════════════════════════════════ */
 function closeAll() {
   $('dotsMenu')?.classList.remove('open');
@@ -1163,7 +1274,7 @@ function closeAll() {
 }
 
 /* ═══════════════════════════════════════════
-   29. SEARCH
+   29. SEARCH ← PRESERVED
 ═══════════════════════════════════════════ */
 function handleSearch(q) {
   S.searchQuery = q;
@@ -1181,25 +1292,27 @@ function handleSearch(q) {
 }
 
 /* ═══════════════════════════════════════════
-   30. EVENT WIRING
+   30. EVENT WIRING ← PRESERVED + new filter wiring
+   All listeners registered once on init.
+   Delegation used where appropriate.
 ═══════════════════════════════════════════ */
 function wire() {
 
-  /* Bottom nav */
+  /* ── Bottom nav ── */
   document.querySelectorAll('.bn-btn[data-page]').forEach(btn => {
     btn.addEventListener('click', () => goTo(btn.dataset.page));
   });
 
-  /* FAB */
+  /* ── FAB ── */
   $('fabMain')?.addEventListener('click', e => { e.stopPropagation(); toggleFab(); });
   $('fabIncome')?.addEventListener('click',   () => { toggleFab(false); openModal('income'); });
   $('fabExpense')?.addEventListener('click',  () => { toggleFab(false); openModal('expense'); });
   $('fabBackdrop')?.addEventListener('click', () => toggleFab(false));
 
-  /* Avatar → Settings */
+  /* ── Avatar → Settings ── */
   $('avatarBtn')?.addEventListener('click', () => goTo('settings'));
 
-  /* 3-dots */
+  /* ── 3-dots button ── */
   $('dotsBtn')?.addEventListener('click', e => {
     e.stopPropagation();
     const open = $('dotsMenu').classList.toggle('open');
@@ -1207,13 +1320,14 @@ function wire() {
     if (open) $('notifPanel')?.classList.remove('open');
   });
 
+  /* 3-dots menu items */
   $('themeCheck')?.addEventListener('change',   e => applyTheme(e.target.checked ? 'dark' : 'light'));
   $('menuAddIncome')?.addEventListener('click',  () => { closeAll(); openModal('income'); });
   $('menuAddExpense')?.addEventListener('click', () => { closeAll(); openModal('expense'); });
   $('menuHistory')?.addEventListener('click',   () => { closeAll(); goTo('transactions'); });
   $('menuLang')?.addEventListener('click',      () => { toggleLang(); closeAll(); });
 
-  /* Search */
+  /* ── Search ── */
   $('searchInput')?.addEventListener('input',   e => handleSearch(e.target.value));
   $('searchInput')?.addEventListener('keydown', e => {
     if (e.key === 'Escape') { $('searchInput').value = ''; handleSearch(''); }
@@ -1224,7 +1338,7 @@ function wire() {
     $('searchInput')?.focus();
   });
 
-  /* Bell / Notifications */
+  /* ── Bell / Notifications ── */
   $('bellBtn')?.addEventListener('click', e => {
     e.stopPropagation();
     const open = $('notifPanel').classList.toggle('open');
@@ -1241,7 +1355,7 @@ function wire() {
     renderNotifPanel();
   });
 
-  /* Close panels on outside click */
+  /* ── Close panels on outside click ── */
   document.addEventListener('click', e => {
     if (!$('dotsShell')?.contains(e.target)) {
       $('dotsMenu')?.classList.remove('open');
@@ -1252,7 +1366,7 @@ function wire() {
     }
   });
 
-  /* History: type filter tabs */
+  /* ── History: Type filter tabs (delegation) ── */
   $('txnTabs')?.addEventListener('click', e => {
     const btn = e.target.closest('.ftab');
     if (!btn) return;
@@ -1263,10 +1377,16 @@ function wire() {
     renderTxnFeed();
   });
 
+  /* ── History: Apply date range filter ── */
   $('afpApply')?.addEventListener('click', applyTxnFilter);
+
+  /* ── History: Reset filter ── */
   $('afpReset')?.addEventListener('click', resetTxnFilter);
+
+  /* ── History: Clear active badge ── */
   $('afpBadgeClear')?.addEventListener('click', resetTxnFilter);
 
+  /* ── History: Real-time clear error on date change ── */
   $('txnDateFrom')?.addEventListener('change', () => {
     const errEl = $('afpError');
     if (errEl) errEl.style.display = 'none';
@@ -1276,9 +1396,10 @@ function wire() {
     if (errEl) errEl.style.display = 'none';
   });
 
+  /* ── CSV export ── */
   $('csvBtnTxn')?.addEventListener('click', exportCSV);
 
-  /* Transaction modal */
+  /* ── Transaction modal ── */
   $('mcClose')?.addEventListener('click', closeModal);
   $('txnVeil')?.addEventListener('click', e => { if (e.target === $('txnVeil')) closeModal(); });
 
@@ -1310,12 +1431,12 @@ function wire() {
     closeModal();
   });
 
-  /* Confirm modal */
+  /* ── Confirm modal ── */
   $('cfmCancel')?.addEventListener('click', closeConfirm);
   $('cfmVeil')?.addEventListener('click',   e => { if (e.target === $('cfmVeil')) closeConfirm(); });
   $('cfmOk')?.addEventListener('click',     () => { S.confirmCb?.(); closeConfirm(); });
 
-  /* Settings */
+  /* ── Settings ── */
   $('themeToggle')?.addEventListener('change',    e => applyTheme(e.target.checked ? 'dark' : 'light'));
   $('langBtn')?.addEventListener('click',          toggleLang);
   $('notifToggle')?.addEventListener('change',     e => {
@@ -1323,7 +1444,7 @@ function wire() {
     lsSet(LS.notifEnabled, S.notifEnabled);
   });
   $('profileNameInput')?.addEventListener('input', e => {
-    if (S.isSocialLogin) return;
+    if (S.isSocialLogin) return; /* Social login: name is read-only */
     S.userName = e.target.value || 'User';
     lsSet(LS.userName, S.userName);
     updateProfile();
@@ -1336,23 +1457,21 @@ function wire() {
       renderAll();
     });
   });
-
-  /* ══ LOGOUT → index.html ══ */
   $('logoutBtn')?.addEventListener('click', () => {
-    showConfirm('Logout?', 'Your data is safely stored locally.', () => {
+    showConfirm('Logout?', 'Your data is safely stored locally.', async () => {
+      await _supabase.auth.signOut().catch(() => {});
       localStorage.clear();
-      window.location.href = 'index.html';
+      location.href = 'index.html';
     });
   });
-
   $('changePasswordBtn')?.addEventListener('click', () => {
-    showToast('info', 'Password change is not available in demo mode.');
+    openProfileModal();
   });
 
-  /* Chart period */
+  /* ── Chart period selector ── */
   $('chartPeriod')?.addEventListener('change', drawChart);
 
-  /* Global keyboard shortcuts */
+  /* ── Global keyboard shortcuts ── */
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       closeModal();
@@ -1367,7 +1486,7 @@ function wire() {
     }
   });
 
-  /* Window resize: redraw chart */
+  /* ── Window resize: redraw chart ── */
   let resizeTimer;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
@@ -1376,7 +1495,7 @@ function wire() {
 }
 
 /* ═══════════════════════════════════════════
-   31. INIT
+   31. INIT ← PRESERVED
 ═══════════════════════════════════════════ */
 function init() {
   loadState();
@@ -1392,7 +1511,7 @@ function init() {
   renderAll();
   renderNotifPanel();
 
-  /* Seed demo data only if empty */
+  /* Seed demo data only if storage is empty */
   if (!S.transactions.length) {
     const td = new Date().toISOString().split('T')[0];
     const yd = new Date(Date.now() - 86400000).toISOString().split('T')[0];
@@ -1409,18 +1528,336 @@ function init() {
     renderAll();
   }
 
-  /* Re-init Lucide icons after dynamic renders */
-  if (window.lucide) {
-    lucide.createIcons();
-    setTimeout(() => lucide.createIcons(), 400);
-  }
-
-  console.log('%c FinPay v5.0 Ready ✓ ', 'background:#4f8aff;color:#fff;padding:4px 12px;border-radius:4px;font-weight:bold;font-family:monospace');
+  console.log('%c FinPay v4.0 Ready ✓ ', 'background:#f5a623;color:#1a0f00;padding:4px 12px;border-radius:4px;font-weight:bold;font-family:monospace');
+  console.log('%c Home: Quick Actions + Usage Summary | History: Advanced Date Range Filter ', 'background:#00e896;color:#001a0d;padding:2px 8px;border-radius:4px;font-size:11px');
+  console.log('%c Social Login: setGoogleUser(name, avatarUrl, email, provider) ', 'background:#60a5fa;color:#0d1a2e;padding:2px 8px;border-radius:4px;font-size:11px');
 }
+
+/* ══════════════════════════════════════════
+   SUPABASE INTEGRATION HOOKS
+   ─────────────────────────────────────────
+   Connect Supabase auth and replace localStorage
+   CRUD calls with real Supabase queries:
+
+   // In supabase-init.js:
+   import { createClient } from '@supabase/supabase-js';
+   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+   supabase.auth.onAuthStateChange((event, session) => {
+     if (session?.user) {
+       const meta     = session.user.user_metadata;
+       const provider = session.user.app_metadata?.provider || 'Google';
+       setGoogleUser(
+         meta.full_name || meta.name || session.user.email,
+         meta.avatar_url || meta.picture || '',
+         session.user.email || '',
+         provider.charAt(0).toUpperCase() + provider.slice(1)
+       );
+       loadTransactionsFromSupabase(session.user.id);
+     }
+   });
+
+   async function loadTransactionsFromSupabase(userId) {
+     const { data, error } = await supabase
+       .from('transactions')
+       .select('*')
+       .eq('user_id', userId)
+       .order('created_at', { ascending: true });
+
+     if (!error && data) {
+       S.transactions = data.map(row => ({
+         id:          row.id,
+         type:        row.type,
+         amount:      row.amount,
+         categoryKey: row.category,
+         category:    row.category,
+         description: row.description || '',
+         date:        row.created_at.split('T')[0],
+       }));
+       renderAll(); // groupByCategory() called once internally
+     }
+   }
+══════════════════════════════════════════ */
 
 /* Boot */
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('DOMContentLoaded', boot);
 } else {
+  boot();
+}
+
+/* ══════════════════════════════════════════════════════
+   SUPABASE AUTH INTEGRATION
+   New project: vnemlphmqmrjpenxlsxx.supabase.co
+══════════════════════════════════════════════════════ */
+
+const { createClient } = supabase;
+const _supabase = createClient(
+  'https://vnemlphmqmrjpenxlsxx.supabase.co',
+  'sb_publishable_7nh01CaeLQs9TyhA_Qu8Yw_UzwXgOvq'
+);
+
+async function boot() {
+  /* Check auth session first */
+  const { data: { session } } = await _supabase.auth.getSession();
+
+  if (!session) {
+    /* Not logged in — redirect to login */
+    window.location.href = 'index.html';
+    return;
+  }
+
+  /* We have a session — hydrate user data then init app */
+  const user = session.user;
+  const meta = user.user_metadata || {};
+  const provider = user.app_metadata?.provider || 'email';
+  const isSocial = provider !== 'email';
+
+  if (isSocial) {
+    /* Google / social login */
+    const name    = meta.full_name || meta.name || user.email || 'User';
+    const avatar  = meta.avatar_url || meta.picture || '';
+    const email   = user.email || '';
+    const provCap = provider.charAt(0).toUpperCase() + provider.slice(1);
+    setGoogleUser(name, avatar, email, provCap);
+  } else {
+    /* Email / password login */
+    /* Try to load username from profiles table first */
+    const { data: profile } = await _supabase
+      .from('profiles')
+      .select('username, avatar_url')
+      .eq('id', user.id)
+      .single();
+
+    const username  = profile?.username || meta.username || meta.full_name
+      || (user.email ? user.email.replace('@tnb.com', '') : 'User');
+    const avatarUrl = profile?.avatar_url || '';
+
+    S.userName      = username;
+    S.userAvatar    = avatarUrl;
+    S.userEmail     = user.email || '';
+    S.userProvider  = 'Email';
+    S.isSocialLogin = false;
+    S.supabaseUserId = user.id;
+    lsSet(LS.userName, S.userName);
+    lsSet(LS.userAvatar, S.userAvatar);
+    lsSet(LS.userEmail, S.userEmail);
+    lsSet(LS.userProvider, 'Email');
+    lsSet(LS.isSocialLogin, false);
+  }
+
+  /* Store user id for later use */
+  if (!S.supabaseUserId) S.supabaseUserId = user.id;
+
+  /* Listen for auth changes (e.g. logout from another tab) */
+  _supabase.auth.onAuthStateChange((event, sess) => {
+    if (event === 'SIGNED_OUT' || !sess) {
+      localStorage.clear();
+      window.location.href = 'index.html';
+    }
+  });
+
+  /* Now initialise the dashboard app */
   init();
+  wireProfileModal();
+}
+
+/* ══════════════════════════════════════════════════════
+   PROFILE MODAL LOGIC
+   - Shows avatar, email, provider
+   - Change username (saves to Supabase profiles table)
+   - Upload avatar (saves to Supabase Storage)
+   - Change password (email login only, requires current password)
+   - Social login: hides password section
+══════════════════════════════════════════════════════ */
+
+function wireProfileModal() {
+  const veil     = $('profileVeil');
+  const close    = $('pmClose');
+  const saveBtn  = $('pmSave');
+  const avatarBig  = $('pmAvatarBig');
+  const avatarInput = $('pmAvatarInput');
+
+  if (!veil) return;
+
+  /* Open profile modal when avatar pill is clicked */
+  $('avatarBtn')?.addEventListener('click', openProfileModal);
+
+  /* Close */
+  close?.addEventListener('click', closeProfileModal);
+  veil?.addEventListener('click', e => { if (e.target === veil) closeProfileModal(); });
+
+  /* Avatar click → file input */
+  avatarBig?.addEventListener('click', () => avatarInput?.click());
+  avatarInput?.addEventListener('change', handleAvatarUpload);
+
+  /* Save */
+  saveBtn?.addEventListener('click', saveProfileChanges);
+}
+
+function openProfileModal() {
+  const veil = $('profileVeil');
+  if (!veil) return;
+
+  /* Populate fields */
+  const pmAvatarLetter = $('pmAvatarLetter');
+  const pmAvatarImg    = $('pmAvatarImg');
+  const name = S.userName;
+  const init = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'A';
+
+  if (S.userAvatar && pmAvatarImg) {
+    pmAvatarImg.src = S.userAvatar;
+    pmAvatarImg.style.display = 'block';
+    if (pmAvatarLetter) pmAvatarLetter.style.display = 'none';
+  } else {
+    if (pmAvatarImg) pmAvatarImg.style.display = 'none';
+    if (pmAvatarLetter) { pmAvatarLetter.style.display = 'block'; pmAvatarLetter.textContent = init[0]; }
+  }
+
+  const pmUsername = $('pmUsername');
+  if (pmUsername) pmUsername.value = S.userName;
+
+  const pmEmailDisplay    = $('pmEmailDisplay');
+  const pmProviderDisplay = $('pmProviderDisplay');
+  if (pmEmailDisplay)    pmEmailDisplay.textContent    = S.userEmail || '—';
+  if (pmProviderDisplay) pmProviderDisplay.textContent = S.userProvider || 'Email';
+
+  /* Hide password section for social login */
+  const pwSection = $('pmPasswordSection');
+  if (pwSection) pwSection.style.display = S.isSocialLogin ? 'none' : 'block';
+
+  /* Clear password fields */
+  const pmCurrentPass = $('pmCurrentPass');
+  const pmNewPass     = $('pmNewPass');
+  const pmConfirmPass = $('pmConfirmPass');
+  if (pmCurrentPass) pmCurrentPass.value = '';
+  if (pmNewPass)     pmNewPass.value     = '';
+  if (pmConfirmPass) pmConfirmPass.value = '';
+
+  veil.classList.add('open');
+}
+
+function closeProfileModal() {
+  $('profileVeil')?.classList.remove('open');
+}
+
+async function handleAvatarUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 3 * 1024 * 1024) { showToast('info', 'Image must be under 3MB'); return; }
+
+  showToast('info', 'Uploading photo…');
+
+  const userId = S.supabaseUserId;
+  if (!userId) { showToast('info', 'Please log in again to upload a photo.'); return; }
+
+  const ext      = file.name.split('.').pop();
+  const filePath = `avatars/${userId}.${ext}`;
+
+  /* Upload to Supabase Storage bucket "avatars" */
+  const { error: upErr } = await _supabase.storage
+    .from('avatars')
+    .upload(filePath, file, { upsert: true });
+
+  if (upErr) {
+    /* Storage might not be set up — fall back to base64 preview */
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const url = ev.target.result;
+      S.userAvatar = url;
+      lsSet(LS.userAvatar, url);
+      updateProfile();
+      refreshProfileModalAvatar(url);
+      showToast('income', 'Photo updated locally!');
+    };
+    reader.readAsDataURL(file);
+    return;
+  }
+
+  /* Get public URL */
+  const { data } = _supabase.storage.from('avatars').getPublicUrl(filePath);
+  const publicUrl = data.publicUrl + '?t=' + Date.now();
+
+  /* Save to profiles table */
+  await _supabase.from('profiles').upsert({ id: userId, avatar_url: publicUrl }, { onConflict: 'id' });
+
+  S.userAvatar = publicUrl;
+  lsSet(LS.userAvatar, publicUrl);
+  updateProfile();
+  refreshProfileModalAvatar(publicUrl);
+  showToast('income', 'Profile photo updated!');
+}
+
+function refreshProfileModalAvatar(url) {
+  const pmAvatarImg    = $('pmAvatarImg');
+  const pmAvatarLetter = $('pmAvatarLetter');
+  if (url && pmAvatarImg) {
+    pmAvatarImg.src = url;
+    pmAvatarImg.style.display = 'block';
+    if (pmAvatarLetter) pmAvatarLetter.style.display = 'none';
+  }
+}
+
+async function saveProfileChanges() {
+  const pmUsername    = $('pmUsername');
+  const pmCurrentPass = $('pmCurrentPass');
+  const pmNewPass     = $('pmNewPass');
+  const pmConfirmPass = $('pmConfirmPass');
+  const saveBtn       = $('pmSave');
+
+  const newName = pmUsername?.value?.trim();
+  const userId  = S.supabaseUserId;
+
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Saving…'; }
+
+  /* ── Update username ── */
+  if (newName && newName !== S.userName) {
+    /* Update Supabase user metadata */
+    await _supabase.auth.updateUser({ data: { username: newName, full_name: newName } });
+
+    /* Update profiles table */
+    if (userId) {
+      await _supabase.from('profiles').upsert({ id: userId, username: newName }, { onConflict: 'id' });
+    }
+
+    S.userName = newName;
+    lsSet(LS.userName, newName);
+    updateProfile();
+    showToast('income', 'Username updated!');
+  }
+
+  /* ── Update password (email login only) ── */
+  if (!S.isSocialLogin) {
+    const currentPass = pmCurrentPass?.value;
+    const newPass     = pmNewPass?.value;
+    const confirmPass = pmConfirmPass?.value;
+
+    if (newPass || currentPass) {
+      if (!currentPass) { showToast('expense', 'Please enter your current password.'); restoreSaveBtn(saveBtn); return; }
+      if (!newPass)     { showToast('expense', 'Please enter a new password.'); restoreSaveBtn(saveBtn); return; }
+      if (newPass.length < 6) { showToast('expense', 'New password must be at least 6 characters.'); restoreSaveBtn(saveBtn); return; }
+      if (newPass !== confirmPass) { showToast('expense', 'New passwords do not match!'); restoreSaveBtn(saveBtn); return; }
+
+      /* Re-authenticate with current password to verify it */
+      const email = S.userEmail;
+      const { error: signInErr } = await _supabase.auth.signInWithPassword({ email, password: currentPass });
+      if (signInErr) { showToast('expense', 'Current password is incorrect.'); restoreSaveBtn(saveBtn); return; }
+
+      /* Now update to new password */
+      const { error: updateErr } = await _supabase.auth.updateUser({ password: newPass });
+      if (updateErr) { showToast('expense', updateErr.message); restoreSaveBtn(saveBtn); return; }
+
+      showToast('income', 'Password updated successfully!');
+      if (pmCurrentPass) pmCurrentPass.value = '';
+      if (pmNewPass)     pmNewPass.value     = '';
+      if (pmConfirmPass) pmConfirmPass.value = '';
+    }
+  }
+
+  restoreSaveBtn(saveBtn);
+  setTimeout(closeProfileModal, 800);
+}
+
+function restoreSaveBtn(btn) {
+  if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Save Changes'; }
 }

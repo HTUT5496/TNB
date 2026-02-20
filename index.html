@@ -3,85 +3,97 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#000000" />
-    <meta name="description" content="TNB Financial Management - Login Page" />
-    <title>TNB - Login</title>
-
+    <meta name="theme-color" content="#0F172A" />
+    <meta name="description" content="TNB Financial Management - Login" />
+    <title>TNB – Login</title>
     <link rel="stylesheet" href="login-style.css" />
     <link rel="manifest" href="manifest.json" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body class="dark-mode">
+    <div class="bg-grid"></div>
+    <div class="bg-orb orb1"></div>
+    <div class="bg-orb orb2"></div>
+
     <div class="glass-container">
       <div class="top-nav">
-        <button id="lang-btn" class="sub-btn" aria-label="Change Language">
-          Burmese
+        <button id="lang-btn" class="sub-btn">
+          <i class="fas fa-language"></i> Burmese
         </button>
-        <button onclick="location.href = 'register.html'" class="sub-btn">
-          Sign Up
+        <button onclick="location.href='register.html'" class="sub-btn">
+          <i class="fas fa-user-plus"></i> Sign Up
         </button>
-        <button id="theme-btn" class="sub-btn">🌙 Dark</button>
+        <button id="theme-btn" class="sub-btn">
+          <i class="fas fa-moon"></i> Dark
+        </button>
+      </div>
+
+      <div class="brand-row">
+        <div class="brand-icon"><i class="fas fa-chart-line"></i></div>
+        <div>
+          <h2 class="brand-name">TNB Finance</h2>
+          <p class="brand-sub">Smart Money Management</p>
+        </div>
       </div>
 
       <div class="note-box">
-        <p id="note-text">
-          Welcome to the financial management software. We will always try to
-          distinguish your assets and losses.
-        </p>
+        <i class="fas fa-info-circle note-icon"></i>
+        <p id="note-text">Welcome to the financial management software. We will always try to distinguish your assets and losses.</p>
       </div>
 
       <header>
         <h1 id="title">Login</h1>
+        <p class="form-subtitle" id="form-subtitle">Sign in to your account</p>
       </header>
 
       <main>
         <form id="login-form">
           <div class="input-group">
-            <input
-              type="text"
-              id="username"
-              placeholder="UserName"
-              required
-              autocomplete="username"
-            />
+            <label class="input-label" id="label-user">Username</label>
+            <div class="input-wrapper">
+              <i class="fas fa-user input-icon"></i>
+              <input type="text" id="username" placeholder="Enter username" required autocomplete="username" />
+            </div>
           </div>
           <div class="input-group">
-            <input
-              type="password"
-              id="password"
-              placeholder="Password"
-              required
-              autocomplete="current-password"
-            />
+            <label class="input-label" id="label-pass">Password</label>
+            <div class="input-wrapper">
+              <i class="fas fa-lock input-icon"></i>
+              <input type="password" id="password" placeholder="Enter password" required autocomplete="current-password" />
+              <button type="button" class="eye-btn" id="togglePass">
+                <i class="fas fa-eye" id="eyeIcon"></i>
+              </button>
+            </div>
           </div>
-          <button type="submit" id="login-btn" class="main-btn">Login</button>
+
+          <button type="submit" id="login-btn" class="main-btn">
+            <span id="btn-text">Login</span>
+            <i class="fas fa-arrow-right btn-icon" id="btn-icon"></i>
+            <span class="btn-spinner hidden" id="btn-spinner"><i class="fas fa-circle-notch fa-spin"></i></span>
+          </button>
         </form>
 
-        <div class="separator"><span>Or</span></div>
+        <div class="separator"><span>Or continue with</span></div>
 
         <button type="button" id="gmail-btn" class="social-btn">
-          <i class="fab fa-google"></i> Continue with Gmail
+          <i class="fab fa-google social-icon google-icon"></i>
+          <span>Continue with Google</span>
         </button>
       </main>
 
       <footer class="footer-links">
-        <p id="signup-text">
-          If you don't have an account?
-          <a href="register.html">Sign Up</a>
-        </p>
-        <p id="reset-text">
-          Forgot password?
-          <a href="reset.html">Reset Password</a>
-        </p>
+        <p id="signup-text">Don't have an account? <a href="register.html" id="signup-link">Sign Up</a></p>
+        <p id="reset-text">Forgot password? <a href="reset.html" id="reset-link">Reset Password</a></p>
       </footer>
     </div>
 
     <script src="login-script.js"></script>
-    <script src="sw.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/TNB/sw.js', { scope: '/TNB/' })
+          .catch(() => navigator.serviceWorker.register('sw.js'));
+      }
+    </script>
   </body>
 </html>
