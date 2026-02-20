@@ -1,109 +1,112 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>NovaPay – Smart Finance</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="dashboard.css" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <title>FinPay – Smart Finance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="dashboard.css"/>
 </head>
 <body>
 
 <!-- ═══════════════════════════════════════════════════════
-     TWO-ROW TOP NAVBAR
-     Row 1: Avatar | Telegram-style Search | 3-Dots Menu
-     Row 2: Balance · Income · Expense inline | Notif Bell
+     TOP COMMAND BAR — TWO ROWS
+     ROW 1 : Avatar | Search | 3-Dots
+     ROW 2 : Balance · Income · Expense | Bell
 ════════════════════════════════════════════════════════ -->
-<header class="topnav" id="topnav">
+<header class="cmd-bar" id="cmdBar">
 
   <!-- ── ROW 1 ──────────────────────────────────────── -->
-  <div class="topnav-r1">
-    <!-- Profile avatar (left) -->
-    <button class="tn-avatar-btn" id="avatarBtn" aria-label="Profile">
-      <div class="tn-avatar" id="topAvatar">A</div>
+  <div class="cmd-row cmd-row1">
+    <!-- Avatar → jumps to Settings -->
+    <button class="avatar-pill" id="avatarBtn" aria-label="Profile">
+      <span class="avatar-ring">
+        <span class="avatar-letter" id="avatarLetter">A</span>
+      </span>
+      <span class="avatar-name" id="avatarName">Alex</span>
     </button>
 
-    <!-- Telegram-style search bar (center) -->
-    <div class="tn-search-wrap">
-      <svg class="tn-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input class="tn-search-input" id="searchInput" type="search" placeholder="Search transactions…" autocomplete="off" />
-      <button class="tn-search-clear" id="searchClear" aria-label="Clear">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
+    <!-- Telegram-style search -->
+    <div class="search-shell">
+      <svg class="search-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="search-input" id="searchInput" type="search" placeholder="Search transactions…" autocomplete="off"/>
+      <button class="search-clear" id="searchClear" aria-label="Clear search">✕</button>
     </div>
 
-    <!-- 3-dots menu (right) -->
-    <div class="tn-dots-wrap" id="dotsWrap">
-      <button class="tn-dots-btn" id="dotsBtn" aria-label="More options">
+    <!-- 3-dots -->
+    <div class="dots-shell" id="dotsShell">
+      <button class="dots-btn" id="dotsBtn" aria-label="Menu" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
-      <!-- 3-dots Dropdown -->
-      <div class="dots-dropdown" id="dotsDropdown">
-        <div class="dd-item dd-theme" id="ddTheme">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-          <span data-i18n="dark_mode">Dark Mode</span>
-          <label class="dd-toggle">
-            <input type="checkbox" id="ddThemeChk" checked />
-            <span class="dd-slider"></span>
-          </label>
-        </div>
-        <div class="dd-divider"></div>
-        <button class="dd-item" id="ddAddIncome">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          <span data-i18n="add_income">Add Income</span>
+      <div class="dots-menu" id="dotsMenu" role="menu">
+        <!-- Dark mode toggle -->
+        <label class="dmenu-row dmenu-toggle" role="menuitem">
+          <span class="dmenu-icon">🌙</span>
+          <span class="dmenu-label" data-i18n="dark_mode">Dark Mode</span>
+          <span class="dm-switch">
+            <input type="checkbox" id="themeCheck" checked/>
+            <span class="dm-track"></span>
+          </span>
+        </label>
+        <div class="dmenu-divider"></div>
+        <!-- Add Transaction -->
+        <button class="dmenu-row" id="menuAddIncome" role="menuitem">
+          <span class="dmenu-icon income-ico">＋</span>
+          <span class="dmenu-label" data-i18n="add_income">Add Income</span>
         </button>
-        <button class="dd-item" id="ddAddExpense">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          <span data-i18n="add_expense">Add Expense</span>
+        <button class="dmenu-row" id="menuAddExpense" role="menuitem">
+          <span class="dmenu-icon expense-ico">－</span>
+          <span class="dmenu-label" data-i18n="add_expense">Add Expense</span>
         </button>
-        <div class="dd-divider"></div>
-        <button class="dd-item" id="ddHistory">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
-          <span data-i18n="nav_transactions">History</span>
+        <div class="dmenu-divider"></div>
+        <!-- History -->
+        <button class="dmenu-row" id="menuHistory" role="menuitem">
+          <span class="dmenu-icon">📋</span>
+          <span class="dmenu-label" data-i18n="nav_transactions">History</span>
         </button>
-        <button class="dd-item" id="ddLang">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
-          <span id="ddLangLabel">Switch to မြန်မာ</span>
+        <!-- Language -->
+        <button class="dmenu-row" id="menuLang" role="menuitem">
+          <span class="dmenu-icon">🌐</span>
+          <span class="dmenu-label" id="menuLangLabel">Switch to မြန်မာ</span>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- ── ROW 2 — Summary inline + Notif bell ─────────── -->
-  <div class="topnav-r2">
-    <div class="tn-summary">
-      <div class="tn-sum-item">
-        <span class="tn-sum-label" data-i18n="available_balance">Balance</span>
-        <span class="tn-sum-val balance-val" id="r2Balance">$0.00</span>
+  <!-- ── ROW 2 — inline summary + bell ────────────── -->
+  <div class="cmd-row cmd-row2">
+    <div class="summary-strip">
+      <div class="ss-item">
+        <span class="ss-label" data-i18n="available_balance">Balance</span>
+        <span class="ss-val balance-col" id="r2Balance">$0.00</span>
       </div>
-      <div class="tn-sum-divider"></div>
-      <div class="tn-sum-item">
-        <span class="tn-sum-label" data-i18n="income">Income</span>
-        <span class="tn-sum-val income-val" id="r2Income">$0.00</span>
+      <div class="ss-sep"></div>
+      <div class="ss-item">
+        <span class="ss-label" data-i18n="income">Income</span>
+        <span class="ss-val income-col" id="r2Income">$0.00</span>
       </div>
-      <div class="tn-sum-divider"></div>
-      <div class="tn-sum-item">
-        <span class="tn-sum-label" data-i18n="expense">Expense</span>
-        <span class="tn-sum-val expense-val" id="r2Expense">$0.00</span>
+      <div class="ss-sep"></div>
+      <div class="ss-item">
+        <span class="ss-label" data-i18n="expense">Expense</span>
+        <span class="ss-val expense-col" id="r2Expense">$0.00</span>
       </div>
     </div>
 
-    <!-- Notification bell (far right of row 2) -->
-    <div class="tn-notif-wrap" id="notifWrap">
-      <button class="tn-notif-btn" id="notifBtn" aria-label="Notifications">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-        <span class="notif-badge" id="notifBadge" style="display:none">0</span>
+    <!-- Bell -->
+    <div class="bell-shell" id="bellShell">
+      <button class="bell-btn" id="bellBtn" aria-label="Notifications" aria-expanded="false">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <span class="bell-dot" id="bellDot" style="display:none"></span>
       </button>
-
-      <!-- Notification dropdown -->
-      <div class="notif-dropdown" id="notifDropdown">
-        <div class="notif-hdr">
-          <span class="notif-hdr-title" data-i18n="notifications">Notifications</span>
-          <button class="notif-clear-btn" id="notifClear" data-i18n="clear_all">Clear All</button>
+      <!-- Notification panel -->
+      <div class="notif-panel" id="notifPanel">
+        <div class="np-head">
+          <span class="np-title" data-i18n="notifications">Notifications</span>
+          <button class="np-clear" id="npClear" data-i18n="clear_all">Clear All</button>
         </div>
-        <div class="notif-list" id="notifList">
-          <div class="notif-empty" id="notifEmpty" data-i18n="no_notifs">No notifications yet</div>
+        <div class="np-body" id="npBody">
+          <p class="np-empty" id="npEmpty" data-i18n="no_notifs">No notifications yet</p>
         </div>
       </div>
     </div>
@@ -111,280 +114,237 @@
 </header>
 
 <!-- ═══════════════════════════════════════════════════════
-     MAIN CONTENT AREA
+     MAIN SCROLL AREA
 ════════════════════════════════════════════════════════ -->
-<main class="main-wrap" id="mainWrap">
+<main class="app-main" id="appMain">
 
-  <!-- ── SEARCH RESULTS OVERLAY ──────────────────────── -->
-  <section class="section" id="section-search">
-    <div class="section-hdr">
-      <h2 class="page-title" data-i18n="search_results">Search Results</h2>
+  <!-- SEARCH RESULTS -->
+  <section class="page hidden" id="page-search">
+    <div class="page-head">
+      <h2 class="page-title" id="searchResultLabel">Results</h2>
     </div>
-    <div class="transaction-list" id="searchResults"></div>
+    <div class="txn-feed" id="searchFeed"></div>
   </section>
 
-  <!-- ── DASHBOARD ────────────────────────────────────── -->
-  <section class="section active" id="section-dashboard">
+  <!-- DASHBOARD -->
+  <section class="page active" id="page-dashboard">
 
     <!-- Greeting -->
-    <div class="greeting-row">
+    <div class="greet-row">
       <div>
-        <p class="greeting-sub" id="greetingText">Good morning,</p>
-        <h1 class="greeting-name" id="greetingName">Alex 👋</h1>
+        <p class="greet-sub" id="greetText">Good morning,</p>
+        <h1 class="greet-name" id="greetName">Alex 👋</h1>
       </div>
-      <span class="date-chip" id="dateBadge"></span>
+      <span class="date-chip" id="dateChip"></span>
     </div>
 
-    <!-- Balance card (preserved, enhanced) -->
-    <div class="balance-card" id="balanceCard">
-      <div class="bc-glow"></div>
-      <div class="bc-chip">
-        <div class="chip-lines"><span></span><span></span><span></span></div>
+    <!-- Hero balance card -->
+    <div class="hero-card" id="heroCard">
+      <div class="hc-noise"></div>
+      <div class="hc-top">
+        <span class="hc-label" data-i18n="available_balance">Available Balance</span>
+        <div class="hc-chip"><span></span><span></span><span></span></div>
       </div>
-      <div class="bc-top">
-        <span class="bc-label" data-i18n="available_balance">Available Balance</span>
-        <div class="bc-logo">
-          <svg width="32" height="20" viewBox="0 0 32 20"><circle cx="12" cy="10" r="10" fill="rgba(255,255,255,0.35)"/><circle cx="20" cy="10" r="10" fill="rgba(255,255,255,0.18)"/></svg>
-        </div>
+      <div class="hc-amount">
+        <sup class="hc-cur">$</sup>
+        <span class="hc-num" id="balanceDisplay">0.00</span>
       </div>
-      <div class="bc-amount">
-        <span class="bc-currency">$</span>
-        <span class="bc-number" id="balanceDisplay">0.00</span>
-      </div>
-      <div class="bc-stats">
-        <div class="bc-stat income-stat">
-          <div class="bcs-icon">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
-          </div>
+      <div class="hc-stats">
+        <div class="hcs-item">
+          <span class="hcs-arrow up">▲</span>
           <div>
-            <span class="bcs-label" data-i18n="income">Income</span>
-            <span class="bcs-val" id="totalIncomeDisplay">$0.00</span>
+            <span class="hcs-l" data-i18n="income">Income</span>
+            <span class="hcs-v income-col" id="totalIncomeDisplay">$0.00</span>
           </div>
         </div>
-        <div class="bc-divider"></div>
-        <div class="bc-stat expense-stat">
-          <div class="bcs-icon">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-          </div>
+        <div class="hcs-div"></div>
+        <div class="hcs-item">
+          <span class="hcs-arrow dn">▼</span>
           <div>
-            <span class="bcs-label" data-i18n="expense">Expense</span>
-            <span class="bcs-val" id="totalExpenseDisplay">$0.00</span>
+            <span class="hcs-l" data-i18n="expense">Expense</span>
+            <span class="hcs-v expense-col" id="totalExpenseDisplay">$0.00</span>
           </div>
         </div>
       </div>
-      <div class="bc-foot">
-        <span class="bc-num-mono">•••• •••• •••• 4291</span>
-        <span class="bc-type">VISA</span>
+      <div class="hc-foot">
+        <span class="hc-card-num">•••• •••• •••• 4291</span>
+        <span class="hc-brand">VISA</span>
       </div>
     </div>
 
-    <!-- Quick action categories grid -->
-    <div class="quick-cats-section">
-      <h2 class="sub-heading" data-i18n="quick_actions">Quick Actions</h2>
-      <div class="quick-cats-grid">
-        <button class="qcat-btn income-qcat" data-type="income" data-cat="cat_salary">
-          <span class="qcat-icon">💼</span>
-          <span class="qcat-label" data-i18n="cat_salary">Salary</span>
-        </button>
-        <button class="qcat-btn income-qcat" data-type="income" data-cat="cat_freelance">
-          <span class="qcat-icon">💻</span>
-          <span class="qcat-label" data-i18n="cat_freelance">Freelance</span>
-        </button>
-        <button class="qcat-btn expense-qcat" data-type="expense" data-cat="cat_food">
-          <span class="qcat-icon">🍜</span>
-          <span class="qcat-label" data-i18n="cat_food">Food</span>
-        </button>
-        <button class="qcat-btn expense-qcat" data-type="expense" data-cat="cat_transport">
-          <span class="qcat-icon">🚗</span>
-          <span class="qcat-label" data-i18n="cat_transport">Transport</span>
-        </button>
-        <button class="qcat-btn expense-qcat" data-type="expense" data-cat="cat_shopping">
-          <span class="qcat-icon">🛍️</span>
-          <span class="qcat-label" data-i18n="cat_shopping">Shopping</span>
-        </button>
-        <button class="qcat-btn expense-qcat" data-type="expense" data-cat="cat_bills">
-          <span class="qcat-icon">📄</span>
-          <span class="qcat-label" data-i18n="cat_bills">Bills</span>
-        </button>
-        <button class="qcat-btn expense-qcat" data-type="expense" data-cat="cat_health">
-          <span class="qcat-icon">💊</span>
-          <span class="qcat-label" data-i18n="cat_health">Health</span>
-        </button>
-        <button class="qcat-btn expense-qcat" data-type="expense" data-cat="cat_entertainment">
-          <span class="qcat-icon">🎬</span>
-          <span class="qcat-label" data-i18n="cat_entertainment">Entertain</span>
-        </button>
-      </div>
+    <!-- Quick category grid -->
+    <div class="section-row">
+      <h2 class="section-label" data-i18n="quick_actions">Quick Actions</h2>
+    </div>
+    <div class="qcat-grid" id="qcatGrid">
+      <!-- Income quick cats -->
+      <button class="qcat-btn qcat-income" data-type="income" data-cat="cat_salary">
+        <span class="qcat-ico">💼</span><span class="qcat-txt" data-i18n="cat_salary">Salary</span>
+      </button>
+      <button class="qcat-btn qcat-income" data-type="income" data-cat="cat_freelance">
+        <span class="qcat-ico">💻</span><span class="qcat-txt" data-i18n="cat_freelance">Freelance</span>
+      </button>
+      <button class="qcat-btn qcat-income" data-type="income" data-cat="cat_investment">
+        <span class="qcat-ico">📈</span><span class="qcat-txt" data-i18n="cat_investment">Invest</span>
+      </button>
+      <!-- Expense quick cats -->
+      <button class="qcat-btn qcat-expense" data-type="expense" data-cat="cat_food">
+        <span class="qcat-ico">🍜</span><span class="qcat-txt" data-i18n="cat_food">Food</span>
+      </button>
+      <button class="qcat-btn qcat-expense" data-type="expense" data-cat="cat_transport">
+        <span class="qcat-ico">🚗</span><span class="qcat-txt" data-i18n="cat_transport">Transport</span>
+      </button>
+      <button class="qcat-btn qcat-expense" data-type="expense" data-cat="cat_shopping">
+        <span class="qcat-ico">🛍️</span><span class="qcat-txt" data-i18n="cat_shopping">Shopping</span>
+      </button>
+      <button class="qcat-btn qcat-expense" data-type="expense" data-cat="cat_bills">
+        <span class="qcat-ico">📄</span><span class="qcat-txt" data-i18n="cat_bills">Bills</span>
+      </button>
+      <button class="qcat-btn qcat-expense" data-type="expense" data-cat="cat_health">
+        <span class="qcat-ico">💊</span><span class="qcat-txt" data-i18n="cat_health">Health</span>
+      </button>
     </div>
 
-    <!-- Recent Activity + Export CSV -->
-    <div class="activity-header">
-      <h2 class="sub-heading" data-i18n="recent_transactions">Recent Activity</h2>
-      <button class="export-csv-btn" id="exportCsvBtnDash">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+    <!-- Recent Activity header -->
+    <div class="section-row">
+      <h2 class="section-label" data-i18n="recent_transactions">Recent Activity</h2>
+      <button class="csv-btn" id="csvBtnDash">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         <span data-i18n="export_csv">Export CSV</span>
       </button>
     </div>
 
-    <!-- Filter buttons -->
-    <div class="filter-row" id="dashFilterRow">
-      <div class="filter-tabs" id="dashFilterTabs">
-        <button class="filter-tab active" data-filter="all" data-i18n="all">All</button>
-        <button class="filter-tab" data-filter="income" data-i18n="income">Income</button>
-        <button class="filter-tab" data-filter="expense" data-i18n="expense">Expense</button>
+    <!-- Filter bar -->
+    <div class="filter-bar" id="dashFilterBar">
+      <div class="filter-tabs" id="dashTabs">
+        <button class="ftab active" data-filter="all"     data-i18n="all">All</button>
+        <button class="ftab"        data-filter="income"  data-i18n="income">Income</button>
+        <button class="ftab"        data-filter="expense" data-i18n="expense">Expense</button>
       </div>
-      <input type="date" class="date-filter-input" id="dashDateFilter" title="Filter by date" />
+      <input type="date" class="date-pick" id="dashDate" title="Filter by date"/>
     </div>
 
-    <!-- Transaction feed -->
-    <div class="transaction-list" id="dashTransList"></div>
-
+    <!-- Dashboard feed -->
+    <div class="txn-feed" id="dashFeed"></div>
   </section>
 
-  <!-- ── TRANSACTIONS SECTION ─────────────────────────── -->
-  <section class="section" id="section-transactions">
-    <div class="section-hdr">
-      <h1 class="page-title" data-i18n="all_transactions">All Transactions</h1>
+  <!-- TRANSACTIONS -->
+  <section class="page hidden" id="page-transactions">
+    <div class="page-head">
+      <h2 class="page-title" data-i18n="all_transactions">All Transactions</h2>
     </div>
-
-    <div class="activity-header" style="margin-bottom:14px">
-      <div class="filter-tabs" id="txnFilterTabs">
-        <button class="filter-tab active" data-filter="all" data-i18n="all">All</button>
-        <button class="filter-tab" data-filter="income" data-i18n="income">Income</button>
-        <button class="filter-tab" data-filter="expense" data-i18n="expense">Expense</button>
+    <div class="section-row" style="margin-bottom:12px">
+      <div class="filter-tabs" id="txnTabs">
+        <button class="ftab active" data-filter="all"     data-i18n="all">All</button>
+        <button class="ftab"        data-filter="income"  data-i18n="income">Income</button>
+        <button class="ftab"        data-filter="expense" data-i18n="expense">Expense</button>
       </div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <input type="date" class="date-filter-input" id="txnDateFilter" title="Filter by date" />
-        <button class="export-csv-btn" id="exportCsvBtnTxn">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <input type="date" class="date-pick" id="txnDate" title="Filter by date"/>
+        <button class="csv-btn" id="csvBtnTxn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           <span data-i18n="export_csv">Export CSV</span>
         </button>
       </div>
     </div>
-
-    <div class="transaction-list" id="fullTransList"></div>
+    <div class="txn-feed" id="txnFeed"></div>
   </section>
 
-  <!-- ── REPORTS SECTION ──────────────────────────────── -->
-  <section class="section" id="section-reports">
-    <div class="section-hdr">
-      <h1 class="page-title" data-i18n="reports">Reports</h1>
+  <!-- REPORTS -->
+  <section class="page hidden" id="page-reports">
+    <div class="page-head">
+      <h2 class="page-title" data-i18n="reports">Reports</h2>
     </div>
-
-    <div class="reports-grid">
-      <div class="report-card income-rc">
-        <div class="rc-icon income-bg">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+    <div class="rep-cards">
+      <div class="rep-card income-rc">
+        <div class="rep-icon income-ico-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
         </div>
-        <div>
-          <span class="rc-label" data-i18n="total_income">Total Income</span>
-          <span class="rc-val income-text" id="reportIncome">$0.00</span>
-        </div>
+        <div><span class="rep-lbl" data-i18n="total_income">Total Income</span><span class="rep-val income-col" id="repIncome">$0.00</span></div>
       </div>
-      <div class="report-card expense-rc">
-        <div class="rc-icon expense-bg">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
+      <div class="rep-card expense-rc">
+        <div class="rep-icon expense-ico-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/></svg>
         </div>
-        <div>
-          <span class="rc-label" data-i18n="total_expense">Total Expense</span>
-          <span class="rc-val expense-text" id="reportExpense">$0.00</span>
-        </div>
+        <div><span class="rep-lbl" data-i18n="total_expense">Total Expense</span><span class="rep-val expense-col" id="repExpense">$0.00</span></div>
       </div>
-      <div class="report-card">
-        <div class="rc-icon accent-bg">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      <div class="rep-card">
+        <div class="rep-icon balance-ico-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
         </div>
-        <div>
-          <span class="rc-label" data-i18n="net_balance">Net Balance</span>
-          <span class="rc-val" id="reportBalance">$0.00</span>
-        </div>
+        <div><span class="rep-lbl" data-i18n="net_balance">Net Balance</span><span class="rep-val" id="repBalance">$0.00</span></div>
       </div>
-      <div class="report-card">
-        <div class="rc-icon purple-bg">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+      <div class="rep-card">
+        <div class="rep-icon count-ico-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
         </div>
-        <div>
-          <span class="rc-label" data-i18n="total_transactions">Transactions</span>
-          <span class="rc-val" id="reportCount">0</span>
-        </div>
+        <div><span class="rep-lbl" data-i18n="total_transactions">Transactions</span><span class="rep-val" id="repCount">0</span></div>
       </div>
     </div>
 
-    <!-- Spending Chart -->
+    <!-- Chart -->
     <div class="chart-card">
-      <div class="chart-card-hdr">
-        <h3 class="sub-heading" data-i18n="spending_overview">Spending Overview</h3>
-        <select class="period-select" id="chartPeriod">
-          <option value="7" data-i18n="last_7">Last 7 Days</option>
+      <div class="cc-head">
+        <h3 class="section-label" data-i18n="spending_overview">Spending Overview</h3>
+        <select class="period-sel" id="chartPeriod">
+          <option value="7"  data-i18n="last_7">Last 7 Days</option>
           <option value="30" data-i18n="last_30">Last 30 Days</option>
         </select>
       </div>
-      <div class="chart-area">
-        <canvas id="spendingCanvas"></canvas>
-      </div>
+      <div class="chart-wrap"><canvas id="spendingCanvas"></canvas></div>
     </div>
 
-    <!-- Category Breakdown -->
-    <h3 class="sub-heading" style="margin:24px 0 12px" data-i18n="category_breakdown">Category Breakdown</h3>
-    <div class="cat-breakdown-list" id="categoryBreakdown"></div>
+    <!-- Category breakdown -->
+    <h3 class="section-label" style="margin:20px 0 10px" data-i18n="category_breakdown">Category Breakdown</h3>
+    <div class="cat-breakdown" id="catBreakdown"></div>
   </section>
 
-  <!-- ── SETTINGS SECTION ─────────────────────────────── -->
-  <section class="section" id="section-settings">
-    <div class="section-hdr">
-      <h1 class="page-title" data-i18n="settings">Settings</h1>
+  <!-- SETTINGS -->
+  <section class="page hidden" id="page-settings">
+    <div class="page-head">
+      <h2 class="page-title" data-i18n="settings">Settings</h2>
     </div>
 
     <div class="profile-card">
-      <div class="profile-avatar-lg" id="profileAvatarLarge">A</div>
-      <div class="profile-edit">
-        <input class="profile-name-input" id="profileNameInput" value="Alex Morgan" placeholder="Your name" />
-        <span class="profile-badge" data-i18n="premium_member">Premium Member</span>
+      <div class="pc-avatar" id="pcAvatar">A</div>
+      <div class="pc-info">
+        <input class="pc-name-input" id="profileNameInput" value="Alex Morgan" placeholder="Your name"/>
+        <span class="pc-badge" data-i18n="premium_member">Premium Member</span>
       </div>
     </div>
 
-    <div class="settings-list">
-      <div class="settings-row">
-        <div class="sr-info">
-          <span class="sr-title" data-i18n="dark_mode">Dark Mode</span>
-          <span class="sr-sub" data-i18n="dark_mode_sub">Switch between dark and light</span>
+    <div class="settings-group">
+      <div class="sg-row">
+        <div class="sg-info">
+          <span class="sg-title" data-i18n="dark_mode">Dark Mode</span>
+          <span class="sg-sub"   data-i18n="dark_mode_sub">Switch between dark and light</span>
         </div>
-        <label class="toggle-switch">
-          <input type="checkbox" id="themeCheckbox" checked />
-          <span class="slider"></span>
-        </label>
+        <label class="tog-switch"><input type="checkbox" id="themeToggle" checked/><span class="tog-track"></span></label>
       </div>
-      <div class="settings-row">
-        <div class="sr-info">
-          <span class="sr-title" data-i18n="language">Language</span>
-          <span class="sr-sub" data-i18n="language_sub">English / Burmese</span>
+      <div class="sg-row">
+        <div class="sg-info">
+          <span class="sg-title" data-i18n="language">Language</span>
+          <span class="sg-sub"   data-i18n="language_sub">English / Burmese</span>
         </div>
-        <button class="lang-switch-btn" id="langBtnSettings">
-          <span id="langBtnLabel">English</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
+        <button class="lang-btn" id="langBtn"><span id="langBtnLbl">English</span> ›</button>
       </div>
-      <div class="settings-row">
-        <div class="sr-info">
-          <span class="sr-title" data-i18n="notifications_setting">Notifications</span>
-          <span class="sr-sub" data-i18n="notifications_sub">Balance change alerts</span>
+      <div class="sg-row">
+        <div class="sg-info">
+          <span class="sg-title" data-i18n="notifications_setting">Notifications</span>
+          <span class="sg-sub"   data-i18n="notifications_sub">Balance change alerts</span>
         </div>
-        <label class="toggle-switch">
-          <input type="checkbox" id="notifToggle" checked />
-          <span class="slider"></span>
-        </label>
+        <label class="tog-switch"><input type="checkbox" id="notifToggle" checked/><span class="tog-track"></span></label>
       </div>
-      <div class="settings-row">
-        <div class="sr-info">
-          <span class="sr-title" data-i18n="clear_data">Clear All Data</span>
-          <span class="sr-sub" data-i18n="clear_data_sub">Permanently remove all transactions</span>
+      <div class="sg-row">
+        <div class="sg-info">
+          <span class="sg-title" data-i18n="clear_data">Clear All Data</span>
+          <span class="sg-sub"   data-i18n="clear_data_sub">Remove all transactions</span>
         </div>
-        <button class="danger-btn" id="clearDataBtn" data-i18n="clear">Clear</button>
+        <button class="danger-btn" id="clearBtn" data-i18n="clear">Clear</button>
       </div>
     </div>
-
     <button class="logout-btn" id="logoutBtn">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       <span data-i18n="logout">Logout</span>
     </button>
   </section>
@@ -392,96 +352,91 @@
 </main>
 
 <!-- ═══════════════════════════════════════════════════════
-     BOTTOM NAVIGATION (Mobile-First, works on all screens)
+     BOTTOM NAV
 ════════════════════════════════════════════════════════ -->
-<nav class="bottom-nav" id="bottomNav">
-  <button class="bn-item active" data-section="dashboard" id="bn-dashboard">
-    <svg class="bn-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
-    <span class="bn-label" data-i18n="nav_dashboard">Dashboard</span>
+<nav class="bot-nav" id="botNav">
+  <button class="bn-btn active" data-page="dashboard" id="bn-dashboard">
+    <svg class="bn-ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+    <span class="bn-lbl" data-i18n="nav_dashboard">Home</span>
   </button>
-  <button class="bn-item" data-section="transactions" id="bn-transactions">
-    <svg class="bn-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
-    <span class="bn-label" data-i18n="nav_transactions">Transactions</span>
+  <button class="bn-btn" data-page="transactions" id="bn-transactions">
+    <svg class="bn-ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+    <span class="bn-lbl" data-i18n="nav_transactions">History</span>
   </button>
 
-  <!-- Center FAB: Add Transaction -->
-  <div class="bn-fab-wrap">
-    <button class="bn-fab" id="fabBtn" aria-label="Add Transaction">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  <!-- Centre FAB -->
+  <div class="fab-zone">
+    <button class="fab-main" id="fabMain" aria-label="Add transaction">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     </button>
-    <!-- FAB sub-actions -->
-    <div class="fab-actions" id="fabActions">
-      <button class="fab-action income-fab" id="fabIncome">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
-        <span data-i18n="add_income">Add Income</span>
+    <div class="fab-sub" id="fabSub">
+      <button class="fab-sub-btn fab-income" id="fabIncome">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+        <span data-i18n="add_income">Income</span>
       </button>
-      <button class="fab-action expense-fab" id="fabExpense">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-        <span data-i18n="add_expense">Add Expense</span>
+      <button class="fab-sub-btn fab-expense" id="fabExpense">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        <span data-i18n="add_expense">Expense</span>
       </button>
     </div>
+    <div class="fab-backdrop" id="fabBackdrop"></div>
   </div>
 
-  <button class="bn-item" data-section="reports" id="bn-reports">
-    <svg class="bn-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
-    <span class="bn-label" data-i18n="reports">Reports</span>
+  <button class="bn-btn" data-page="reports" id="bn-reports">
+    <svg class="bn-ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+    <span class="bn-lbl" data-i18n="reports">Reports</span>
   </button>
-  <button class="bn-item" data-section="settings" id="bn-settings">
-    <svg class="bn-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-    <span class="bn-label" data-i18n="nav_settings">Settings</span>
+  <button class="bn-btn" data-page="settings" id="bn-settings">
+    <svg class="bn-ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    <span class="bn-lbl" data-i18n="nav_settings">Settings</span>
   </button>
 </nav>
-
-<!-- FAB overlay (closes fab menu on outside click) -->
-<div class="fab-overlay" id="fabOverlay"></div>
 
 <!-- ═══════════════════════════════════════════════════════
      MODALS
 ════════════════════════════════════════════════════════ -->
-<!-- Add Transaction Modal -->
-<div class="modal-overlay" id="txnModal">
-  <div class="modal-box" id="txnModalBox">
-    <div class="modal-hdr">
-      <h2 class="modal-title" id="modalTitle">Add Income</h2>
-      <button class="modal-close-btn" id="modalClose">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
+<!-- Transaction modal -->
+<div class="modal-veil" id="txnVeil">
+  <div class="modal-card" id="txnCard">
+    <div class="mc-head">
+      <h2 class="mc-title" id="mcTitle">Add Income</h2>
+      <button class="mc-close" id="mcClose">✕</button>
     </div>
-    <div class="modal-body">
-      <input type="hidden" id="txnType" value="income" />
-      <div class="form-group">
-        <label class="form-label" data-i18n="amount">Amount ($)</label>
+    <div class="mc-body">
+      <input type="hidden" id="txnType" value="income"/>
+      <div class="field">
+        <label class="field-lbl" data-i18n="amount">Amount ($)</label>
         <div class="amount-wrap">
-          <span class="amount-prefix">$</span>
-          <input type="number" class="form-input amount-input" id="txnAmount" placeholder="0.00" min="0.01" step="0.01" inputmode="decimal" />
+          <span class="amt-prefix">$</span>
+          <input type="number" class="field-input amt-input" id="txnAmount" placeholder="0.00" min="0.01" step="0.01" inputmode="decimal"/>
         </div>
       </div>
-      <div class="form-group">
-        <label class="form-label" data-i18n="category">Category</label>
-        <select class="form-input" id="txnCategory"></select>
+      <div class="field">
+        <label class="field-lbl" data-i18n="category">Category</label>
+        <select class="field-input" id="txnCategory"></select>
       </div>
-      <div class="form-group">
-        <label class="form-label" data-i18n="description">Description</label>
-        <input type="text" class="form-input" id="txnDesc" placeholder="e.g. Monthly salary" />
+      <div class="field">
+        <label class="field-lbl" data-i18n="description">Description</label>
+        <input type="text" class="field-input" id="txnDesc" placeholder="e.g. Monthly salary"/>
       </div>
-      <div class="form-group">
-        <label class="form-label" data-i18n="date">Date</label>
-        <input type="date" class="form-input" id="txnDate" />
+      <div class="field">
+        <label class="field-lbl" data-i18n="date">Date</label>
+        <input type="date" class="field-input" id="txnDate"/>
       </div>
       <button class="submit-btn" id="txnSubmit" data-i18n="add_transaction">Add Transaction</button>
     </div>
   </div>
 </div>
 
-<!-- Confirm Modal -->
-<div class="modal-overlay" id="confirmModal">
-  <div class="modal-box confirm-box">
-    <div class="confirm-icon-wrap">⚠️</div>
-    <h3 class="confirm-title" id="confirmTitle">Are you sure?</h3>
-    <p class="confirm-msg" id="confirmMsg">This action cannot be undone.</p>
-    <div class="confirm-actions">
-      <button class="btn-cancel" id="confirmCancel" data-i18n="cancel">Cancel</button>
-      <button class="btn-confirm danger-btn" id="confirmOk" data-i18n="confirm">Confirm</button>
+<!-- Confirm modal -->
+<div class="modal-veil" id="cfmVeil">
+  <div class="modal-card cfm-card">
+    <div class="cfm-icon">⚠️</div>
+    <h3 class="cfm-title" id="cfmTitle">Are you sure?</h3>
+    <p  class="cfm-msg"   id="cfmMsg">This cannot be undone.</p>
+    <div class="cfm-btns">
+      <button class="cfm-cancel" id="cfmCancel" data-i18n="cancel">Cancel</button>
+      <button class="danger-btn cfm-ok" id="cfmOk" data-i18n="confirm">Confirm</button>
     </div>
   </div>
 </div>

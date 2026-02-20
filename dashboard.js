@@ -1,172 +1,172 @@
 /* ══════════════════════════════════════════════════════
-   NOVAPAY – SMART FINANCE DASHBOARD  |  dashboard.js
-   ES6 Vanilla JS  |  All finance logic preserved
-   NEW: 2-row navbar · Search · 3-dots menu · Bottom nav
-        FAB · Quick-category shortcuts · Balance notifs
+   FINPAY – SMART FINANCE  |  dashboard.js
+   ES6 Vanilla JS — All original finance logic preserved
+   New: 2-row command bar · Search · 3-dots · Bottom nav
+        FAB · Quick categories · Balance notifications
 ══════════════════════════════════════════════════════ */
 'use strict';
 
 /* ═══════════════════════════════════════════
-   1. TRANSLATIONS (English / Burmese) — PRESERVED
+   1. TRANSLATIONS  (English / Burmese) — PRESERVED
 ═══════════════════════════════════════════ */
 const TRANSLATIONS = {
   en: {
-    brand: 'NovaPay',
-    nav_dashboard: 'Dashboard',
-    nav_transactions: 'Transactions',
+    brand: 'FinPay',
+    nav_dashboard: 'Home',
+    nav_transactions: 'History',
     nav_reports: 'Reports',
     nav_settings: 'Settings',
     premium_member: 'Premium Member',
-    good_morning: 'Good morning,',
+    good_morning:   'Good morning,',
     good_afternoon: 'Good afternoon,',
-    good_evening: 'Good evening,',
+    good_evening:   'Good evening,',
     available_balance: 'Balance',
-    income: 'Income',
+    income:  'Income',
     expense: 'Expense',
-    add_income: 'Add Income',
+    add_income:  'Add Income',
     add_expense: 'Add Expense',
-    reports: 'Reports',
+    reports:  'Reports',
     transfer: 'Transfer',
     spending_overview: 'Spending Overview',
-    last_7: 'Last 7 Days',
+    last_7:  'Last 7 Days',
     last_30: 'Last 30 Days',
     recent_transactions: 'Recent Activity',
     see_all: 'See All',
     all_transactions: 'All Transactions',
-    all: 'All',
+    all:        'All',
     export_csv: 'Export CSV',
-    total_income: 'Total Income',
-    total_expense: 'Total Expense',
-    net_balance: 'Net Balance',
-    total_transactions: 'Transactions',
-    category_breakdown: 'Category Breakdown',
-    settings: 'Settings',
-    dark_mode: 'Dark Mode',
+    total_income:      'Total Income',
+    total_expense:     'Total Expense',
+    net_balance:       'Net Balance',
+    total_transactions:'Transactions',
+    category_breakdown:'Category Breakdown',
+    settings:          'Settings',
+    dark_mode:     'Dark Mode',
     dark_mode_sub: 'Switch between dark and light',
-    language: 'Language',
-    language_sub: 'English / Burmese',
+    language:      'Language',
+    language_sub:  'English / Burmese',
     notifications_setting: 'Notifications',
-    notifications_sub: 'Balance change alerts',
-    clear_data: 'Clear All Data',
-    clear_data_sub: 'Permanently remove all transactions',
-    clear: 'Clear',
+    notifications_sub:     'Balance change alerts',
+    clear_data:    'Clear All Data',
+    clear_data_sub:'Remove all transactions',
+    clear:  'Clear',
     logout: 'Logout',
     notifications: 'Notifications',
-    clear_all: 'Clear All',
-    no_notifs: 'No notifications yet',
-    amount: 'Amount ($)',
-    category: 'Category',
+    clear_all:     'Clear All',
+    no_notifs:     'No notifications yet',
+    amount:      'Amount ($)',
+    category:    'Category',
     description: 'Description',
-    date: 'Date',
+    date:        'Date',
     add_transaction: 'Add Transaction',
-    cancel: 'Cancel',
+    cancel:  'Cancel',
     confirm: 'Confirm',
-    modal_income_title: 'Add Income',
+    modal_income_title:  'Add Income',
     modal_expense_title: 'Add Expense',
-    notif_balance_now: 'Your balance is now',
-    notif_added_income: '↑ Income Added',
+    notif_balance_now:   'Your balance is now',
+    notif_added_income:  '↑ Income Added',
     notif_added_expense: '↓ Expense Added',
-    confirm_delete: 'Delete this transaction?',
-    confirm_delete_msg: 'This action cannot be undone.',
-    confirm_clear: 'Clear all data?',
-    confirm_clear_msg: 'All transactions will be permanently removed.',
+    confirm_delete:      'Delete this transaction?',
+    confirm_delete_msg:  'This action cannot be undone.',
+    confirm_clear:       'Clear all data?',
+    confirm_clear_msg:   'All transactions will be permanently removed.',
     no_transactions: 'No transactions yet',
-    add_first: 'Tap + to add your first entry',
-    search_results: 'Search Results',
-    quick_actions: 'Quick Actions',
-    cat_salary: 'Salary',
-    cat_freelance: 'Freelance',
-    cat_investment: 'Investment',
-    cat_gift: 'Gift',
+    add_first:       'Tap + to add your first entry',
+    search_results:  'Search Results',
+    quick_actions:   'Quick Actions',
+    cat_salary:       'Salary',
+    cat_freelance:    'Freelance',
+    cat_investment:   'Invest',
+    cat_gift:         'Gift',
     cat_other_income: 'Other Income',
-    cat_food: 'Food',
-    cat_transport: 'Transport',
-    cat_shopping: 'Shopping',
-    cat_bills: 'Bills',
-    cat_health: 'Health',
+    cat_food:          'Food',
+    cat_transport:     'Transport',
+    cat_shopping:      'Shopping',
+    cat_bills:         'Bills',
+    cat_health:        'Health',
     cat_entertainment: 'Entertain',
-    cat_education: 'Education',
-    cat_rent: 'Rent',
-    cat_other_expense: 'Other Expense',
+    cat_education:     'Education',
+    cat_rent:          'Rent',
+    cat_other_expense: 'Other',
   },
   my: {
-    brand: 'NovaPay',
+    brand: 'FinPay',
     nav_dashboard: 'ဒက်ရ်ဘုတ်',
-    nav_transactions: 'ငွေသွင်း/ထုတ်',
+    nav_transactions: 'မှတ်တမ်း',
     nav_reports: 'အစီရင်ခံ',
     nav_settings: 'ဆက်တင်',
     premium_member: 'ပရီမီယံ အဖွဲ့ဝင်',
-    good_morning: 'မင်္ဂလာနံနက်ခင်းပါ၊',
+    good_morning:   'မင်္ဂလာနံနက်ခင်းပါ၊',
     good_afternoon: 'မင်္ဂလာနေ့လည်ပါ၊',
-    good_evening: 'မင်္ဂလာညနေပါ၊',
+    good_evening:   'မင်္ဂလာညနေပါ၊',
     available_balance: 'လက်ကျန်',
-    income: 'ဝင်ငွေ',
+    income:  'ဝင်ငွေ',
     expense: 'ထွက်ငွေ',
-    add_income: 'ဝင်ငွေထည့်',
+    add_income:  'ဝင်ငွေထည့်',
     add_expense: 'ထွက်ငွေထည့်',
-    reports: 'အစီရင်ခံ',
+    reports:  'အစီရင်ခံ',
     transfer: 'လွှဲပြောင်း',
     spending_overview: 'ငွေသုံးမှု အနှစ်ချုပ်',
-    last_7: 'ၿပီးခဲ့သော ၇ ရက်',
+    last_7:  'ၿပီးခဲ့သော ၇ ရက်',
     last_30: 'ၿပီးခဲ့သော ၃၀ ရက်',
     recent_transactions: 'မကြာမီ လုပ်ဆောင်ချက်',
     see_all: 'အားလုံးကြည့်',
     all_transactions: 'ငွေသွင်း/ထုတ် အားလုံး',
-    all: 'အားလုံး',
+    all:        'အားလုံး',
     export_csv: 'CSV ထုတ်ယူ',
-    total_income: 'စုစုပေါင်း ဝင်ငွေ',
-    total_expense: 'စုစုပေါင်း ထွက်ငွေ',
-    net_balance: 'အသားတင် လက်ကျန်',
-    total_transactions: 'ငွေလွှဲ စုစုပေါင်း',
-    category_breakdown: 'အမျိုးအစားအလိုက်',
-    settings: 'ဆက်တင်',
-    dark_mode: 'အမဲရောင် မုဒ်',
+    total_income:      'စုစုပေါင်း ဝင်ငွေ',
+    total_expense:     'စုစုပေါင်း ထွက်ငွေ',
+    net_balance:       'အသားတင် လက်ကျန်',
+    total_transactions:'ငွေလွှဲ စုစုပေါင်း',
+    category_breakdown:'အမျိုးအစားအလိုက်',
+    settings:          'ဆက်တင်',
+    dark_mode:     'အမဲရောင် မုဒ်',
     dark_mode_sub: 'အမဲ / အဖြူ ပြောင်းလဲ',
-    language: 'ဘာသာစကား',
-    language_sub: 'အင်္ဂလိပ် / မြန်မာ',
+    language:      'ဘာသာစကား',
+    language_sub:  'အင်္ဂလိပ် / မြန်မာ',
     notifications_setting: 'အကြောင်းကြားချက်',
-    notifications_sub: 'လက်ကျန်ငွေ ပြောင်းလဲမှု သတိပေး',
-    clear_data: 'ဒေတာ အားလုံး ရှင်းလင်း',
+    notifications_sub:     'လက်ကျန်ငွေ သတိပေး',
+    clear_data:     'ဒေတာ အားလုံး ရှင်းလင်း',
     clear_data_sub: 'ငွေသွင်း/ထုတ် အားလုံး ဖျက်မည်',
-    clear: 'ရှင်းလင်း',
+    clear:  'ရှင်းလင်း',
     logout: 'ထွက်မည်',
     notifications: 'အကြောင်းကြားချက်',
-    clear_all: 'အားလုံး ရှင်းလင်း',
-    no_notifs: 'အကြောင်းကြားချက် မရှိသေးပါ',
-    amount: 'ငွေပမာဏ ($)',
-    category: 'အမျိုးအစား',
+    clear_all:     'အားလုံး ရှင်းလင်း',
+    no_notifs:     'အကြောင်းကြားချက် မရှိသေးပါ',
+    amount:      'ငွေပမာဏ ($)',
+    category:    'အမျိုးအစား',
     description: 'ဖော်ပြချက်',
-    date: 'ရက်စွဲ',
+    date:        'ရက်စွဲ',
     add_transaction: 'ငွေသွင်း/ထုတ် ထည့်',
-    cancel: 'မလုပ်တော့',
+    cancel:  'မလုပ်တော့',
     confirm: 'အတည်ပြု',
-    modal_income_title: 'ဝင်ငွေ ထည့်သည်',
+    modal_income_title:  'ဝင်ငွေ ထည့်သည်',
     modal_expense_title: 'ထွက်ငွေ ထည့်သည်',
-    notif_balance_now: 'သင့်လက်ကျန်ငွေ',
-    notif_added_income: '↑ ဝင်ငွေ ထည့်ပြီး',
+    notif_balance_now:   'သင့်လက်ကျန်ငွေ',
+    notif_added_income:  '↑ ဝင်ငွေ ထည့်ပြီး',
     notif_added_expense: '↓ ထွက်ငွေ ထည့်ပြီး',
-    confirm_delete: 'ဤငွေလွှဲကို ဖျက်မလား?',
+    confirm_delete:     'ဤငွေလွှဲကို ဖျက်မလား?',
     confirm_delete_msg: 'ဤလုပ်ဆောင်ချက်ကို ပြန်မလုပ်နိုင်ပါ။',
-    confirm_clear: 'ဒေတာ အားလုံး ရှင်းမလား?',
-    confirm_clear_msg: 'ငွေသွင်း/ထုတ် အားလုံး ပြည်တမ်း ဖျက်မည်။',
+    confirm_clear:      'ဒေတာ အားလုံး ရှင်းမလား?',
+    confirm_clear_msg:  'ငွေသွင်း/ထုတ် အားလုံး ပြည်တမ်း ဖျက်မည်။',
     no_transactions: 'ငွေသွင်း/ထုတ် မရှိသေးပါ',
-    add_first: '+ ကိုနှိပ်၍ ထည့်ပါ',
-    search_results: 'ရှာဖွေမှု ရလဒ်',
-    quick_actions: 'မြန်ဆန်သော လုပ်ဆောင်ချက်',
-    cat_salary: 'လစာ',
-    cat_freelance: 'ဖရီးလန်စ်',
-    cat_investment: 'ရင်းနှီးမြှုပ်နှံမှု',
-    cat_gift: 'လက်ဆောင်',
+    add_first:       '+ ကိုနှိပ်၍ ထည့်ပါ',
+    search_results:  'ရှာဖွေမှု ရလဒ်',
+    quick_actions:   'မြန်ဆန်သော လုပ်ဆောင်ချက်',
+    cat_salary:       'လစာ',
+    cat_freelance:    'ဖရီးလန်စ်',
+    cat_investment:   'ရင်းနှီး',
+    cat_gift:         'လက်ဆောင်',
     cat_other_income: 'အခြား ဝင်ငွေ',
-    cat_food: 'အစားအသောက်',
-    cat_transport: 'သယ်ယူပို့ဆောင်',
-    cat_shopping: 'ဈေးဝယ်',
-    cat_bills: 'ဘီလ်များ',
-    cat_health: 'ကျန်းမာရေး',
-    cat_entertainment: 'အပျော်အပါး',
-    cat_education: 'ပညာရေး',
-    cat_rent: 'အငှားခ',
-    cat_other_expense: 'အခြား ထွက်ငွေ',
+    cat_food:          'အစားအသောက်',
+    cat_transport:     'သယ်ယူ',
+    cat_shopping:      'ဈေးဝယ်',
+    cat_bills:         'ဘီလ်',
+    cat_health:        'ကျန်းမာ',
+    cat_entertainment: 'အပျော်',
+    cat_education:     'ပညာ',
+    cat_rent:          'အငှားခ',
+    cat_other_expense: 'အခြား',
   }
 };
 
@@ -195,26 +195,28 @@ const CATEGORIES = {
 };
 
 /* ═══════════════════════════════════════════
-   3. APP STATE
+   3. STATE
 ═══════════════════════════════════════════ */
-const state = {
-  transactions:    [],
-  notifications:   [],
-  lang:            'en',
-  theme:           'dark',
-  notifEnabled:    true,
-  userName:        'Alex Morgan',
-  currentFilter:   'all',     // for full transaction list
-  dashFilter:      'all',     // for dashboard feed
-  dateFilter:      '',        // for full transaction list
-  dashDateFilter:  '',        // for dashboard feed
-  confirmCallback: null,
-  searchQuery:     '',
-  fabOpen:         false,
+const S = {
+  transactions:  [],
+  notifications: [],
+  lang:          'en',
+  theme:         'dark',
+  notifEnabled:  true,
+  userName:      'Alex Morgan',
+  /* filters */
+  dashFilter:    'all',
+  dashDate:      '',
+  txnFilter:     'all',
+  txnDate:       '',
+  searchQuery:   '',
+  /* ui */
+  fabOpen:       false,
+  confirmCb:     null,
 };
 
 /* ═══════════════════════════════════════════
-   4. LOCAL STORAGE HELPERS — PRESERVED
+   4. LOCAL STORAGE — PRESERVED keys identical
 ═══════════════════════════════════════════ */
 const LS = {
   transactions:  'novapay_transactions',
@@ -225,255 +227,239 @@ const LS = {
   userName:      'novapay_username',
 };
 
-function saveLS(key, val) {
-  try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
-}
-function loadLS(key, fallback) {
-  try {
-    const v = localStorage.getItem(key);
-    return v !== null ? JSON.parse(v) : fallback;
-  } catch { return fallback; }
-}
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+const lsGet = (k, fb) => { try { const v = localStorage.getItem(k); return v !== null ? JSON.parse(v) : fb; } catch { return fb; } };
+
 function loadState() {
-  state.transactions  = loadLS(LS.transactions,  []);
-  state.notifications = loadLS(LS.notifications, []);
-  state.lang          = loadLS(LS.lang,  'en');
-  state.theme         = loadLS(LS.theme, 'dark');
-  state.notifEnabled  = loadLS(LS.notifEnabled, true);
-  state.userName      = loadLS(LS.userName, 'Alex Morgan');
+  S.transactions  = lsGet(LS.transactions,  []);
+  S.notifications = lsGet(LS.notifications, []);
+  S.lang          = lsGet(LS.lang,  'en');
+  S.theme         = lsGet(LS.theme, 'dark');
+  S.notifEnabled  = lsGet(LS.notifEnabled, true);
+  S.userName      = lsGet(LS.userName, 'Alex Morgan');
 }
-function saveTxns()   { saveLS(LS.transactions,  state.transactions); }
-function saveNotifs() { saveLS(LS.notifications, state.notifications); }
+const saveTxns   = () => lsSet(LS.transactions,  S.transactions);
+const saveNotifs = () => lsSet(LS.notifications, S.notifications);
 
 /* ═══════════════════════════════════════════
    5. FINANCE CALCULATIONS — PRESERVED
 ═══════════════════════════════════════════ */
 function calcTotals() {
-  let income = 0, expense = 0;
-  for (const t of state.transactions) {
-    t.type === 'income' ? income += t.amount : expense += t.amount;
+  let inc = 0, exp = 0;
+  for (const t of S.transactions) {
+    t.type === 'income' ? (inc += t.amount) : (exp += t.amount);
   }
-  return { income, expense, balance: income - expense };
+  return { inc, exp, bal: inc - exp };
 }
 
-function fmt(n) {
-  return new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }).format(n);
-}
+/* Format number with 2 decimal places */
+const fmt = n => new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
 
 /* ═══════════════════════════════════════════
-   6. UI: TOTALS + ROW 2 SUMMARY STRIP
+   6. DOM HELPERS
 ═══════════════════════════════════════════ */
-function updateTotals() {
-  const { income, expense, balance } = calcTotals();
+const $ = id => document.getElementById(id);
+const setText = (id, v) => { const e = $(id); if (e) e.textContent = v; };
 
-  // Balance card (animated)
-  animateNumber('balanceDisplay', balance);
-  setTxt('totalIncomeDisplay',  '$' + fmt(income));
-  setTxt('totalExpenseDisplay', '$' + fmt(expense));
-
-  // Row 2 summary strip (inline, real-time)
-  setTxt('r2Balance', '$' + fmt(balance));
-  setTxt('r2Income',  '$' + fmt(income));
-  setTxt('r2Expense', '$' + fmt(expense));
-
-  // Reports section
-  setTxt('reportIncome',  '$' + fmt(income));
-  setTxt('reportExpense', '$' + fmt(expense));
-  setTxt('reportBalance', '$' + fmt(balance));
-  setTxt('reportCount', state.transactions.length);
-  const balEl = document.getElementById('reportBalance');
-  if (balEl) balEl.style.color = balance >= 0 ? 'var(--income)' : 'var(--expense)';
-}
-
-// Smooth animated number counter — PRESERVED
-function animateNumber(elId, target) {
-  const el = document.getElementById(elId);
+/* ═══════════════════════════════════════════
+   7. ANIMATED COUNTER — PRESERVED
+═══════════════════════════════════════════ */
+function animCount(elId, target) {
+  const el = $(elId);
   if (!el) return;
-  const start = parseFloat(el.textContent.replace(/,/g, '')) || 0;
-  const diff = target - start;
-  const duration = 650;
-  let t0 = null;
-  function step(ts) {
+  const from = parseFloat(el.textContent.replace(/,/g, '')) || 0;
+  const diff = target - from;
+  const dur  = 640;
+  let t0     = null;
+  const step = ts => {
     if (!t0) t0 = ts;
-    const p = Math.min((ts - t0) / duration, 1);
+    const p    = Math.min((ts - t0) / dur, 1);
     const ease = 1 - Math.pow(1 - p, 3);
-    el.textContent = fmt(start + diff * ease);
+    el.textContent = fmt(from + diff * ease);
     if (p < 1) requestAnimationFrame(step);
-  }
+  };
   requestAnimationFrame(step);
 }
 
-function setTxt(id, val) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = val;
+/* ═══════════════════════════════════════════
+   8. UPDATE TOTALS + NAVBAR STRIP
+═══════════════════════════════════════════ */
+function updateTotals() {
+  const { inc, exp, bal } = calcTotals();
+
+  /* ── Balance card (animated) ── */
+  animCount('balanceDisplay', bal);
+  setText('totalIncomeDisplay',  '$' + fmt(inc));
+  setText('totalExpenseDisplay', '$' + fmt(exp));
+
+  /* ── Row-2 inline summary strip ── */
+  setText('r2Balance', '$' + fmt(bal));
+  setText('r2Income',  '$' + fmt(inc));
+  setText('r2Expense', '$' + fmt(exp));
+
+  /* ── Reports ── */
+  setText('repIncome',  '$' + fmt(inc));
+  setText('repExpense', '$' + fmt(exp));
+  setText('repBalance', '$' + fmt(bal));
+  setText('repCount',   S.transactions.length);
+  const rb = $('repBalance');
+  if (rb) rb.style.color = bal >= 0 ? 'var(--inc)' : 'var(--exp)';
 }
 
 /* ═══════════════════════════════════════════
-   7. TRANSACTION RENDERING — PRESERVED + enhanced
+   9. TRANSACTION ITEM BUILDER — PRESERVED
 ═══════════════════════════════════════════ */
 function getCatMeta(type, key) {
   return (CATEGORIES[type] || []).find(c => c.key === key) || { icon: type === 'income' ? '💰' : '💸' };
 }
 
-function makeTxnEl(txn, idx) {
-  const T    = TRANSLATIONS[state.lang];
-  const meta = getCatMeta(txn.type, txn.categoryKey);
+function makeTxnCard(txn, idx) {
+  const T      = TRANSLATIONS[S.lang];
+  const meta   = getCatMeta(txn.type, txn.categoryKey);
   const label  = T[txn.categoryKey] || txn.category;
   const sign   = txn.type === 'income' ? '+' : '-';
-  const dateStr = txn.date
-    ? new Date(txn.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-    : '';
+  const ds     = txn.date ? new Date(txn.date + 'T00:00:00').toLocaleDateString('en-US',
+    { month: 'short', day: 'numeric', year: 'numeric' }) : '';
 
   const div = document.createElement('div');
-  div.className = 'txn-item';
+  div.className = 'txn-card';
   div.style.animationDelay = Math.min(idx * 0.04, 0.5) + 's';
   div.innerHTML = `
-    <div class="txn-icon ${txn.type}">${meta.icon}</div>
-    <div class="txn-details">
-      <div class="txn-category">${label}</div>
+    <div class="txn-ico ${txn.type}">${meta.icon}</div>
+    <div class="txn-info">
+      <div class="txn-cat">${label}</div>
       <div class="txn-desc">${txn.description || ''}</div>
     </div>
     <div class="txn-meta">
-      <div class="txn-amount ${txn.type}">${sign}$${fmt(txn.amount)}</div>
-      <div class="txn-date">${dateStr}</div>
+      <div class="txn-amt ${txn.type}">${sign}$${fmt(txn.amount)}</div>
+      <div class="txn-date">${ds}</div>
     </div>
-    <button class="txn-delete" data-id="${txn.id}" title="Delete">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+    <button class="txn-del" data-id="${txn.id}" title="Delete">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
         <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>
         <path d="M10 11v6M14 11v6M9 6V4h6v2"/>
       </svg>
-    </button>
-  `;
-  div.querySelector('.txn-delete').addEventListener('click', e => {
+    </button>`;
+  div.querySelector('.txn-del').addEventListener('click', e => {
     e.stopPropagation();
     const id = e.currentTarget.dataset.id;
-    showConfirm(
-      TRANSLATIONS[state.lang].confirm_delete,
-      TRANSLATIONS[state.lang].confirm_delete_msg,
-      () => deleteTransaction(id)
-    );
+    const T2 = TRANSLATIONS[S.lang];
+    showConfirm(T2.confirm_delete, T2.confirm_delete_msg, () => deleteTxn(id));
   });
   return div;
 }
 
-function emptyState() {
-  const T = TRANSLATIONS[state.lang];
+function emptyEl() {
+  const T   = TRANSLATIONS[S.lang];
   const div = document.createElement('div');
   div.className = 'empty-state';
   div.innerHTML = `
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
       <path d="M20 7H4a2 2 0 00-2 2v9a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
       <path d="M16 3H8v4h8V3z"/>
     </svg>
     <p>${T.no_transactions}</p>
-    <p style="font-size:0.72rem">${T.add_first}</p>
-  `;
+    <p style="font-size:.7rem">${T.add_first}</p>`;
   return div;
 }
 
-/* Dashboard feed: filtered by dashFilter + dashDateFilter, most recent 20 */
+/* ═══════════════════════════════════════════
+   10. RENDER FEEDS
+═══════════════════════════════════════════ */
+/* Dashboard feed — recent 20, respects dashFilter + dashDate */
 function renderDashFeed() {
-  const el = document.getElementById('dashTransList');
+  const el = $('dashFeed');
   if (!el) return;
-  const filtered = [...state.transactions]
-    .reverse()
-    .filter(t => {
-      const typeOk = state.dashFilter === 'all' || t.type === state.dashFilter;
-      const dateOk = !state.dashDateFilter || t.date === state.dashDateFilter;
-      return typeOk && dateOk;
-    })
-    .slice(0, 20);
+  const list = [...S.transactions].reverse().filter(t => {
+    const typeOk = S.dashFilter === 'all' || t.type === S.dashFilter;
+    const dateOk = !S.dashDate  || t.date === S.dashDate;
+    return typeOk && dateOk;
+  }).slice(0, 20);
   el.innerHTML = '';
-  if (!filtered.length) { el.appendChild(emptyState()); return; }
-  filtered.forEach((t, i) => el.appendChild(makeTxnEl(t, i)));
+  if (!list.length) { el.appendChild(emptyEl()); return; }
+  list.forEach((t, i) => el.appendChild(makeTxnCard(t, i)));
 }
 
-/* Full transaction list: currentFilter + dateFilter */
-function renderFullList() {
-  const el = document.getElementById('fullTransList');
+/* Transactions page feed */
+function renderTxnFeed() {
+  const el = $('txnFeed');
   if (!el) return;
-  const filtered = [...state.transactions]
-    .reverse()
-    .filter(t => {
-      const typeOk = state.currentFilter === 'all' || t.type === state.currentFilter;
-      const dateOk = !state.dateFilter || t.date === state.dateFilter;
-      return typeOk && dateOk;
-    });
+  const list = [...S.transactions].reverse().filter(t => {
+    const typeOk = S.txnFilter === 'all' || t.type === S.txnFilter;
+    const dateOk = !S.txnDate  || t.date === S.txnDate;
+    return typeOk && dateOk;
+  });
   el.innerHTML = '';
-  if (!filtered.length) { el.appendChild(emptyState()); return; }
-  filtered.forEach((t, i) => el.appendChild(makeTxnEl(t, i)));
+  if (!list.length) { el.appendChild(emptyEl()); return; }
+  list.forEach((t, i) => el.appendChild(makeTxnCard(t, i)));
 }
 
 /* Search results */
-function renderSearchResults(query) {
-  const el = document.getElementById('searchResults');
+function renderSearch(q) {
+  const el = $('searchFeed');
   if (!el) return;
-  const T = TRANSLATIONS[state.lang];
-  const q = query.trim().toLowerCase();
-  if (!q) { el.innerHTML = ''; return; }
-  const matches = [...state.transactions].reverse().filter(t => {
-    const label = (T[t.categoryKey] || t.category || '').toLowerCase();
-    const desc  = (t.description || '').toLowerCase();
-    return label.includes(q) || desc.includes(q);
+  const T    = TRANSLATIONS[S.lang];
+  const low  = q.toLowerCase().trim();
+  if (!low) { el.innerHTML = ''; return; }
+  const hits = [...S.transactions].reverse().filter(t => {
+    const lbl  = (T[t.categoryKey] || t.category || '').toLowerCase();
+    const desc = (t.description || '').toLowerCase();
+    return lbl.includes(low) || desc.includes(low);
   });
   el.innerHTML = '';
-  if (!matches.length) { el.appendChild(emptyState()); return; }
-  matches.forEach((t, i) => el.appendChild(makeTxnEl(t, i)));
+  if (!hits.length) { el.appendChild(emptyEl()); return; }
+  hits.forEach((t, i) => el.appendChild(makeTxnCard(t, i)));
 }
 
 /* ═══════════════════════════════════════════
-   8. CATEGORY BREAKDOWN — PRESERVED
+   11. CATEGORY BREAKDOWN — PRESERVED
 ═══════════════════════════════════════════ */
-const CHART_COLORS = [
-  '#00c6b8','#22d3a0','#ff5d7a','#a78bfa','#f59e0b',
-  '#0099d8','#ec4899','#10b981','#f97316','#6366f1'
+const CAT_COLORS = [
+  '#f0a500','#10d48e','#ff4d6d','#a78bfa','#38bdf8',
+  '#34d399','#f97316','#e879f9','#60a5fa','#fb923c'
 ];
 
-function renderCategoryBreakdown() {
-  const el = document.getElementById('categoryBreakdown');
+function renderCatBreakdown() {
+  const el = $('catBreakdown');
   if (!el) return;
   el.innerHTML = '';
-  const T = TRANSLATIONS[state.lang];
+  const T   = TRANSLATIONS[S.lang];
   const map = {};
-  for (const txn of state.transactions) {
-    const label = T[txn.categoryKey] || txn.category;
-    if (!map[label]) map[label] = { total: 0, type: txn.type };
-    map[label].total += txn.amount;
+  for (const txn of S.transactions) {
+    const lbl = T[txn.categoryKey] || txn.category;
+    if (!map[lbl]) map[lbl] = { total: 0, type: txn.type };
+    map[lbl].total += txn.amount;
   }
   const entries = Object.entries(map).sort((a, b) => b[1].total - a[1].total);
   if (!entries.length) {
-    el.innerHTML = '<p style="color:var(--tx-muted);font-size:0.82rem;text-align:center;padding:18px">No data yet</p>';
+    el.innerHTML = '<p style="color:var(--tx3);font-size:.8rem;text-align:center;padding:18px">No data yet</p>';
     return;
   }
-  const max = entries[0][1].total;
+  const maxV = entries[0][1].total;
   entries.forEach(([name, data], i) => {
-    const pct   = (data.total / max) * 100;
-    const color = data.type === 'income' ? 'var(--income)' : CHART_COLORS[i % CHART_COLORS.length];
+    const pct   = (data.total / maxV) * 100;
+    const color = data.type === 'income' ? 'var(--inc)' : CAT_COLORS[i % CAT_COLORS.length];
     const row   = document.createElement('div');
     row.className = 'cat-row';
     row.innerHTML = `
       <div class="cat-dot" style="background:${color}"></div>
       <span class="cat-name">${name}</span>
-      <div class="cat-bar-wrap"><div class="cat-bar" style="width:0%;background:${color}" data-w="${pct}"></div></div>
-      <span class="cat-amount" style="color:${color}">$${fmt(data.total)}</span>
-    `;
+      <div class="cat-bar-wrap"><div class="cat-bar" style="width:0%;background:${color}"></div></div>
+      <span class="cat-amt" style="color:${color}">$${fmt(data.total)}</span>`;
     el.appendChild(row);
-    requestAnimationFrame(() => {
-      setTimeout(() => { row.querySelector('.cat-bar').style.width = pct + '%'; }, 60 + i * 50);
-    });
+    requestAnimationFrame(() =>
+      setTimeout(() => { row.querySelector('.cat-bar').style.width = pct + '%'; }, 60 + i * 50)
+    );
   });
 }
 
 /* ═══════════════════════════════════════════
-   9. SPENDING CHART — PRESERVED (pure canvas)
+   12. SPENDING CHART — PRESERVED (pure canvas)
 ═══════════════════════════════════════════ */
-function drawSpendingChart() {
-  const canvas = document.getElementById('spendingCanvas');
+function drawChart() {
+  const canvas = $('spendingCanvas');
   if (!canvas) return;
-  const days = parseInt(document.getElementById('chartPeriod')?.value) || 7;
+  const days = parseInt($('chartPeriod')?.value) || 7;
   const ctx  = canvas.getContext('2d');
   const dpr  = window.devicePixelRatio || 1;
   const rect = canvas.parentElement.getBoundingClientRect();
@@ -484,152 +470,131 @@ function drawSpendingChart() {
   ctx.scale(dpr, dpr);
 
   const W = rect.width, H = rect.height;
-  const PAD = { top: 10, right: 10, bottom: 24, left: 44 };
-  const now = new Date();
+  const PAD = { t: 10, r: 10, b: 24, l: 44 };
+  const now  = new Date();
 
+  /* Build bucket */
   const buckets = {};
   for (let i = days - 1; i >= 0; i--) {
     const d = new Date(now);
     d.setDate(d.getDate() - i);
     buckets[d.toISOString().split('T')[0]] = 0;
   }
-  for (const txn of state.transactions) {
-    if (txn.type === 'expense' && buckets[txn.date] !== undefined) {
+  for (const txn of S.transactions) {
+    if (txn.type === 'expense' && buckets[txn.date] !== undefined)
       buckets[txn.date] += txn.amount;
-    }
   }
 
   const labels = Object.keys(buckets);
-  const values = Object.values(buckets);
-  const maxV   = Math.max(...values, 1);
-  const chartW = W - PAD.left - PAD.right;
-  const chartH = H - PAD.top  - PAD.bottom;
-  const step   = chartW / (labels.length - 1 || 1);
+  const vals   = Object.values(buckets);
+  const maxV   = Math.max(...vals, 1);
+  const cW     = W - PAD.l - PAD.r;
+  const cH     = H - PAD.t - PAD.b;
+  const step   = cW / (labels.length - 1 || 1);
 
   const pts = labels.map((_, i) => ({
-    x: PAD.left + i * step,
-    y: PAD.top  + chartH - (values[i] / maxV) * chartH
+    x: PAD.l + i * step,
+    y: PAD.t + cH - (vals[i] / maxV) * cH
   }));
 
   ctx.clearRect(0, 0, W, H);
 
-  // Gradient fill
-  const grad = ctx.createLinearGradient(0, PAD.top, 0, PAD.top + chartH);
-  grad.addColorStop(0, 'rgba(0,198,184,0.30)');
-  grad.addColorStop(1, 'rgba(0,198,184,0.00)');
-
+  /* Gradient fill */
+  const g = ctx.createLinearGradient(0, PAD.t, 0, PAD.t + cH);
+  g.addColorStop(0, 'rgba(240,165,0,0.28)');
+  g.addColorStop(1, 'rgba(240,165,0,0.00)');
   ctx.beginPath();
   ctx.moveTo(pts[0].x, pts[0].y);
   for (let i = 1; i < pts.length; i++) {
     const cx = (pts[i-1].x + pts[i].x) / 2;
     ctx.bezierCurveTo(cx, pts[i-1].y, cx, pts[i].y, pts[i].x, pts[i].y);
   }
-  ctx.lineTo(pts[pts.length-1].x, PAD.top + chartH);
-  ctx.lineTo(pts[0].x,            PAD.top + chartH);
+  ctx.lineTo(pts[pts.length-1].x, PAD.t + cH);
+  ctx.lineTo(pts[0].x,            PAD.t + cH);
   ctx.closePath();
-  ctx.fillStyle = grad;
+  ctx.fillStyle = g;
   ctx.fill();
 
-  // Line
+  /* Line */
   ctx.beginPath();
   ctx.moveTo(pts[0].x, pts[0].y);
   for (let i = 1; i < pts.length; i++) {
     const cx = (pts[i-1].x + pts[i].x) / 2;
     ctx.bezierCurveTo(cx, pts[i-1].y, cx, pts[i].y, pts[i].x, pts[i].y);
   }
-  ctx.strokeStyle = '#00c6b8';
-  ctx.lineWidth = 2.2;
+  ctx.strokeStyle = '#f0a500';
+  ctx.lineWidth   = 2.2;
   ctx.stroke();
 
-  // Labels
-  const mutedColor = getComputedStyle(document.documentElement).getPropertyValue('--tx-muted').trim() || '#384560';
-  ctx.fillStyle  = mutedColor;
-  ctx.font       = '10px Outfit, sans-serif';
-  ctx.textAlign  = 'right';
-  ctx.fillText('$' + Math.round(maxV), PAD.left - 6, PAD.top + 9);
-  const fmtD = d => new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  ctx.textAlign = 'left';
-  ctx.fillText(fmtD(labels[0]),            PAD.left,        H - 4);
+  /* Axis labels */
+  const muted = getComputedStyle(document.documentElement).getPropertyValue('--tx3').trim() || '#344258';
+  ctx.fillStyle = muted;
+  ctx.font      = '10px Plus Jakarta Sans, sans-serif';
   ctx.textAlign = 'right';
-  ctx.fillText(fmtD(labels[labels.length-1]), W - PAD.right, H - 4);
+  ctx.fillText('$' + Math.round(maxV), PAD.l - 6, PAD.t + 9);
+  const fd = d => new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  ctx.textAlign = 'left';  ctx.fillText(fd(labels[0]),            PAD.l,        H - 4);
+  ctx.textAlign = 'right'; ctx.fillText(fd(labels[labels.length-1]), W - PAD.r, H - 4);
 
-  // Dots
+  /* Dots */
   pts.forEach(p => {
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-    ctx.fillStyle = '#00c6b8';
-    ctx.fill();
+    ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+    ctx.fillStyle = '#f0a500'; ctx.fill();
   });
 }
 
 /* ═══════════════════════════════════════════
-   10. NOTIFICATIONS — PRESERVED + improved
+   13. NOTIFICATIONS — PRESERVED + improved
+       Every addTransaction fires "Your balance is now $X"
 ═══════════════════════════════════════════ */
-/**
- * Generate "Your balance is now $X" notification after each transaction.
- * PRESERVED: identical message format as original.
- */
-function addNotification(type, amount, newBalance) {
-  if (!state.notifEnabled) return;
-  const T   = TRANSLATIONS[state.lang];
+function addNotif(type, amount, newBalance) {
+  if (!S.notifEnabled) return;
+  const T   = TRANSLATIONS[S.lang];
   const msg = type === 'income'
     ? `${T.notif_added_income} $${fmt(amount)}. ${T.notif_balance_now} $${fmt(newBalance)}`
     : `${T.notif_added_expense} $${fmt(amount)}. ${T.notif_balance_now} $${fmt(newBalance)}`;
-  state.notifications.unshift({
-    id:   Date.now().toString(),
-    type,
-    message: msg,
-    time:    new Date().toISOString(),
-    read:    false,
-  });
-  if (state.notifications.length > 50) state.notifications.pop();
+  S.notifications.unshift({ id: Date.now().toString(), type, msg, time: new Date().toISOString(), read: false });
+  if (S.notifications.length > 50) S.notifications.pop();
   saveNotifs();
   renderNotifPanel();
 }
 
 function renderNotifPanel() {
-  const list  = document.getElementById('notifList');
-  const badge = document.getElementById('notifBadge');
-  const btn   = document.getElementById('notifBtn');
-  const empty = document.getElementById('notifEmpty');
-  if (!list) return;
+  const body  = $('npBody');
+  const empty = $('npEmpty');
+  const dot   = $('bellDot');
+  const bell  = $('bellBtn');
+  if (!body) return;
 
-  const unread = state.notifications.filter(n => !n.read).length;
-  if (unread > 0) {
-    badge.style.display = 'grid';
-    badge.textContent   = unread > 9 ? '9+' : unread;
-    btn?.classList.add('has-notif');
-  } else {
-    badge.style.display = 'none';
-    btn?.classList.remove('has-notif');
-  }
+  const unread = S.notifications.filter(n => !n.read).length;
+  if (dot) dot.style.display = unread > 0 ? 'block' : 'none';
+  if (bell) bell.classList.toggle('ringing', unread > 0);
 
-  // Remove old items (keep empty placeholder)
-  list.querySelectorAll('.notif-item').forEach(n => n.remove());
+  /* Clear existing items (keep empty placeholder) */
+  body.querySelectorAll('.np-item').forEach(el => el.remove());
 
-  if (state.notifications.length === 0) {
-    if (empty) { empty.style.display = 'block'; }
+  if (!S.notifications.length) {
+    if (empty) empty.style.display = 'block';
     return;
   }
   if (empty) empty.style.display = 'none';
 
-  state.notifications.forEach((n, i) => {
-    const item = document.createElement('div');
-    item.className = 'notif-item' + (n.read ? '' : ' unread');
-    item.style.animationDelay = (i * 0.04) + 's';
-    item.innerHTML = `
-      <div class="notif-dot ${n.type}"></div>
-      <div style="flex:1;min-width:0">
-        <div class="notif-text">${n.message}</div>
-        <div class="notif-time">${getRelTime(new Date(n.time))}</div>
+  S.notifications.forEach((n, i) => {
+    const div = document.createElement('div');
+    div.className = 'np-item';
+    div.style.animationDelay = (i * 0.04) + 's';
+    div.innerHTML = `
+      <div class="np-dot ${n.type || 'info'}"></div>
+      <div class="np-content">
+        <div class="np-msg">${n.msg}</div>
+        <div class="np-time">${relTime(new Date(n.time))}</div>
       </div>
-      <div class="notif-unread"></div>
-    `;
-    list.appendChild(item);
+      ${!n.read ? '<div class="np-unread-dot"></div>' : ''}`;
+    body.appendChild(div);
   });
 }
 
-function getRelTime(date) {
+function relTime(date) {
   const s = Math.floor((Date.now() - date) / 1000);
   if (s < 60)    return 'Just now';
   if (s < 3600)  return Math.floor(s / 60)   + 'm ago';
@@ -638,48 +603,75 @@ function getRelTime(date) {
 }
 
 /* ═══════════════════════════════════════════
-   11. TRANSACTION CRUD — PRESERVED
+   14. TRANSACTION CRUD — PRESERVED
 ═══════════════════════════════════════════ */
-function addTransaction(type, amount, categoryKey, category, description, date) {
-  state.transactions.push({
-    id: Date.now().toString(),
-    type, amount, categoryKey, category, description, date
-  });
+function addTxn(type, amount, categoryKey, category, description, date) {
+  S.transactions.push({ id: Date.now().toString(), type, amount, categoryKey, category, description, date });
   saveTxns();
-  const { balance } = calcTotals();
-  addNotification(type, amount, balance);  // ← "Your balance is now $X"
+  const { bal } = calcTotals();
+  addNotif(type, amount, bal);   /* ← "Your balance is now $X" */
   renderAll();
 }
 
-function deleteTransaction(id) {
-  state.transactions = state.transactions.filter(t => t.id !== id);
+function deleteTxn(id) {
+  S.transactions = S.transactions.filter(t => t.id !== id);
   saveTxns();
   renderAll();
 }
 
 /* ═══════════════════════════════════════════
-   12. RENDER ALL
+   15. RENDER ALL
 ═══════════════════════════════════════════ */
 function renderAll() {
   updateTotals();
   renderDashFeed();
-  renderFullList();
-  renderCategoryBreakdown();
-  drawSpendingChart();
+  renderTxnFeed();
+  renderCatBreakdown();
+  drawChart();
 }
 
 /* ═══════════════════════════════════════════
-   13. MODAL MANAGEMENT — PRESERVED
+   16. NAVIGATION
 ═══════════════════════════════════════════ */
-function openTxnModal(type, prefillCatKey = '') {
-  const T   = TRANSLATIONS[state.lang];
-  const box = document.getElementById('txnModalBox');
-  document.getElementById('txnType').value     = type;
-  document.getElementById('modalTitle').textContent = type === 'income' ? T.modal_income_title : T.modal_expense_title;
-  box.className = `modal-box modal-${type}`;
+function goTo(page) {
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('active');
+    p.classList.add('hidden');
+  });
+  const target = $('page-' + page);
+  if (target) { target.classList.remove('hidden'); target.classList.add('active'); }
 
-  // Populate category select
-  const sel = document.getElementById('txnCategory');
+  document.querySelectorAll('.bn-btn').forEach(b => b.classList.remove('active'));
+  const bnBtn = $('bn-' + page);
+  if (bnBtn) bnBtn.classList.add('active');
+
+  closeAll();
+  if (page === 'reports') { renderCatBreakdown(); setTimeout(drawChart, 60); }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goSearch() {
+  document.querySelectorAll('.page').forEach(p => { p.classList.remove('active'); p.classList.add('hidden'); });
+  const p = $('page-search');
+  if (p) { p.classList.remove('hidden'); p.classList.add('active'); }
+  /* keep dashboard tab highlighted */
+  document.querySelectorAll('.bn-btn').forEach(b => b.classList.remove('active'));
+  const d = $('bn-dashboard');
+  if (d) d.classList.add('active');
+}
+
+/* ═══════════════════════════════════════════
+   17. MODAL
+═══════════════════════════════════════════ */
+function openModal(type, prefillCat = '') {
+  const T   = TRANSLATIONS[S.lang];
+  const box = $('txnCard');
+  $('txnType').value    = type;
+  setText('mcTitle', type === 'income' ? T.modal_income_title : T.modal_expense_title);
+  box.className = `modal-card modal-${type}`;
+
+  /* Populate category select */
+  const sel = $('txnCategory');
   sel.innerHTML = '';
   CATEGORIES[type].forEach(cat => {
     const opt = document.createElement('option');
@@ -687,485 +679,330 @@ function openTxnModal(type, prefillCatKey = '') {
     opt.textContent = cat.icon + ' ' + (T[cat.key] || cat.key);
     sel.appendChild(opt);
   });
-  if (prefillCatKey) sel.value = prefillCatKey;
+  if (prefillCat) sel.value = prefillCat;
 
-  document.getElementById('txnDate').value   = new Date().toISOString().split('T')[0];
-  document.getElementById('txnAmount').value = '';
-  document.getElementById('txnDesc').value   = '';
-  document.getElementById('txnSubmit').textContent = T.add_transaction;
+  $('txnDate').value   = new Date().toISOString().split('T')[0];
+  $('txnAmount').value = '';
+  $('txnDesc').value   = '';
+  setText('txnSubmit', T.add_transaction);
 
-  document.getElementById('txnModal').classList.add('open');
-  setTimeout(() => document.getElementById('txnAmount').focus(), 220);
+  $('txnVeil').classList.add('open');
+  setTimeout(() => $('txnAmount')?.focus(), 220);
 }
 
-function closeTxnModal() {
-  document.getElementById('txnModal').classList.remove('open');
-}
+function closeModal() { $('txnVeil').classList.remove('open'); }
 
 function showConfirm(title, msg, cb) {
-  setTxt('confirmTitle', title);
-  setTxt('confirmMsg',   msg);
-  state.confirmCallback = cb;
-  document.getElementById('confirmModal').classList.add('open');
+  setText('cfmTitle', title);
+  setText('cfmMsg',   msg);
+  S.confirmCb = cb;
+  $('cfmVeil').classList.add('open');
 }
+function closeConfirm() { $('cfmVeil').classList.remove('open'); S.confirmCb = null; }
 
-function closeConfirm() {
-  document.getElementById('confirmModal').classList.remove('open');
-  state.confirmCallback = null;
+/* ═══════════════════════════════════════════
+   18. THEME — PRESERVED
+═══════════════════════════════════════════ */
+function applyTheme(t) {
+  S.theme = t;
+  document.documentElement.dataset.theme = t;
+  const tc = $('themeCheck');   if (tc) tc.checked = t === 'dark';
+  const tt = $('themeToggle');  if (tt) tt.checked = t === 'dark';
+  lsSet(LS.theme, t);
+  setTimeout(drawChart, 50);
 }
 
 /* ═══════════════════════════════════════════
-   14. NAVIGATION (Bottom Nav + Sections)
+   19. LANGUAGE — PRESERVED
 ═══════════════════════════════════════════ */
-function navigateTo(section) {
-  // Hide all sections
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  // Show target
-  const target = document.getElementById('section-' + section);
-  if (target) target.classList.add('active');
-
-  // Update bottom nav active state
-  document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('active'));
-  const activeBtn = document.getElementById('bn-' + section);
-  if (activeBtn) activeBtn.classList.add('active');
-
-  // Close any open dropdowns
-  closeAllDropdowns();
-
-  // Section-specific actions
-  if (section === 'reports') {
-    renderCategoryBreakdown();
-    setTimeout(drawSpendingChart, 60);
-  }
-  if (section === 'search') {
-    // Don't update bottom nav for search overlay
-    document.querySelectorAll('.bn-item').forEach(b => {
-      if (b.dataset.section === 'dashboard') b.classList.add('active');
-    });
-  }
-
-  // Scroll to top
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-/* ═══════════════════════════════════════════
-   15. THEME — PRESERVED
-═══════════════════════════════════════════ */
-function applyTheme(theme) {
-  state.theme = theme;
-  document.documentElement.dataset.theme = theme;
-  const checkbox  = document.getElementById('themeCheckbox');
-  const ddChk     = document.getElementById('ddThemeChk');
-  if (checkbox) checkbox.checked = theme === 'dark';
-  if (ddChk)    ddChk.checked    = theme === 'dark';
-  saveLS(LS.theme, theme);
-  setTimeout(drawSpendingChart, 50);
-}
-
-/* ═══════════════════════════════════════════
-   16. LANGUAGE — PRESERVED
-═══════════════════════════════════════════ */
-function applyLanguage(lang) {
-  state.lang = lang;
-  const T    = TRANSLATIONS[lang];
-  saveLS(LS.lang, lang);
-
-  // Update all data-i18n elements
+function applyLang(lang) {
+  S.lang = lang;
+  const T = TRANSLATIONS[lang];
+  lsSet(LS.lang, lang);
   document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.dataset.i18n;
-    if (T[key] !== undefined) el.textContent = T[key];
+    const k = el.dataset.i18n;
+    if (T[k] !== undefined) el.textContent = T[k];
   });
-
-  // Language label buttons
   const isEn = lang === 'en';
-  setTxt('langBtnLabel',  isEn ? 'English'       : 'မြန်မာ');
-  setTxt('ddLangLabel',   isEn ? 'Switch to မြန်မာ' : 'Switch to English');
-
+  setText('langBtnLbl',    isEn ? 'English' : 'မြန်မာ');
+  setText('menuLangLabel', isEn ? 'Switch to မြန်မာ' : 'Switch to English');
   updateGreeting();
   renderAll();
   renderNotifPanel();
 }
-
-function toggleLanguage() {
-  applyLanguage(state.lang === 'en' ? 'my' : 'en');
-}
+const toggleLang = () => applyLang(S.lang === 'en' ? 'my' : 'en');
 
 /* ═══════════════════════════════════════════
-   17. GREETING & DATE — PRESERVED
+   20. GREETING & DATE — PRESERVED
 ═══════════════════════════════════════════ */
 function updateGreeting() {
   const h = new Date().getHours();
-  const T = TRANSLATIONS[state.lang];
-  let key = h < 12 ? 'good_morning' : h < 17 ? 'good_afternoon' : 'good_evening';
-  setTxt('greetingText', T[key]);
-  setTxt('greetingName', state.userName.split(' ')[0] + ' 👋');
+  const T = TRANSLATIONS[S.lang];
+  setText('greetText', h < 12 ? T.good_morning : h < 17 ? T.good_afternoon : T.good_evening);
+  setText('greetName', S.userName.split(' ')[0] + ' 👋');
 }
 
-function updateDateBadge() {
-  const el = document.getElementById('dateBadge');
-  if (el) el.textContent = new Date().toLocaleDateString('en-US', {
-    weekday: 'long', month: 'long', day: 'numeric'
-  });
+function updateDate() {
+  const el = $('dateChip');
+  if (el) el.textContent = new Date().toLocaleDateString('en-US',
+    { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 /* ═══════════════════════════════════════════
-   18. EXPORT CSV — PRESERVED
+   21. EXPORT CSV — PRESERVED
 ═══════════════════════════════════════════ */
 function exportCSV() {
-  const T      = TRANSLATIONS[state.lang];
-  const header = ['Date','Type','Category','Description','Amount'].join(',');
-  const rows   = state.transactions.map(txn => [
-    txn.date,
-    txn.type,
-    (T[txn.categoryKey] || txn.category).replace(/,/g, ';'),
-    (txn.description || '').replace(/,/g, ';'),
-    txn.amount.toFixed(2)
+  const T   = TRANSLATIONS[S.lang];
+  const hdr = ['Date','Type','Category','Description','Amount'].join(',');
+  const rows = S.transactions.map(t => [
+    t.date, t.type,
+    (T[t.categoryKey] || t.category).replace(/,/g, ';'),
+    (t.description || '').replace(/,/g, ';'),
+    t.amount.toFixed(2)
   ].join(','));
-  const csv  = [header, ...rows].join('\n');
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url  = URL.createObjectURL(blob);
+  const csv  = [hdr, ...rows].join('\n');
+  const url  = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
   const a    = document.createElement('a');
-  a.href     = url;
-  a.download = `novapay-${new Date().toISOString().split('T')[0]}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
+  a.href = url; a.download = `finpay-${new Date().toISOString().split('T')[0]}.csv`;
+  a.click(); URL.revokeObjectURL(url);
 }
 
 /* ═══════════════════════════════════════════
-   19. PROFILE — PRESERVED
+   22. PROFILE — PRESERVED
 ═══════════════════════════════════════════ */
-function updateProfileUI() {
-  const name = state.userName;
+function updateProfile() {
+  const name = S.userName;
   const init = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'A';
-  setTxt('topAvatar',          init[0]);
-  setTxt('profileAvatarLarge', init[0]);
-  const ni = document.getElementById('profileNameInput');
+  setText('avatarLetter', init[0]);
+  setText('avatarName',   name.split(' ')[0]);
+  setText('pcAvatar',     init[0]);
+  const ni = $('profileNameInput');
   if (ni) ni.value = name;
   updateGreeting();
 }
 
 /* ═══════════════════════════════════════════
-   20. DROPDOWN HELPERS
+   23. FAB
 ═══════════════════════════════════════════ */
-function closeAllDropdowns() {
-  document.getElementById('dotsDropdown')?.classList.remove('open');
-  document.getElementById('notifDropdown')?.classList.remove('open');
-  document.getElementById('dotsBtn')?.classList.remove('active');
+function toggleFab(force) {
+  const open     = force !== undefined ? force : !S.fabOpen;
+  S.fabOpen      = open;
+  $('fabMain')?.classList.toggle('open', open);
+  $('fabSub')?.classList.toggle('open', open);
+  $('fabBackdrop')?.classList.toggle('show', open);
 }
 
 /* ═══════════════════════════════════════════
-   21. FAB (Floating Action Button)
+   24. CLOSE ALL PANELS
 ═══════════════════════════════════════════ */
-function toggleFab(force = null) {
-  const fab     = document.getElementById('fabBtn');
-  const actions = document.getElementById('fabActions');
-  const overlay = document.getElementById('fabOverlay');
-  const open    = force !== null ? force : !state.fabOpen;
-  state.fabOpen = open;
-  fab?.classList.toggle('open', open);
-  actions?.classList.toggle('open', open);
-  overlay?.classList.toggle('open', open);
+function closeAll() {
+  $('dotsMenu')?.classList.remove('open');
+  $('dotsBtn')?.classList.remove('open');
+  $('notifPanel')?.classList.remove('open');
+  toggleFab(false);
 }
 
 /* ═══════════════════════════════════════════
-   22. SEARCH
+   25. SEARCH
 ═══════════════════════════════════════════ */
 function handleSearch(q) {
-  state.searchQuery = q;
-  const clear = document.getElementById('searchClear');
-  if (clear) clear.classList.toggle('visible', q.length > 0);
-
+  S.searchQuery = q;
+  const clear = $('searchClear');
+  if (clear) clear.classList.toggle('show', q.length > 0);
   if (q.trim()) {
-    navigateTo('search');
-    renderSearchResults(q);
+    goSearch();
+    renderSearch(q);
+    setText('searchResultLabel', TRANSLATIONS[S.lang].search_results + ': "' + q + '"');
   } else {
-    navigateTo('dashboard');
+    goTo('dashboard');
   }
 }
 
 /* ═══════════════════════════════════════════
-   23. EVENT WIRING
+   26. WIRE ALL EVENTS
 ═══════════════════════════════════════════ */
-function wireEvents() {
+function wire() {
 
-  /* ── Bottom Navigation ── */
-  document.querySelectorAll('.bn-item[data-section]').forEach(btn => {
-    btn.addEventListener('click', () => navigateTo(btn.dataset.section));
+  /* ── Bottom nav ── */
+  document.querySelectorAll('.bn-btn[data-page]').forEach(btn => {
+    btn.addEventListener('click', () => goTo(btn.dataset.page));
   });
 
   /* ── FAB ── */
-  document.getElementById('fabBtn')?.addEventListener('click', e => {
-    e.stopPropagation();
-    toggleFab();
-  });
-  document.getElementById('fabIncome')?.addEventListener('click', () => {
-    toggleFab(false);
-    openTxnModal('income');
-  });
-  document.getElementById('fabExpense')?.addEventListener('click', () => {
-    toggleFab(false);
-    openTxnModal('expense');
-  });
-  document.getElementById('fabOverlay')?.addEventListener('click', () => toggleFab(false));
+  $('fabMain')?.addEventListener('click', e => { e.stopPropagation(); toggleFab(); });
+  $('fabIncome')?.addEventListener('click',  () => { toggleFab(false); openModal('income'); });
+  $('fabExpense')?.addEventListener('click', () => { toggleFab(false); openModal('expense'); });
+  $('fabBackdrop')?.addEventListener('click', () => toggleFab(false));
 
-  /* ── Quick category grid (dashboard) ── */
+  /* ── Quick category grid ── */
   document.querySelectorAll('.qcat-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const type = btn.dataset.type;
-      const cat  = btn.dataset.cat;
-      openTxnModal(type, cat);
-    });
-  });
-
-  /* ── 3-Dots button ── */
-  document.getElementById('dotsBtn')?.addEventListener('click', e => {
-    e.stopPropagation();
-    const dd  = document.getElementById('dotsDropdown');
-    const btn = document.getElementById('dotsBtn');
-    const open = dd.classList.toggle('open');
-    btn.classList.toggle('active', open);
-    // Close notif if open
-    if (open) document.getElementById('notifDropdown')?.classList.remove('open');
-  });
-
-  /* 3-dots: Dark mode toggle */
-  document.getElementById('ddThemeChk')?.addEventListener('change', e => {
-    applyTheme(e.target.checked ? 'dark' : 'light');
-  });
-
-  /* 3-dots: Add Income */
-  document.getElementById('ddAddIncome')?.addEventListener('click', () => {
-    closeAllDropdowns();
-    openTxnModal('income');
-  });
-
-  /* 3-dots: Add Expense */
-  document.getElementById('ddAddExpense')?.addEventListener('click', () => {
-    closeAllDropdowns();
-    openTxnModal('expense');
-  });
-
-  /* 3-dots: History */
-  document.getElementById('ddHistory')?.addEventListener('click', () => {
-    closeAllDropdowns();
-    navigateTo('transactions');
-  });
-
-  /* 3-dots: Language */
-  document.getElementById('ddLang')?.addEventListener('click', () => {
-    toggleLanguage();
-    closeAllDropdowns();
-  });
-
-  /* ── Search ── */
-  const searchInput = document.getElementById('searchInput');
-  searchInput?.addEventListener('input', e => handleSearch(e.target.value));
-  searchInput?.addEventListener('keydown', e => { if (e.key === 'Escape') { searchInput.value = ''; handleSearch(''); } });
-  document.getElementById('searchClear')?.addEventListener('click', () => {
-    if (searchInput) { searchInput.value = ''; handleSearch(''); searchInput.focus(); }
+    btn.addEventListener('click', () => openModal(btn.dataset.type, btn.dataset.cat));
   });
 
   /* ── Avatar → Settings ── */
-  document.getElementById('avatarBtn')?.addEventListener('click', () => navigateTo('settings'));
+  $('avatarBtn')?.addEventListener('click', () => goTo('settings'));
 
-  /* ── Notification bell ── */
-  document.getElementById('notifBtn')?.addEventListener('click', e => {
+  /* ── 3-dots button ── */
+  $('dotsBtn')?.addEventListener('click', e => {
     e.stopPropagation();
-    const dd = document.getElementById('notifDropdown');
-    const open = dd.classList.toggle('open');
+    const open = $('dotsMenu').classList.toggle('open');
+    $('dotsBtn').classList.toggle('open', open);
+    if (open) $('notifPanel')?.classList.remove('open');
+  });
+
+  /* 3-dots items */
+  $('themeCheck')?.addEventListener('change', e => applyTheme(e.target.checked ? 'dark' : 'light'));
+  $('menuAddIncome')?.addEventListener('click',  () => { closeAll(); openModal('income'); });
+  $('menuAddExpense')?.addEventListener('click', () => { closeAll(); openModal('expense'); });
+  $('menuHistory')?.addEventListener('click',   () => { closeAll(); goTo('transactions'); });
+  $('menuLang')?.addEventListener('click',      () => { toggleLang(); closeAll(); });
+
+  /* ── Search ── */
+  $('searchInput')?.addEventListener('input',   e => handleSearch(e.target.value));
+  $('searchInput')?.addEventListener('keydown', e => { if (e.key === 'Escape') { $('searchInput').value = ''; handleSearch(''); } });
+  $('searchClear')?.addEventListener('click',   () => { $('searchInput').value = ''; handleSearch(''); $('searchInput')?.focus(); });
+
+  /* ── Bell ── */
+  $('bellBtn')?.addEventListener('click', e => {
+    e.stopPropagation();
+    const open = $('notifPanel').classList.toggle('open');
     if (open) {
-      document.getElementById('dotsDropdown')?.classList.remove('open');
-      document.getElementById('dotsBtn')?.classList.remove('active');
-      // Mark all as read on open
-      state.notifications.forEach(n => n.read = true);
+      $('dotsMenu')?.classList.remove('open');
+      $('dotsBtn')?.classList.remove('open');
+      /* Mark all read */
+      S.notifications.forEach(n => n.read = true);
       saveNotifs();
       renderNotifPanel();
     }
   });
-  document.getElementById('notifClear')?.addEventListener('click', () => {
-    state.notifications = [];
-    saveNotifs();
-    renderNotifPanel();
+  $('npClear')?.addEventListener('click', () => { S.notifications = []; saveNotifs(); renderNotifPanel(); });
+
+  /* ── Close on outside click ── */
+  document.addEventListener('click', e => {
+    if (!$('dotsShell')?.contains(e.target))  { $('dotsMenu')?.classList.remove('open'); $('dotsBtn')?.classList.remove('open'); }
+    if (!$('bellShell')?.contains(e.target))   $('notifPanel')?.classList.remove('open');
   });
 
   /* ── Dashboard filter tabs ── */
-  document.getElementById('dashFilterTabs')?.addEventListener('click', e => {
-    const btn = e.target.closest('.filter-tab');
+  $('dashTabs')?.addEventListener('click', e => {
+    const btn = e.target.closest('.ftab');
     if (!btn) return;
-    document.querySelectorAll('#dashFilterTabs .filter-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#dashTabs .ftab').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    state.dashFilter = btn.dataset.filter;
+    S.dashFilter = btn.dataset.filter;
     renderDashFeed();
   });
-  document.getElementById('dashDateFilter')?.addEventListener('change', e => {
-    state.dashDateFilter = e.target.value;
-    renderDashFeed();
-  });
+  $('dashDate')?.addEventListener('change', e => { S.dashDate = e.target.value; renderDashFeed(); });
 
-  /* ── Transaction section filter tabs ── */
-  document.getElementById('txnFilterTabs')?.addEventListener('click', e => {
-    const btn = e.target.closest('.filter-tab');
+  /* ── Transactions filter tabs ── */
+  $('txnTabs')?.addEventListener('click', e => {
+    const btn = e.target.closest('.ftab');
     if (!btn) return;
-    document.querySelectorAll('#txnFilterTabs .filter-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#txnTabs .ftab').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    state.currentFilter = btn.dataset.filter;
-    renderFullList();
+    S.txnFilter = btn.dataset.filter;
+    renderTxnFeed();
   });
-  document.getElementById('txnDateFilter')?.addEventListener('change', e => {
-    state.dateFilter = e.target.value;
-    renderFullList();
-  });
+  $('txnDate')?.addEventListener('change', e => { S.txnDate = e.target.value; renderTxnFeed(); });
 
-  /* ── Export CSV (both buttons) ── */
-  document.getElementById('exportCsvBtnDash')?.addEventListener('click', exportCSV);
-  document.getElementById('exportCsvBtnTxn')?.addEventListener('click',  exportCSV);
+  /* ── CSV buttons ── */
+  $('csvBtnDash')?.addEventListener('click', exportCSV);
+  $('csvBtnTxn')?.addEventListener('click',  exportCSV);
 
-  /* ── Transaction Modal ── */
-  document.getElementById('modalClose')?.addEventListener('click', closeTxnModal);
-  document.getElementById('txnModal')?.addEventListener('click', e => {
-    if (e.target === document.getElementById('txnModal')) closeTxnModal();
-  });
-  document.getElementById('txnModal')?.addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('txnSubmit')?.click();
-  });
-
-  document.getElementById('txnSubmit')?.addEventListener('click', () => {
-    const type   = document.getElementById('txnType').value;
-    const amount = parseFloat(document.getElementById('txnAmount').value);
-    const catKey = document.getElementById('txnCategory').value;
-    const desc   = document.getElementById('txnDesc').value.trim();
-    const date   = document.getElementById('txnDate').value;
-    const T      = TRANSLATIONS[state.lang];
+  /* ── Transaction modal ── */
+  $('mcClose')?.addEventListener('click', closeModal);
+  $('txnVeil')?.addEventListener('click', e => { if (e.target === $('txnVeil')) closeModal(); });
+  $('txnVeil')?.addEventListener('keydown', e => { if (e.key === 'Enter') $('txnSubmit')?.click(); });
+  $('txnSubmit')?.addEventListener('click', () => {
+    const type   = $('txnType').value;
+    const amount = parseFloat($('txnAmount').value);
+    const catKey = $('txnCategory').value;
+    const desc   = $('txnDesc').value.trim();
+    const date   = $('txnDate').value;
+    const T      = TRANSLATIONS[S.lang];
 
     if (!amount || amount <= 0) {
-      const inp = document.getElementById('txnAmount');
+      const inp = $('txnAmount');
+      inp.style.borderColor = 'var(--exp)';
       inp.focus();
-      inp.style.borderColor = 'var(--expense)';
       setTimeout(() => inp.style.borderColor = '', 1400);
       return;
     }
     const catName = T[catKey] || catKey || (type === 'income' ? T.cat_other_income : T.cat_other_expense);
-    addTransaction(type, amount, catKey || `cat_other_${type}`, catName, desc, date);
-    closeTxnModal();
+    addTxn(type, amount, catKey || 'cat_other_' + type, catName, desc, date);
+    closeModal();
   });
 
   /* ── Confirm modal ── */
-  document.getElementById('confirmCancel')?.addEventListener('click', closeConfirm);
-  document.getElementById('confirmModal')?.addEventListener('click', e => {
-    if (e.target === document.getElementById('confirmModal')) closeConfirm();
-  });
-  document.getElementById('confirmOk')?.addEventListener('click', () => {
-    state.confirmCallback?.();
-    closeConfirm();
-  });
+  $('cfmCancel')?.addEventListener('click', closeConfirm);
+  $('cfmVeil')?.addEventListener('click', e => { if (e.target === $('cfmVeil')) closeConfirm(); });
+  $('cfmOk')?.addEventListener('click', () => { S.confirmCb?.(); closeConfirm(); });
 
   /* ── Settings ── */
-  // Theme toggle (settings)
-  document.getElementById('themeCheckbox')?.addEventListener('change', e => {
-    applyTheme(e.target.checked ? 'dark' : 'light');
+  $('themeToggle')?.addEventListener('change', e => applyTheme(e.target.checked ? 'dark' : 'light'));
+  $('langBtn')?.addEventListener('click', toggleLang);
+  $('notifToggle')?.addEventListener('change', e => { S.notifEnabled = e.target.checked; lsSet(LS.notifEnabled, S.notifEnabled); });
+  $('profileNameInput')?.addEventListener('input', e => {
+    S.userName = e.target.value || 'User';
+    lsSet(LS.userName, S.userName);
+    updateProfile();
   });
-  // Language toggle (settings)
-  document.getElementById('langBtnSettings')?.addEventListener('click', toggleLanguage);
-  // Notif enabled
-  document.getElementById('notifToggle')?.addEventListener('change', e => {
-    state.notifEnabled = e.target.checked;
-    saveLS(LS.notifEnabled, state.notifEnabled);
+  $('clearBtn')?.addEventListener('click', () => {
+    const T = TRANSLATIONS[S.lang];
+    showConfirm(T.confirm_clear, T.confirm_clear_msg, () => { S.transactions = []; saveTxns(); renderAll(); });
   });
-  // Profile name
-  document.getElementById('profileNameInput')?.addEventListener('input', e => {
-    state.userName = e.target.value || 'User';
-    saveLS(LS.userName, state.userName);
-    updateProfileUI();
-  });
-  // Clear data
-  document.getElementById('clearDataBtn')?.addEventListener('click', () => {
-    const T = TRANSLATIONS[state.lang];
-    showConfirm(T.confirm_clear, T.confirm_clear_msg, () => {
-      state.transactions = [];
-      saveTxns();
-      renderAll();
-    });
-  });
-  // Logout
-  document.getElementById('logoutBtn')?.addEventListener('click', () => {
-    showConfirm('Logout?', 'Your data is safely stored locally. You can return anytime.', () => {
-      localStorage.clear();
-      location.reload();
-    });
+  $('logoutBtn')?.addEventListener('click', () => {
+    showConfirm('Logout?', 'Your data is safely stored locally.', () => { localStorage.clear(); location.reload(); });
   });
 
   /* ── Chart period ── */
-  document.getElementById('chartPeriod')?.addEventListener('change', drawSpendingChart);
+  $('chartPeriod')?.addEventListener('change', drawChart);
 
-  /* ── Close dropdowns on outside click ── */
-  document.addEventListener('click', e => {
-    if (!document.getElementById('dotsWrap')?.contains(e.target)) {
-      document.getElementById('dotsDropdown')?.classList.remove('open');
-      document.getElementById('dotsBtn')?.classList.remove('active');
-    }
-    if (!document.getElementById('notifWrap')?.contains(e.target)) {
-      document.getElementById('notifDropdown')?.classList.remove('open');
-    }
-  });
-
-  /* ── Keyboard ── */
+  /* ── Global keyboard shortcuts ── */
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-      closeTxnModal();
-      closeConfirm();
-      closeAllDropdowns();
-      toggleFab(false);
-      const si = document.getElementById('searchInput');
-      if (si?.value) { si.value = ''; handleSearch(''); }
-    }
+    if (e.key === 'Escape') { closeModal(); closeConfirm(); closeAll(); $('searchInput') && ($('searchInput').value = '') && handleSearch(''); }
   });
 
   /* ── Resize: redraw chart ── */
-  let resizeTimer;
-  window.addEventListener('resize', () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(drawSpendingChart, 200);
-  });
+  let rt;
+  window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(drawChart, 200); });
 }
 
 /* ═══════════════════════════════════════════
-   24. INIT
+   27. INIT
 ═══════════════════════════════════════════ */
 function init() {
   loadState();
-  applyTheme(state.theme);
-  applyLanguage(state.lang);
-  updateDateBadge();
-  updateProfileUI();
+  applyTheme(S.theme);
+  applyLang(S.lang);
+  updateDate();
+  updateProfile();
 
-  const notifToggle = document.getElementById('notifToggle');
-  if (notifToggle) notifToggle.checked = state.notifEnabled;
+  const nt = $('notifToggle');
+  if (nt) nt.checked = S.notifEnabled;
 
-  wireEvents();
+  wire();
   renderAll();
   renderNotifPanel();
 
-  // Seed demo data once if empty
-  if (state.transactions.length === 0) {
-    const today     = new Date().toISOString().split('T')[0];
-    const yday      = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-    const twoDays   = new Date(Date.now() - 172800000).toISOString().split('T')[0];
-    state.transactions = [
-      { id:'1', type:'income',  amount:5200, categoryKey:'cat_salary',      category:'Salary',      description:'Monthly salary',    date: twoDays },
-      { id:'2', type:'expense', amount:120,  categoryKey:'cat_food',         category:'Food',         description:'Lunch & dinner',    date: twoDays },
-      { id:'3', type:'expense', amount:45,   categoryKey:'cat_transport',    category:'Transport',    description:'Grab rides',        date: yday },
-      { id:'4', type:'income',  amount:850,  categoryKey:'cat_freelance',    category:'Freelance',    description:'Design project',    date: yday },
-      { id:'5', type:'expense', amount:299,  categoryKey:'cat_shopping',     category:'Shopping',     description:'Online order',      date: today },
+  /* Seed demo data if empty */
+  if (!S.transactions.length) {
+    const td  = new Date().toISOString().split('T')[0];
+    const yd  = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+    const d2  = new Date(Date.now() - 172800000).toISOString().split('T')[0];
+    S.transactions = [
+      { id:'1', type:'income',  amount:5200, categoryKey:'cat_salary',      category:'Salary',      description:'Monthly salary',  date:d2 },
+      { id:'2', type:'expense', amount:120,  categoryKey:'cat_food',         category:'Food',         description:'Lunch & dinner',  date:d2 },
+      { id:'3', type:'expense', amount:45,   categoryKey:'cat_transport',    category:'Transport',    description:'Grab rides',       date:yd },
+      { id:'4', type:'income',  amount:850,  categoryKey:'cat_freelance',    category:'Freelance',    description:'Design project',   date:yd },
+      { id:'5', type:'expense', amount:299,  categoryKey:'cat_shopping',     category:'Shopping',     description:'Online order',     date:td },
     ];
     saveTxns();
     renderAll();
   }
 
-  console.log('%c NovaPay 2.0 Ready ✓ ', 'background:#00c6b8;color:#fff;padding:4px 10px;border-radius:4px;font-weight:bold');
+  console.log('%c FinPay Dashboard Ready ✓ ', 'background:#f0a500;color:#1a0f00;padding:4px 10px;border-radius:4px;font-weight:bold');
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
-}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
