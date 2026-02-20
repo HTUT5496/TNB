@@ -20,7 +20,9 @@
   <!-- ── ROW 1 ─────────────────────────── -->
   <div class="cmd-row cmd-row1">
     <button class="avatar-pill" id="avatarBtn" aria-label="Profile">
-      <span class="avatar-ring">
+      <span class="avatar-ring" id="avatarRing">
+        <!-- Google avatar img injected here if social login -->
+        <img class="avatar-img" id="avatarImg" src="" alt="" style="display:none"/>
         <span class="avatar-letter" id="avatarLetter">A</span>
       </span>
       <span class="avatar-name" id="avatarName">Alex</span>
@@ -169,35 +171,20 @@
       </div>
     </div>
 
-    <!-- Quick Actions -->
+    <!-- ═══════════════════════════════════
+         QUICK ACTIONS — UPGRADED
+         Each card shows: icon, name,
+         subtitle ("Total Added"/"Total Used")
+         and dynamic amount from Supabase/state
+    ════════════════════════════════════ -->
     <div class="section-row">
       <h2 class="section-label" data-i18n="quick_actions">Quick Actions</h2>
+      <span class="qa-subtitle-hint">Tap to add transaction</span>
     </div>
+
+    <!-- Quick Action cards rendered dynamically by JS into this grid -->
     <div class="qcat-grid" id="qcatGrid">
-      <button class="qcat-btn qcat-income" data-type="income" data-cat="cat_salary">
-        <span class="qcat-ico">💼</span><span class="qcat-txt" data-i18n="cat_salary">Salary</span>
-      </button>
-      <button class="qcat-btn qcat-income" data-type="income" data-cat="cat_freelance">
-        <span class="qcat-ico">💻</span><span class="qcat-txt" data-i18n="cat_freelance">Freelance</span>
-      </button>
-      <button class="qcat-btn qcat-income" data-type="income" data-cat="cat_investment">
-        <span class="qcat-ico">📈</span><span class="qcat-txt" data-i18n="cat_investment">Invest</span>
-      </button>
-      <button class="qcat-btn qcat-expense" data-type="expense" data-cat="cat_food">
-        <span class="qcat-ico">🍜</span><span class="qcat-txt" data-i18n="cat_food">Food</span>
-      </button>
-      <button class="qcat-btn qcat-expense" data-type="expense" data-cat="cat_transport">
-        <span class="qcat-ico">🚗</span><span class="qcat-txt" data-i18n="cat_transport">Transport</span>
-      </button>
-      <button class="qcat-btn qcat-expense" data-type="expense" data-cat="cat_shopping">
-        <span class="qcat-ico">🛍️</span><span class="qcat-txt" data-i18n="cat_shopping">Shopping</span>
-      </button>
-      <button class="qcat-btn qcat-expense" data-type="expense" data-cat="cat_bills">
-        <span class="qcat-ico">📄</span><span class="qcat-txt" data-i18n="cat_bills">Bills</span>
-      </button>
-      <button class="qcat-btn qcat-expense" data-type="expense" data-cat="cat_health">
-        <span class="qcat-ico">💊</span><span class="qcat-txt" data-i18n="cat_health">Health</span>
-      </button>
+      <!-- Cards injected by renderQuickActions() -->
     </div>
 
     <!-- Recent Activity -->

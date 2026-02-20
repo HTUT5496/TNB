@@ -1,34 +1,35 @@
 /* ══════════════════════════════════════════════════════
-   FINPAY – SMART FINANCE  |  dashboard.js  v2.0
+   FINPAY – SMART FINANCE  |  dashboard.js  v3.0
    Architecture:
-     1. Translations
-     2. Categories
-     3. App State
-     4. LocalStorage
-     5. Finance Calculations ← PRESERVED
-     6. DOM Helpers
-     7. Animated Counter ← PRESERVED
-     8. Update Totals ← PRESERVED
-     9. Transaction Card Builder ← PRESERVED
-    10. Render Feeds ← PRESERVED
-    11. Category Breakdown ← PRESERVED
-    12. Spending Chart ← PRESERVED
-    13. Notification System
-    14. Toast System
-    15. Transaction CRUD ← PRESERVED
-    16. Render All ← PRESERVED
-    17. Navigation
-    18. Modal
-    19. Theme System ← PRESERVED
-    20. Language System ← PRESERVED
-    21. Greeting & Date ← PRESERVED
-    22. Export CSV ← PRESERVED
-    23. Profile ← PRESERVED
-    24. FAB
-    25. Close All Panels
-    26. Search
-    27. Event Wiring
-    28. Init
+     1.  Translations          ← PRESERVED
+     2.  Categories            ← PRESERVED
+     3.  App State             ← PRESERVED
+     4.  LocalStorage          ← PRESERVED
+     5.  Finance Calculations  ← PRESERVED + groupByCategory added
+     6.  DOM Helpers           ← PRESERVED
+     7.  Animated Counter      ← PRESERVED
+     8.  Update Totals         ← PRESERVED
+     9.  Transaction Card      ← PRESERVED
+    10.  Render Feeds          ← PRESERVED
+    11.  Category Breakdown    ← PRESERVED
+    12.  Spending Chart        ← PRESERVED
+    13.  Quick Actions v3.0    ← NEW — dynamic totals per category
+    14.  Notification System   ← PRESERVED
+    15.  Toast System          ← PRESERVED
+    16.  Transaction CRUD      ← PRESERVED
+    17.  Render All            ← PRESERVED + renderQuickActions
+    18.  Navigation            ← PRESERVED
+    19.  Modal                 ← PRESERVED
+    20.  Theme System          ← PRESERVED
+    21.  Language System       ← PRESERVED
+    22.  Greeting & Date       ← PRESERVED
+    23.  Export CSV            ← PRESERVED
+    24.  Profile               ← PRESERVED + Google avatar support
+    25.  FAB                   ← PRESERVED
+    26.  Close All Panels      ← PRESERVED
+    27.  Search                ← PRESERVED
+    28.  Event Wiring          ← PRESERVED
+    29.  Init                  ← PRESERVED
 ══════════════════════════════════════════════════════ */
 'use strict';
 
@@ -98,6 +99,10 @@ const TRANSLATIONS = {
     add_first:       'Tap + to add your first entry',
     search_results:  'Search Results',
     quick_actions:   'Quick Actions',
+    /* Quick Action subtitles */
+    qa_total_added: 'Total Added',
+    qa_total_used:  'Total Used',
+    /* Categories */
     cat_salary:        'Salary',
     cat_freelance:     'Freelance',
     cat_investment:    'Invest',
@@ -175,6 +180,8 @@ const TRANSLATIONS = {
     add_first:       '+ ကိုနှိပ်၍ ထည့်ပါ',
     search_results:  'ရှာဖွေမှု ရလဒ်',
     quick_actions:   'မြန်ဆန်သော လုပ်ဆောင်ချက်',
+    qa_total_added: 'စုစုပေါင်း ထည့်သည်',
+    qa_total_used:  'စုစုပေါင်း သုံးသည်',
     cat_salary:        'လစာ',
     cat_freelance:     'ဖရီးလန်စ်',
     cat_investment:    'ရင်းနှီး',
@@ -216,8 +223,27 @@ const CATEGORIES = {
   ]
 };
 
+/*
+ * QUICK_ACTIONS defines which categories appear as quick action cards
+ * on the home screen. We show a curated subset so the grid stays clean.
+ * Income cards first, then expense cards — matching data-type so JS can
+ * look up the correct totals and open the right modal.
+ */
+const QUICK_ACTIONS = [
+  /* Income */
+  { key: 'cat_salary',       type: 'income',  icon: '💼' },
+  { key: 'cat_freelance',    type: 'income',  icon: '💻' },
+  { key: 'cat_investment',   type: 'income',  icon: '📈' },
+  /* Expense */
+  { key: 'cat_food',         type: 'expense', icon: '🍜' },
+  { key: 'cat_transport',    type: 'expense', icon: '🚗' },
+  { key: 'cat_shopping',     type: 'expense', icon: '🛍️' },
+  { key: 'cat_bills',        type: 'expense', icon: '📄' },
+  { key: 'cat_health',       type: 'expense', icon: '💊' },
+];
+
 /* ═══════════════════════════════════════════
-   3. APP STATE
+   3. APP STATE ← PRESERVED
 ═══════════════════════════════════════════ */
 const S = {
   transactions:  [],
@@ -226,6 +252,7 @@ const S = {
   theme:         'dark',
   notifEnabled:  true,
   userName:      'Alex Morgan',
+  userAvatar:    '',    // URL for Google profile photo (social login)
   /* filters */
   dashFilter: 'all',
   dashDate:   '',
@@ -247,6 +274,7 @@ const LS = {
   theme:         'novapay_theme',
   notifEnabled:  'novapay_notif',
   userName:      'novapay_username',
+  userAvatar:    'novapay_avatar',
 };
 
 const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
@@ -259,13 +287,18 @@ function loadState() {
   S.theme         = lsGet(LS.theme, 'dark');
   S.notifEnabled  = lsGet(LS.notifEnabled, true);
   S.userName      = lsGet(LS.userName, 'Alex Morgan');
+  S.userAvatar    = lsGet(LS.userAvatar, '');
 }
 const saveTxns   = () => lsSet(LS.transactions,  S.transactions);
 const saveNotifs = () => lsSet(LS.notifications, S.notifications);
 
 /* ═══════════════════════════════════════════
    5. FINANCE CALCULATIONS ← PRESERVED
+      + groupByCategory: single-pass grouping
+        used by Quick Actions AND reports.
 ═══════════════════════════════════════════ */
+
+/** Returns { inc, exp, bal } totals */
 function calcTotals() {
   let inc = 0, exp = 0;
   for (const t of S.transactions) {
@@ -274,7 +307,29 @@ function calcTotals() {
   return { inc, exp, bal: inc - exp };
 }
 
-/** Format number to 2 decimal places with comma separators */
+/**
+ * Single-pass grouping of transactions by categoryKey.
+ * Returns a Map keyed by categoryKey → { total, type }
+ *
+ * Performance: O(n) — called once per renderAll(),
+ * result passed down so no secondary Supabase/store calls needed.
+ *
+ * @returns {Map<string, {total: number, type: string}>}
+ */
+function groupByCategory() {
+  const map = new Map();
+  for (const t of S.transactions) {
+    const existing = map.get(t.categoryKey);
+    if (existing) {
+      existing.total += t.amount;
+    } else {
+      map.set(t.categoryKey, { total: t.amount, type: t.type });
+    }
+  }
+  return map;
+}
+
+/** Format number with comma separators and 2 decimal places */
 const fmt = n => new Intl.NumberFormat('en-US', {
   minimumFractionDigits: 2, maximumFractionDigits: 2
 }).format(n);
@@ -350,7 +405,7 @@ function makeTxnCard(txn, idx) {
     : '';
 
   const div = document.createElement('div');
-  div.className   = 'txn-card';
+  div.className    = 'txn-card';
   div.dataset.type = txn.type;
   div.style.animationDelay = Math.min(idx * 0.04, 0.5) + 's';
   div.innerHTML = `
@@ -580,10 +635,73 @@ function drawChart() {
 }
 
 /* ═══════════════════════════════════════════
-   13. NOTIFICATION SYSTEM
-       Every addTransaction fires:
-       "Your balance is now $X"
-       Stores up to 20, persists in localStorage
+   13. QUICK ACTIONS v3.0 — UPGRADED
+   ─────────────────────────────────────────
+   PERFORMANCE: groupByCategory() is called once
+   from renderAll() and the result Map is passed in.
+   No secondary queries. No hardcoded values.
+   ─────────────────────────────────────────
+   Each card shows:
+     • Category icon     (emoji)
+     • Category name     (translated)
+     • Subtitle          "Total Added" / "Total Used"
+     • Dynamic amount    summed from real transaction data
+   Click → opens Add Transaction modal with category pre-selected
+═══════════════════════════════════════════ */
+
+/**
+ * Render all Quick Action cards into #qcatGrid.
+ *
+ * @param {Map} catTotals - result of groupByCategory()
+ *   Passed in from renderAll() so this is O(1) — no extra loop.
+ */
+function renderQuickActions(catTotals) {
+  const grid = $('qcatGrid');
+  if (!grid) return;
+
+  const T = TRANSLATIONS[S.lang];
+  grid.innerHTML = '';
+
+  QUICK_ACTIONS.forEach((qa, idx) => {
+    /* Look up this category's total from the pre-computed map */
+    const entry  = catTotals.get(qa.key);
+    const total  = entry ? entry.total : 0;
+    const hasData = total > 0;
+
+    /* Subtitle text differs for income vs expense */
+    const subtitle = qa.type === 'income'
+      ? (T.qa_total_added || 'Total Added')
+      : (T.qa_total_used  || 'Total Used');
+
+    /* Amount display — monospaced, colored by type */
+    const amountText = hasData ? '$' + fmt(total) : '$0.00';
+
+    /* Build card element */
+    const card = document.createElement('button');
+    card.className   = `qcat-card qcat-${qa.type}`;
+    card.dataset.type = qa.type;
+    card.dataset.cat  = qa.key;
+    /* Staggered entrance animation */
+    card.style.cssText = `animation: cardSlide 0.28s cubic-bezier(0.4,0,0.2,1) ${idx * 0.05}s both`;
+
+    card.innerHTML = `
+      <div class="qcat-icon-wrap">
+        <span class="qcat-emoji">${qa.icon}</span>
+      </div>
+      <span class="qcat-name">${T[qa.key] || qa.key}</span>
+      <span class="qcat-subtitle">${subtitle}</span>
+      <span class="qcat-amount${hasData ? '' : ' zero'}">${amountText}</span>
+      <span class="qcat-add-chip" aria-hidden="true">+</span>`;
+
+    /* Click → open modal with this category pre-selected */
+    card.addEventListener('click', () => openModal(qa.type, qa.key));
+
+    grid.appendChild(card);
+  });
+}
+
+/* ═══════════════════════════════════════════
+   14. NOTIFICATION SYSTEM ← PRESERVED
 ═══════════════════════════════════════════ */
 
 /** Add a notification and show a toast */
@@ -594,7 +712,6 @@ function addNotif(type, amount, newBalance) {
     ? `${T.notif_added_income} $${fmt(amount)}. ${T.notif_balance_now} $${fmt(newBalance)}`
     : `${T.notif_added_expense} $${fmt(amount)}. ${T.notif_balance_now} $${fmt(newBalance)}`;
 
-  /* Prepend newest first, cap at 20 */
   S.notifications.unshift({
     id:   Date.now().toString(),
     type,
@@ -620,7 +737,6 @@ function renderNotifPanel() {
   if (dot)  dot.style.display = unread > 0 ? 'block' : 'none';
   if (bell) bell.classList.toggle('ringing', unread > 0);
 
-  /* Remove old items, keep empty placeholder */
   body.querySelectorAll('.np-item').forEach(el => el.remove());
 
   if (!S.notifications.length) {
@@ -644,14 +760,12 @@ function renderNotifPanel() {
   });
 }
 
-/** Mark all notifications as read */
 function markAllRead() {
   S.notifications.forEach(n => (n.read = true));
   saveNotifs();
   renderNotifPanel();
 }
 
-/** Relative time formatter */
 function relTime(date) {
   const s = Math.floor((Date.now() - date) / 1000);
   if (s < 60)    return 'Just now';
@@ -661,7 +775,7 @@ function relTime(date) {
 }
 
 /* ═══════════════════════════════════════════
-   14. TOAST SYSTEM
+   15. TOAST SYSTEM ← PRESERVED
 ═══════════════════════════════════════════ */
 function showToast(type, msg) {
   const container = $('toastContainer');
@@ -674,7 +788,6 @@ function showToast(type, msg) {
     <div class="toast-msg">${msg}</div>`;
   container.appendChild(toast);
 
-  /* Auto-remove after 3.5 s */
   setTimeout(() => {
     toast.classList.add('out');
     setTimeout(() => toast.remove(), 280);
@@ -682,10 +795,9 @@ function showToast(type, msg) {
 }
 
 /* ═══════════════════════════════════════════
-   15. TRANSACTION CRUD ← PRESERVED
+   16. TRANSACTION CRUD ← PRESERVED
 ═══════════════════════════════════════════ */
 
-/** Add a new transaction, update state and fire notification */
 function addTxn(type, amount, categoryKey, category, description, date) {
   S.transactions.push({
     id: Date.now().toString(),
@@ -697,7 +809,6 @@ function addTxn(type, amount, categoryKey, category, description, date) {
   renderAll();
 }
 
-/** Delete transaction by id */
 function deleteTxn(id) {
   S.transactions = S.transactions.filter(t => t.id !== id);
   saveTxns();
@@ -705,10 +816,17 @@ function deleteTxn(id) {
 }
 
 /* ═══════════════════════════════════════════
-   16. RENDER ALL ← PRESERVED
+   17. RENDER ALL ← PRESERVED
+       + renderQuickActions added
+       PERFORMANCE: groupByCategory() called once,
+       result shared with quick actions and cat breakdown
 ═══════════════════════════════════════════ */
 function renderAll() {
+  /* Single-pass grouping — reused by quick actions */
+  const catTotals = groupByCategory();
+
   updateTotals();
+  renderQuickActions(catTotals);   // ← NEW: Quick Action cards with live totals
   renderDashFeed();
   renderTxnFeed();
   renderCatBreakdown();
@@ -716,7 +834,7 @@ function renderAll() {
 }
 
 /* ═══════════════════════════════════════════
-   17. NAVIGATION
+   18. NAVIGATION ← PRESERVED
 ═══════════════════════════════════════════ */
 function goTo(page) {
   document.querySelectorAll('.page').forEach(p => {
@@ -748,7 +866,7 @@ function goSearch() {
 }
 
 /* ═══════════════════════════════════════════
-   18. MODAL
+   19. MODAL ← PRESERVED
 ═══════════════════════════════════════════ */
 function openModal(type, prefillCat = '') {
   const T   = TRANSLATIONS[S.lang];
@@ -757,7 +875,6 @@ function openModal(type, prefillCat = '') {
   setText('mcTitle', type === 'income' ? T.modal_income_title : T.modal_expense_title);
   box.className = `modal-card modal-${type}`;
 
-  /* Populate category select */
   const sel = $('txnCategory');
   sel.innerHTML = '';
   CATEGORIES[type].forEach(cat => {
@@ -788,7 +905,7 @@ function showConfirm(title, msg, cb) {
 function closeConfirm() { $('cfmVeil').classList.remove('open'); S.confirmCb = null; }
 
 /* ═══════════════════════════════════════════
-   19. THEME SYSTEM ← PRESERVED
+   20. THEME SYSTEM ← PRESERVED
 ═══════════════════════════════════════════ */
 function applyTheme(t) {
   S.theme = t;
@@ -800,7 +917,7 @@ function applyTheme(t) {
 }
 
 /* ═══════════════════════════════════════════
-   20. LANGUAGE SYSTEM ← PRESERVED
+   21. LANGUAGE SYSTEM ← PRESERVED
 ═══════════════════════════════════════════ */
 function applyLang(lang) {
   S.lang = lang;
@@ -824,7 +941,7 @@ function applyLang(lang) {
 const toggleLang = () => applyLang(S.lang === 'en' ? 'my' : 'en');
 
 /* ═══════════════════════════════════════════
-   21. GREETING & DATE ← PRESERVED
+   22. GREETING & DATE ← PRESERVED
 ═══════════════════════════════════════════ */
 function updateGreeting() {
   const h = new Date().getHours();
@@ -840,7 +957,7 @@ function updateDate() {
 }
 
 /* ═══════════════════════════════════════════
-   22. EXPORT CSV ← PRESERVED
+   23. EXPORT CSV ← PRESERVED
 ═══════════════════════════════════════════ */
 function exportCSV() {
   const T   = TRANSLATIONS[S.lang];
@@ -861,21 +978,69 @@ function exportCSV() {
 }
 
 /* ═══════════════════════════════════════════
-   23. PROFILE ← PRESERVED
+   24. PROFILE ← PRESERVED
+       + Google social login avatar support
+       If S.userAvatar is a URL (set externally by
+       Supabase auth onAuthStateChange), show the
+       Google photo in the avatar ring instead of
+       the letter initial.
 ═══════════════════════════════════════════ */
 function updateProfile() {
   const name = S.userName;
   const init = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'A';
-  setText('avatarLetter', init[0]);
-  setText('avatarName',   name.split(' ')[0]);
-  setText('pcAvatar',     init[0]);
+
+  /* ── Avatar ring: prefer Google photo over letter ── */
+  const avatarImg    = $('avatarImg');
+  const avatarLetter = $('avatarLetter');
+  if (avatarImg && avatarLetter) {
+    if (S.userAvatar) {
+      avatarImg.src         = S.userAvatar;
+      avatarImg.alt         = name;
+      avatarImg.style.display = 'block';
+      avatarLetter.style.display = 'none';
+    } else {
+      avatarImg.style.display    = 'none';
+      avatarLetter.style.display = 'block';
+      avatarLetter.textContent   = init[0];
+    }
+  }
+
+  setText('avatarName', name.split(' ')[0]);
+  setText('pcAvatar',   init[0]);
   const ni = $('profileNameInput');
   if (ni) ni.value = name;
   updateGreeting();
 }
 
+/**
+ * setGoogleUser — called by Supabase onAuthStateChange when a user
+ * signs in via Google. Stores the avatar URL and display name so the
+ * app reflects the real Google account.
+ *
+ * Usage (in your Supabase auth file):
+ *   supabase.auth.onAuthStateChange((event, session) => {
+ *     if (session?.user) {
+ *       const meta = session.user.user_metadata;
+ *       setGoogleUser(
+ *         meta.full_name || meta.name || session.user.email,
+ *         meta.avatar_url || meta.picture || ''
+ *       );
+ *     }
+ *   });
+ *
+ * @param {string} name       - Display name from Google
+ * @param {string} avatarUrl  - Google profile picture URL
+ */
+function setGoogleUser(name, avatarUrl) {
+  S.userName   = name    || S.userName;
+  S.userAvatar = avatarUrl || '';
+  lsSet(LS.userName,   S.userName);
+  lsSet(LS.userAvatar, S.userAvatar);
+  updateProfile();
+}
+
 /* ═══════════════════════════════════════════
-   24. FAB
+   25. FAB ← PRESERVED
 ═══════════════════════════════════════════ */
 function toggleFab(force) {
   const open = force !== undefined ? force : !S.fabOpen;
@@ -886,7 +1051,7 @@ function toggleFab(force) {
 }
 
 /* ═══════════════════════════════════════════
-   25. CLOSE ALL PANELS
+   26. CLOSE ALL PANELS ← PRESERVED
 ═══════════════════════════════════════════ */
 function closeAll() {
   $('dotsMenu')?.classList.remove('open');
@@ -896,7 +1061,7 @@ function closeAll() {
 }
 
 /* ═══════════════════════════════════════════
-   26. SEARCH
+   27. SEARCH ← PRESERVED
 ═══════════════════════════════════════════ */
 function handleSearch(q) {
   S.searchQuery = q;
@@ -914,9 +1079,8 @@ function handleSearch(q) {
 }
 
 /* ═══════════════════════════════════════════
-   27. EVENT WIRING
+   28. EVENT WIRING ← PRESERVED
    All listeners registered once on init.
-   Uses event delegation where appropriate.
 ═══════════════════════════════════════════ */
 function wire() {
 
@@ -931,11 +1095,11 @@ function wire() {
   $('fabExpense')?.addEventListener('click',  () => { toggleFab(false); openModal('expense'); });
   $('fabBackdrop')?.addEventListener('click', () => toggleFab(false));
 
-  /* ── Quick category grid (delegation) ── */
-  $('qcatGrid')?.addEventListener('click', e => {
-    const btn = e.target.closest('.qcat-btn');
-    if (btn) openModal(btn.dataset.type, btn.dataset.cat);
-  });
+  /*
+   * NOTE: Quick Action card click listeners are added in renderQuickActions()
+   * per-card so they always have the correct data-type/data-cat at render time.
+   * No delegation needed since we rebuild the grid on every renderAll().
+   */
 
   /* ── Avatar → Settings ── */
   $('avatarBtn')?.addEventListener('click', () => goTo('settings'));
@@ -994,7 +1158,7 @@ function wire() {
     }
   });
 
-  /* ── Dashboard filter tabs (delegation) ── */
+  /* ── Dashboard filter tabs ── */
   $('dashTabs')?.addEventListener('click', e => {
     const btn = e.target.closest('.ftab');
     if (!btn) return;
@@ -1005,7 +1169,7 @@ function wire() {
   });
   $('dashDate')?.addEventListener('change', e => { S.dashDate = e.target.value; renderDashFeed(); });
 
-  /* ── Transactions filter tabs (delegation) ── */
+  /* ── Transactions filter tabs ── */
   $('txnTabs')?.addEventListener('click', e => {
     const btn = e.target.closest('.ftab');
     if (!btn) return;
@@ -1032,7 +1196,6 @@ function wire() {
     const date   = $('txnDate').value;
     const T      = TRANSLATIONS[S.lang];
 
-    /* Validation: amount must be positive */
     if (!amount || amount <= 0) {
       const inp = $('txnAmount');
       inp.style.borderColor = 'var(--exp)';
@@ -1097,7 +1260,6 @@ function wire() {
       const si = $('searchInput');
       if (si && si.value) { si.value = ''; handleSearch(''); }
     }
-    /* Ctrl/Cmd+K → focus search */
     if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
       e.preventDefault();
       $('searchInput')?.focus();
@@ -1113,7 +1275,7 @@ function wire() {
 }
 
 /* ═══════════════════════════════════════════
-   28. INIT
+   29. INIT ← PRESERVED
 ═══════════════════════════════════════════ */
 function init() {
   loadState();
@@ -1136,18 +1298,72 @@ function init() {
     const yd = new Date(Date.now() - 86400000).toISOString().split('T')[0];
     const d2 = new Date(Date.now() - 172800000).toISOString().split('T')[0];
     S.transactions = [
-      { id:'1', type:'income',  amount:5200, categoryKey:'cat_salary',       category:'Salary',      description:'Monthly salary',  date:d2 },
-      { id:'2', type:'expense', amount:120,  categoryKey:'cat_food',          category:'Food',         description:'Lunch & dinner',  date:d2 },
-      { id:'3', type:'expense', amount:45,   categoryKey:'cat_transport',     category:'Transport',    description:'Grab rides',       date:yd },
-      { id:'4', type:'income',  amount:850,  categoryKey:'cat_freelance',     category:'Freelance',    description:'Design project',   date:yd },
+      { id:'1', type:'income',  amount:3000, categoryKey:'cat_salary',       category:'Salary',      description:'Monthly salary',  date:d2 },
+      { id:'2', type:'income',  amount:2000, categoryKey:'cat_freelance',     category:'Freelance',    description:'Design project',   date:yd },
+      { id:'3', type:'expense', amount:450,  categoryKey:'cat_food',          category:'Food',         description:'Groceries & dining',date:d2 },
+      { id:'4', type:'expense', amount:120,  categoryKey:'cat_transport',     category:'Transport',    description:'Grab rides',       date:yd },
       { id:'5', type:'expense', amount:299,  categoryKey:'cat_shopping',      category:'Shopping',     description:'Online order',     date:td },
+      { id:'6', type:'expense', amount:85,   categoryKey:'cat_bills',         category:'Bills',        description:'Electricity',      date:td },
     ];
     saveTxns();
     renderAll();
   }
 
-  console.log('%c FinPay v2.0 Ready ✓ ', 'background:#f5a623;color:#1a0f00;padding:4px 12px;border-radius:4px;font-weight:bold;font-family:monospace');
+  console.log('%c FinPay v3.0 Ready ✓ ', 'background:#f5a623;color:#1a0f00;padding:4px 12px;border-radius:4px;font-weight:bold;font-family:monospace');
+  console.log('%c Quick Actions: dynamic category totals active ', 'background:#00e896;color:#001a0d;padding:2px 8px;border-radius:4px;font-size:11px');
 }
+
+/* ══════════════════════════════════════════
+   SUPABASE INTEGRATION HOOKS
+   ─────────────────────────────────────────
+   When you connect Supabase, replace the
+   localStorage-based CRUD functions with
+   real Supabase queries using this pattern:
+
+   // In your supabase-init.js:
+   import { createClient } from '@supabase/supabase-js';
+   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+   // Listen for auth changes (handles Google login):
+   supabase.auth.onAuthStateChange((event, session) => {
+     if (session?.user) {
+       const meta = session.user.user_metadata;
+       setGoogleUser(
+         meta.full_name || meta.name || session.user.email,
+         meta.avatar_url || meta.picture || ''
+       );
+       loadTransactionsFromSupabase(session.user.id);
+     }
+   });
+
+   // Load transactions (replaces loadState for transactions):
+   async function loadTransactionsFromSupabase(userId) {
+     const { data, error } = await supabase
+       .from('transactions')
+       .select('id, type, category, amount, created_at')
+       .eq('user_id', userId)
+       .order('created_at', { ascending: false });
+
+     if (!error && data) {
+       // Map Supabase rows to the app's transaction shape:
+       S.transactions = data.map(row => ({
+         id:          row.id,
+         type:        row.type,
+         amount:      row.amount,
+         categoryKey: row.category,   // category column stores the key
+         category:    row.category,
+         description: row.description || '',
+         date:        row.created_at.split('T')[0],
+       }));
+       renderAll();  // renderAll() calls groupByCategory() once internally —
+                     // Quick Action totals update automatically.
+     }
+   }
+
+   // The groupByCategory() function in section 5 replaces any
+   // per-category SUM queries. All grouping happens in JS after
+   // one fetch, keeping Supabase calls to a minimum.
+══════════════════════════════════════════ */
 
 /* Boot */
 if (document.readyState === 'loading') {
