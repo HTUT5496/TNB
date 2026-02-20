@@ -1,91 +1,94 @@
 /* ══════════════════════════════════════════════════════
-   FINPAY – SMART FINANCE  |  dashboard.js  v3.0
-   Architecture:
-     1.  Translations          ← PRESERVED
+   FINPAY – SMART FINANCE  |  dashboard.js  v4.0
+   ──────────────────────────────────────────────────────
+   Architecture (modules):
+     1.  Translations          ← PRESERVED + new keys
      2.  Categories            ← PRESERVED
-     3.  App State             ← PRESERVED
+     3.  App State             ← PRESERVED + filter state
      4.  LocalStorage          ← PRESERVED
-     5.  Finance Calculations  ← PRESERVED + groupByCategory added
+     5.  Finance Calculations  ← PRESERVED (groupByCategory)
      6.  DOM Helpers           ← PRESERVED
      7.  Animated Counter      ← PRESERVED
      8.  Update Totals         ← PRESERVED
      9.  Transaction Card      ← PRESERVED
     10.  Render Feeds          ← PRESERVED
-    11.  Category Breakdown    ← PRESERVED
-    12.  Spending Chart        ← PRESERVED
-    13.  Quick Actions v3.0    ← NEW — dynamic totals per category
-    14.  Notification System   ← PRESERVED
-    15.  Toast System          ← PRESERVED
-    16.  Transaction CRUD      ← PRESERVED
-    17.  Render All            ← PRESERVED + renderQuickActions
-    18.  Navigation            ← PRESERVED
-    19.  Modal                 ← PRESERVED
-    20.  Theme System          ← PRESERVED
-    21.  Language System       ← PRESERVED
-    22.  Greeting & Date       ← PRESERVED
-    23.  Export CSV            ← PRESERVED
-    24.  Profile               ← PRESERVED + Google avatar support
-    25.  FAB                   ← PRESERVED
-    26.  Close All Panels      ← PRESERVED
-    27.  Search                ← PRESERVED
-    28.  Event Wiring          ← PRESERVED
-    29.  Init                  ← PRESERVED
+    11.  Usage Summary         ← NEW (replaces Recent Activity on Home)
+    12.  Category Breakdown    ← PRESERVED
+    13.  Spending Chart        ← PRESERVED
+    14.  Quick Actions v3.0    ← PRESERVED
+    15.  Notification System   ← PRESERVED
+    16.  Toast System          ← PRESERVED
+    17.  Transaction CRUD      ← PRESERVED
+    18.  Filter Logic          ← UPGRADED (date range + validation)
+    19.  Render All            ← PRESERVED
+    20.  Navigation            ← PRESERVED
+    21.  Modal                 ← PRESERVED
+    22.  Theme System          ← PRESERVED
+    23.  Language System       ← PRESERVED + new keys
+    24.  Greeting & Date       ← PRESERVED
+    25.  Export CSV            ← PRESERVED
+    26.  Profile               ← PRESERVED + social login support
+    27.  FAB                   ← PRESERVED
+    28.  Close All Panels      ← PRESERVED
+    29.  Search                ← PRESERVED
+    30.  Event Wiring          ← PRESERVED + new filter wiring
+    31.  Init                  ← PRESERVED
 ══════════════════════════════════════════════════════ */
 'use strict';
 
 /* ═══════════════════════════════════════════
-   1. TRANSLATIONS (English / Burmese) ← PRESERVED
+   1. TRANSLATIONS (English / Burmese) ← PRESERVED + new keys
 ═══════════════════════════════════════════ */
 const TRANSLATIONS = {
   en: {
     brand: 'FinPay',
-    nav_dashboard: 'Home',
-    nav_transactions: 'History',
-    nav_reports: 'Reports',
-    nav_settings: 'Settings',
-    premium_member: 'Premium Member',
-    good_morning:   'Good morning,',
-    good_afternoon: 'Good afternoon,',
-    good_evening:   'Good evening,',
-    available_balance: 'Balance',
-    income:  'Income',
-    expense: 'Expense',
-    add_income:  'Add Income',
-    add_expense: 'Add Expense',
-    reports:  'Reports',
-    spending_overview: 'Spending Overview',
-    last_7:  'Last 7 Days',
-    last_30: 'Last 30 Days',
-    recent_transactions: 'Recent Activity',
-    all_transactions: 'All Transactions',
-    all:        'All',
-    export_csv: 'Export CSV',
+    nav_dashboard:      'Home',
+    nav_transactions:   'History',
+    nav_reports:        'Reports',
+    nav_settings:       'Settings',
+    premium_member:     'Premium Member',
+    good_morning:       'Good morning,',
+    good_afternoon:     'Good afternoon,',
+    good_evening:       'Good evening,',
+    available_balance:  'Balance',
+    income:             'Income',
+    expense:            'Expense',
+    add_income:         'Add Income',
+    add_expense:        'Add Expense',
+    reports:            'Reports',
+    spending_overview:  'Spending Overview',
+    last_7:             'Last 7 Days',
+    last_30:            'Last 30 Days',
+    recent_transactions:'Recent Activity',
+    all_transactions:   'All Transactions',
+    all:                'All',
+    export_csv:         'Export CSV',
     total_income:       'Total Income',
     total_expense:      'Total Expense',
     net_balance:        'Net Balance',
     total_transactions: 'Transactions',
     category_breakdown: 'Category Breakdown',
     settings:           'Settings',
-    dark_mode:      'Dark Mode',
-    dark_mode_sub:  'Switch between dark and light',
-    language:       'Language',
-    language_sub:   'English / Burmese',
-    notifications_setting: 'Notifications',
-    notifications_sub:     'Balance change alerts',
-    clear_data:     'Clear All Data',
-    clear_data_sub: 'Remove all transactions',
-    clear:  'Clear',
-    logout: 'Logout',
-    notifications: 'Notifications',
-    clear_all:     'Clear All',
-    no_notifs:     'No notifications yet',
-    amount:      'Amount ($)',
-    category:    'Category',
-    description: 'Description',
-    date:        'Date',
-    add_transaction: 'Add Transaction',
-    cancel:  'Cancel',
-    confirm: 'Confirm',
+    dark_mode:          'Dark Mode',
+    dark_mode_sub:      'Switch between dark and light',
+    language:           'Language',
+    language_sub:       'English / Burmese',
+    notifications_setting:'Notifications',
+    notifications_sub:  'Balance change alerts',
+    clear_data:         'Clear All Data',
+    clear_data_sub:     'Remove all transactions',
+    clear:              'Clear',
+    logout:             'Logout',
+    notifications:      'Notifications',
+    clear_all:          'Clear All',
+    no_notifs:          'No notifications yet',
+    amount:             'Amount ($)',
+    category:           'Category',
+    description:        'Description',
+    date:               'Date',
+    add_transaction:    'Add Transaction',
+    cancel:             'Cancel',
+    confirm:            'Confirm',
     modal_income_title:  'Add Income',
     modal_expense_title: 'Add Expense',
     notif_balance_now:   'Your balance is now',
@@ -95,78 +98,94 @@ const TRANSLATIONS = {
     confirm_delete_msg:  'This action cannot be undone.',
     confirm_clear:       'Clear all data?',
     confirm_clear_msg:   'All transactions will be permanently removed.',
-    no_transactions: 'No transactions yet',
-    add_first:       'Tap + to add your first entry',
-    search_results:  'Search Results',
-    quick_actions:   'Quick Actions',
-    /* Quick Action subtitles */
-    qa_total_added: 'Total Added',
-    qa_total_used:  'Total Used',
+    no_transactions:     'No transactions yet',
+    add_first:           'Tap + to add your first entry',
+    search_results:      'Search Results',
+    quick_actions:       'Quick Actions',
+    tap_to_add:          'Tap to add transaction',
+    usage_summary:       'Usage Summary',
+    qa_total_added:      'Total Added',
+    qa_total_used:       'Total Used',
+    /* History filter */
+    filter_type:         'Type',
+    start_date:          'From',
+    end_date:            'To',
+    apply_filter:        'Apply Filter',
+    reset_filter:        'Reset',
+    err_date_range:      'Start date must be before end date.',
+    err_date_required:   'Please select both start and end dates.',
+    filter_active:       'Filter active',
+    /* Profile / Social */
+    change_password:     'Change Password',
+    change_password_sub: 'Update your account password',
+    change:              'Change',
+    social_account:      'Social Account',
+    provider_label:      'Provider:',
     /* Categories */
-    cat_salary:        'Salary',
-    cat_freelance:     'Freelance',
-    cat_investment:    'Invest',
-    cat_gift:          'Gift',
-    cat_other_income:  'Other Income',
-    cat_food:          'Food',
-    cat_transport:     'Transport',
-    cat_shopping:      'Shopping',
-    cat_bills:         'Bills',
-    cat_health:        'Health',
-    cat_entertainment: 'Entertain',
-    cat_education:     'Education',
-    cat_rent:          'Rent',
-    cat_other_expense: 'Other',
+    cat_salary:          'Salary',
+    cat_freelance:       'Freelance',
+    cat_investment:      'Invest',
+    cat_gift:            'Gift',
+    cat_other_income:    'Other Income',
+    cat_food:            'Food',
+    cat_transport:       'Transport',
+    cat_shopping:        'Shopping',
+    cat_bills:           'Bills',
+    cat_health:          'Health',
+    cat_entertainment:   'Entertain',
+    cat_education:       'Education',
+    cat_rent:            'Rent',
+    cat_other_expense:   'Other',
   },
   my: {
     brand: 'FinPay',
-    nav_dashboard: 'ဒက်ရ်ဘုတ်',
-    nav_transactions: 'မှတ်တမ်း',
-    nav_reports: 'အစီရင်ခံ',
-    nav_settings: 'ဆက်တင်',
-    premium_member: 'ပရီမီယံ အဖွဲ့ဝင်',
-    good_morning:   'မင်္ဂလာနံနက်ခင်းပါ၊',
-    good_afternoon: 'မင်္ဂလာနေ့လည်ပါ၊',
-    good_evening:   'မင်္ဂလာညနေပါ၊',
-    available_balance: 'လက်ကျန်',
-    income:  'ဝင်ငွေ',
-    expense: 'ထွက်ငွေ',
-    add_income:  'ဝင်ငွေထည့်',
-    add_expense: 'ထွက်ငွေထည့်',
-    reports:  'အစီရင်ခံ',
-    spending_overview: 'ငွေသုံးမှု အနှစ်ချုပ်',
-    last_7:  'ၿပီးခဲ့သော ၇ ရက်',
-    last_30: 'ၿပီးခဲ့သော ၃၀ ရက်',
-    recent_transactions: 'မကြာမီ လုပ်ဆောင်ချက်',
-    all_transactions: 'ငွေသွင်း/ထုတ် အားလုံး',
-    all:        'အားလုံး',
-    export_csv: 'CSV ထုတ်ယူ',
+    nav_dashboard:      'ဒက်ရ်ဘုတ်',
+    nav_transactions:   'မှတ်တမ်း',
+    nav_reports:        'အစီရင်ခံ',
+    nav_settings:       'ဆက်တင်',
+    premium_member:     'ပရီမီယံ အဖွဲ့ဝင်',
+    good_morning:       'မင်္ဂလာနံနက်ခင်းပါ၊',
+    good_afternoon:     'မင်္ဂလာနေ့လည်ပါ၊',
+    good_evening:       'မင်္ဂလာညနေပါ၊',
+    available_balance:  'လက်ကျန်',
+    income:             'ဝင်ငွေ',
+    expense:            'ထွက်ငွေ',
+    add_income:         'ဝင်ငွေထည့်',
+    add_expense:        'ထွက်ငွေထည့်',
+    reports:            'အစီရင်ခံ',
+    spending_overview:  'ငွေသုံးမှု အနှစ်ချုပ်',
+    last_7:             'ၿပီးခဲ့သော ၇ ရက်',
+    last_30:            'ၿပီးခဲ့သော ၃၀ ရက်',
+    recent_transactions:'မကြာမီ လုပ်ဆောင်ချက်',
+    all_transactions:   'ငွေသွင်း/ထုတ် အားလုံး',
+    all:                'အားလုံး',
+    export_csv:         'CSV ထုတ်ယူ',
     total_income:       'စုစုပေါင်း ဝင်ငွေ',
     total_expense:      'စုစုပေါင်း ထွက်ငွေ',
     net_balance:        'အသားတင် လက်ကျန်',
     total_transactions: 'ငွေလွှဲ စုစုပေါင်း',
     category_breakdown: 'အမျိုးအစားအလိုက်',
     settings:           'ဆက်တင်',
-    dark_mode:      'အမဲရောင် မုဒ်',
-    dark_mode_sub:  'အမဲ / အဖြူ ပြောင်းလဲ',
-    language:       'ဘာသာစကား',
-    language_sub:   'အင်္ဂလိပ် / မြန်မာ',
+    dark_mode:          'အမဲရောင် မုဒ်',
+    dark_mode_sub:      'အမဲ / အဖြူ ပြောင်းလဲ',
+    language:           'ဘာသာစကား',
+    language_sub:       'အင်္ဂလိပ် / မြန်မာ',
     notifications_setting: 'အကြောင်းကြားချက်',
-    notifications_sub:     'လက်ကျန်ငွေ သတိပေး',
-    clear_data:     'ဒေတာ အားလုံး ရှင်းလင်း',
-    clear_data_sub: 'ငွေသွင်း/ထုတ် အားလုံး ဖျက်မည်',
-    clear:  'ရှင်းလင်း',
-    logout: 'ထွက်မည်',
-    notifications: 'အကြောင်းကြားချက်',
-    clear_all:     'အားလုံး ရှင်းလင်း',
-    no_notifs:     'အကြောင်းကြားချက် မရှိသေးပါ',
-    amount:      'ငွေပမာဏ ($)',
-    category:    'အမျိုးအစား',
-    description: 'ဖော်ပြချက်',
-    date:        'ရက်စွဲ',
-    add_transaction: 'ငွေသွင်း/ထုတ် ထည့်',
-    cancel:  'မလုပ်တော့',
-    confirm: 'အတည်ပြု',
+    notifications_sub:  'လက်ကျန်ငွေ သတိပေး',
+    clear_data:         'ဒေတာ အားလုံး ရှင်းလင်း',
+    clear_data_sub:     'ငွေသွင်း/ထုတ် အားလုံး ဖျက်မည်',
+    clear:              'ရှင်းလင်း',
+    logout:             'ထွက်မည်',
+    notifications:      'အကြောင်းကြားချက်',
+    clear_all:          'အားလုံး ရှင်းလင်း',
+    no_notifs:          'အကြောင်းကြားချက် မရှိသေးပါ',
+    amount:             'ငွေပမာဏ ($)',
+    category:           'အမျိုးအစား',
+    description:        'ဖော်ပြချက်',
+    date:               'ရက်စွဲ',
+    add_transaction:    'ငွေသွင်း/ထုတ် ထည့်',
+    cancel:             'မလုပ်တော့',
+    confirm:            'အတည်ပြု',
     modal_income_title:  'ဝင်ငွေ ထည့်သည်',
     modal_expense_title: 'ထွက်ငွေ ထည့်သည်',
     notif_balance_now:   'သင့်လက်ကျန်ငွေ',
@@ -176,26 +195,41 @@ const TRANSLATIONS = {
     confirm_delete_msg:  'ဤလုပ်ဆောင်ချက်ကို ပြန်မလုပ်နိုင်ပါ။',
     confirm_clear:       'ဒေတာ အားလုံး ရှင်းမလား?',
     confirm_clear_msg:   'ငွေသွင်း/ထုတ် အားလုံး ပြည်တမ်း ဖျက်မည်။',
-    no_transactions: 'ငွေသွင်း/ထုတ် မရှိသေးပါ',
-    add_first:       '+ ကိုနှိပ်၍ ထည့်ပါ',
-    search_results:  'ရှာဖွေမှု ရလဒ်',
-    quick_actions:   'မြန်ဆန်သော လုပ်ဆောင်ချက်',
-    qa_total_added: 'စုစုပေါင်း ထည့်သည်',
-    qa_total_used:  'စုစုပေါင်း သုံးသည်',
-    cat_salary:        'လစာ',
-    cat_freelance:     'ဖရီးလန်စ်',
-    cat_investment:    'ရင်းနှီး',
-    cat_gift:          'လက်ဆောင်',
-    cat_other_income:  'အခြား ဝင်ငွေ',
-    cat_food:          'အစားအသောက်',
-    cat_transport:     'သယ်ယူ',
-    cat_shopping:      'ဈေးဝယ်',
-    cat_bills:         'ဘီလ်',
-    cat_health:        'ကျန်းမာ',
-    cat_entertainment: 'အပျော်',
-    cat_education:     'ပညာ',
-    cat_rent:          'အငှားခ',
-    cat_other_expense: 'အခြား',
+    no_transactions:     'ငွေသွင်း/ထုတ် မရှိသေးပါ',
+    add_first:           '+ ကိုနှိပ်၍ ထည့်ပါ',
+    search_results:      'ရှာဖွေမှု ရလဒ်',
+    quick_actions:       'မြန်ဆန်သော လုပ်ဆောင်ချက်',
+    tap_to_add:          'ငွေသွင်း/ထုတ် ထည့်ရန် နှိပ်ပါ',
+    usage_summary:       'အသုံးပြုမှု အနှစ်ချုပ်',
+    qa_total_added:      'စုစုပေါင်း ထည့်သည်',
+    qa_total_used:       'စုစုပေါင်း သုံးသည်',
+    filter_type:         'အမျိုးအစား',
+    start_date:          'စတင်ရက်',
+    end_date:            'ပြီးဆုံးရက်',
+    apply_filter:        'စစ်ထုတ်မည်',
+    reset_filter:        'ပြန်သတ်မှတ်',
+    err_date_range:      'စတင်ရက်သည် ပြီးဆုံးရက်မတိုင်မီ ဖြစ်ရမည်။',
+    err_date_required:   'ရက်စွဲ နှစ်ခု ရွေးပါ။',
+    filter_active:       'စစ်ထုတ်မှု ဖွင့်ထားသည်',
+    change_password:     'စကားဝှက် ပြောင်းရန်',
+    change_password_sub: 'အကောင့် စကားဝှက် ပြောင်းမည်',
+    change:              'ပြောင်းမည်',
+    social_account:      'ဆိုရှယ် အကောင့်',
+    provider_label:      'ဝန်ဆောင်မှု:',
+    cat_salary:          'လစာ',
+    cat_freelance:       'ဖရီးလန်စ်',
+    cat_investment:      'ရင်းနှီး',
+    cat_gift:            'လက်ဆောင်',
+    cat_other_income:    'အခြား ဝင်ငွေ',
+    cat_food:            'အစားအသောက်',
+    cat_transport:       'သယ်ယူ',
+    cat_shopping:        'ဈေးဝယ်',
+    cat_bills:           'ဘီလ်',
+    cat_health:          'ကျန်းမာ',
+    cat_entertainment:   'အပျော်',
+    cat_education:       'ပညာ',
+    cat_rent:            'အငှားခ',
+    cat_other_expense:   'အခြား',
   }
 };
 
@@ -223,27 +257,20 @@ const CATEGORIES = {
   ]
 };
 
-/*
- * QUICK_ACTIONS defines which categories appear as quick action cards
- * on the home screen. We show a curated subset so the grid stays clean.
- * Income cards first, then expense cards — matching data-type so JS can
- * look up the correct totals and open the right modal.
- */
+/* Quick Actions shown on home screen */
 const QUICK_ACTIONS = [
-  /* Income */
-  { key: 'cat_salary',       type: 'income',  icon: '💼' },
-  { key: 'cat_freelance',    type: 'income',  icon: '💻' },
-  { key: 'cat_investment',   type: 'income',  icon: '📈' },
-  /* Expense */
-  { key: 'cat_food',         type: 'expense', icon: '🍜' },
-  { key: 'cat_transport',    type: 'expense', icon: '🚗' },
-  { key: 'cat_shopping',     type: 'expense', icon: '🛍️' },
-  { key: 'cat_bills',        type: 'expense', icon: '📄' },
-  { key: 'cat_health',       type: 'expense', icon: '💊' },
+  { key: 'cat_salary',     type: 'income',  icon: '💼' },
+  { key: 'cat_freelance',  type: 'income',  icon: '💻' },
+  { key: 'cat_investment', type: 'income',  icon: '📈' },
+  { key: 'cat_food',       type: 'expense', icon: '🍜' },
+  { key: 'cat_transport',  type: 'expense', icon: '🚗' },
+  { key: 'cat_shopping',   type: 'expense', icon: '🛍️' },
+  { key: 'cat_bills',      type: 'expense', icon: '📄' },
+  { key: 'cat_health',     type: 'expense', icon: '💊' },
 ];
 
 /* ═══════════════════════════════════════════
-   3. APP STATE ← PRESERVED
+   3. APP STATE ← PRESERVED + txn date range
 ═══════════════════════════════════════════ */
 const S = {
   transactions:  [],
@@ -252,12 +279,16 @@ const S = {
   theme:         'dark',
   notifEnabled:  true,
   userName:      'Alex Morgan',
-  userAvatar:    '',    // URL for Google profile photo (social login)
+  userAvatar:    '',
+  userEmail:     '',
+  userProvider:  '',   // e.g. 'Google', 'Facebook'
+  isSocialLogin: false,
   /* filters */
   dashFilter: 'all',
-  dashDate:   '',
   txnFilter:  'all',
-  txnDate:    '',
+  txnDateFrom: '',
+  txnDateTo:   '',
+  txnFilterActive: false,
   searchQuery: '',
   /* ui */
   fabOpen:    false,
@@ -265,7 +296,7 @@ const S = {
 };
 
 /* ═══════════════════════════════════════════
-   4. LOCAL STORAGE ← PRESERVED (same keys)
+   4. LOCAL STORAGE ← PRESERVED
 ═══════════════════════════════════════════ */
 const LS = {
   transactions:  'novapay_transactions',
@@ -275,6 +306,9 @@ const LS = {
   notifEnabled:  'novapay_notif',
   userName:      'novapay_username',
   userAvatar:    'novapay_avatar',
+  userEmail:     'novapay_email',
+  userProvider:  'novapay_provider',
+  isSocialLogin: 'novapay_social',
 };
 
 const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
@@ -286,16 +320,18 @@ function loadState() {
   S.lang          = lsGet(LS.lang,  'en');
   S.theme         = lsGet(LS.theme, 'dark');
   S.notifEnabled  = lsGet(LS.notifEnabled, true);
-  S.userName      = lsGet(LS.userName, 'Alex Morgan');
-  S.userAvatar    = lsGet(LS.userAvatar, '');
+  S.userName      = lsGet(LS.userName,     'Alex Morgan');
+  S.userAvatar    = lsGet(LS.userAvatar,    '');
+  S.userEmail     = lsGet(LS.userEmail,     '');
+  S.userProvider  = lsGet(LS.userProvider,  '');
+  S.isSocialLogin = lsGet(LS.isSocialLogin, false);
 }
+
 const saveTxns   = () => lsSet(LS.transactions,  S.transactions);
 const saveNotifs = () => lsSet(LS.notifications, S.notifications);
 
 /* ═══════════════════════════════════════════
    5. FINANCE CALCULATIONS ← PRESERVED
-      + groupByCategory: single-pass grouping
-        used by Quick Actions AND reports.
 ═══════════════════════════════════════════ */
 
 /** Returns { inc, exp, bal } totals */
@@ -308,13 +344,9 @@ function calcTotals() {
 }
 
 /**
- * Single-pass grouping of transactions by categoryKey.
- * Returns a Map keyed by categoryKey → { total, type }
- *
- * Performance: O(n) — called once per renderAll(),
- * result passed down so no secondary Supabase/store calls needed.
- *
- * @returns {Map<string, {total: number, type: string}>}
+ * Single-pass grouping of all transactions by categoryKey.
+ * O(n) — called once per renderAll().
+ * @returns {Map<string, {total: number, type: string, icon: string}>}
  */
 function groupByCategory() {
   const map = new Map();
@@ -323,13 +355,14 @@ function groupByCategory() {
     if (existing) {
       existing.total += t.amount;
     } else {
-      map.set(t.categoryKey, { total: t.amount, type: t.type });
+      const meta = getCatMeta(t.type, t.categoryKey);
+      map.set(t.categoryKey, { total: t.amount, type: t.type, icon: meta.icon });
     }
   }
   return map;
 }
 
-/** Format number with comma separators and 2 decimal places */
+/** Format number to USD string */
 const fmt = n => new Intl.NumberFormat('en-US', {
   minimumFractionDigits: 2, maximumFractionDigits: 2
 }).format(n);
@@ -361,17 +394,17 @@ function animCount(elId, target) {
 }
 
 /* ═══════════════════════════════════════════
-   8. UPDATE TOTALS + NAVBAR STRIP ← PRESERVED
+   8. UPDATE TOTALS ← PRESERVED
 ═══════════════════════════════════════════ */
 function updateTotals() {
   const { inc, exp, bal } = calcTotals();
 
-  /* Hero balance card (animated) */
+  /* Hero balance card */
   animCount('balanceDisplay', bal);
   setText('totalIncomeDisplay',  '$' + fmt(inc));
   setText('totalExpenseDisplay', '$' + fmt(exp));
 
-  /* Row-2 inline summary strip */
+  /* Row-2 summary strip */
   setText('r2Balance', '$' + fmt(bal));
   setText('r2Income',  '$' + fmt(inc));
   setText('r2Expense', '$' + fmt(exp));
@@ -450,31 +483,25 @@ function emptyEl() {
 
 /* ═══════════════════════════════════════════
    10. RENDER FEEDS ← PRESERVED
+       (Dashboard feed removed from Home page —
+        Home now shows Quick Actions + Usage Summary only)
 ═══════════════════════════════════════════ */
 
-/** Dashboard feed — most recent 20, respects dashFilter + dashDate */
-function renderDashFeed() {
-  const el = $('dashFeed');
-  if (!el) return;
-  const list = [...S.transactions].reverse().filter(t => {
-    const typeOk = S.dashFilter === 'all' || t.type === S.dashFilter;
-    const dateOk = !S.dashDate  || t.date === S.dashDate;
-    return typeOk && dateOk;
-  }).slice(0, 20);
-  el.innerHTML = '';
-  if (!list.length) { el.appendChild(emptyEl()); return; }
-  list.forEach((t, i) => el.appendChild(makeTxnCard(t, i)));
-}
-
-/** Transactions page feed */
+/** Transactions page feed — respects type + date range filters */
 function renderTxnFeed() {
   const el = $('txnFeed');
   if (!el) return;
-  const list = [...S.transactions].reverse().filter(t => {
+
+  let list = [...S.transactions].reverse().filter(t => {
     const typeOk = S.txnFilter === 'all' || t.type === S.txnFilter;
-    const dateOk = !S.txnDate  || t.date === S.txnDate;
+    let dateOk   = true;
+    if (S.txnFilterActive) {
+      if (S.txnDateFrom) dateOk = dateOk && t.date >= S.txnDateFrom;
+      if (S.txnDateTo)   dateOk = dateOk && t.date <= S.txnDateTo;
+    }
     return typeOk && dateOk;
   });
+
   el.innerHTML = '';
   if (!list.length) { el.appendChild(emptyEl()); return; }
   list.forEach((t, i) => el.appendChild(makeTxnCard(t, i)));
@@ -498,7 +525,72 @@ function renderSearch(q) {
 }
 
 /* ═══════════════════════════════════════════
-   11. CATEGORY BREAKDOWN ← PRESERVED
+   11. USAGE SUMMARY — NEW
+   Real-time category breakdown shown on Home page.
+   Shows each category with amount, type badge,
+   and a mini proportional bar.
+   @param {Map} catTotals - result of groupByCategory()
+═══════════════════════════════════════════ */
+function renderUsageSummary(catTotals) {
+  const el = $('usageSummary');
+  if (!el) return;
+
+  const T = TRANSLATIONS[S.lang];
+  el.innerHTML = '';
+
+  if (!catTotals.size) {
+    const empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.style.cssText = 'background:none;border:none';
+    empty.innerHTML = `<p>${T.no_transactions}</p><p style="font-size:.7rem">${T.add_first}</p>`;
+    el.appendChild(empty);
+    return;
+  }
+
+  /* Sort by total descending, show top 8 */
+  const entries = [...catTotals.entries()]
+    .sort((a, b) => b[1].total - a[1].total)
+    .slice(0, 8);
+
+  const maxTotal = entries[0][1].total;
+
+  entries.forEach(([key, data], i) => {
+    const label = T[key] || key;
+    const pct   = (data.total / maxTotal) * 100;
+    const color = data.type === 'income' ? 'var(--inc)' : 'var(--exp)';
+    const typeLabel = data.type === 'income'
+      ? (T.qa_total_added || 'Total Added')
+      : (T.qa_total_used  || 'Total Used');
+
+    const row = document.createElement('div');
+    row.className = 'usage-row';
+    row.style.animationDelay = (i * 0.04) + 's';
+
+    row.innerHTML = `
+      <div class="usage-ico ${data.type}">${data.icon}</div>
+      <div class="usage-info">
+        <div class="usage-cat">${label}</div>
+        <span class="usage-type-badge ${data.type}">${typeLabel}</span>
+      </div>
+      <div class="usage-bar-wrap">
+        <div class="usage-bar" style="width:0%;background:${color}"></div>
+      </div>
+      <div class="usage-amount ${data.type}">$${fmt(data.total)}</div>`;
+
+    el.appendChild(row);
+
+    /* Animate the bar after append */
+    requestAnimationFrame(() =>
+      setTimeout(() => {
+        const bar = row.querySelector('.usage-bar');
+        if (bar) bar.style.width = pct + '%';
+      }, 50 + i * 40)
+    );
+  });
+}
+
+/* ═══════════════════════════════════════════
+   12. CATEGORY BREAKDOWN ← PRESERVED
 ═══════════════════════════════════════════ */
 const CAT_COLORS = [
   '#f5a623','#00e896','#ff3d71','#a78bfa','#38bdf8',
@@ -540,7 +632,7 @@ function renderCatBreakdown() {
 }
 
 /* ═══════════════════════════════════════════
-   12. SPENDING CHART ← PRESERVED (pure canvas)
+   13. SPENDING CHART ← PRESERVED
 ═══════════════════════════════════════════ */
 function drawChart() {
   const canvas = $('spendingCanvas');
@@ -559,7 +651,6 @@ function drawChart() {
   const PAD = { t: 12, r: 12, b: 26, l: 46 };
   const now = new Date();
 
-  /* Build daily expense buckets */
   const buckets = {};
   for (let i = days - 1; i >= 0; i--) {
     const d = new Date(now);
@@ -585,7 +676,6 @@ function drawChart() {
 
   ctx.clearRect(0, 0, W, H);
 
-  /* Gradient fill under line */
   const g = ctx.createLinearGradient(0, PAD.t, 0, PAD.t + cH);
   g.addColorStop(0, 'rgba(245,166,35,0.30)');
   g.addColorStop(1, 'rgba(245,166,35,0.00)');
@@ -601,7 +691,6 @@ function drawChart() {
   ctx.fillStyle = g;
   ctx.fill();
 
-  /* Line */
   ctx.beginPath();
   ctx.moveTo(pts[0].x, pts[0].y);
   for (let i = 1; i < pts.length; i++) {
@@ -612,7 +701,6 @@ function drawChart() {
   ctx.lineWidth   = 2.4;
   ctx.stroke();
 
-  /* Axis labels */
   const muted = '#2e3d55';
   ctx.fillStyle = muted;
   ctx.font      = '10px DM Mono, monospace';
@@ -622,7 +710,6 @@ function drawChart() {
   ctx.textAlign = 'left';  ctx.fillText(fd(labels[0]),                  PAD.l,        H - 5);
   ctx.textAlign = 'right'; ctx.fillText(fd(labels[labels.length - 1]),  W - PAD.r,    H - 5);
 
-  /* Dots */
   pts.forEach(p => {
     ctx.beginPath();
     ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
@@ -635,26 +722,9 @@ function drawChart() {
 }
 
 /* ═══════════════════════════════════════════
-   13. QUICK ACTIONS v3.0 — UPGRADED
-   ─────────────────────────────────────────
-   PERFORMANCE: groupByCategory() is called once
-   from renderAll() and the result Map is passed in.
-   No secondary queries. No hardcoded values.
-   ─────────────────────────────────────────
-   Each card shows:
-     • Category icon     (emoji)
-     • Category name     (translated)
-     • Subtitle          "Total Added" / "Total Used"
-     • Dynamic amount    summed from real transaction data
-   Click → opens Add Transaction modal with category pre-selected
+   14. QUICK ACTIONS ← PRESERVED
+   @param {Map} catTotals - from groupByCategory()
 ═══════════════════════════════════════════ */
-
-/**
- * Render all Quick Action cards into #qcatGrid.
- *
- * @param {Map} catTotals - result of groupByCategory()
- *   Passed in from renderAll() so this is O(1) — no extra loop.
- */
 function renderQuickActions(catTotals) {
   const grid = $('qcatGrid');
   if (!grid) return;
@@ -663,25 +733,20 @@ function renderQuickActions(catTotals) {
   grid.innerHTML = '';
 
   QUICK_ACTIONS.forEach((qa, idx) => {
-    /* Look up this category's total from the pre-computed map */
-    const entry  = catTotals.get(qa.key);
-    const total  = entry ? entry.total : 0;
+    const entry   = catTotals.get(qa.key);
+    const total   = entry ? entry.total : 0;
     const hasData = total > 0;
 
-    /* Subtitle text differs for income vs expense */
     const subtitle = qa.type === 'income'
       ? (T.qa_total_added || 'Total Added')
       : (T.qa_total_used  || 'Total Used');
 
-    /* Amount display — monospaced, colored by type */
     const amountText = hasData ? '$' + fmt(total) : '$0.00';
 
-    /* Build card element */
     const card = document.createElement('button');
-    card.className   = `qcat-card qcat-${qa.type}`;
+    card.className    = `qcat-card qcat-${qa.type}`;
     card.dataset.type = qa.type;
     card.dataset.cat  = qa.key;
-    /* Staggered entrance animation */
     card.style.cssText = `animation: cardSlide 0.28s cubic-bezier(0.4,0,0.2,1) ${idx * 0.05}s both`;
 
     card.innerHTML = `
@@ -693,18 +758,14 @@ function renderQuickActions(catTotals) {
       <span class="qcat-amount${hasData ? '' : ' zero'}">${amountText}</span>
       <span class="qcat-add-chip" aria-hidden="true">+</span>`;
 
-    /* Click → open modal with this category pre-selected */
     card.addEventListener('click', () => openModal(qa.type, qa.key));
-
     grid.appendChild(card);
   });
 }
 
 /* ═══════════════════════════════════════════
-   14. NOTIFICATION SYSTEM ← PRESERVED
+   15. NOTIFICATION SYSTEM ← PRESERVED
 ═══════════════════════════════════════════ */
-
-/** Add a notification and show a toast */
 function addNotif(type, amount, newBalance) {
   if (!S.notifEnabled) return;
   const T   = TRANSLATIONS[S.lang];
@@ -725,7 +786,6 @@ function addNotif(type, amount, newBalance) {
   showToast(type, msg);
 }
 
-/** Render the notification dropdown panel */
 function renderNotifPanel() {
   const body  = $('npBody');
   const empty = $('npEmpty');
@@ -769,25 +829,23 @@ function markAllRead() {
 function relTime(date) {
   const s = Math.floor((Date.now() - date) / 1000);
   if (s < 60)    return 'Just now';
-  if (s < 3600)  return Math.floor(s / 60)    + 'm ago';
-  if (s < 86400) return Math.floor(s / 3600)  + 'h ago';
+  if (s < 3600)  return Math.floor(s / 60)   + 'm ago';
+  if (s < 86400) return Math.floor(s / 3600) + 'h ago';
   return Math.floor(s / 86400) + 'd ago';
 }
 
 /* ═══════════════════════════════════════════
-   15. TOAST SYSTEM ← PRESERVED
+   16. TOAST SYSTEM ← PRESERVED
 ═══════════════════════════════════════════ */
 function showToast(type, msg) {
   const container = $('toastContainer');
   if (!container) return;
-
   const toast = document.createElement('div');
   toast.className = 'toast';
   toast.innerHTML = `
     <div class="toast-dot ${type}"></div>
     <div class="toast-msg">${msg}</div>`;
   container.appendChild(toast);
-
   setTimeout(() => {
     toast.classList.add('out');
     setTimeout(() => toast.remove(), 280);
@@ -795,9 +853,8 @@ function showToast(type, msg) {
 }
 
 /* ═══════════════════════════════════════════
-   16. TRANSACTION CRUD ← PRESERVED
+   17. TRANSACTION CRUD ← PRESERVED
 ═══════════════════════════════════════════ */
-
 function addTxn(type, amount, categoryKey, category, description, date) {
   S.transactions.push({
     id: Date.now().toString(),
@@ -816,25 +873,116 @@ function deleteTxn(id) {
 }
 
 /* ═══════════════════════════════════════════
-   17. RENDER ALL ← PRESERVED
-       + renderQuickActions added
-       PERFORMANCE: groupByCategory() called once,
-       result shared with quick actions and cat breakdown
+   18. FILTER LOGIC — UPGRADED
+   Advanced date range filtering for History page.
+   Validates: start ≤ end, both required if either set.
+   No page reload. No full re-render. Smooth update.
+═══════════════════════════════════════════ */
+
+/**
+ * Validate the date range inputs and apply filters.
+ * Shows friendly error messages on invalid input.
+ * Updates the active filter badge.
+ */
+function applyTxnFilter() {
+  const T    = TRANSLATIONS[S.lang];
+  const from = $('txnDateFrom')?.value || '';
+  const to   = $('txnDateTo')?.value   || '';
+  const errEl = $('afpError');
+
+  /* Clear error */
+  if (errEl) errEl.style.display = 'none';
+
+  /* Validation */
+  if ((from && !to) || (!from && to)) {
+    if (errEl) {
+      errEl.textContent    = T.err_date_required;
+      errEl.style.display  = 'block';
+    }
+    return;
+  }
+
+  if (from && to && from > to) {
+    if (errEl) {
+      errEl.textContent    = T.err_date_range;
+      errEl.style.display  = 'block';
+    }
+    return;
+  }
+
+  /* Apply */
+  S.txnDateFrom     = from;
+  S.txnDateTo       = to;
+  S.txnFilterActive = !!(from || to);
+
+  updateFilterBadge();
+  renderTxnFeed();
+}
+
+/** Reset all history filters to default state */
+function resetTxnFilter() {
+  S.txnFilter       = 'all';
+  S.txnDateFrom     = '';
+  S.txnDateTo       = '';
+  S.txnFilterActive = false;
+
+  /* Reset UI */
+  const fromEl = $('txnDateFrom');
+  const toEl   = $('txnDateTo');
+  const errEl  = $('afpError');
+  if (fromEl) fromEl.value = '';
+  if (toEl)   toEl.value   = '';
+  if (errEl)  errEl.style.display = 'none';
+
+  /* Reset tab to All */
+  $('txnTabs')?.querySelectorAll('.ftab').forEach(b => {
+    b.classList.toggle('active', b.dataset.filter === 'all');
+  });
+
+  updateFilterBadge();
+  renderTxnFeed();
+}
+
+/** Update the active filter badge below filter panel */
+function updateFilterBadge() {
+  const T      = TRANSLATIONS[S.lang];
+  const badge  = $('afpActiveBadge');
+  const text   = $('afpActiveText');
+  if (!badge || !text) return;
+
+  if (!S.txnFilterActive && S.txnFilter === 'all') {
+    badge.style.display = 'none';
+    return;
+  }
+
+  let parts = [];
+  if (S.txnFilter !== 'all') parts.push(T[S.txnFilter] || S.txnFilter);
+  if (S.txnDateFrom) parts.push(S.txnDateFrom);
+  if (S.txnDateTo)   parts.push('→ ' + S.txnDateTo);
+
+  text.textContent    = (T.filter_active || 'Filter active') + ': ' + parts.join(' · ');
+  badge.style.display = 'flex';
+}
+
+/* ═══════════════════════════════════════════
+   19. RENDER ALL ← PRESERVED
+       Home page: Quick Actions + Usage Summary only
+       No Recent Activity on Home (per spec)
 ═══════════════════════════════════════════ */
 function renderAll() {
-  /* Single-pass grouping — reused by quick actions */
+  /* O(n) single pass — shared by quick actions + usage summary */
   const catTotals = groupByCategory();
 
   updateTotals();
-  renderQuickActions(catTotals);   // ← NEW: Quick Action cards with live totals
-  renderDashFeed();
+  renderQuickActions(catTotals);
+  renderUsageSummary(catTotals);
   renderTxnFeed();
   renderCatBreakdown();
   drawChart();
 }
 
 /* ═══════════════════════════════════════════
-   18. NAVIGATION ← PRESERVED
+   20. NAVIGATION ← PRESERVED
 ═══════════════════════════════════════════ */
 function goTo(page) {
   document.querySelectorAll('.page').forEach(p => {
@@ -866,7 +1014,7 @@ function goSearch() {
 }
 
 /* ═══════════════════════════════════════════
-   19. MODAL ← PRESERVED
+   21. MODAL ← PRESERVED
 ═══════════════════════════════════════════ */
 function openModal(type, prefillCat = '') {
   const T   = TRANSLATIONS[S.lang];
@@ -905,7 +1053,7 @@ function showConfirm(title, msg, cb) {
 function closeConfirm() { $('cfmVeil').classList.remove('open'); S.confirmCb = null; }
 
 /* ═══════════════════════════════════════════
-   20. THEME SYSTEM ← PRESERVED
+   22. THEME SYSTEM ← PRESERVED
 ═══════════════════════════════════════════ */
 function applyTheme(t) {
   S.theme = t;
@@ -917,7 +1065,7 @@ function applyTheme(t) {
 }
 
 /* ═══════════════════════════════════════════
-   21. LANGUAGE SYSTEM ← PRESERVED
+   23. LANGUAGE SYSTEM ← PRESERVED + new keys
 ═══════════════════════════════════════════ */
 function applyLang(lang) {
   S.lang = lang;
@@ -933,6 +1081,8 @@ function applyLang(lang) {
   setText('langBtnLbl',    isEn ? 'English' : 'မြန်မာ');
   setText('menuLangLabel', isEn ? 'Switch to မြန်မာ' : 'Switch to English');
 
+  /* Update filter badge text in new language */
+  updateFilterBadge();
   updateGreeting();
   renderAll();
   renderNotifPanel();
@@ -941,7 +1091,7 @@ function applyLang(lang) {
 const toggleLang = () => applyLang(S.lang === 'en' ? 'my' : 'en');
 
 /* ═══════════════════════════════════════════
-   22. GREETING & DATE ← PRESERVED
+   24. GREETING & DATE ← PRESERVED
 ═══════════════════════════════════════════ */
 function updateGreeting() {
   const h = new Date().getHours();
@@ -957,7 +1107,7 @@ function updateDate() {
 }
 
 /* ═══════════════════════════════════════════
-   23. EXPORT CSV ← PRESERVED
+   25. EXPORT CSV ← PRESERVED
 ═══════════════════════════════════════════ */
 function exportCSV() {
   const T   = TRANSLATIONS[S.lang];
@@ -978,25 +1128,23 @@ function exportCSV() {
 }
 
 /* ═══════════════════════════════════════════
-   24. PROFILE ← PRESERVED
-       + Google social login avatar support
-       If S.userAvatar is a URL (set externally by
-       Supabase auth onAuthStateChange), show the
-       Google photo in the avatar ring instead of
-       the letter initial.
+   26. PROFILE ← PRESERVED + social login display
+   Social login: shows Google photo, provider badge,
+   disables password change option, shows email.
+   Normal login: shows letter initial, allows password change.
 ═══════════════════════════════════════════ */
 function updateProfile() {
   const name = S.userName;
   const init = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'A';
 
-  /* ── Avatar ring: prefer Google photo over letter ── */
+  /* ── Navbar avatar ring ── */
   const avatarImg    = $('avatarImg');
   const avatarLetter = $('avatarLetter');
   if (avatarImg && avatarLetter) {
     if (S.userAvatar) {
-      avatarImg.src         = S.userAvatar;
-      avatarImg.alt         = name;
-      avatarImg.style.display = 'block';
+      avatarImg.src          = S.userAvatar;
+      avatarImg.alt          = name;
+      avatarImg.style.display  = 'block';
       avatarLetter.style.display = 'none';
     } else {
       avatarImg.style.display    = 'none';
@@ -1005,17 +1153,71 @@ function updateProfile() {
     }
   }
 
+  /* Provider label in navbar (shown for social login) */
+  const providerEl = $('avatarProvider');
+  if (providerEl) {
+    if (S.isSocialLogin && S.userProvider) {
+      providerEl.textContent = S.userProvider;
+      providerEl.style.display = 'block';
+    } else {
+      providerEl.style.display = 'none';
+    }
+  }
+
   setText('avatarName', name.split(' ')[0]);
-  setText('pcAvatar',   init[0]);
+
+  /* ── Settings profile card ── */
+  const pcAvatar = $('pcAvatar');
+  if (pcAvatar) {
+    if (S.userAvatar) {
+      /* Show Google photo in settings avatar */
+      if (!pcAvatar.querySelector('img')) {
+        const img = document.createElement('img');
+        img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover;';
+        pcAvatar.appendChild(img);
+      }
+      pcAvatar.querySelector('img').src = S.userAvatar;
+      pcAvatar.textContent = '';
+      pcAvatar.appendChild(pcAvatar.querySelector('img'));
+    } else {
+      pcAvatar.innerHTML = init[0];
+    }
+  }
+
   const ni = $('profileNameInput');
   if (ni) ni.value = name;
+
+  /* Social account info block */
+  const socialInfo = $('pcSocialInfo');
+  const socialBadge    = $('pcSocialBadge');
+  const socialProvider = $('pcSocialProvider');
+  const emailEl        = $('pcEmail');
+  const passwordRow    = $('passwordRow');
+
+  if (S.isSocialLogin) {
+    if (socialInfo) socialInfo.style.display = 'flex';
+    if (socialBadge) socialBadge.textContent =
+      TRANSLATIONS[S.lang].social_account || 'Social Account';
+    if (socialProvider && S.userProvider)
+      socialProvider.textContent =
+        (TRANSLATIONS[S.lang].provider_label || 'Provider:') + ' ' + S.userProvider;
+    if (emailEl && S.userEmail) emailEl.textContent = S.userEmail;
+    /* Disable password change for social login */
+    if (passwordRow) passwordRow.style.display = 'none';
+    /* Make name input read-only for social login */
+    if (ni) ni.readOnly = true;
+  } else {
+    if (socialInfo) socialInfo.style.display = 'none';
+    if (passwordRow) passwordRow.style.display = 'flex';
+    if (ni) ni.readOnly = false;
+  }
+
   updateGreeting();
 }
 
 /**
  * setGoogleUser — called by Supabase onAuthStateChange when a user
- * signs in via Google. Stores the avatar URL and display name so the
- * app reflects the real Google account.
+ * signs in via Google or another social provider.
  *
  * Usage (in your Supabase auth file):
  *   supabase.auth.onAuthStateChange((event, session) => {
@@ -1023,24 +1225,34 @@ function updateProfile() {
  *       const meta = session.user.user_metadata;
  *       setGoogleUser(
  *         meta.full_name || meta.name || session.user.email,
- *         meta.avatar_url || meta.picture || ''
+ *         meta.avatar_url || meta.picture || '',
+ *         session.user.email || '',
+ *         'Google'   // or detect from session.user.app_metadata.provider
  *       );
  *     }
  *   });
  *
  * @param {string} name       - Display name from Google
  * @param {string} avatarUrl  - Google profile picture URL
+ * @param {string} email      - Google email
+ * @param {string} provider   - Provider name, e.g. 'Google'
  */
-function setGoogleUser(name, avatarUrl) {
-  S.userName   = name    || S.userName;
-  S.userAvatar = avatarUrl || '';
-  lsSet(LS.userName,   S.userName);
-  lsSet(LS.userAvatar, S.userAvatar);
+function setGoogleUser(name, avatarUrl, email = '', provider = 'Google') {
+  S.userName      = name     || S.userName;
+  S.userAvatar    = avatarUrl || '';
+  S.userEmail     = email    || '';
+  S.userProvider  = provider || 'Google';
+  S.isSocialLogin = true;
+  lsSet(LS.userName,      S.userName);
+  lsSet(LS.userAvatar,    S.userAvatar);
+  lsSet(LS.userEmail,     S.userEmail);
+  lsSet(LS.userProvider,  S.userProvider);
+  lsSet(LS.isSocialLogin, true);
   updateProfile();
 }
 
 /* ═══════════════════════════════════════════
-   25. FAB ← PRESERVED
+   27. FAB ← PRESERVED
 ═══════════════════════════════════════════ */
 function toggleFab(force) {
   const open = force !== undefined ? force : !S.fabOpen;
@@ -1051,7 +1263,7 @@ function toggleFab(force) {
 }
 
 /* ═══════════════════════════════════════════
-   26. CLOSE ALL PANELS ← PRESERVED
+   28. CLOSE ALL PANELS ← PRESERVED
 ═══════════════════════════════════════════ */
 function closeAll() {
   $('dotsMenu')?.classList.remove('open');
@@ -1061,7 +1273,7 @@ function closeAll() {
 }
 
 /* ═══════════════════════════════════════════
-   27. SEARCH ← PRESERVED
+   29. SEARCH ← PRESERVED
 ═══════════════════════════════════════════ */
 function handleSearch(q) {
   S.searchQuery = q;
@@ -1079,8 +1291,9 @@ function handleSearch(q) {
 }
 
 /* ═══════════════════════════════════════════
-   28. EVENT WIRING ← PRESERVED
+   30. EVENT WIRING ← PRESERVED + new filter wiring
    All listeners registered once on init.
+   Delegation used where appropriate.
 ═══════════════════════════════════════════ */
 function wire() {
 
@@ -1095,12 +1308,6 @@ function wire() {
   $('fabExpense')?.addEventListener('click',  () => { toggleFab(false); openModal('expense'); });
   $('fabBackdrop')?.addEventListener('click', () => toggleFab(false));
 
-  /*
-   * NOTE: Quick Action card click listeners are added in renderQuickActions()
-   * per-card so they always have the correct data-type/data-cat at render time.
-   * No delegation needed since we rebuild the grid on every renderAll().
-   */
-
   /* ── Avatar → Settings ── */
   $('avatarBtn')?.addEventListener('click', () => goTo('settings'));
 
@@ -1113,7 +1320,7 @@ function wire() {
   });
 
   /* 3-dots menu items */
-  $('themeCheck')?.addEventListener('change',  e => applyTheme(e.target.checked ? 'dark' : 'light'));
+  $('themeCheck')?.addEventListener('change',   e => applyTheme(e.target.checked ? 'dark' : 'light'));
   $('menuAddIncome')?.addEventListener('click',  () => { closeAll(); openModal('income'); });
   $('menuAddExpense')?.addEventListener('click', () => { closeAll(); openModal('expense'); });
   $('menuHistory')?.addEventListener('click',   () => { closeAll(); goTo('transactions'); });
@@ -1158,31 +1365,38 @@ function wire() {
     }
   });
 
-  /* ── Dashboard filter tabs ── */
-  $('dashTabs')?.addEventListener('click', e => {
-    const btn = e.target.closest('.ftab');
-    if (!btn) return;
-    $('dashTabs').querySelectorAll('.ftab').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    S.dashFilter = btn.dataset.filter;
-    renderDashFeed();
-  });
-  $('dashDate')?.addEventListener('change', e => { S.dashDate = e.target.value; renderDashFeed(); });
-
-  /* ── Transactions filter tabs ── */
+  /* ── History: Type filter tabs (delegation) ── */
   $('txnTabs')?.addEventListener('click', e => {
     const btn = e.target.closest('.ftab');
     if (!btn) return;
     $('txnTabs').querySelectorAll('.ftab').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     S.txnFilter = btn.dataset.filter;
+    updateFilterBadge();
     renderTxnFeed();
   });
-  $('txnDate')?.addEventListener('change', e => { S.txnDate = e.target.value; renderTxnFeed(); });
 
-  /* ── CSV export buttons ── */
-  $('csvBtnDash')?.addEventListener('click', exportCSV);
-  $('csvBtnTxn')?.addEventListener('click',  exportCSV);
+  /* ── History: Apply date range filter ── */
+  $('afpApply')?.addEventListener('click', applyTxnFilter);
+
+  /* ── History: Reset filter ── */
+  $('afpReset')?.addEventListener('click', resetTxnFilter);
+
+  /* ── History: Clear active badge ── */
+  $('afpBadgeClear')?.addEventListener('click', resetTxnFilter);
+
+  /* ── History: Real-time clear error on date change ── */
+  $('txnDateFrom')?.addEventListener('change', () => {
+    const errEl = $('afpError');
+    if (errEl) errEl.style.display = 'none';
+  });
+  $('txnDateTo')?.addEventListener('change', () => {
+    const errEl = $('afpError');
+    if (errEl) errEl.style.display = 'none';
+  });
+
+  /* ── CSV export ── */
+  $('csvBtnTxn')?.addEventListener('click', exportCSV);
 
   /* ── Transaction modal ── */
   $('mcClose')?.addEventListener('click', closeModal);
@@ -1222,13 +1436,14 @@ function wire() {
   $('cfmOk')?.addEventListener('click',     () => { S.confirmCb?.(); closeConfirm(); });
 
   /* ── Settings ── */
-  $('themeToggle')?.addEventListener('change',  e => applyTheme(e.target.checked ? 'dark' : 'light'));
-  $('langBtn')?.addEventListener('click',        toggleLang);
-  $('notifToggle')?.addEventListener('change',   e => {
+  $('themeToggle')?.addEventListener('change',    e => applyTheme(e.target.checked ? 'dark' : 'light'));
+  $('langBtn')?.addEventListener('click',          toggleLang);
+  $('notifToggle')?.addEventListener('change',     e => {
     S.notifEnabled = e.target.checked;
     lsSet(LS.notifEnabled, S.notifEnabled);
   });
   $('profileNameInput')?.addEventListener('input', e => {
+    if (S.isSocialLogin) return; /* Social login: name is read-only */
     S.userName = e.target.value || 'User';
     lsSet(LS.userName, S.userName);
     updateProfile();
@@ -1246,6 +1461,10 @@ function wire() {
       localStorage.clear();
       location.reload();
     });
+  });
+  $('changePasswordBtn')?.addEventListener('click', () => {
+    /* Placeholder — wire to Supabase updateUser or custom password change flow */
+    showToast('info', 'Password change is not available in demo mode.');
   });
 
   /* ── Chart period selector ── */
@@ -1275,7 +1494,7 @@ function wire() {
 }
 
 /* ═══════════════════════════════════════════
-   29. INIT ← PRESERVED
+   31. INIT ← PRESERVED
 ═══════════════════════════════════════════ */
 function init() {
   loadState();
@@ -1284,7 +1503,6 @@ function init() {
   updateDate();
   updateProfile();
 
-  /* Sync notification toggle */
   const nt = $('notifToggle');
   if (nt) nt.checked = S.notifEnabled;
 
@@ -1298,71 +1516,66 @@ function init() {
     const yd = new Date(Date.now() - 86400000).toISOString().split('T')[0];
     const d2 = new Date(Date.now() - 172800000).toISOString().split('T')[0];
     S.transactions = [
-      { id:'1', type:'income',  amount:3000, categoryKey:'cat_salary',       category:'Salary',      description:'Monthly salary',  date:d2 },
-      { id:'2', type:'income',  amount:2000, categoryKey:'cat_freelance',     category:'Freelance',    description:'Design project',   date:yd },
-      { id:'3', type:'expense', amount:450,  categoryKey:'cat_food',          category:'Food',         description:'Groceries & dining',date:d2 },
-      { id:'4', type:'expense', amount:120,  categoryKey:'cat_transport',     category:'Transport',    description:'Grab rides',       date:yd },
-      { id:'5', type:'expense', amount:299,  categoryKey:'cat_shopping',      category:'Shopping',     description:'Online order',     date:td },
-      { id:'6', type:'expense', amount:85,   categoryKey:'cat_bills',         category:'Bills',        description:'Electricity',      date:td },
+      { id:'1', type:'income',  amount:3000, categoryKey:'cat_salary',      category:'Salary',    description:'Monthly salary',    date:d2 },
+      { id:'2', type:'income',  amount:2000, categoryKey:'cat_freelance',    category:'Freelance',  description:'Design project',    date:yd },
+      { id:'3', type:'expense', amount:450,  categoryKey:'cat_food',         category:'Food',       description:'Groceries & dining', date:d2 },
+      { id:'4', type:'expense', amount:120,  categoryKey:'cat_transport',    category:'Transport',  description:'Grab rides',        date:yd },
+      { id:'5', type:'expense', amount:299,  categoryKey:'cat_shopping',     category:'Shopping',   description:'Online order',      date:td },
+      { id:'6', type:'expense', amount:85,   categoryKey:'cat_bills',        category:'Bills',      description:'Electricity',       date:td },
     ];
     saveTxns();
     renderAll();
   }
 
-  console.log('%c FinPay v3.0 Ready ✓ ', 'background:#f5a623;color:#1a0f00;padding:4px 12px;border-radius:4px;font-weight:bold;font-family:monospace');
-  console.log('%c Quick Actions: dynamic category totals active ', 'background:#00e896;color:#001a0d;padding:2px 8px;border-radius:4px;font-size:11px');
+  console.log('%c FinPay v4.0 Ready ✓ ', 'background:#f5a623;color:#1a0f00;padding:4px 12px;border-radius:4px;font-weight:bold;font-family:monospace');
+  console.log('%c Home: Quick Actions + Usage Summary | History: Advanced Date Range Filter ', 'background:#00e896;color:#001a0d;padding:2px 8px;border-radius:4px;font-size:11px');
+  console.log('%c Social Login: setGoogleUser(name, avatarUrl, email, provider) ', 'background:#60a5fa;color:#0d1a2e;padding:2px 8px;border-radius:4px;font-size:11px');
 }
 
 /* ══════════════════════════════════════════
    SUPABASE INTEGRATION HOOKS
    ─────────────────────────────────────────
-   When you connect Supabase, replace the
-   localStorage-based CRUD functions with
-   real Supabase queries using this pattern:
+   Connect Supabase auth and replace localStorage
+   CRUD calls with real Supabase queries:
 
-   // In your supabase-init.js:
+   // In supabase-init.js:
    import { createClient } from '@supabase/supabase-js';
    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-   // Listen for auth changes (handles Google login):
    supabase.auth.onAuthStateChange((event, session) => {
      if (session?.user) {
-       const meta = session.user.user_metadata;
+       const meta     = session.user.user_metadata;
+       const provider = session.user.app_metadata?.provider || 'Google';
        setGoogleUser(
          meta.full_name || meta.name || session.user.email,
-         meta.avatar_url || meta.picture || ''
+         meta.avatar_url || meta.picture || '',
+         session.user.email || '',
+         provider.charAt(0).toUpperCase() + provider.slice(1)
        );
        loadTransactionsFromSupabase(session.user.id);
      }
    });
 
-   // Load transactions (replaces loadState for transactions):
    async function loadTransactionsFromSupabase(userId) {
      const { data, error } = await supabase
        .from('transactions')
-       .select('id, type, category, amount, created_at')
+       .select('*')
        .eq('user_id', userId)
-       .order('created_at', { ascending: false });
+       .order('created_at', { ascending: true });
 
      if (!error && data) {
-       // Map Supabase rows to the app's transaction shape:
        S.transactions = data.map(row => ({
          id:          row.id,
          type:        row.type,
          amount:      row.amount,
-         categoryKey: row.category,   // category column stores the key
+         categoryKey: row.category,
          category:    row.category,
          description: row.description || '',
          date:        row.created_at.split('T')[0],
        }));
-       renderAll();  // renderAll() calls groupByCategory() once internally —
-                     // Quick Action totals update automatically.
+       renderAll(); // groupByCategory() called once internally
      }
    }
-
-   // The groupByCategory() function in section 5 replaces any
-   // per-category SUM queries. All grouping happens in JS after
-   // one fetch, keeping Supabase calls to a minimum.
 ══════════════════════════════════════════ */
 
 /* Boot */
