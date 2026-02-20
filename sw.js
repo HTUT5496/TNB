@@ -8,8 +8,7 @@ const ASSETS = [
   "register-style.css",
   "register-script.js",
   "dashboard.html",
-  "dashboard1.css", // Added split CSS
-  "dashboard2.css", // Added split CSS
+  "dashboard.css", // Added split CSS
   "dashboard.js",
   "reset.html",
   "reset-style.css",
@@ -71,3 +70,4 @@ self.addEventListener("fetch", (e) => {
     }),
   );
 });
+
