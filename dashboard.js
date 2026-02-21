@@ -333,44 +333,10 @@ const _supabase = (() => {
 
 /* ═══════════════════════════════════════════
    5. AUTH GUARD
-   Uses onAuthStateChange instead of a one-shot
-   getSession() call, which avoids the race condition
-   where the session token hasn't been written to
-   localStorage yet when dashboard.js first runs
-   (happens right after signInWithPassword redirect).
+   Simple, reliable: getSession() reads straight
+   from localStorage — no race conditions, no
+   async subscription timing bugs.
 ═══════════════════════════════════════════ */
-
-/**
- * Wait for Supabase to emit its first auth event.
- * Returns a Promise that resolves to the session (or null).
- * Has a 6-second timeout to prevent hanging forever.
- */
-function waitForSession() {
-  return new Promise((resolve) => {
-    if (!_supabase) { resolve(null); return; }
-
-    let settled = false;
-
-    const { data: { subscription } } = _supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (settled) return;
-        settled = true;
-        subscription.unsubscribe();
-        resolve(session);
-      }
-    );
-
-    /* Fallback: if onAuthStateChange never fires (e.g. SDK issue),
-       fall back to getSession() after a short delay */
-    setTimeout(async () => {
-      if (settled) return;
-      settled = true;
-      subscription.unsubscribe();
-      const { data: { session } } = await _supabase.auth.getSession();
-      resolve(session);
-    }, 6000);
-  });
-}
 
 /** Populate S.* from a valid Supabase session object */
 function applySession(session) {
@@ -400,13 +366,28 @@ function applySession(session) {
 }
 
 async function authGuard() {
-  const session = await waitForSession();
-  if (!session) {
+  if (!_supabase) {
+    console.error('[TNB] Supabase not loaded');
     window.location.replace('index.html');
     return null;
   }
-  applySession(session);
-  return session;
+
+  try {
+    const { data: { session }, error } = await _supabase.auth.getSession();
+    if (error) throw error;
+
+    if (!session) {
+      window.location.replace('index.html');
+      return null;
+    }
+
+    applySession(session);
+    return session;
+  } catch (err) {
+    console.error('[TNB] Auth error:', err.message);
+    window.location.replace('index.html');
+    return null;
+  }
 }
 
 /* ═══════════════════════════════════════════
@@ -430,29 +411,39 @@ async function authGuard() {
 /** Load all transactions for current user, ordered oldest→newest */
 async function dbLoadTransactions() {
   if (!_supabase || !S.userId) return [];
-  const { data, error } = await _supabase
-    .from('transactions')
-    .select('*')
-    .eq('user_id', S.userId)
-    .order('date',       { ascending: true })
-    .order('created_at', { ascending: true });
+  try {
+    const { data, error } = await _supabase
+      .from('transactions')
+      .select('*')
+      .eq('user_id', S.userId)
+      .order('date',       { ascending: true })
+      .order('created_at', { ascending: true });
 
-  if (error) {
-    console.error('[TNB] Load error:', error.message);
-    showToast('expense', TRANSLATIONS[S.lang].db_error);
+    if (error) {
+      /* Table may not exist yet — show helpful message, don't crash */
+      console.error('[TNB] Load error:', error.message, '| Code:', error.code);
+      if (error.code === '42P01') {
+        /* relation does not exist — table not created yet */
+        showToast('expense', 'DB table not found. Please create the transactions table in Supabase.');
+      } else {
+        showToast('expense', TRANSLATIONS[S.lang].db_error);
+      }
+      return [];
+    }
+
+    return (data || []).map(row => ({
+      id:          row.id,
+      type:        row.type,
+      amount:      parseFloat(row.amount),
+      categoryKey: row.category_key,
+      category:    row.category,
+      description: row.description || '',
+      date:        row.date,
+    }));
+  } catch (err) {
+    console.error('[TNB] dbLoadTransactions exception:', err.message);
     return [];
   }
-
-  /* Map DB rows → internal transaction objects */
-  return (data || []).map(row => ({
-    id:          row.id,
-    type:        row.type,
-    amount:      parseFloat(row.amount),
-    categoryKey: row.category_key,
-    category:    row.category,
-    description: row.description || '',
-    date:        row.date,        /* ISO date string: "2025-01-15" */
-  }));
 }
 
 /** Insert one transaction into DB */
@@ -1637,38 +1628,63 @@ function wire() {
    35. INIT — async, DB-first
 ═══════════════════════════════════════════ */
 async function init() {
-  /* 1. Load UI preferences from localStorage first (fast, synchronous) */
+  /* 1. Load UI preferences from localStorage (synchronous, instant) */
   loadPrefs();
   applyTheme(S.theme);
   applyLang(S.lang);
   updateDate();
 
-  /* 2. Show loading overlay while we verify auth + fetch data */
+  /* 2. Show loading overlay */
   setLoading(true);
 
-  /* 3. Auth guard — redirects to index.html if no session */
-  const session = await authGuard();
-  if (!session) return; /* redirected */
+  /* Safety net: loading overlay ALWAYS disappears after 8s no matter what */
+  const safetyTimer = setTimeout(() => {
+    console.warn('[TNB] Safety timeout hit — forcing load complete');
+    setLoading(false);
+    renderAll();
+    renderNotifPanel();
+  }, 8000);
 
-  /* 4. Update profile UI with auth data */
-  updateProfile();
-  const nt = $('notifToggle');
-  if (nt) nt.checked = S.notifEnabled;
+  try {
+    /* 3. Check auth — redirects to index.html if no session */
+    const session = await authGuard();
+    if (!session) { clearTimeout(safetyTimer); return; }
 
-  /* 5. Wire all UI events */
-  wire();
+    /* 4. Profile UI */
+    updateProfile();
+    const nt = $('notifToggle');
+    if (nt) nt.checked = S.notifEnabled;
 
-  /* 6. Load transactions from Supabase */
-  S.transactions = await dbLoadTransactions();
+    /* 5. Wire events */
+    wire();
 
-  /* 7. Hide loading, render everything */
-  setLoading(false);
-  renderAll();
-  renderNotifPanel();
+    /* 6. Load transactions — with 10s timeout so it never hangs */
+    try {
+      const txnPromise = dbLoadTransactions();
+      const timeoutPromise = new Promise(resolve => setTimeout(() => resolve([]), 10000));
+      S.transactions = await Promise.race([txnPromise, timeoutPromise]);
+    } catch (e) {
+      console.error('[TNB] Failed to load transactions:', e.message);
+      S.transactions = [];
+    }
 
-  console.log('%c FinPay v5.0 Ready ✓ ', 'background:#f5a623;color:#1a0f00;padding:4px 12px;border-radius:4px;font-weight:bold;font-family:monospace');
-  console.log('%c DB: Supabase | Auth: ' + (S.isSocialLogin ? S.userProvider : 'Email') + ' | User: ' + S.userName + ' ', 'background:#00e896;color:#001a0d;padding:2px 8px;border-radius:4px;font-size:11px');
-  console.log('%c Transactions loaded from DB: ' + S.transactions.length, 'background:#60a5fa;color:#0d1a2e;padding:2px 8px;border-radius:4px;font-size:11px');
+    /* 7. Done */
+    clearTimeout(safetyTimer);
+    setLoading(false);
+    renderAll();
+    renderNotifPanel();
+
+    console.log('%c FinPay v5.0 Ready ✓ ', 'background:#f5a623;color:#1a0f00;padding:4px 12px;border-radius:4px;font-weight:bold;font-family:monospace');
+    console.log('%c Auth: ' + (S.isSocialLogin ? S.userProvider : 'Email') + ' | User: ' + S.userName, 'background:#00e896;color:#001a0d;padding:2px 8px;border-radius:4px;font-size:11px');
+    console.log('%c Transactions: ' + S.transactions.length, 'background:#60a5fa;color:#0d1a2e;padding:2px 8px;border-radius:4px;font-size:11px');
+
+  } catch (err) {
+    console.error('[TNB] Init error:', err);
+    clearTimeout(safetyTimer);
+    setLoading(false);
+    renderAll();
+    renderNotifPanel();
+  }
 }
 
 /* Boot */
