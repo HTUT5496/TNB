@@ -1654,45 +1654,44 @@ function seedDemoData() {
    31. INIT — Final Optimized Version
 ═══════════════════════════════════════════ */
 async function init() {
-  // 1. Auth Session ကို အရင်စစ်မယ်
+  // 1. အရင်ဆုံး အကောင့်ရှိမရှိ စစ်မယ် (Loop မပတ်အောင် အရေးကြီးဆုံးအဆင့်ဖြစ်ပါတယ်)
   const {
     data: { session },
   } = await _supabase.auth.getSession();
 
   if (!session) {
     window.location.href = "index.html";
-    return;
+    return; // အကောင့်မရှိရင် အောက်က code တွေကို ဆက်မလုပ်တော့ဘူး
   }
 
-  // 2. Google/Social Metadata များကို Sync လုပ်မယ်
-  const user = session.user;
-  const meta = user.user_metadata;
-
-  S.userEmail = user.email;
-  // Google login ဆိုရင် full_name သို့မဟုတ် name ကိုယူမယ်
+  // 2. User Information များကို Sync လုပ်မယ်
+  const meta = session.user.user_metadata;
+  S.userEmail = session.user.email;
   S.userName = meta.full_name || meta.name || S.userEmail.split("@")[0];
-  // Google profile ပုံကို avatar_url သို့မဟုတ် picture ကနေယူမယ်
   S.userAvatar = meta.avatar_url || meta.picture || "";
-  S.userProvider = user.app_metadata?.provider || "Email";
+  S.userProvider = session.user.app_metadata?.provider || "Email";
   S.isSocialLogin = S.userProvider.toLowerCase() !== "email";
 
-  // 3. UI Settings & Profile Update
+  // 3. UI Settings များကို Load လုပ်မယ်
   loadState();
   applyTheme(S.theme);
   applyLang(S.lang);
   updateDate();
-
-  // profile ပုံနဲ့ နာမည်ကို UI မှာပြရန် ခေါ်လိုက်ခြင်း
   updateProfile();
 
+  // Notification toggle status ကို sync လုပ်မယ်
   if ($("notifToggle")) $("notifToggle").checked = S.notifEnabled;
 
+  // Event Listeners များကို ချိတ်ဆက်မယ်
   wire();
 
-  // 4. Demo Data Logic
+  // 4. Handle Demo Data (FIXED: အကောင့်အသစ်ဆိုမှ တစ်ခါပဲ Demo data ထည့်မယ်)
+  // localstorage မှာ တစ်ခါမှ မဖွင့်ရသေးဘူးဆိုရင်ပဲ Demo data ပြမယ်
   const isFirstTime = !localStorage.getItem("app_initialized");
+
   if (isFirstTime && (!S.transactions || S.transactions.length === 0)) {
     seedDemoData();
+    // Demo data တစ်ခါဝင်ပြီးရင် နောက်တစ်ခါ refresh လုပ်ရင် ထပ်မဝင်အောင် မှတ်ထားမယ်
     localStorage.setItem("app_initialized", "true");
   }
 
@@ -1701,41 +1700,14 @@ async function init() {
   renderNotifPanel();
 
   console.log(
-    "%c Novapay Ready ✓ ",
+    "%c Dashboard Ready ✓ ",
     "background:#22c55e; color:#fff; padding:2px 5px; border-radius:3px;",
   );
 }
-function updateProfile() {
-  // HTML IDs များကို ဖမ်းယူခြင်း
-  const imgEl = $("avatarImg");
-  const letterEl = $("avatarLetter");
-  const nameEl = $("avatarName");
-  const providerEl = $("avatarProvider");
 
-  // 1. နာမည်ကို Update လုပ်ခြင်း
-  if (nameEl) nameEl.textContent = S.userName;
-
-  // 2. Provider ကို Update လုပ်ခြင်း (Email သို့မဟုတ် Google)
-  if (providerEl) {
-    providerEl.textContent = S.userProvider;
-    providerEl.style.display = S.isSocialLogin ? "block" : "none";
-  }
-
-  // 3. Avatar Image သို့မဟုတ် Initial Letter ကို ပြသခြင်း
-  if (S.userAvatar) {
-    // Google Profile ပုံရှိလျှင်
-    if (imgEl) {
-      imgEl.src = S.userAvatar;
-      imgEl.style.display = "block";
-      imgEl.alt = S.userName;
-    }
-    if (letterEl) letterEl.style.display = "none";
-  } else {
-    // ပုံမရှိလျှင် နာမည်၏ ရှေ့ဆုံးစာလုံးကို ပြမည်
-    if (imgEl) imgEl.style.display = "none";
-    if (letterEl) {
-      letterEl.textContent = S.userName.charAt(0).toUpperCase();
-      letterEl.style.display = "flex";
-    }
-  }
+/* ── Boot Logic ── */
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", init);
+} else {
+  init();
 }
