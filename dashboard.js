@@ -4,7 +4,7 @@ const _supabase = createClient(
   "sb_publishable_jDExXkASC_jrulY8B7noFw_r9qut-vQ",
 );
 
-// Auth Guard: If no session, kick back to login
+// 1. Auth Guard
 async function checkAuth() {
   const {
     data: { session },
@@ -12,50 +12,21 @@ async function checkAuth() {
   if (!session) {
     window.location.href = "index.html";
   } else {
-    console.log("Welcome,", session.user.email);
+    // 2. Sync real user data into your State (S)
+    S.userEmail = session.user.email;
+    S.userName =
+      session.user.user_metadata.full_name || session.user.email.split("@")[0];
+
+    // Update the UI greeting (make sure you have an element with id="userNameDisplay")
+    const nameEl = document.getElementById("userNameDisplay");
+    if (nameEl) nameEl.textContent = S.userName;
+
+    console.log("Welcome,", S.userEmail);
   }
 }
 checkAuth();
 
-// --- Rest of your dashboard.js code starts here ---
-/* ══════════════════════════════════════════════════════
-   FINPAY – SMART FINANCE  |  dashboard.js  v4.0
-   ──────────────────────────────────────────────────────
-   Architecture (modules):
-     1.  Translations          ← PRESERVED + new keys
-     2.  Categories            ← PRESERVED
-     3.  App State             ← PRESERVED + filter state
-     4.  LocalStorage          ← PRESERVED
-     5.  Finance Calculations  ← PRESERVED (groupByCategory)
-     6.  DOM Helpers           ← PRESERVED
-     7.  Animated Counter      ← PRESERVED
-     8.  Update Totals         ← PRESERVED
-     9.  Transaction Card      ← PRESERVED
-    10.  Render Feeds          ← PRESERVED
-    11.  Usage Summary         ← NEW (replaces Recent Activity on Home)
-    12.  Category Breakdown    ← PRESERVED
-    13.  Spending Chart        ← PRESERVED
-    14.  Quick Actions v3.0    ← PRESERVED
-    15.  Notification System   ← PRESERVED
-    16.  Toast System          ← PRESERVED
-    17.  Transaction CRUD      ← PRESERVED
-    18.  Filter Logic          ← UPGRADED (date range + validation)
-    19.  Render All            ← PRESERVED
-    20.  Navigation            ← PRESERVED
-    21.  Modal                 ← PRESERVED
-    22.  Theme System          ← PRESERVED
-    23.  Language System       ← PRESERVED + new keys
-    24.  Greeting & Date       ← PRESERVED
-    25.  Export CSV            ← PRESERVED
-    26.  Profile               ← PRESERVED + social login support
-    27.  FAB                   ← PRESERVED
-    28.  Close All Panels      ← PRESERVED
-    29.  Search                ← PRESERVED
-    30.  Event Wiring          ← PRESERVED + new filter wiring
-    31.  Init                  ← PRESERVED
-══════════════════════════════════════════════════════ */
 ("use strict");
-
 /* ═══════════════════════════════════════════
    1. TRANSLATIONS (English / Burmese) ← PRESERVED + new keys
 ═══════════════════════════════════════════ */
@@ -528,12 +499,6 @@ function emptyEl() {
   return div;
 }
 
-/* ═══════════════════════════════════════════
-   10. RENDER FEEDS ← PRESERVED
-       (Dashboard feed removed from Home page —
-        Home now shows Quick Actions + Usage Summary only)
-═══════════════════════════════════════════ */
-
 /** Transactions page feed — respects type + date range filters */
 function renderTxnFeed() {
   const el = $("txnFeed");
@@ -580,13 +545,6 @@ function renderSearch(q) {
   hits.forEach((t, i) => el.appendChild(makeTxnCard(t, i)));
 }
 
-/* ═══════════════════════════════════════════
-   11. USAGE SUMMARY — NEW
-   Real-time category breakdown shown on Home page.
-   Shows each category with amount, type badge,
-   and a mini proportional bar.
-   @param {Map} catTotals - result of groupByCategory()
-═══════════════════════════════════════════ */
 function renderUsageSummary(catTotals) {
   const el = $("usageSummary");
   if (!el) return;
@@ -803,10 +761,6 @@ function drawChart() {
   });
 }
 
-/* ═══════════════════════════════════════════
-   14. QUICK ACTIONS ← PRESERVED
-   @param {Map} catTotals - from groupByCategory()
-═══════════════════════════════════════════ */
 function renderQuickActions(catTotals) {
   const grid = $("qcatGrid");
   if (!grid) return;
@@ -961,18 +915,6 @@ function deleteTxn(id) {
   renderAll();
 }
 
-/* ═══════════════════════════════════════════
-   18. FILTER LOGIC — UPGRADED
-   Advanced date range filtering for History page.
-   Validates: start ≤ end, both required if either set.
-   No page reload. No full re-render. Smooth update.
-═══════════════════════════════════════════ */
-
-/**
- * Validate the date range inputs and apply filters.
- * Shows friendly error messages on invalid input.
- * Updates the active filter badge.
- */
 function applyTxnFilter() {
   const T = TRANSLATIONS[S.lang];
   const from = $("txnDateFrom")?.value || "";
@@ -1056,11 +998,6 @@ function updateFilterBadge() {
   badge.style.display = "flex";
 }
 
-/* ═══════════════════════════════════════════
-   19. RENDER ALL ← PRESERVED
-       Home page: Quick Actions + Usage Summary only
-       No Recent Activity on Home (per spec)
-═══════════════════════════════════════════ */
 function renderAll() {
   /* O(n) single pass — shared by quick actions + usage summary */
   const catTotals = groupByCategory();
@@ -1250,12 +1187,6 @@ function exportCSV() {
   URL.revokeObjectURL(url);
 }
 
-/* ═══════════════════════════════════════════
-   26. PROFILE ← PRESERVED + social login display
-   Social login: shows Google photo, provider badge,
-   disables password change option, shows email.
-   Normal login: shows letter initial, allows password change.
-═══════════════════════════════════════════ */
 function updateProfile() {
   const name = S.userName;
   const init =
@@ -1632,10 +1563,21 @@ function wire() {
     });
   });
   $("logoutBtn")?.addEventListener("click", () => {
-    showConfirm("Logout?", "Your data is safely stored locally.", () => {
-      localStorage.clear();
-      location.href = "index.html";
-    });
+    const T = TRANSLATIONS[S.lang];
+    showConfirm(
+      S.lang === "en" ? "Logout?" : "ထွက်မည်?",
+      S.lang === "en"
+        ? "Are you sure you want to sign out?"
+        : "အကောင့်မှ ထွက်ရန် သေချာပါသလား?",
+      async () => {
+        // 1. Clear Supabase Session
+        await _supabase.auth.signOut();
+        // 2. Clear local storage
+        localStorage.clear();
+        // 3. Redirect to login
+        location.href = "index.html";
+      },
+    );
   });
   $("changePasswordBtn")?.addEventListener("click", () => {
     /* Placeholder — wire to Supabase updateUser or custom password change flow */
@@ -1674,25 +1616,51 @@ function wire() {
 /* ═══════════════════════════════════════════
    31. INIT ← PRESERVED
 ═══════════════════════════════════════════ */
-function init() {
+/* ═══════════════════════════════════════════
+   31. INIT — Updated for Supabase & Social Login
+═══════════════════════════════════════════ */
+async function init() {
+  // 1. Load basic UI settings (Theme, Lang) from LocalStorage
   loadState();
   applyTheme(S.theme);
   applyLang(S.lang);
   updateDate();
-  updateProfile();
 
+  // 2. Supabase Auth Listener
+  // This automatically updates the profile if a user is logged in via Google/Email
+  _supabase.auth.onAuthStateChange((event, session) => {
+    if (session?.user) {
+      const meta = session.user.user_metadata;
+      // Use the helper function you already have in Part 2
+      setGoogleUser(
+        meta.full_name || meta.name || session.user.email,
+        meta.avatar_url || meta.picture || "",
+        session.user.email || "",
+        session.user.app_metadata?.provider || "Google",
+      );
+    } else {
+      // If no session found during init, force redirect to login
+      window.location.href = "index.html";
+    }
+  });
+
+  // 3. UI Element Sync
   const nt = $("notifToggle");
   if (nt) nt.checked = S.notifEnabled;
 
+  // 4. Register all Button Listeners
   wire();
+
+  // 5. Initial Render of Data
   renderAll();
   renderNotifPanel();
 
-  /* Seed demo data only if storage is empty */
+  /* 6. Seed Demo Data (Only if no transactions exist) */
   if (!S.transactions.length) {
     const td = new Date().toISOString().split("T")[0];
     const yd = new Date(Date.now() - 86400000).toISOString().split("T")[0];
     const d2 = new Date(Date.now() - 172800000).toISOString().split("T")[0];
+
     S.transactions = [
       {
         id: "1",
@@ -1718,7 +1686,7 @@ function init() {
         amount: 450,
         categoryKey: "cat_food",
         category: "Food",
-        description: "Groceries & dining",
+        description: "Groceries",
         date: d2,
       },
       {
@@ -1753,67 +1721,14 @@ function init() {
     renderAll();
   }
 
+  // 7. Success Logs
   console.log(
-    "%c FinPay v4.0 Ready ✓ ",
+    "%c TNB Dashboard Ready ✓ ",
     "background:#f5a623;color:#1a0f00;padding:4px 12px;border-radius:4px;font-weight:bold;font-family:monospace",
-  );
-  console.log(
-    "%c Home: Quick Actions + Usage Summary | History: Advanced Date Range Filter ",
-    "background:#00e896;color:#001a0d;padding:2px 8px;border-radius:4px;font-size:11px",
-  );
-  console.log(
-    "%c Social Login: setGoogleUser(name, avatarUrl, email, provider) ",
-    "background:#60a5fa;color:#0d1a2e;padding:2px 8px;border-radius:4px;font-size:11px",
   );
 }
 
-/* ══════════════════════════════════════════
-   SUPABASE INTEGRATION HOOKS
-   ─────────────────────────────────────────
-   Connect Supabase auth and replace localStorage
-   CRUD calls with real Supabase queries:
-
-   // In supabase-init.js:
-   import { createClient } from '@supabase/supabase-js';
-   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-   supabase.auth.onAuthStateChange((event, session) => {
-     if (session?.user) {
-       const meta     = session.user.user_metadata;
-       const provider = session.user.app_metadata?.provider || 'Google';
-       setGoogleUser(
-         meta.full_name || meta.name || session.user.email,
-         meta.avatar_url || meta.picture || '',
-         session.user.email || '',
-         provider.charAt(0).toUpperCase() + provider.slice(1)
-       );
-       loadTransactionsFromSupabase(session.user.id);
-     }
-   });
-
-   async function loadTransactionsFromSupabase(userId) {
-     const { data, error } = await supabase
-       .from('transactions')
-       .select('*')
-       .eq('user_id', userId)
-       .order('created_at', { ascending: true });
-
-     if (!error && data) {
-       S.transactions = data.map(row => ({
-         id:          row.id,
-         type:        row.type,
-         amount:      row.amount,
-         categoryKey: row.category,
-         category:    row.category,
-         description: row.description || '',
-         date:        row.created_at.split('T')[0],
-       }));
-       renderAll(); // groupByCategory() called once internally
-     }
-   }
-══════════════════════════════════════════ */
-
-/* Boot */
+/* ── Boot ── */
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", init);
 } else {
