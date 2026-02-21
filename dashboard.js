@@ -5,9 +5,11 @@ const _supabase = createClient(
 );
 
 ("use strict");
+// ဒီအောက်မှာ TRANSLATIONS နဲ့ S object တို့ ဆက်ရှိနေပါစေ...
 
+("use strict");
 /* ═══════════════════════════════════════════
-   1. TRANSLATIONS (English / Burmese)
+   1. TRANSLATIONS (English / Burmese) ← PRESERVED + new keys
 ═══════════════════════════════════════════ */
 const TRANSLATIONS = {
   en: {
@@ -76,6 +78,7 @@ const TRANSLATIONS = {
     usage_summary: "Usage Summary",
     qa_total_added: "Total Added",
     qa_total_used: "Total Used",
+    /* History filter */
     filter_type: "Type",
     start_date: "From",
     end_date: "To",
@@ -84,11 +87,13 @@ const TRANSLATIONS = {
     err_date_range: "Start date must be before end date.",
     err_date_required: "Please select both start and end dates.",
     filter_active: "Filter active",
+    /* Profile / Social */
     change_password: "Change Password",
     change_password_sub: "Update your account password",
     change: "Change",
     social_account: "Social Account",
     provider_label: "Provider:",
+    /* Categories */
     cat_salary: "Salary",
     cat_freelance: "Freelance",
     cat_investment: "Invest",
@@ -201,7 +206,7 @@ const TRANSLATIONS = {
 };
 
 /* ═══════════════════════════════════════════
-   2. CATEGORIES
+   2. CATEGORIES ← PRESERVED
 ═══════════════════════════════════════════ */
 const CATEGORIES = {
   income: [
@@ -224,6 +229,7 @@ const CATEGORIES = {
   ],
 };
 
+/* Quick Actions shown on home screen */
 const QUICK_ACTIONS = [
   { key: "cat_salary", type: "income", icon: "💼" },
   { key: "cat_freelance", type: "income", icon: "💻" },
@@ -236,7 +242,7 @@ const QUICK_ACTIONS = [
 ];
 
 /* ═══════════════════════════════════════════
-   3. APP STATE
+   3. APP STATE ← PRESERVED + txn date range
 ═══════════════════════════════════════════ */
 const S = {
   transactions: [],
@@ -247,20 +253,22 @@ const S = {
   userName: "Alex Morgan",
   userAvatar: "",
   userEmail: "",
-  userProvider: "",
+  userProvider: "", // e.g. 'Google', 'Facebook'
   isSocialLogin: false,
+  /* filters */
   dashFilter: "all",
   txnFilter: "all",
   txnDateFrom: "",
   txnDateTo: "",
   txnFilterActive: false,
   searchQuery: "",
+  /* ui */
   fabOpen: false,
   confirmCb: null,
 };
 
 /* ═══════════════════════════════════════════
-   4. LOCAL STORAGE
+   4. LOCAL STORAGE ← PRESERVED
 ═══════════════════════════════════════════ */
 const LS = {
   transactions: "novapay_transactions",
@@ -289,30 +297,41 @@ const lsGet = (k, fb) => {
   }
 };
 
-// IMPORTANT: Only loads UI prefs + data — NOT user identity.
-// User identity (name, avatar, email, provider) always comes fresh from Supabase in init().
 function loadState() {
-  S.transactions  = lsGet(LS.transactions, []);
+  S.transactions = lsGet(LS.transactions, []);
   S.notifications = lsGet(LS.notifications, []);
-  S.lang          = lsGet(LS.lang, "en");
-  S.theme         = lsGet(LS.theme, "dark");
-  S.notifEnabled  = lsGet(LS.notifEnabled, true);
+  S.lang = lsGet(LS.lang, "en");
+  S.theme = lsGet(LS.theme, "dark");
+  S.notifEnabled = lsGet(LS.notifEnabled, true);
+  S.userName = lsGet(LS.userName, "Alex Morgan");
+  S.userAvatar = lsGet(LS.userAvatar, "");
+  S.userEmail = lsGet(LS.userEmail, "");
+  S.userProvider = lsGet(LS.userProvider, "");
+  S.isSocialLogin = lsGet(LS.isSocialLogin, false);
 }
 
-const saveTxns  = () => lsSet(LS.transactions, S.transactions);
+const saveTxns = () => lsSet(LS.transactions, S.transactions);
 const saveNotifs = () => lsSet(LS.notifications, S.notifications);
 
 /* ═══════════════════════════════════════════
-   5. FINANCE CALCULATIONS
+   5. FINANCE CALCULATIONS ← PRESERVED
 ═══════════════════════════════════════════ */
+
+/** Returns { inc, exp, bal } totals */
 function calcTotals() {
-  let inc = 0, exp = 0;
+  let inc = 0,
+    exp = 0;
   for (const t of S.transactions) {
     t.type === "income" ? (inc += t.amount) : (exp += t.amount);
   }
   return { inc, exp, bal: inc - exp };
 }
 
+/**
+ * Single-pass grouping of all transactions by categoryKey.
+ * O(n) — called once per renderAll().
+ * @returns {Map<string, {total: number, type: string, icon: string}>}
+ */
 function groupByCategory() {
   const map = new Map();
   for (const t of S.transactions) {
@@ -321,12 +340,17 @@ function groupByCategory() {
       existing.total += t.amount;
     } else {
       const meta = getCatMeta(t.type, t.categoryKey);
-      map.set(t.categoryKey, { total: t.amount, type: t.type, icon: meta.icon });
+      map.set(t.categoryKey, {
+        total: t.amount,
+        type: t.type,
+        icon: meta.icon,
+      });
     }
   }
   return map;
 }
 
+/** Format number to USD string */
 const fmt = (n) =>
   new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 2,
@@ -337,10 +361,13 @@ const fmt = (n) =>
    6. DOM HELPERS
 ═══════════════════════════════════════════ */
 const $ = (id) => document.getElementById(id);
-const setText = (id, v) => { const e = $(id); if (e) e.textContent = v; };
+const setText = (id, v) => {
+  const e = $(id);
+  if (e) e.textContent = v;
+};
 
 /* ═══════════════════════════════════════════
-   7. ANIMATED COUNTER
+   7. ANIMATED COUNTER ← PRESERVED
 ═══════════════════════════════════════════ */
 function animCount(elId, target) {
   const el = $(elId);
@@ -360,20 +387,23 @@ function animCount(elId, target) {
 }
 
 /* ═══════════════════════════════════════════
-   8. UPDATE TOTALS
+   8. UPDATE TOTALS ← PRESERVED
 ═══════════════════════════════════════════ */
 function updateTotals() {
   const { inc, exp, bal } = calcTotals();
 
+  /* Hero balance card */
   animCount("balanceDisplay", bal);
   setText("totalIncomeDisplay", "$" + fmt(inc));
   setText("totalExpenseDisplay", "$" + fmt(exp));
 
+  /* Row-2 summary strip */
   setText("r2Balance", "$" + fmt(bal));
-  setText("r2Income",  "$" + fmt(inc));
+  setText("r2Income", "$" + fmt(inc));
   setText("r2Expense", "$" + fmt(exp));
 
-  setText("repIncome",  "$" + fmt(inc));
+  /* Reports page */
+  setText("repIncome", "$" + fmt(inc));
   setText("repExpense", "$" + fmt(exp));
   setText("repBalance", "$" + fmt(bal));
   setText("repCount", S.transactions.length);
@@ -383,12 +413,13 @@ function updateTotals() {
 }
 
 /* ═══════════════════════════════════════════
-   9. TRANSACTION CARD BUILDER
+   9. TRANSACTION CARD BUILDER ← PRESERVED
 ═══════════════════════════════════════════ */
 function getCatMeta(type, key) {
   return (
-    (CATEGORIES[type] || []).find((c) => c.key === key) ||
-    { icon: type === "income" ? "💰" : "💸" }
+    (CATEGORIES[type] || []).find((c) => c.key === key) || {
+      icon: type === "income" ? "💰" : "💸",
+    }
   );
 }
 
@@ -399,7 +430,9 @@ function makeTxnCard(txn, idx) {
   const sign = txn.type === "income" ? "+" : "-";
   const ds = txn.date
     ? new Date(txn.date + "T00:00:00").toLocaleDateString("en-US", {
-        month: "short", day: "numeric", year: "numeric",
+        month: "short",
+        day: "numeric",
+        year: "numeric",
       })
     : "";
 
@@ -447,58 +480,40 @@ function emptyEl() {
   return div;
 }
 
-/* ═══════════════════════════════════════════
-   10. RENDER TRANSACTION FEED
-═══════════════════════════════════════════ */
-function renderTxnFeed() {
-  const el = $("txnFeed");
-  if (!el) return;
 
-  let list = [...S.transactions].reverse().filter((t) => {
-    const typeOk = S.txnFilter === "all" || t.type === S.txnFilter;
-    let dateOk = true;
-    if (S.txnFilterActive) {
-      if (S.txnDateFrom) dateOk = dateOk && t.date >= S.txnDateFrom;
-      if (S.txnDateTo)   dateOk = dateOk && t.date <= S.txnDateTo;
-    }
-    return typeOk && dateOk;
-  });
-
-  el.innerHTML = "";
-  if (list.length === 0) { el.appendChild(emptyEl()); return; }
-  list.forEach((t, i) => {
-    const card = makeTxnCard(t, i);
-    card.style.animationDelay = `${i * 0.03}s`;
-    el.appendChild(card);
-  });
-}
-
-/* ═══════════════════════════════════════════
-   11. RENDER SEARCH
-═══════════════════════════════════════════ */
+/** 2. Search Results - ရှာဖွေမှုရလဒ် ပြသခြင်း */
 function renderSearch(q) {
   const el = $("searchFeed");
   if (!el) return;
 
   const T = TRANSLATIONS[S.lang];
   const low = q.toLowerCase().trim();
-  if (!low) { el.innerHTML = ""; return; }
+
+  // Search box အလွတ်ဖြစ်ရင် ရှင်းထုတ်လိုက်မယ်
+  if (!low) {
+    el.innerHTML = "";
+    return;
+  }
 
   const hits = [...S.transactions].reverse().filter((t) => {
-    const label  = (T[t.categoryKey] || t.category || "").toLowerCase();
-    const desc   = (t.description || "").toLowerCase();
+    const label = (T[t.categoryKey] || t.category || "").toLowerCase();
+    const desc = (t.description || "").toLowerCase();
     const amount = t.amount.toString();
+    // အမျိုးအစား၊ အကြောင်းအရာ သို့မဟုတ် ပမာဏနဲ့ ရှာလို့ရအောင် လုပ်ထားသည်
     return label.includes(low) || desc.includes(low) || amount.includes(low);
   });
 
   el.innerHTML = "";
-  if (hits.length === 0) { el.appendChild(emptyEl()); return; }
+
+  if (hits.length === 0) {
+    el.appendChild(emptyEl());
+    return;
+  }
+
   hits.forEach((t, i) => el.appendChild(makeTxnCard(t, i)));
 }
 
-/* ═══════════════════════════════════════════
-   12. RENDER USAGE SUMMARY
-═══════════════════════════════════════════ */
+/** 3. Usage Summary - အသုံးစရိတ် အနှစ်ချုပ် Bar Chart */
 function renderUsageSummary(catTotals) {
   const el = $("usageSummary");
   if (!el) return;
@@ -512,28 +527,33 @@ function renderUsageSummary(catTotals) {
     empty.style.cssText = "background:none; border:none; padding: 2rem 0;";
     empty.innerHTML = `
       <p style="opacity:0.6">${T.no_transactions || "No Data"}</p>
-      <p style="font-size:.7rem; opacity:0.4">${T.add_first || "Start by adding a transaction"}</p>`;
+      <p style="font-size:.7rem; opacity:0.4">${T.add_first || "Start by adding a transaction"}</p>
+    `;
     el.appendChild(empty);
     return;
   }
 
+  // အများဆုံးသုံးထားတဲ့ Category ကိုရှာပြီး 100% သတ်မှတ်ဖို့ entries ယူမယ်
   const entries = [...catTotals.entries()]
     .sort((a, b) => b[1].total - a[1].total)
-    .slice(0, 8);
+    .slice(0, 8); // Top 8 ပဲပြမယ်
+
   const maxTotal = entries[0][1].total;
 
   entries.forEach(([key, data], i) => {
-    const label     = T[key] || key;
-    const pct       = (data.total / maxTotal) * 100;
-    const color     = data.type === "income" ? "var(--inc)" : "var(--exp)";
-    const typeLabel = data.type === "income"
-      ? T.qa_total_added || "Income"
-      : T.qa_total_used  || "Expense";
+    const label = T[key] || key;
+    const pct = (data.total / maxTotal) * 100;
+    const color = data.type === "income" ? "var(--inc)" : "var(--exp)";
+    const typeLabel =
+      data.type === "income"
+        ? T.qa_total_added || "Income"
+        : T.qa_total_used || "Expense";
 
     const row = document.createElement("div");
     row.className = "usage-row";
     row.style.animation = `slideIn 0.4s ease forwards ${i * 0.05}s`;
-    row.style.opacity = "0";
+    row.style.opacity = "0"; // Animation မစခင် ဖျောက်ထားမယ်
+
     row.innerHTML = `
       <div class="usage-ico ${data.type}">${data.icon || "💰"}</div>
       <div class="usage-info">
@@ -541,26 +561,42 @@ function renderUsageSummary(catTotals) {
         <span class="usage-type-badge ${data.type}">${typeLabel}</span>
       </div>
       <div class="usage-bar-wrap">
-        <div class="usage-bar" style="width:0%;background:${color};transition:width 0.8s cubic-bezier(0.17,0.55,0.55,1);"></div>
+        <div class="usage-bar" style="width: 0%; background: ${color}; transition: width 0.8s cubic-bezier(0.17, 0.55, 0.55, 1);"></div>
       </div>
       <div class="usage-amount ${data.type}">${fmt(data.total)}</div>`;
+
     el.appendChild(row);
 
+    // Bar လေးတွေ တစ်ခုချင်းစီ ရှည်ထွက်လာအောင် Animation လုပ်ခြင်း
     requestAnimationFrame(() => {
-      setTimeout(() => {
-        const bar = row.querySelector(".usage-bar");
-        if (bar) { bar.style.width = `${pct}%`; row.style.opacity = "1"; }
-      }, 100 + i * 50);
+      setTimeout(
+        () => {
+          const bar = row.querySelector(".usage-bar");
+          if (bar) {
+            bar.style.width = `${pct}%`;
+            row.style.opacity = "1";
+          }
+        },
+        100 + i * 50,
+      );
     });
   });
 }
 
 /* ═══════════════════════════════════════════
-   13. CATEGORY BREAKDOWN
+   12. CATEGORY BREAKDOWN ← PRESERVED
 ═══════════════════════════════════════════ */
 const CAT_COLORS = [
-  "#f5a623","#00e896","#ff3d71","#a78bfa","#38bdf8",
-  "#34d399","#f97316","#e879f9","#60a5fa","#fb923c",
+  "#f5a623",
+  "#00e896",
+  "#ff3d71",
+  "#a78bfa",
+  "#38bdf8",
+  "#34d399",
+  "#f97316",
+  "#e879f9",
+  "#60a5fa",
+  "#fb923c",
 ];
 
 function renderCatBreakdown() {
@@ -576,14 +612,16 @@ function renderCatBreakdown() {
   }
   const entries = Object.entries(map).sort((a, b) => b[1].total - a[1].total);
   if (!entries.length) {
-    el.innerHTML = '<p style="color:var(--tx3);font-size:.8rem;text-align:center;padding:20px">No data yet</p>';
+    el.innerHTML =
+      '<p style="color:var(--tx3);font-size:.8rem;text-align:center;padding:20px">No data yet</p>';
     return;
   }
   const maxV = entries[0][1].total;
   entries.forEach(([name, data], i) => {
-    const pct   = (data.total / maxV) * 100;
-    const color = data.type === "income" ? "var(--inc)" : CAT_COLORS[i % CAT_COLORS.length];
-    const row   = document.createElement("div");
+    const pct = (data.total / maxV) * 100;
+    const color =
+      data.type === "income" ? "var(--inc)" : CAT_COLORS[i % CAT_COLORS.length];
+    const row = document.createElement("div");
     row.className = "cat-row";
     row.innerHTML = `
       <div class="cat-dot" style="background:${color}"></div>
@@ -592,28 +630,34 @@ function renderCatBreakdown() {
       <span class="cat-amt" style="color:${color}">$${fmt(data.total)}</span>`;
     el.appendChild(row);
     requestAnimationFrame(() =>
-      setTimeout(() => { row.querySelector(".cat-bar").style.width = pct + "%"; }, 60 + i * 55)
+      setTimeout(
+        () => {
+          row.querySelector(".cat-bar").style.width = pct + "%";
+        },
+        60 + i * 55,
+      ),
     );
   });
 }
 
 /* ═══════════════════════════════════════════
-   14. SPENDING CHART
+   13. SPENDING CHART ← PRESERVED
 ═══════════════════════════════════════════ */
 function drawChart() {
   const canvas = $("spendingCanvas");
   if (!canvas) return;
   const days = parseInt($("chartPeriod")?.value) || 7;
-  const ctx  = canvas.getContext("2d");
-  const dpr  = window.devicePixelRatio || 1;
+  const ctx = canvas.getContext("2d");
+  const dpr = window.devicePixelRatio || 1;
   const rect = canvas.parentElement.getBoundingClientRect();
-  canvas.width  = rect.width  * dpr;
+  canvas.width = rect.width * dpr;
   canvas.height = rect.height * dpr;
-  canvas.style.width  = rect.width  + "px";
+  canvas.style.width = rect.width + "px";
   canvas.style.height = rect.height + "px";
   ctx.scale(dpr, dpr);
 
-  const W = rect.width, H = rect.height;
+  const W = rect.width,
+    H = rect.height;
   const PAD = { t: 12, r: 12, b: 26, l: 46 };
   const now = new Date();
 
@@ -629,11 +673,11 @@ function drawChart() {
   }
 
   const labels = Object.keys(buckets);
-  const vals   = Object.values(buckets);
-  const maxV   = Math.max(...vals, 1);
-  const cW     = W - PAD.l - PAD.r;
-  const cH     = H - PAD.t - PAD.b;
-  const step   = cW / (labels.length - 1 || 1);
+  const vals = Object.values(buckets);
+  const maxV = Math.max(...vals, 1);
+  const cW = W - PAD.l - PAD.r;
+  const cH = H - PAD.t - PAD.b;
+  const step = cW / (labels.length - 1 || 1);
 
   const pts = labels.map((_, i) => ({
     x: PAD.l + i * step,
@@ -648,10 +692,10 @@ function drawChart() {
   ctx.beginPath();
   ctx.moveTo(pts[0].x, pts[0].y);
   for (let i = 1; i < pts.length; i++) {
-    const cx = (pts[i-1].x + pts[i].x) / 2;
-    ctx.bezierCurveTo(cx, pts[i-1].y, cx, pts[i].y, pts[i].x, pts[i].y);
+    const cx = (pts[i - 1].x + pts[i].x) / 2;
+    ctx.bezierCurveTo(cx, pts[i - 1].y, cx, pts[i].y, pts[i].x, pts[i].y);
   }
-  ctx.lineTo(pts[pts.length-1].x, PAD.t + cH);
+  ctx.lineTo(pts[pts.length - 1].x, PAD.t + cH);
   ctx.lineTo(pts[0].x, PAD.t + cH);
   ctx.closePath();
   ctx.fillStyle = g;
@@ -660,19 +704,23 @@ function drawChart() {
   ctx.beginPath();
   ctx.moveTo(pts[0].x, pts[0].y);
   for (let i = 1; i < pts.length; i++) {
-    const cx = (pts[i-1].x + pts[i].x) / 2;
-    ctx.bezierCurveTo(cx, pts[i-1].y, cx, pts[i].y, pts[i].x, pts[i].y);
+    const cx = (pts[i - 1].x + pts[i].x) / 2;
+    ctx.bezierCurveTo(cx, pts[i - 1].y, cx, pts[i].y, pts[i].x, pts[i].y);
   }
   ctx.strokeStyle = "#f5a623";
-  ctx.lineWidth   = 2.4;
+  ctx.lineWidth = 2.4;
   ctx.stroke();
 
   const muted = "#2e3d55";
-  ctx.fillStyle  = muted;
-  ctx.font       = "10px DM Mono, monospace";
-  ctx.textAlign  = "right";
+  ctx.fillStyle = muted;
+  ctx.font = "10px DM Mono, monospace";
+  ctx.textAlign = "right";
   ctx.fillText("$" + Math.round(maxV), PAD.l - 6, PAD.t + 10);
-  const fd = (d) => new Date(d + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  const fd = (d) =>
+    new Date(d + "T00:00:00").toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
   ctx.textAlign = "left";
   ctx.fillText(fd(labels[0]), PAD.l, H - 5);
   ctx.textAlign = "right";
@@ -681,59 +729,71 @@ function drawChart() {
   pts.forEach((p) => {
     ctx.beginPath();
     ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
-    ctx.fillStyle   = "#f5a623";
+    ctx.fillStyle = "#f5a623";
     ctx.fill();
     ctx.strokeStyle = "rgba(245,166,35,0.3)";
-    ctx.lineWidth   = 3;
+    ctx.lineWidth = 3;
     ctx.stroke();
   });
 }
 
-/* ═══════════════════════════════════════════
-   15. QUICK ACTIONS
-═══════════════════════════════════════════ */
 function renderQuickActions(catTotals) {
   const grid = $("qcatGrid");
   if (!grid) return;
+
   const T = TRANSLATIONS[S.lang];
   grid.innerHTML = "";
 
   QUICK_ACTIONS.forEach((qa, idx) => {
-    const entry    = catTotals.get(qa.key);
-    const total    = entry ? entry.total : 0;
-    const hasData  = total > 0;
-    const subtitle = qa.type === "income"
-      ? T.qa_total_added || "Total Added"
-      : T.qa_total_used  || "Total Used";
+    const entry = catTotals.get(qa.key);
+    const total = entry ? entry.total : 0;
+    const hasData = total > 0;
+
+    const subtitle =
+      qa.type === "income"
+        ? T.qa_total_added || "Total Added"
+        : T.qa_total_used || "Total Used";
+
     const amountText = hasData ? "$" + fmt(total) : "$0.00";
 
     const card = document.createElement("button");
-    card.className  = `qcat-card qcat-${qa.type}`;
+    card.className = `qcat-card qcat-${qa.type}`;
     card.dataset.type = qa.type;
-    card.dataset.cat  = qa.key;
+    card.dataset.cat = qa.key;
     card.style.cssText = `animation: cardSlide 0.28s cubic-bezier(0.4,0,0.2,1) ${idx * 0.05}s both`;
+
     card.innerHTML = `
-      <div class="qcat-icon-wrap"><span class="qcat-emoji">${qa.icon}</span></div>
+      <div class="qcat-icon-wrap">
+        <span class="qcat-emoji">${qa.icon}</span>
+      </div>
       <span class="qcat-name">${T[qa.key] || qa.key}</span>
       <span class="qcat-subtitle">${subtitle}</span>
       <span class="qcat-amount${hasData ? "" : " zero"}">${amountText}</span>
       <span class="qcat-add-chip" aria-hidden="true">+</span>`;
+
     card.addEventListener("click", () => openModal(qa.type, qa.key));
     grid.appendChild(card);
   });
 }
 
 /* ═══════════════════════════════════════════
-   16. NOTIFICATION SYSTEM
+   15. NOTIFICATION SYSTEM ← PRESERVED
 ═══════════════════════════════════════════ */
 function addNotif(type, amount, newBalance) {
   if (!S.notifEnabled) return;
   const T = TRANSLATIONS[S.lang];
-  const msg = type === "income"
-    ? `${T.notif_added_income} $${fmt(amount)}. ${T.notif_balance_now} $${fmt(newBalance)}`
-    : `${T.notif_added_expense} $${fmt(amount)}. ${T.notif_balance_now} $${fmt(newBalance)}`;
+  const msg =
+    type === "income"
+      ? `${T.notif_added_income} $${fmt(amount)}. ${T.notif_balance_now} $${fmt(newBalance)}`
+      : `${T.notif_added_expense} $${fmt(amount)}. ${T.notif_balance_now} $${fmt(newBalance)}`;
 
-  S.notifications.unshift({ id: Date.now().toString(), type, msg, time: new Date().toISOString(), read: false });
+  S.notifications.unshift({
+    id: Date.now().toString(),
+    type,
+    msg,
+    time: new Date().toISOString(),
+    read: false,
+  });
   if (S.notifications.length > 20) S.notifications.length = 20;
   saveNotifs();
   renderNotifPanel();
@@ -741,18 +801,22 @@ function addNotif(type, amount, newBalance) {
 }
 
 function renderNotifPanel() {
-  const body  = $("npBody");
+  const body = $("npBody");
   const empty = $("npEmpty");
-  const dot   = $("bellDot");
-  const bell  = $("bellBtn");
+  const dot = $("bellDot");
+  const bell = $("bellBtn");
   if (!body) return;
 
   const unread = S.notifications.filter((n) => !n.read).length;
-  if (dot)  dot.style.display = unread > 0 ? "block" : "none";
+  if (dot) dot.style.display = unread > 0 ? "block" : "none";
   if (bell) bell.classList.toggle("ringing", unread > 0);
 
   body.querySelectorAll(".np-item").forEach((el) => el.remove());
-  if (!S.notifications.length) { if (empty) empty.style.display = "block"; return; }
+
+  if (!S.notifications.length) {
+    if (empty) empty.style.display = "block";
+    return;
+  }
   if (empty) empty.style.display = "none";
 
   S.notifications.forEach((n, i) => {
@@ -778,21 +842,23 @@ function markAllRead() {
 
 function relTime(date) {
   const s = Math.floor((Date.now() - date) / 1000);
-  if (s < 60)    return "Just now";
-  if (s < 3600)  return Math.floor(s / 60)   + "m ago";
-  if (s < 86400) return Math.floor(s / 3600)  + "h ago";
+  if (s < 60) return "Just now";
+  if (s < 3600) return Math.floor(s / 60) + "m ago";
+  if (s < 86400) return Math.floor(s / 3600) + "h ago";
   return Math.floor(s / 86400) + "d ago";
 }
 
 /* ═══════════════════════════════════════════
-   17. TOAST SYSTEM
+   16. TOAST SYSTEM ← PRESERVED
 ═══════════════════════════════════════════ */
 function showToast(type, msg) {
   const container = $("toastContainer");
   if (!container) return;
   const toast = document.createElement("div");
   toast.className = "toast";
-  toast.innerHTML = `<div class="toast-dot ${type}"></div><div class="toast-msg">${msg}</div>`;
+  toast.innerHTML = `
+    <div class="toast-dot ${type}"></div>
+    <div class="toast-msg">${msg}</div>`;
   container.appendChild(toast);
   setTimeout(() => {
     toast.classList.add("out");
@@ -801,10 +867,18 @@ function showToast(type, msg) {
 }
 
 /* ═══════════════════════════════════════════
-   18. TRANSACTION CRUD
+   17. TRANSACTION CRUD ← PRESERVED
 ═══════════════════════════════════════════ */
 function addTxn(type, amount, categoryKey, category, description, date) {
-  S.transactions.push({ id: Date.now().toString(), type, amount, categoryKey, category, description, date });
+  S.transactions.push({
+    id: Date.now().toString(),
+    type,
+    amount,
+    categoryKey,
+    category,
+    description,
+    date,
+  });
   saveTxns();
   const { bal } = calcTotals();
   addNotif(type, amount, bal);
@@ -817,86 +891,19 @@ function deleteTxn(id) {
   renderAll();
 }
 
-/* ═══════════════════════════════════════════
-   19. FILTERS
-═══════════════════════════════════════════ */
-function applyTxnFilter() {
-  const T    = TRANSLATIONS[S.lang];
-  const from = $("txnDateFrom")?.value || "";
-  const to   = $("txnDateTo")?.value   || "";
-  const errEl = $("afpError");
-
-  if (errEl) errEl.style.display = "none";
-
-  if ((from && !to) || (!from && to)) {
-    if (errEl) { errEl.textContent = T.err_date_required || "Please select both dates"; errEl.style.display = "block"; }
-    return;
-  }
-  if (from && to && from > to) {
-    if (errEl) { errEl.textContent = T.err_date_range || "Start date cannot be after end date"; errEl.style.display = "block"; }
-    return;
-  }
-
-  S.txnDateFrom    = from;
-  S.txnDateTo      = to;
-  S.txnFilterActive = !!(from && to);
-  updateFilterBadge();
-  renderTxnFeed();
-  if (typeof closeAll === "function") closeAll();
-}
-
-function resetTxnFilter() {
-  S.txnFilter       = "all";
-  S.txnDateFrom     = "";
-  S.txnDateTo       = "";
-  S.txnFilterActive = false;
-
-  const fromEl = $("txnDateFrom");
-  const toEl   = $("txnDateTo");
-  const errEl  = $("afpError");
-  if (fromEl) fromEl.value = "";
-  if (toEl)   toEl.value   = "";
-  if (errEl)  errEl.style.display = "none";
-
-  $("txnTabs")?.querySelectorAll(".ftab").forEach((b) => {
-    b.classList.toggle("active", b.dataset.filter === "all");
-  });
-  updateFilterBadge();
-  renderTxnFeed();
-}
-
-function updateFilterBadge() {
-  const T     = TRANSLATIONS[S.lang];
-  const badge = $("afpActiveBadge");
-  const text  = $("afpActiveText");
-  if (!badge || !text) return;
-
-  if (!S.txnFilterActive && S.txnFilter === "all") { badge.style.display = "none"; return; }
-
-  let parts = [];
-  if (S.txnFilter !== "all") parts.push(T[S.txnFilter] || S.txnFilter);
-  if (S.txnDateFrom) parts.push(S.txnDateFrom);
-  if (S.txnDateTo)   parts.push("→ " + S.txnDateTo);
-
-  text.textContent = (T.filter_active || "Filter active") + ": " + parts.join(" · ");
-  badge.style.display = "flex";
-}
-
-/* ═══════════════════════════════════════════
-   20. RENDER ALL
-═══════════════════════════════════════════ */
 function renderAll() {
+  /* O(n) single pass — shared by quick actions + usage summary */
   const catTotals = groupByCategory();
+
   updateTotals();
   renderQuickActions(catTotals);
   renderUsageSummary(catTotals);
-  renderTxnFeed();
   renderCatBreakdown();
   drawChart();
 }
 
 /* ═══════════════════════════════════════════
-   21. NAVIGATION
+   20. NAVIGATION ← PRESERVED
 ═══════════════════════════════════════════ */
 function goTo(page) {
   document.querySelectorAll(".page").forEach((p) => {
@@ -904,12 +911,21 @@ function goTo(page) {
     p.classList.add("hidden");
   });
   const target = $("page-" + page);
-  if (target) { target.classList.remove("hidden"); target.classList.add("active"); }
-  document.querySelectorAll(".bn-btn").forEach((b) => b.classList.remove("active"));
+  if (target) {
+    target.classList.remove("hidden");
+    target.classList.add("active");
+  }
+  document
+    .querySelectorAll(".bn-btn")
+    .forEach((b) => b.classList.remove("active"));
   const btn = $("bn-" + page);
   if (btn) btn.classList.add("active");
+
   closeAll();
-  if (page === "reports") { renderCatBreakdown(); setTimeout(drawChart, 80); }
+  if (page === "reports") {
+    renderCatBreakdown();
+    setTimeout(drawChart, 80);
+  }
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -919,41 +935,51 @@ function goSearch() {
     p.classList.add("hidden");
   });
   const p = $("page-search");
-  if (p) { p.classList.remove("hidden"); p.classList.add("active"); }
-  document.querySelectorAll(".bn-btn").forEach((b) => b.classList.remove("active"));
+  if (p) {
+    p.classList.remove("hidden");
+    p.classList.add("active");
+  }
+  document
+    .querySelectorAll(".bn-btn")
+    .forEach((b) => b.classList.remove("active"));
   $("bn-dashboard")?.classList.add("active");
 }
 
 /* ═══════════════════════════════════════════
-   22. MODAL
+   21. MODAL ← PRESERVED
 ═══════════════════════════════════════════ */
 function openModal(type, prefillCat = "") {
-  const T   = TRANSLATIONS[S.lang];
+  const T = TRANSLATIONS[S.lang];
   const box = $("txnCard");
   $("txnType").value = type;
-  setText("mcTitle", type === "income" ? T.modal_income_title : T.modal_expense_title);
+  setText(
+    "mcTitle",
+    type === "income" ? T.modal_income_title : T.modal_expense_title,
+  );
   box.className = `modal-card modal-${type}`;
 
   const sel = $("txnCategory");
   sel.innerHTML = "";
   CATEGORIES[type].forEach((cat) => {
     const opt = document.createElement("option");
-    opt.value       = cat.key;
+    opt.value = cat.key;
     opt.textContent = cat.icon + " " + (T[cat.key] || cat.key);
     sel.appendChild(opt);
   });
   if (prefillCat) sel.value = prefillCat;
 
-  $("txnDate").value   = new Date().toISOString().split("T")[0];
+  $("txnDate").value = new Date().toISOString().split("T")[0];
   $("txnAmount").value = "";
-  $("txnDesc").value   = "";
+  $("txnDesc").value = "";
   setText("txnSubmit", T.add_transaction);
 
   $("txnVeil").classList.add("open");
   setTimeout(() => $("txnAmount")?.focus(), 230);
 }
 
-function closeModal()   { $("txnVeil").classList.remove("open"); }
+function closeModal() {
+  $("txnVeil").classList.remove("open");
+}
 
 function showConfirm(title, msg, cb) {
   setText("cfmTitle", title);
@@ -961,22 +987,27 @@ function showConfirm(title, msg, cb) {
   S.confirmCb = cb;
   $("cfmVeil").classList.add("open");
 }
-function closeConfirm() { $("cfmVeil").classList.remove("open"); S.confirmCb = null; }
+function closeConfirm() {
+  $("cfmVeil").classList.remove("open");
+  S.confirmCb = null;
+}
 
 /* ═══════════════════════════════════════════
-   23. THEME SYSTEM
+   22. THEME SYSTEM ← PRESERVED
 ═══════════════════════════════════════════ */
 function applyTheme(t) {
   S.theme = t;
   document.documentElement.dataset.theme = t;
-  const tc = $("themeCheck");  if (tc) tc.checked = t === "dark";
-  const tt = $("themeToggle"); if (tt) tt.checked = t === "dark";
+  const tc = $("themeCheck");
+  if (tc) tc.checked = t === "dark";
+  const tt = $("themeToggle");
+  if (tt) tt.checked = t === "dark";
   lsSet(LS.theme, t);
   setTimeout(drawChart, 60);
 }
 
 /* ═══════════════════════════════════════════
-   24. LANGUAGE SYSTEM
+   23. LANGUAGE SYSTEM ← PRESERVED + new keys
 ═══════════════════════════════════════════ */
 function applyLang(lang) {
   S.lang = lang;
@@ -989,9 +1020,10 @@ function applyLang(lang) {
   });
 
   const isEn = lang === "en";
-  setText("langBtnLbl",   isEn ? "English"           : "မြန်မာ");
+  setText("langBtnLbl", isEn ? "English" : "မြန်မာ");
   setText("menuLangLabel", isEn ? "Switch to မြန်မာ" : "Switch to English");
 
+  /* Update filter badge text in new language */
   updateFilterBadge();
   updateGreeting();
   renderAll();
@@ -1001,12 +1033,15 @@ function applyLang(lang) {
 const toggleLang = () => applyLang(S.lang === "en" ? "my" : "en");
 
 /* ═══════════════════════════════════════════
-   25. GREETING & DATE
+   24. GREETING & DATE ← PRESERVED
 ═══════════════════════════════════════════ */
 function updateGreeting() {
   const h = new Date().getHours();
   const T = TRANSLATIONS[S.lang];
-  setText("greetText", h < 12 ? T.good_morning : h < 17 ? T.good_afternoon : T.good_evening);
+  setText(
+    "greetText",
+    h < 12 ? T.good_morning : h < 17 ? T.good_afternoon : T.good_evening,
+  );
   setText("greetName", S.userName.split(" ")[0] + " 👋");
 }
 
@@ -1014,19 +1049,22 @@ function updateDate() {
   const el = $("dateChip");
   if (el)
     el.textContent = new Date().toLocaleDateString("en-US", {
-      month: "short", day: "numeric", year: "numeric",
+      month: "short",
+      day: "numeric",
+      year: "numeric",
     });
 }
 
 /* ═══════════════════════════════════════════
-   26. EXPORT CSV
+   25. EXPORT CSV ← PRESERVED
 ═══════════════════════════════════════════ */
 function exportCSV() {
-  const T   = TRANSLATIONS[S.lang];
-  const hdr = ["Date","Type","Category","Description","Amount"].join(",");
+  const T = TRANSLATIONS[S.lang];
+  const hdr = ["Date", "Type", "Category", "Description", "Amount"].join(",");
   const rows = S.transactions.map((t) =>
     [
-      t.date, t.type,
+      t.date,
+      t.type,
       (T[t.categoryKey] || t.category).replace(/,/g, ";"),
       (t.description || "").replace(/,/g, ";"),
       t.amount.toFixed(2),
@@ -1034,43 +1072,44 @@ function exportCSV() {
   );
   const csv = [hdr, ...rows].join("\n");
   const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
-  const a   = document.createElement("a");
-  a.href     = url;
+  const a = document.createElement("a");
+  a.href = url;
   a.download = `finpay-${new Date().toISOString().split("T")[0]}.csv`;
   a.click();
   URL.revokeObjectURL(url);
 }
 
-/* ═══════════════════════════════════════════
-   27. UPDATE PROFILE
-   Shows Google avatar + name + email in both
-   the navbar avatar ring and Settings card.
-═══════════════════════════════════════════ */
 function updateProfile() {
   const name = S.userName;
-  const init = name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2) || "A";
+  const init =
+    name
+      .split(" ")
+      .map((w) => w[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) || "A";
 
   /* ── Navbar avatar ring ── */
-  const avatarImg    = $("avatarImg");
+  const avatarImg = $("avatarImg");
   const avatarLetter = $("avatarLetter");
   if (avatarImg && avatarLetter) {
     if (S.userAvatar) {
-      avatarImg.src          = S.userAvatar;
-      avatarImg.alt          = name;
-      avatarImg.style.display    = "block";
+      avatarImg.src = S.userAvatar;
+      avatarImg.alt = name;
+      avatarImg.style.display = "block";
       avatarLetter.style.display = "none";
     } else {
-      avatarImg.style.display    = "none";
+      avatarImg.style.display = "none";
       avatarLetter.style.display = "block";
-      avatarLetter.textContent   = init[0];
+      avatarLetter.textContent = init[0];
     }
   }
 
-  /* Provider label below name in navbar */
+  /* Provider label in navbar (shown for social login) */
   const providerEl = $("avatarProvider");
   if (providerEl) {
     if (S.isSocialLogin && S.userProvider) {
-      providerEl.textContent   = S.userProvider;
+      providerEl.textContent = S.userProvider;
       providerEl.style.display = "block";
     } else {
       providerEl.style.display = "none";
@@ -1083,6 +1122,7 @@ function updateProfile() {
   const pcAvatar = $("pcAvatar");
   if (pcAvatar) {
     if (S.userAvatar) {
+      /* Show Google photo in settings avatar */
       if (!pcAvatar.querySelector("img")) {
         const img = document.createElement("img");
         img.style.cssText =
@@ -1100,23 +1140,30 @@ function updateProfile() {
   const ni = $("profileNameInput");
   if (ni) ni.value = name;
 
-  /* Social info block in Settings */
-  const socialInfo     = $("pcSocialInfo");
-  const socialBadge    = $("pcSocialBadge");
+  /* Social account info block */
+  const socialInfo = $("pcSocialInfo");
+  const socialBadge = $("pcSocialBadge");
   const socialProvider = $("pcSocialProvider");
-  const emailEl        = $("pcEmail");
-  const passwordRow    = $("passwordRow");
+  const emailEl = $("pcEmail");
+  const passwordRow = $("passwordRow");
 
   if (S.isSocialLogin) {
-    if (socialInfo)     socialInfo.style.display = "flex";
-    if (socialBadge)    socialBadge.textContent  = TRANSLATIONS[S.lang].social_account || "Social Account";
+    if (socialInfo) socialInfo.style.display = "flex";
+    if (socialBadge)
+      socialBadge.textContent =
+        TRANSLATIONS[S.lang].social_account || "Social Account";
     if (socialProvider && S.userProvider)
-      socialProvider.textContent = (TRANSLATIONS[S.lang].provider_label || "Provider:") + " " + S.userProvider;
+      socialProvider.textContent =
+        (TRANSLATIONS[S.lang].provider_label || "Provider:") +
+        " " +
+        S.userProvider;
     if (emailEl && S.userEmail) emailEl.textContent = S.userEmail;
+    /* Disable password change for social login */
     if (passwordRow) passwordRow.style.display = "none";
+    /* Make name input read-only for social login */
     if (ni) ni.readOnly = true;
   } else {
-    if (socialInfo)  socialInfo.style.display  = "none";
+    if (socialInfo) socialInfo.style.display = "none";
     if (passwordRow) passwordRow.style.display = "flex";
     if (ni) ni.readOnly = false;
   }
@@ -1124,25 +1171,51 @@ function updateProfile() {
   updateGreeting();
 }
 
-/* ═══════════════════════════════════════════
-   28. SET GOOGLE USER  (single canonical version)
-═══════════════════════════════════════════ */
+/**
+ * setGoogleUser — Supabase မှ ရလာသော User Data များကို
+ * App State (S) ထဲသို့ ထည့်သွင်းပြီး UI ကို Update လုပ်ပေးသည်။
+ */
+function setGoogleUser(name, avatarUrl, email, provider) {
+  // 1. App State (S) ကို Update လုပ်ခြင်း
+  S.userName = name || "User";
+  S.userAvatar = avatarUrl || "";
+  S.userEmail = email || "";
+  S.userProvider = provider || "Email";
+  S.isSocialLogin = S.userProvider.toLowerCase() !== "email";
+
+  // 2. LocalStorage တွင်ပါ တစ်ခါတည်း သိမ်းဆည်းခြင်း (Refresh လုပ်လျှင် ပြန်ရရန်)
+  localStorage.setItem("novapay_username", S.userName);
+  localStorage.setItem("novapay_avatar", S.userAvatar);
+  localStorage.setItem("novapay_email", S.userEmail);
+  localStorage.setItem("novapay_provider", S.userProvider);
+  localStorage.setItem("novapay_social", JSON.stringify(S.isSocialLogin));
+
+  // 3. UI ကို ချက်ချင်းပြောင်းလဲရန် ခေါ်ယူခြင်း
+  if (typeof updateProfile === "function") {
+    updateProfile();
+  }
+
+  console.log(
+    `%c User Synced: ${S.userName} via ${S.userProvider} `,
+    "background: #4285F4; color: #fff; border-radius: 3px;",
+  );
+}
 function setGoogleUser(name, avatarUrl, email = "", provider = "Google") {
-  S.userName      = name || S.userName;
-  S.userAvatar    = avatarUrl || "";
-  S.userEmail     = email || "";
-  S.userProvider  = provider || "Google";
+  S.userName = name || S.userName;
+  S.userAvatar = avatarUrl || "";
+  S.userEmail = email || "";
+  S.userProvider = provider || "Google";
   S.isSocialLogin = true;
-  lsSet(LS.userName,     S.userName);
-  lsSet(LS.userAvatar,   S.userAvatar);
-  lsSet(LS.userEmail,    S.userEmail);
+  lsSet(LS.userName, S.userName);
+  lsSet(LS.userAvatar, S.userAvatar);
+  lsSet(LS.userEmail, S.userEmail);
   lsSet(LS.userProvider, S.userProvider);
   lsSet(LS.isSocialLogin, true);
   updateProfile();
 }
 
 /* ═══════════════════════════════════════════
-   29. FAB
+   27. FAB ← PRESERVED
 ═══════════════════════════════════════════ */
 function toggleFab(force) {
   const open = force !== undefined ? force : !S.fabOpen;
@@ -1153,7 +1226,7 @@ function toggleFab(force) {
 }
 
 /* ═══════════════════════════════════════════
-   30. CLOSE ALL PANELS
+   28. CLOSE ALL PANELS ← PRESERVED
 ═══════════════════════════════════════════ */
 function closeAll() {
   $("dotsMenu")?.classList.remove("open");
@@ -1163,7 +1236,7 @@ function closeAll() {
 }
 
 /* ═══════════════════════════════════════════
-   31. SEARCH
+   29. SEARCH ← PRESERVED
 ═══════════════════════════════════════════ */
 function handleSearch(q) {
   S.searchQuery = q;
@@ -1173,49 +1246,84 @@ function handleSearch(q) {
   if (q.trim()) {
     goSearch();
     renderSearch(q);
-    setText("searchResultLabel", TRANSLATIONS[S.lang].search_results + ': "' + q + '"');
+    setText(
+      "searchResultLabel",
+      TRANSLATIONS[S.lang].search_results + ': "' + q + '"',
+    );
   } else {
     goTo("dashboard");
   }
 }
 
 /* ═══════════════════════════════════════════
-   32. EVENT WIRING
+   30. EVENT WIRING ← PRESERVED + new filter wiring
+   All listeners registered once on init.
+   Delegation used where appropriate.
 ═══════════════════════════════════════════ */
-let resizeTimer;
-
+/* ═══════════════════════════════════════════
+    30. EVENT WIRING
+═══════════════════════════════════════════ */
 function wire() {
-  /* Bottom nav */
+  /* ── Bottom nav ── */
   document.querySelectorAll(".bn-btn[data-page]").forEach((btn) => {
     btn.addEventListener("click", () => goTo(btn.dataset.page));
   });
 
-  /* FAB */
-  $("fabMain")?.addEventListener("click", (e) => { e.stopPropagation(); toggleFab(); });
-  $("fabIncome")?.addEventListener("click",  () => { toggleFab(false); openModal("income"); });
-  $("fabExpense")?.addEventListener("click", () => { toggleFab(false); openModal("expense"); });
+  /* ── FAB (Floating Action Button) ── */
+  $("fabMain")?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleFab();
+  });
+  $("fabIncome")?.addEventListener("click", () => {
+    toggleFab(false);
+    openModal("income");
+  });
+  $("fabExpense")?.addEventListener("click", () => {
+    toggleFab(false);
+    openModal("expense");
+  });
   $("fabBackdrop")?.addEventListener("click", () => toggleFab(false));
 
-  /* Avatar → Settings */
+  /* ── Avatar → Settings ── */
   $("avatarBtn")?.addEventListener("click", () => goTo("settings"));
 
-  /* 3-dots menu */
+  /* ── 3-dots Menu ── */
   $("dotsBtn")?.addEventListener("click", (e) => {
     e.stopPropagation();
     const open = $("dotsMenu").classList.toggle("open");
     $("dotsBtn").classList.toggle("open", open);
     if (open) $("notifPanel")?.classList.remove("open");
   });
-  $("themeCheck")?.addEventListener("change", (e) => applyTheme(e.target.checked ? "dark" : "light"));
-  $("menuAddIncome")?.addEventListener("click",  () => { closeAll(); openModal("income"); });
-  $("menuAddExpense")?.addEventListener("click", () => { closeAll(); openModal("expense"); });
-  $("menuHistory")?.addEventListener("click",   () => { closeAll(); goTo("transactions"); });
-  $("menuLang")?.addEventListener("click",      () => { toggleLang(); closeAll(); });
 
-  /* Search */
-  $("searchInput")?.addEventListener("input",   (e) => handleSearch(e.target.value));
+  $("themeCheck")?.addEventListener("change", (e) =>
+    applyTheme(e.target.checked ? "dark" : "light"),
+  );
+  $("menuAddIncome")?.addEventListener("click", () => {
+    closeAll();
+    openModal("income");
+  });
+  $("menuAddExpense")?.addEventListener("click", () => {
+    closeAll();
+    openModal("expense");
+  });
+  $("menuHistory")?.addEventListener("click", () => {
+    closeAll();
+    location.href = "history.html";
+  });
+  $("menuLang")?.addEventListener("click", () => {
+    toggleLang();
+    closeAll();
+  });
+
+  /* ── Search Logic ── */
+  $("searchInput")?.addEventListener("input", (e) =>
+    handleSearch(e.target.value),
+  );
   $("searchInput")?.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") { $("searchInput").value = ""; handleSearch(""); }
+    if (e.key === "Escape") {
+      $("searchInput").value = "";
+      handleSearch("");
+    }
   });
   $("searchClear")?.addEventListener("click", () => {
     $("searchInput").value = "";
@@ -1223,7 +1331,7 @@ function wire() {
     $("searchInput")?.focus();
   });
 
-  /* Notifications */
+  /* ── Notifications ── */
   $("bellBtn")?.addEventListener("click", (e) => {
     e.stopPropagation();
     const open = $("notifPanel").classList.toggle("open");
@@ -1240,7 +1348,7 @@ function wire() {
     renderNotifPanel();
   });
 
-  /* Global click — close panels */
+  /* ── Global Click (Close Panels) ── */
   document.addEventListener("click", (e) => {
     if (!$("dotsShell")?.contains(e.target)) {
       $("dotsMenu")?.classList.remove("open");
@@ -1251,32 +1359,19 @@ function wire() {
     }
   });
 
-  /* Transaction filters */
-  $("txnTabs")?.addEventListener("click", (e) => {
-    const btn = e.target.closest(".ftab");
-    if (!btn) return;
-    $("txnTabs").querySelectorAll(".ftab").forEach((b) => b.classList.remove("active"));
-    btn.classList.add("active");
-    S.txnFilter = btn.dataset.filter;
-    updateFilterBadge();
-    renderTxnFeed();
-  });
-  $("afpApply")?.addEventListener("click",      applyTxnFilter);
-  $("afpReset")?.addEventListener("click",      resetTxnFilter);
-  $("afpBadgeClear")?.addEventListener("click", resetTxnFilter);
-
-  /* Modal & forms */
-  $("csvBtnTxn")?.addEventListener("click", exportCSV);
+  /* ── Modal & Forms ── */
   $("mcClose")?.addEventListener("click", closeModal);
-  $("txnVeil")?.addEventListener("click", (e) => { if (e.target === $("txnVeil")) closeModal(); });
+  $("txnVeil")?.addEventListener("click", (e) => {
+    if (e.target === $("txnVeil")) closeModal();
+  });
 
   $("txnSubmit")?.addEventListener("click", () => {
-    const type   = $("txnType").value;
+    const type = $("txnType").value;
     const amount = parseFloat($("txnAmount").value);
     const catKey = $("txnCategory").value;
-    const desc   = $("txnDesc").value.trim();
-    const date   = $("txnDate").value;
-    const T      = TRANSLATIONS[S.lang];
+    const desc = $("txnDesc").value.trim();
+    const date = $("txnDate").value;
+    const T = TRANSLATIONS[S.lang];
 
     if (!amount || amount <= 0) {
       const inp = $("txnAmount");
@@ -1284,37 +1379,61 @@ function wire() {
       setTimeout(() => inp.classList.remove("shake"), 1600);
       return;
     }
-    const catName = T[catKey] || catKey || (type === "income" ? T.cat_other_income : T.cat_other_expense);
+
+    const catName =
+      T[catKey] ||
+      catKey ||
+      (type === "income" ? T.cat_other_income : T.cat_other_expense);
     addTxn(type, amount, catKey || "cat_other_" + type, catName, desc, date);
     closeModal();
   });
 
-  /* Confirm modal */
+  /* ── Confirmation Modal ── */
   $("cfmCancel")?.addEventListener("click", closeConfirm);
-  $("cfmOk")?.addEventListener("click", () => { S.confirmCb?.(); closeConfirm(); });
+  $("cfmOk")?.addEventListener("click", () => {
+    S.confirmCb?.();
+    closeConfirm();
+  });
 
-  /* Settings */
-  $("themeToggle")?.addEventListener("change", (e) => applyTheme(e.target.checked ? "dark" : "light"));
+  /* ── Settings Page ── */
+  $("themeToggle")?.addEventListener("change", (e) =>
+    applyTheme(e.target.checked ? "dark" : "light"),
+  );
   $("langBtn")?.addEventListener("click", toggleLang);
   $("notifToggle")?.addEventListener("change", (e) => {
     S.notifEnabled = e.target.checked;
     lsSet(LS.notifEnabled, S.notifEnabled);
   });
 
-  /* Clear all data */
+  /* ── Settings: Clear All Data (FINAL FIXED) ── */
+  /* ── Settings: Clear All Data (Final Solution) ── */
   $("clearBtn")?.addEventListener("click", () => {
     const T = TRANSLATIONS[S.lang];
     showConfirm(T.confirm_clear, T.confirm_clear_msg, () => {
+      // ၁။ Memory ထဲက data ကို အရင်ရှင်းမယ်
       S.transactions = [];
+
+      // ၂။ သင်သတ်မှတ်ထားတဲ့ saveTxns() function ကို သုံးပြီး Storage ကို သိမ်းမယ်
+      // ဒါဆိုရင် localStorage ထဲမှာ "novapay_transactions" က [] ဖြစ်သွားပါပြီ
       saveTxns();
+
+      // ၃။ Refresh လုပ်ရင် Demo data ပြန်မဝင်အောင် အမှတ်အသားလုပ်မယ်
+      // (ဒီနာမည်က init() ထဲက နာမည်နဲ့ တူရပါမယ်)
       localStorage.setItem("app_initialized", "true");
+
+      // ၄။ UI ကို Update လုပ်မယ်
       renderAll();
-      showToast("info", "History cleared!");
+
+      if (typeof showToast === "function") {
+        showToast("success", "History cleared!");
+      }
+
+      console.log("Storage Updated: novapay_transactions is now empty.");
     });
   });
-
-  /* Logout */
+  /* ── SUPABASE LOGOUT ── */
   $("logoutBtn")?.addEventListener("click", () => {
+    const T = TRANSLATIONS[S.lang];
     showConfirm(
       S.lang === "en" ? "Logout?" : "ထွက်မည်?",
       S.lang === "en"
@@ -1328,7 +1447,7 @@ function wire() {
     );
   });
 
-  /* Chart & resize */
+  /* ── Charts & Window ── */
   $("chartPeriod")?.addEventListener("change", drawChart);
   window.addEventListener("resize", () => {
     clearTimeout(resizeTimer);
@@ -1337,7 +1456,7 @@ function wire() {
 }
 
 /* ═══════════════════════════════════════════
-   33. DEMO DATA
+    31. INIT & DEMO DATA
 ═══════════════════════════════════════════ */
 function seedDemoData() {
   const td = new Date().toISOString().split("T")[0];
@@ -1345,78 +1464,110 @@ function seedDemoData() {
   const d2 = new Date(Date.now() - 172800000).toISOString().split("T")[0];
 
   S.transactions = [
-    { id:"1", type:"income",  amount:3000, categoryKey:"cat_salary",    category:"Salary",    description:"Monthly salary",  date:d2 },
-    { id:"2", type:"income",  amount:2000, categoryKey:"cat_freelance",  category:"Freelance", description:"Design project",  date:yd },
-    { id:"3", type:"expense", amount:450,  categoryKey:"cat_food",       category:"Food",      description:"Groceries",       date:d2 },
-    { id:"4", type:"expense", amount:120,  categoryKey:"cat_transport",  category:"Transport", description:"Grab",            date:yd },
-    { id:"5", type:"expense", amount:299,  categoryKey:"cat_shopping",   category:"Shopping",  description:"Online",          date:td },
+    {
+      id: "1",
+      type: "income",
+      amount: 3000,
+      categoryKey: "cat_salary",
+      category: "Salary",
+      description: "Monthly salary",
+      date: d2,
+    },
+    {
+      id: "2",
+      type: "income",
+      amount: 2000,
+      categoryKey: "cat_freelance",
+      category: "Freelance",
+      description: "Design project",
+      date: yd,
+    },
+    {
+      id: "3",
+      type: "expense",
+      amount: 450,
+      categoryKey: "cat_food",
+      category: "Food",
+      description: "Groceries",
+      date: d2,
+    },
+    {
+      id: "4",
+      type: "expense",
+      amount: 120,
+      categoryKey: "cat_transport",
+      category: "Transport",
+      description: "Grab",
+      date: yd,
+    },
+    {
+      id: "5",
+      type: "expense",
+      amount: 299,
+      categoryKey: "cat_shopping",
+      category: "Shopping",
+      description: "Online",
+      date: td,
+    },
   ];
   saveTxns();
 }
 
 /* ═══════════════════════════════════════════
-   34. INIT  ←  FIXED (3 bugs resolved)
-   Bug 1: duplicate if(!session) removed
-   Bug 2: duplicate setGoogleUser() removed
-   Bug 3: loadState() now runs BEFORE Supabase
-          sync so Google data is never overwritten
+   31. INIT — Final Optimized Version
 ═══════════════════════════════════════════ */
 async function init() {
-  // 1. Check Supabase session
-  const { data: { session } } = await _supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await _supabase.auth.getSession();
 
+  // ✅ Guard first — then log
   if (!session) {
     window.location.href = "index.html";
     return;
   }
 
-  // ── Debug logs (remove after confirming avatar works) ──
+  // ✅ Now safe to log
   console.log("User metadata:", session.user.user_metadata);
-  console.log("Avatar URL:",    session.user.user_metadata?.avatar_url);
-  console.log("Provider:",      session.user.app_metadata?.provider);
+  console.log("Avatar:", session.user.user_metadata?.avatar_url);
 
-  // 2. Load saved UI prefs + transactions FIRST
-  //    (theme, lang, notifEnabled, transactions, notifications)
-  //    loadState() no longer touches userName/userAvatar/etc.
+  if (!session) {
+    window.location.href = "index.html";
+    return; // အကောင့်မရှိရင် အောက်က code တွေကို ဆက်မလုပ်တော့ဘူး
+  }
+
+  // 2. User Information များကို Sync လုပ်မယ်
+  const meta = session.user.user_metadata;
+  S.userEmail = session.user.email;
+  S.userName = meta.full_name || meta.name || S.userEmail.split("@")[0];
+  S.userAvatar = meta.avatar_url || meta.picture || "";
+  S.userProvider = session.user.app_metadata?.provider || "Email";
+  S.isSocialLogin = S.userProvider.toLowerCase() !== "email";
+
+  // 3. UI Settings များကို Load လုပ်မယ်
   loadState();
-
-  // 3. Overwrite user identity with FRESH Supabase data
-  //    Must come AFTER loadState() so it cannot be overwritten
-  const meta      = session.user.user_metadata;
-  S.userEmail     = session.user.email || "";
-  S.userName      = meta.full_name || meta.name || S.userEmail.split("@")[0] || "User";
-  S.userAvatar    = meta.avatar_url || meta.picture || "";
-  const rawProvider = session.user.app_metadata?.provider || "email";
-  // Capitalise: "google" → "Google", "facebook" → "Facebook"
-  S.userProvider  = rawProvider.charAt(0).toUpperCase() + rawProvider.slice(1);
-  S.isSocialLogin = rawProvider !== "email";
-
-  // Persist fresh identity back to localStorage
-  lsSet(LS.userName,     S.userName);
-  lsSet(LS.userAvatar,   S.userAvatar);
-  lsSet(LS.userEmail,    S.userEmail);
-  lsSet(LS.userProvider, S.userProvider);
-  lsSet(LS.isSocialLogin, S.isSocialLogin);
-
-  // 4. Apply UI settings
   applyTheme(S.theme);
   applyLang(S.lang);
   updateDate();
-  updateProfile();       // ← renders Google avatar + name + email
+  updateProfile();
 
+  // Notification toggle status ကို sync လုပ်မယ်
   if ($("notifToggle")) $("notifToggle").checked = S.notifEnabled;
 
-  // 5. Wire all event listeners
+  // Event Listeners များကို ချိတ်ဆက်မယ်
   wire();
 
-  // 6. Seed demo data on very first visit only
+  // 4. Handle Demo Data (FIXED: အကောင့်အသစ်ဆိုမှ တစ်ခါပဲ Demo data ထည့်မယ်)
+  // localstorage မှာ တစ်ခါမှ မဖွင့်ရသေးဘူးဆိုရင်ပဲ Demo data ပြမယ်
   const isFirstTime = !localStorage.getItem("app_initialized");
+
   if (isFirstTime && (!S.transactions || S.transactions.length === 0)) {
     seedDemoData();
+    // Demo data တစ်ခါဝင်ပြီးရင် နောက်တစ်ခါ refresh လုပ်ရင် ထပ်မဝင်အောင် မှတ်ထားမယ်
     localStorage.setItem("app_initialized", "true");
   }
 
-  // 7. Final render
+  // 5. Final Rendering
   renderAll();
   renderNotifPanel();
 
@@ -1426,7 +1577,7 @@ async function init() {
   );
 }
 
-/* ── Boot ── */
+/* ── Boot Logic ── */
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", init);
 } else {
