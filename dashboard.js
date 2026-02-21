@@ -1607,47 +1607,62 @@ function seedDemoData() {
   saveTxns();
 }
 
+/* ═══════════════════════════════════════════
+   31. INIT — Final Optimized Version
+═══════════════════════════════════════════ */
 async function init() {
-  // 1. Check Auth FIRST before anything else to prevent loop
+  // 1. အရင်ဆုံး အကောင့်ရှိမရှိ စစ်မယ် (Loop မပတ်အောင် အရေးကြီးဆုံးအဆင့်ဖြစ်ပါတယ်)
   const {
     data: { session },
   } = await _supabase.auth.getSession();
 
   if (!session) {
     window.location.href = "index.html";
-    return;
+    return; // အကောင့်မရှိရင် အောက်က code တွေကို ဆက်မလုပ်တော့ဘူး
   }
 
-  // 2. Sync User Data
+  // 2. User Information များကို Sync လုပ်မယ်
   const meta = session.user.user_metadata;
   S.userEmail = session.user.email;
   S.userName = meta.full_name || meta.name || S.userEmail.split("@")[0];
   S.userAvatar = meta.avatar_url || meta.picture || "";
   S.userProvider = session.user.app_metadata?.provider || "Email";
-  S.isSocialLogin = S.userProvider !== "email";
+  S.isSocialLogin = S.userProvider.toLowerCase() !== "email";
 
-  // 3. Setup UI
+  // 3. UI Settings များကို Load လုပ်မယ်
   loadState();
   applyTheme(S.theme);
   applyLang(S.lang);
   updateDate();
   updateProfile();
 
+  // Notification toggle status ကို sync လုပ်မယ်
   if ($("notifToggle")) $("notifToggle").checked = S.notifEnabled;
 
+  // Event Listeners များကို ချိတ်ဆက်မယ်
   wire();
 
-  // 4. Handle Demo Data
-  if (!S.transactions || S.transactions.length === 0) {
+  // 4. Handle Demo Data (FIXED: အကောင့်အသစ်ဆိုမှ တစ်ခါပဲ Demo data ထည့်မယ်)
+  // localstorage မှာ တစ်ခါမှ မဖွင့်ရသေးဘူးဆိုရင်ပဲ Demo data ပြမယ်
+  const isFirstTime = !localStorage.getItem("app_initialized");
+
+  if (isFirstTime && (!S.transactions || S.transactions.length === 0)) {
     seedDemoData();
+    // Demo data တစ်ခါဝင်ပြီးရင် နောက်တစ်ခါ refresh လုပ်ရင် ထပ်မဝင်အောင် မှတ်ထားမယ်
+    localStorage.setItem("app_initialized", "true");
   }
 
+  // 5. Final Rendering
   renderAll();
   renderNotifPanel();
-  console.log("Dashboard Ready ✓");
+
+  console.log(
+    "%c Dashboard Ready ✓ ",
+    "background:#22c55e; color:#fff; padding:2px 5px; border-radius:3px;",
+  );
 }
 
-/* Boot */
+/* ── Boot Logic ── */
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", init);
 } else {
