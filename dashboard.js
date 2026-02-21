@@ -1506,23 +1506,28 @@ function wire() {
   });
 
   /* ── Settings: Clear All Data (FIXED) ── */
+  /* ── Settings: Clear All Data (FINAL FIXED) ── */
   $("clearBtn")?.addEventListener("click", () => {
     const T = TRANSLATIONS[S.lang];
     showConfirm(T.confirm_clear, T.confirm_clear_msg, () => {
-      // 1. Clear the active state
+      // 1. Memory ထဲက data ကို အရင်ရှင်းမယ်
       S.transactions = [];
 
-      // 2. Force clear the specific LocalStorage key
-      // Use the exact key name you defined in your LS object (likely "tnb_txns")
+      // 2. Storage ထဲက data ကိုပါ အပြီးရှင်းမယ်
+      // LS.txns ဆိုတာ သင့်ရဲ့ LocalStorage key ဖြစ်ရပါမယ် (ဥပမာ "tnb_txns")
       localStorage.setItem(LS.txns, JSON.stringify([]));
 
-      // 3. Mark that we don't want demo data anymore (Optional but recommended)
-      // This prevents the seedDemoData() from firing on the next refresh
-      localStorage.setItem("demo_seeded", "true");
+      // 3. အရေးကြီးဆုံးအချက်: init() ထဲက key နဲ့ အတူတူဖြစ်ရပါမယ်
+      // ဒါမှ refresh လုပ်ရင် demo data ပြန်မဝင်မှာပါ
+      localStorage.setItem("app_initialized", "true");
 
-      // 4. Update the UI
+      // 4. UI ကို Update လုပ်မယ်
       renderAll();
-      showToast("success", "All data cleared!");
+
+      // Toast ပြတဲ့ function ရှိရင် သုံးနိုင်ပါတယ်
+      if (typeof showToast === "function") {
+        showToast("success", "All data cleared successfully!");
+      }
     });
   });
   /* ── SUPABASE LOGOUT ── */
