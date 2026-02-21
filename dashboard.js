@@ -1298,27 +1298,34 @@ function updateProfile() {
 }
 
 /**
- * setGoogleUser — called by Supabase onAuthStateChange when a user
- * signs in via Google or another social provider.
- *
- * Usage (in your Supabase auth file):
- *   supabase.auth.onAuthStateChange((event, session) => {
- *     if (session?.user) {
- *       const meta = session.user.user_metadata;
- *       setGoogleUser(
- *         meta.full_name || meta.name || session.user.email,
- *         meta.avatar_url || meta.picture || '',
- *         session.user.email || '',
- *         'Google'   // or detect from session.user.app_metadata.provider
- *       );
- *     }
- *   });
- *
- * @param {string} name       - Display name from Google
- * @param {string} avatarUrl  - Google profile picture URL
- * @param {string} email      - Google email
- * @param {string} provider   - Provider name, e.g. 'Google'
+ * setGoogleUser — Supabase မှ ရလာသော User Data များကို
+ * App State (S) ထဲသို့ ထည့်သွင်းပြီး UI ကို Update လုပ်ပေးသည်။
  */
+function setGoogleUser(name, avatarUrl, email, provider) {
+  // 1. App State (S) ကို Update လုပ်ခြင်း
+  S.userName = name || "User";
+  S.userAvatar = avatarUrl || "";
+  S.userEmail = email || "";
+  S.userProvider = provider || "Email";
+  S.isSocialLogin = S.userProvider.toLowerCase() !== "email";
+
+  // 2. LocalStorage တွင်ပါ တစ်ခါတည်း သိမ်းဆည်းခြင်း (Refresh လုပ်လျှင် ပြန်ရရန်)
+  localStorage.setItem("novapay_username", S.userName);
+  localStorage.setItem("novapay_avatar", S.userAvatar);
+  localStorage.setItem("novapay_email", S.userEmail);
+  localStorage.setItem("novapay_provider", S.userProvider);
+  localStorage.setItem("novapay_social", JSON.stringify(S.isSocialLogin));
+
+  // 3. UI ကို ချက်ချင်းပြောင်းလဲရန် ခေါ်ယူခြင်း
+  if (typeof updateProfile === "function") {
+    updateProfile();
+  }
+
+  console.log(
+    `%c User Synced: ${S.userName} via ${S.userProvider} `,
+    "background: #4285F4; color: #fff; border-radius: 3px;",
+  );
+}
 function setGoogleUser(name, avatarUrl, email = "", provider = "Google") {
   S.userName = name || S.userName;
   S.userAvatar = avatarUrl || "";
@@ -1654,10 +1661,19 @@ function seedDemoData() {
    31. INIT — Final Optimized Version
 ═══════════════════════════════════════════ */
 async function init() {
-  // 1. အရင်ဆုံး အကောင့်ရှိမရှိ စစ်မယ် (Loop မပတ်အောင် အရေးကြီးဆုံးအဆင့်ဖြစ်ပါတယ်)
   const {
     data: { session },
   } = await _supabase.auth.getSession();
+
+  // ✅ Guard first — then log
+  if (!session) {
+    window.location.href = "index.html";
+    return;
+  }
+
+  // ✅ Now safe to log
+  console.log("User metadata:", session.user.user_metadata);
+  console.log("Avatar:", session.user.user_metadata?.avatar_url);
 
   if (!session) {
     window.location.href = "index.html";
