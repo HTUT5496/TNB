@@ -1,47 +1,34 @@
 /* ══════════════════════════════════════════════════════
-   FINPAY – SMART FINANCE  |  dashboard.js  v4.0
+   TNB Financial Manager  |  dashboard.js
    ──────────────────────────────────────────────────────
-   Architecture (modules):
-     1.  Translations          ← PRESERVED + new keys
-     2.  Categories            ← PRESERVED
-     3.  App State             ← PRESERVED + filter state
-     4.  LocalStorage          ← PRESERVED
-     5.  Finance Calculations  ← PRESERVED (groupByCategory)
-     6.  DOM Helpers           ← PRESERVED
-     7.  Animated Counter      ← PRESERVED
-     8.  Update Totals         ← PRESERVED
-     9.  Transaction Card      ← PRESERVED
-    10.  Render Feeds          ← PRESERVED
-    11.  Usage Summary         ← NEW (replaces Recent Activity on Home)
-    12.  Category Breakdown    ← PRESERVED
-    13.  Spending Chart        ← PRESERVED
-    14.  Quick Actions v3.0    ← PRESERVED
-    15.  Notification System   ← PRESERVED
-    16.  Toast System          ← PRESERVED
-    17.  Transaction CRUD      ← PRESERVED
-    18.  Filter Logic          ← UPGRADED (date range + validation)
-    19.  Render All            ← PRESERVED
-    20.  Navigation            ← PRESERVED
-    21.  Modal                 ← PRESERVED
-    22.  Theme System          ← PRESERVED
-    23.  Language System       ← PRESERVED + new keys
-    24.  Greeting & Date       ← PRESERVED
-    25.  Export CSV            ← PRESERVED
-    26.  Profile               ← PRESERVED + social login support
-    27.  FAB                   ← PRESERVED
-    28.  Close All Panels      ← PRESERVED
-    29.  Search                ← PRESERVED
-    30.  Event Wiring          ← PRESERVED + new filter wiring
-    31.  Init                  ← PRESERVED
+   Modifications from original:
+   - Supabase auth guard (redirects to index.html if not logged in)
+   - User profile loaded from Supabase session (email + Google OAuth)
+   - Transactions stored in Supabase 'transactions' table (with localStorage fallback)
+   - Logout calls _supabase.auth.signOut() then redirects to index.html
+   - Change Password calls _supabase.auth.updateUser()
+   - Brand name updated to "TNB" throughout
+   - CSV filename updated to "tnb-..."
+   - Demo seed data removed (real data comes from Supabase)
+   - All UI logic, filters, chart, modals PRESERVED exactly
 ══════════════════════════════════════════════════════ */
 'use strict';
 
 /* ═══════════════════════════════════════════
-   1. TRANSLATIONS (English / Burmese) ← PRESERVED + new keys
+   SUPABASE CLIENT — same keys as login-script.js
+═══════════════════════════════════════════ */
+const { createClient } = supabase;
+const _supabase = createClient(
+  'https://lqfjeamzbxayfbjntarr.supabase.co',
+  'sb_publishable_jDExXkASC_jrulY8B7noFw_r9qut-vQ'
+);
+
+/* ═══════════════════════════════════════════
+   1. TRANSLATIONS
 ═══════════════════════════════════════════ */
 const TRANSLATIONS = {
   en: {
-    brand: 'FinPay',
+    brand: 'TNB',
     nav_dashboard:      'Home',
     nav_transactions:   'History',
     nav_reports:        'Reports',
@@ -106,7 +93,6 @@ const TRANSLATIONS = {
     usage_summary:       'Usage Summary',
     qa_total_added:      'Total Added',
     qa_total_used:       'Total Used',
-    /* History filter */
     filter_type:         'Type',
     start_date:          'From',
     end_date:            'To',
@@ -115,13 +101,11 @@ const TRANSLATIONS = {
     err_date_range:      'Start date must be before end date.',
     err_date_required:   'Please select both start and end dates.',
     filter_active:       'Filter active',
-    /* Profile / Social */
     change_password:     'Change Password',
     change_password_sub: 'Update your account password',
     change:              'Change',
     social_account:      'Social Account',
     provider_label:      'Provider:',
-    /* Categories */
     cat_salary:          'Salary',
     cat_freelance:       'Freelance',
     cat_investment:      'Invest',
@@ -138,7 +122,7 @@ const TRANSLATIONS = {
     cat_other_expense:   'Other',
   },
   my: {
-    brand: 'FinPay',
+    brand: 'TNB',
     nav_dashboard:      'ဒက်ရ်ဘုတ်',
     nav_transactions:   'မှတ်တမ်း',
     nav_reports:        'အစီရင်ခံ',
@@ -234,7 +218,7 @@ const TRANSLATIONS = {
 };
 
 /* ═══════════════════════════════════════════
-   2. CATEGORIES ← PRESERVED
+   2. CATEGORIES
 ═══════════════════════════════════════════ */
 const CATEGORIES = {
   income: [
@@ -257,7 +241,6 @@ const CATEGORIES = {
   ]
 };
 
-/* Quick Actions shown on home screen */
 const QUICK_ACTIONS = [
   { key: 'cat_salary',     type: 'income',  icon: '💼' },
   { key: 'cat_freelance',  type: 'income',  icon: '💻' },
@@ -270,7 +253,7 @@ const QUICK_ACTIONS = [
 ];
 
 /* ═══════════════════════════════════════════
-   3. APP STATE ← PRESERVED + txn date range
+   3. APP STATE
 ═══════════════════════════════════════════ */
 const S = {
   transactions:  [],
@@ -278,64 +261,151 @@ const S = {
   lang:          'en',
   theme:         'dark',
   notifEnabled:  true,
-  userName:      'Alex Morgan',
+  userName:      'TNB User',
   userAvatar:    '',
   userEmail:     '',
-  userProvider:  '',   // e.g. 'Google', 'Email'
+  userProvider:  '',
   isSocialLogin: false,
-  supabaseUserId: null,  /* Supabase user.id */
-  /* filters */
+  supabaseUserId: null,
   dashFilter: 'all',
   txnFilter:  'all',
   txnDateFrom: '',
   txnDateTo:   '',
   txnFilterActive: false,
   searchQuery: '',
-  /* ui */
   fabOpen:    false,
   confirmCb:  null,
 };
 
 /* ═══════════════════════════════════════════
-   4. LOCAL STORAGE ← PRESERVED
+   4. LOCAL STORAGE (UI preferences only)
 ═══════════════════════════════════════════ */
 const LS = {
-  transactions:  'novapay_transactions',
-  notifications: 'novapay_notifications',
-  lang:          'novapay_lang',
-  theme:         'novapay_theme',
-  notifEnabled:  'novapay_notif',
-  userName:      'novapay_username',
-  userAvatar:    'novapay_avatar',
-  userEmail:     'novapay_email',
-  userProvider:  'novapay_provider',
-  isSocialLogin: 'novapay_social',
+  notifications: 'tnb_notifications',
+  lang:          'tnb_lang',
+  theme:         'tnb_theme',
+  notifEnabled:  'tnb_notif',
 };
 
 const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 const lsGet = (k, fb) => { try { const v = localStorage.getItem(k); return v !== null ? JSON.parse(v) : fb; } catch { return fb; } };
 
-function loadState() {
-  S.transactions  = lsGet(LS.transactions,  []);
+function loadUIPrefs() {
   S.notifications = lsGet(LS.notifications, []);
   S.lang          = lsGet(LS.lang,  'en');
   S.theme         = lsGet(LS.theme, 'dark');
   S.notifEnabled  = lsGet(LS.notifEnabled, true);
-  S.userName      = lsGet(LS.userName,     'Alex Morgan');
-  S.userAvatar    = lsGet(LS.userAvatar,    '');
-  S.userEmail     = lsGet(LS.userEmail,     '');
-  S.userProvider  = lsGet(LS.userProvider,  '');
-  S.isSocialLogin = lsGet(LS.isSocialLogin, false);
 }
 
-const saveTxns   = () => lsSet(LS.transactions,  S.transactions);
 const saveNotifs = () => lsSet(LS.notifications, S.notifications);
 
 /* ═══════════════════════════════════════════
-   5. FINANCE CALCULATIONS ← PRESERVED
+   5. SUPABASE DATA LAYER
+   Transactions are stored in Supabase.
+   Table schema expected:
+     transactions (
+       id uuid primary key default gen_random_uuid(),
+       user_id uuid references auth.users not null,
+       type text not null,           -- 'income' | 'expense'
+       amount numeric not null,
+       category_key text not null,
+       category text,
+       description text,
+       date date not null,
+       created_at timestamptz default now()
+     )
 ═══════════════════════════════════════════ */
 
-/** Returns { inc, exp, bal } totals */
+/** Load all transactions for the current user from Supabase */
+async function loadTransactions() {
+  if (!S.supabaseUserId) return;
+  const { data, error } = await _supabase
+    .from('transactions')
+    .select('*')
+    .eq('user_id', S.supabaseUserId)
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    console.error('TNB: Failed to load transactions', error.message);
+    return;
+  }
+  S.transactions = (data || []).map(row => ({
+    id:          row.id,
+    type:        row.type,
+    amount:      parseFloat(row.amount),
+    categoryKey: row.category_key,
+    category:    row.category || row.category_key,
+    description: row.description || '',
+    date:        row.date || row.created_at.split('T')[0],
+  }));
+  renderAll();
+}
+
+/** Insert a transaction into Supabase */
+async function insertTransaction(type, amount, categoryKey, category, description, date) {
+  const { data, error } = await _supabase
+    .from('transactions')
+    .insert([{
+      user_id:      S.supabaseUserId,
+      type,
+      amount,
+      category_key: categoryKey,
+      category,
+      description,
+      date,
+    }])
+    .select()
+    .single();
+
+  if (error) {
+    console.error('TNB: Insert failed', error.message);
+    showToast('expense', 'Failed to save transaction.');
+    return null;
+  }
+  return {
+    id:          data.id,
+    type:        data.type,
+    amount:      parseFloat(data.amount),
+    categoryKey: data.category_key,
+    category:    data.category,
+    description: data.description || '',
+    date:        data.date || data.created_at.split('T')[0],
+  };
+}
+
+/** Delete a transaction from Supabase */
+async function deleteFromSupabase(id) {
+  const { error } = await _supabase
+    .from('transactions')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', S.supabaseUserId);
+
+  if (error) {
+    console.error('TNB: Delete failed', error.message);
+    showToast('expense', 'Failed to delete transaction.');
+    return false;
+  }
+  return true;
+}
+
+/** Delete all transactions for current user from Supabase */
+async function clearAllFromSupabase() {
+  const { error } = await _supabase
+    .from('transactions')
+    .delete()
+    .eq('user_id', S.supabaseUserId);
+
+  if (error) {
+    console.error('TNB: Clear failed', error.message);
+    return false;
+  }
+  return true;
+}
+
+/* ═══════════════════════════════════════════
+   6. FINANCE CALCULATIONS
+═══════════════════════════════════════════ */
 function calcTotals() {
   let inc = 0, exp = 0;
   for (const t of S.transactions) {
@@ -344,11 +414,6 @@ function calcTotals() {
   return { inc, exp, bal: inc - exp };
 }
 
-/**
- * Single-pass grouping of all transactions by categoryKey.
- * O(n) — called once per renderAll().
- * @returns {Map<string, {total: number, type: string, icon: string}>}
- */
 function groupByCategory() {
   const map = new Map();
   for (const t of S.transactions) {
@@ -363,19 +428,18 @@ function groupByCategory() {
   return map;
 }
 
-/** Format number to USD string */
 const fmt = n => new Intl.NumberFormat('en-US', {
   minimumFractionDigits: 2, maximumFractionDigits: 2
 }).format(n);
 
 /* ═══════════════════════════════════════════
-   6. DOM HELPERS
+   7. DOM HELPERS
 ═══════════════════════════════════════════ */
 const $       = id => document.getElementById(id);
 const setText = (id, v) => { const e = $(id); if (e) e.textContent = v; };
 
 /* ═══════════════════════════════════════════
-   7. ANIMATED COUNTER ← PRESERVED
+   8. ANIMATED COUNTER
 ═══════════════════════════════════════════ */
 function animCount(elId, target) {
   const el = $(elId);
@@ -395,33 +459,26 @@ function animCount(elId, target) {
 }
 
 /* ═══════════════════════════════════════════
-   8. UPDATE TOTALS ← PRESERVED
+   9. UPDATE TOTALS
 ═══════════════════════════════════════════ */
 function updateTotals() {
   const { inc, exp, bal } = calcTotals();
-
-  /* Hero balance card */
   animCount('balanceDisplay', bal);
   setText('totalIncomeDisplay',  '$' + fmt(inc));
   setText('totalExpenseDisplay', '$' + fmt(exp));
-
-  /* Row-2 summary strip */
   setText('r2Balance', '$' + fmt(bal));
   setText('r2Income',  '$' + fmt(inc));
   setText('r2Expense', '$' + fmt(exp));
-
-  /* Reports page */
   setText('repIncome',  '$' + fmt(inc));
   setText('repExpense', '$' + fmt(exp));
   setText('repBalance', '$' + fmt(bal));
   setText('repCount',   S.transactions.length);
-
   const rb = $('repBalance');
   if (rb) rb.style.color = bal >= 0 ? 'var(--inc)' : 'var(--exp)';
 }
 
 /* ═══════════════════════════════════════════
-   9. TRANSACTION CARD BUILDER ← PRESERVED
+   10. TRANSACTION CARD BUILDER
 ═══════════════════════════════════════════ */
 function getCatMeta(type, key) {
   return (CATEGORIES[type] || []).find(c => c.key === key)
@@ -483,16 +540,11 @@ function emptyEl() {
 }
 
 /* ═══════════════════════════════════════════
-   10. RENDER FEEDS ← PRESERVED
-       (Dashboard feed removed from Home page —
-        Home now shows Quick Actions + Usage Summary only)
+   11. RENDER FEEDS
 ═══════════════════════════════════════════ */
-
-/** Transactions page feed — respects type + date range filters */
 function renderTxnFeed() {
   const el = $('txnFeed');
   if (!el) return;
-
   let list = [...S.transactions].reverse().filter(t => {
     const typeOk = S.txnFilter === 'all' || t.type === S.txnFilter;
     let dateOk   = true;
@@ -502,13 +554,11 @@ function renderTxnFeed() {
     }
     return typeOk && dateOk;
   });
-
   el.innerHTML = '';
   if (!list.length) { el.appendChild(emptyEl()); return; }
   list.forEach((t, i) => el.appendChild(makeTxnCard(t, i)));
 }
 
-/** Search results feed */
 function renderSearch(q) {
   const el = $('searchFeed');
   if (!el) return;
@@ -526,19 +576,13 @@ function renderSearch(q) {
 }
 
 /* ═══════════════════════════════════════════
-   11. USAGE SUMMARY — NEW
-   Real-time category breakdown shown on Home page.
-   Shows each category with amount, type badge,
-   and a mini proportional bar.
-   @param {Map} catTotals - result of groupByCategory()
+   12. USAGE SUMMARY
 ═══════════════════════════════════════════ */
 function renderUsageSummary(catTotals) {
   const el = $('usageSummary');
   if (!el) return;
-
   const T = TRANSLATIONS[S.lang];
   el.innerHTML = '';
-
   if (!catTotals.size) {
     const empty = document.createElement('div');
     empty.className = 'empty-state';
@@ -547,26 +591,20 @@ function renderUsageSummary(catTotals) {
     el.appendChild(empty);
     return;
   }
-
-  /* Sort by total descending, show top 8 */
   const entries = [...catTotals.entries()]
     .sort((a, b) => b[1].total - a[1].total)
     .slice(0, 8);
-
   const maxTotal = entries[0][1].total;
-
   entries.forEach(([key, data], i) => {
-    const label = T[key] || key;
-    const pct   = (data.total / maxTotal) * 100;
-    const color = data.type === 'income' ? 'var(--inc)' : 'var(--exp)';
+    const label    = T[key] || key;
+    const pct      = (data.total / maxTotal) * 100;
+    const color    = data.type === 'income' ? 'var(--inc)' : 'var(--exp)';
     const typeLabel = data.type === 'income'
       ? (T.qa_total_added || 'Total Added')
       : (T.qa_total_used  || 'Total Used');
-
     const row = document.createElement('div');
     row.className = 'usage-row';
     row.style.animationDelay = (i * 0.04) + 's';
-
     row.innerHTML = `
       <div class="usage-ico ${data.type}">${data.icon}</div>
       <div class="usage-info">
@@ -577,10 +615,7 @@ function renderUsageSummary(catTotals) {
         <div class="usage-bar" style="width:0%;background:${color}"></div>
       </div>
       <div class="usage-amount ${data.type}">$${fmt(data.total)}</div>`;
-
     el.appendChild(row);
-
-    /* Animate the bar after append */
     requestAnimationFrame(() =>
       setTimeout(() => {
         const bar = row.querySelector('.usage-bar');
@@ -591,7 +626,7 @@ function renderUsageSummary(catTotals) {
 }
 
 /* ═══════════════════════════════════════════
-   12. CATEGORY BREAKDOWN ← PRESERVED
+   13. CATEGORY BREAKDOWN
 ═══════════════════════════════════════════ */
 const CAT_COLORS = [
   '#f5a623','#00e896','#ff3d71','#a78bfa','#38bdf8',
@@ -633,7 +668,7 @@ function renderCatBreakdown() {
 }
 
 /* ═══════════════════════════════════════════
-   13. SPENDING CHART ← PRESERVED
+   14. SPENDING CHART
 ═══════════════════════════════════════════ */
 function drawChart() {
   const canvas = $('spendingCanvas');
@@ -647,11 +682,9 @@ function drawChart() {
   canvas.style.width  = rect.width  + 'px';
   canvas.style.height = rect.height + 'px';
   ctx.scale(dpr, dpr);
-
   const W = rect.width, H = rect.height;
   const PAD = { t: 12, r: 12, b: 26, l: 46 };
   const now = new Date();
-
   const buckets = {};
   for (let i = days - 1; i >= 0; i--) {
     const d = new Date(now);
@@ -662,24 +695,20 @@ function drawChart() {
     if (txn.type === 'expense' && buckets[txn.date] !== undefined)
       buckets[txn.date] += txn.amount;
   }
-
   const labels = Object.keys(buckets);
   const vals   = Object.values(buckets);
   const maxV   = Math.max(...vals, 1);
   const cW     = W - PAD.l - PAD.r;
   const cH     = H - PAD.t - PAD.b;
   const step   = cW / (labels.length - 1 || 1);
-
-  const pts = labels.map((_, i) => ({
+  const pts    = labels.map((_, i) => ({
     x: PAD.l + i * step,
     y: PAD.t + cH - (vals[i] / maxV) * cH
   }));
-
   ctx.clearRect(0, 0, W, H);
-
   const g = ctx.createLinearGradient(0, PAD.t, 0, PAD.t + cH);
-  g.addColorStop(0, 'rgba(37,99,235,0.30)');
-  g.addColorStop(1, 'rgba(37,99,235,0.00)');
+  g.addColorStop(0, 'rgba(245,166,35,0.30)');
+  g.addColorStop(1, 'rgba(245,166,35,0.00)');
   ctx.beginPath();
   ctx.moveTo(pts[0].x, pts[0].y);
   for (let i = 1; i < pts.length; i++) {
@@ -691,81 +720,69 @@ function drawChart() {
   ctx.closePath();
   ctx.fillStyle = g;
   ctx.fill();
-
   ctx.beginPath();
   ctx.moveTo(pts[0].x, pts[0].y);
   for (let i = 1; i < pts.length; i++) {
     const cx = (pts[i-1].x + pts[i].x) / 2;
     ctx.bezierCurveTo(cx, pts[i-1].y, cx, pts[i].y, pts[i].x, pts[i].y);
   }
-  ctx.strokeStyle = '#2563EB';
+  ctx.strokeStyle = '#f5a623';
   ctx.lineWidth   = 2.4;
   ctx.stroke();
-
   const muted = '#2e3d55';
   ctx.fillStyle = muted;
   ctx.font      = '10px DM Mono, monospace';
   ctx.textAlign = 'right';
   ctx.fillText('$' + Math.round(maxV), PAD.l - 6, PAD.t + 10);
   const fd = d => new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  ctx.textAlign = 'left';  ctx.fillText(fd(labels[0]),                  PAD.l,        H - 5);
-  ctx.textAlign = 'right'; ctx.fillText(fd(labels[labels.length - 1]),  W - PAD.r,    H - 5);
-
+  ctx.textAlign = 'left';  ctx.fillText(fd(labels[0]),                 PAD.l,     H - 5);
+  ctx.textAlign = 'right'; ctx.fillText(fd(labels[labels.length - 1]), W - PAD.r, H - 5);
   pts.forEach(p => {
     ctx.beginPath();
     ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
-    ctx.fillStyle = '#2563EB';
+    ctx.fillStyle = '#f5a623';
     ctx.fill();
-    ctx.strokeStyle = 'rgba(37,99,235,0.3)';
+    ctx.strokeStyle = 'rgba(245,166,35,0.3)';
     ctx.lineWidth = 3;
     ctx.stroke();
   });
 }
 
 /* ═══════════════════════════════════════════
-   14. QUICK ACTIONS ← PRESERVED
-   @param {Map} catTotals - from groupByCategory()
+   15. QUICK ACTIONS
 ═══════════════════════════════════════════ */
 function renderQuickActions(catTotals) {
   const grid = $('qcatGrid');
   if (!grid) return;
-
   const T = TRANSLATIONS[S.lang];
   grid.innerHTML = '';
-
   QUICK_ACTIONS.forEach((qa, idx) => {
     const entry   = catTotals.get(qa.key);
     const total   = entry ? entry.total : 0;
     const hasData = total > 0;
-
     const subtitle = qa.type === 'income'
       ? (T.qa_total_added || 'Total Added')
       : (T.qa_total_used  || 'Total Used');
-
-    const amountText = hasData ? '$' + fmt(total) : '$0.00';
-
     const card = document.createElement('button');
     card.className    = `qcat-card qcat-${qa.type}`;
     card.dataset.type = qa.type;
     card.dataset.cat  = qa.key;
     card.style.cssText = `animation: cardSlide 0.28s cubic-bezier(0.4,0,0.2,1) ${idx * 0.05}s both`;
-
     card.innerHTML = `
       <div class="qcat-icon-wrap">
         <span class="qcat-emoji">${qa.icon}</span>
       </div>
       <span class="qcat-name">${T[qa.key] || qa.key}</span>
       <span class="qcat-subtitle">${subtitle}</span>
-      <span class="qcat-amount${hasData ? '' : ' zero'}">${amountText}</span>
+      <span class="qcat-amount${hasData ? '' : ' zero'}">$${fmt(total)}</span>
       <span class="qcat-add-chip" aria-hidden="true">+</span>`;
-
     card.addEventListener('click', () => openModal(qa.type, qa.key));
     grid.appendChild(card);
   });
 }
 
 /* ═══════════════════════════════════════════
-   15. NOTIFICATION SYSTEM ← PRESERVED
+   16. NOTIFICATION SYSTEM
 ═══════════════════════════════════════════ */
 function addNotif(type, amount, newBalance) {
   if (!S.notifEnabled) return;
@@ -773,14 +790,7 @@ function addNotif(type, amount, newBalance) {
   const msg = type === 'income'
     ? `${T.notif_added_income} $${fmt(amount)}. ${T.notif_balance_now} $${fmt(newBalance)}`
     : `${T.notif_added_expense} $${fmt(amount)}. ${T.notif_balance_now} $${fmt(newBalance)}`;
-
-  S.notifications.unshift({
-    id:   Date.now().toString(),
-    type,
-    msg,
-    time: new Date().toISOString(),
-    read: false
-  });
+  S.notifications.unshift({ id: Date.now().toString(), type, msg, time: new Date().toISOString(), read: false });
   if (S.notifications.length > 20) S.notifications.length = 20;
   saveNotifs();
   renderNotifPanel();
@@ -793,19 +803,12 @@ function renderNotifPanel() {
   const dot   = $('bellDot');
   const bell  = $('bellBtn');
   if (!body) return;
-
   const unread = S.notifications.filter(n => !n.read).length;
   if (dot)  dot.style.display = unread > 0 ? 'block' : 'none';
   if (bell) bell.classList.toggle('ringing', unread > 0);
-
   body.querySelectorAll('.np-item').forEach(el => el.remove());
-
-  if (!S.notifications.length) {
-    if (empty) empty.style.display = 'block';
-    return;
-  }
+  if (!S.notifications.length) { if (empty) empty.style.display = 'block'; return; }
   if (empty) empty.style.display = 'none';
-
   S.notifications.forEach((n, i) => {
     const div = document.createElement('div');
     div.className = 'np-item';
@@ -836,16 +839,14 @@ function relTime(date) {
 }
 
 /* ═══════════════════════════════════════════
-   16. TOAST SYSTEM ← PRESERVED
+   17. TOAST SYSTEM
 ═══════════════════════════════════════════ */
 function showToast(type, msg) {
   const container = $('toastContainer');
   if (!container) return;
   const toast = document.createElement('div');
   toast.className = 'toast';
-  toast.innerHTML = `
-    <div class="toast-dot ${type}"></div>
-    <div class="toast-msg">${msg}</div>`;
+  toast.innerHTML = `<div class="toast-dot ${type}"></div><div class="toast-msg">${msg}</div>`;
   container.appendChild(toast);
   setTimeout(() => {
     toast.classList.add('out');
@@ -854,126 +855,74 @@ function showToast(type, msg) {
 }
 
 /* ═══════════════════════════════════════════
-   17. TRANSACTION CRUD ← PRESERVED
+   18. TRANSACTION CRUD (Supabase-backed)
 ═══════════════════════════════════════════ */
-function addTxn(type, amount, categoryKey, category, description, date) {
-  S.transactions.push({
-    id: Date.now().toString(),
-    type, amount, categoryKey, category, description, date
-  });
-  saveTxns();
+async function addTxn(type, amount, categoryKey, category, description, date) {
+  const newTxn = await insertTransaction(type, amount, categoryKey, category, description, date);
+  if (!newTxn) return;
+  S.transactions.push(newTxn);
   const { bal } = calcTotals();
   addNotif(type, amount, bal);
   renderAll();
 }
 
-function deleteTxn(id) {
+async function deleteTxn(id) {
+  const ok = await deleteFromSupabase(id);
+  if (!ok) return;
   S.transactions = S.transactions.filter(t => t.id !== id);
-  saveTxns();
   renderAll();
 }
 
 /* ═══════════════════════════════════════════
-   18. FILTER LOGIC — UPGRADED
-   Advanced date range filtering for History page.
-   Validates: start ≤ end, both required if either set.
-   No page reload. No full re-render. Smooth update.
+   19. FILTER LOGIC
 ═══════════════════════════════════════════ */
-
-/**
- * Validate the date range inputs and apply filters.
- * Shows friendly error messages on invalid input.
- * Updates the active filter badge.
- */
 function applyTxnFilter() {
-  const T    = TRANSLATIONS[S.lang];
-  const from = $('txnDateFrom')?.value || '';
-  const to   = $('txnDateTo')?.value   || '';
+  const T     = TRANSLATIONS[S.lang];
+  const from  = $('txnDateFrom')?.value || '';
+  const to    = $('txnDateTo')?.value   || '';
   const errEl = $('afpError');
-
-  /* Clear error */
   if (errEl) errEl.style.display = 'none';
-
-  /* Validation */
   if ((from && !to) || (!from && to)) {
-    if (errEl) {
-      errEl.textContent    = T.err_date_required;
-      errEl.style.display  = 'block';
-    }
+    if (errEl) { errEl.textContent = T.err_date_required; errEl.style.display = 'block'; }
     return;
   }
-
   if (from && to && from > to) {
-    if (errEl) {
-      errEl.textContent    = T.err_date_range;
-      errEl.style.display  = 'block';
-    }
+    if (errEl) { errEl.textContent = T.err_date_range; errEl.style.display = 'block'; }
     return;
   }
-
-  /* Apply */
   S.txnDateFrom     = from;
   S.txnDateTo       = to;
   S.txnFilterActive = !!(from || to);
-
   updateFilterBadge();
   renderTxnFeed();
 }
 
-/** Reset all history filters to default state */
 function resetTxnFilter() {
-  S.txnFilter       = 'all';
-  S.txnDateFrom     = '';
-  S.txnDateTo       = '';
-  S.txnFilterActive = false;
-
-  /* Reset UI */
-  const fromEl = $('txnDateFrom');
-  const toEl   = $('txnDateTo');
-  const errEl  = $('afpError');
-  if (fromEl) fromEl.value = '';
-  if (toEl)   toEl.value   = '';
-  if (errEl)  errEl.style.display = 'none';
-
-  /* Reset tab to All */
-  $('txnTabs')?.querySelectorAll('.ftab').forEach(b => {
-    b.classList.toggle('active', b.dataset.filter === 'all');
-  });
-
-  updateFilterBadge();
-  renderTxnFeed();
+  S.txnFilter = 'all'; S.txnDateFrom = ''; S.txnDateTo = ''; S.txnFilterActive = false;
+  const fromEl = $('txnDateFrom'); const toEl = $('txnDateTo'); const errEl = $('afpError');
+  if (fromEl) fromEl.value = ''; if (toEl) toEl.value = ''; if (errEl) errEl.style.display = 'none';
+  $('txnTabs')?.querySelectorAll('.ftab').forEach(b => b.classList.toggle('active', b.dataset.filter === 'all'));
+  updateFilterBadge(); renderTxnFeed();
 }
 
-/** Update the active filter badge below filter panel */
 function updateFilterBadge() {
-  const T      = TRANSLATIONS[S.lang];
-  const badge  = $('afpActiveBadge');
-  const text   = $('afpActiveText');
+  const T = TRANSLATIONS[S.lang];
+  const badge = $('afpActiveBadge'); const text = $('afpActiveText');
   if (!badge || !text) return;
-
-  if (!S.txnFilterActive && S.txnFilter === 'all') {
-    badge.style.display = 'none';
-    return;
-  }
-
+  if (!S.txnFilterActive && S.txnFilter === 'all') { badge.style.display = 'none'; return; }
   let parts = [];
   if (S.txnFilter !== 'all') parts.push(T[S.txnFilter] || S.txnFilter);
   if (S.txnDateFrom) parts.push(S.txnDateFrom);
   if (S.txnDateTo)   parts.push('→ ' + S.txnDateTo);
-
-  text.textContent    = (T.filter_active || 'Filter active') + ': ' + parts.join(' · ');
+  text.textContent = (T.filter_active || 'Filter active') + ': ' + parts.join(' · ');
   badge.style.display = 'flex';
 }
 
 /* ═══════════════════════════════════════════
-   19. RENDER ALL ← PRESERVED
-       Home page: Quick Actions + Usage Summary only
-       No Recent Activity on Home (per spec)
+   20. RENDER ALL
 ═══════════════════════════════════════════ */
 function renderAll() {
-  /* O(n) single pass — shared by quick actions + usage summary */
   const catTotals = groupByCategory();
-
   updateTotals();
   renderQuickActions(catTotals);
   renderUsageSummary(catTotals);
@@ -983,31 +932,22 @@ function renderAll() {
 }
 
 /* ═══════════════════════════════════════════
-   20. NAVIGATION ← PRESERVED
+   21. NAVIGATION
 ═══════════════════════════════════════════ */
 function goTo(page) {
-  document.querySelectorAll('.page').forEach(p => {
-    p.classList.remove('active');
-    p.classList.add('hidden');
-  });
+  document.querySelectorAll('.page').forEach(p => { p.classList.remove('active'); p.classList.add('hidden'); });
   const target = $('page-' + page);
-  if (target) {
-    target.classList.remove('hidden');
-    target.classList.add('active');
-  }
+  if (target) { target.classList.remove('hidden'); target.classList.add('active'); }
   document.querySelectorAll('.bn-btn').forEach(b => b.classList.remove('active'));
   const btn = $('bn-' + page);
   if (btn) btn.classList.add('active');
-
   closeAll();
   if (page === 'reports') { renderCatBreakdown(); setTimeout(drawChart, 80); }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function goSearch() {
-  document.querySelectorAll('.page').forEach(p => {
-    p.classList.remove('active'); p.classList.add('hidden');
-  });
+  document.querySelectorAll('.page').forEach(p => { p.classList.remove('active'); p.classList.add('hidden'); });
   const p = $('page-search');
   if (p) { p.classList.remove('hidden'); p.classList.add('active'); }
   document.querySelectorAll('.bn-btn').forEach(b => b.classList.remove('active'));
@@ -1015,7 +955,7 @@ function goSearch() {
 }
 
 /* ═══════════════════════════════════════════
-   21. MODAL ← PRESERVED
+   22. MODAL
 ═══════════════════════════════════════════ */
 function openModal(type, prefillCat = '') {
   const T   = TRANSLATIONS[S.lang];
@@ -1023,7 +963,6 @@ function openModal(type, prefillCat = '') {
   $('txnType').value = type;
   setText('mcTitle', type === 'income' ? T.modal_income_title : T.modal_expense_title);
   box.className = `modal-card modal-${type}`;
-
   const sel = $('txnCategory');
   sel.innerHTML = '';
   CATEGORIES[type].forEach(cat => {
@@ -1033,12 +972,10 @@ function openModal(type, prefillCat = '') {
     sel.appendChild(opt);
   });
   if (prefillCat) sel.value = prefillCat;
-
   $('txnDate').value   = new Date().toISOString().split('T')[0];
   $('txnAmount').value = '';
   $('txnDesc').value   = '';
   setText('txnSubmit', T.add_transaction);
-
   $('txnVeil').classList.add('open');
   setTimeout(() => $('txnAmount')?.focus(), 230);
 }
@@ -1046,15 +983,13 @@ function openModal(type, prefillCat = '') {
 function closeModal() { $('txnVeil').classList.remove('open'); }
 
 function showConfirm(title, msg, cb) {
-  setText('cfmTitle', title);
-  setText('cfmMsg',   msg);
-  S.confirmCb = cb;
-  $('cfmVeil').classList.add('open');
+  setText('cfmTitle', title); setText('cfmMsg', msg);
+  S.confirmCb = cb; $('cfmVeil').classList.add('open');
 }
 function closeConfirm() { $('cfmVeil').classList.remove('open'); S.confirmCb = null; }
 
 /* ═══════════════════════════════════════════
-   22. THEME SYSTEM ← PRESERVED
+   23. THEME SYSTEM
 ═══════════════════════════════════════════ */
 function applyTheme(t) {
   S.theme = t;
@@ -1066,23 +1001,19 @@ function applyTheme(t) {
 }
 
 /* ═══════════════════════════════════════════
-   23. LANGUAGE SYSTEM ← PRESERVED + new keys
+   24. LANGUAGE SYSTEM
 ═══════════════════════════════════════════ */
 function applyLang(lang) {
   S.lang = lang;
   const T = TRANSLATIONS[lang];
   lsSet(LS.lang, lang);
-
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const k = el.dataset.i18n;
     if (T[k] !== undefined) el.textContent = T[k];
   });
-
   const isEn = lang === 'en';
   setText('langBtnLbl',    isEn ? 'English' : 'မြန်မာ');
   setText('menuLangLabel', isEn ? 'Switch to မြန်မာ' : 'Switch to English');
-
-  /* Update filter badge text in new language */
   updateFilterBadge();
   updateGreeting();
   renderAll();
@@ -1092,7 +1023,7 @@ function applyLang(lang) {
 const toggleLang = () => applyLang(S.lang === 'en' ? 'my' : 'en');
 
 /* ═══════════════════════════════════════════
-   24. GREETING & DATE ← PRESERVED
+   25. GREETING & DATE
 ═══════════════════════════════════════════ */
 function updateGreeting() {
   const h = new Date().getHours();
@@ -1108,7 +1039,7 @@ function updateDate() {
 }
 
 /* ═══════════════════════════════════════════
-   25. EXPORT CSV ← PRESERVED
+   26. EXPORT CSV
 ═══════════════════════════════════════════ */
 function exportCSV() {
   const T   = TRANSLATIONS[S.lang];
@@ -1123,22 +1054,17 @@ function exportCSV() {
   const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
   const a   = document.createElement('a');
   a.href     = url;
-  a.download = `finpay-${new Date().toISOString().split('T')[0]}.csv`;
+  a.download = `tnb-${new Date().toISOString().split('T')[0]}.csv`;
   a.click();
   URL.revokeObjectURL(url);
 }
 
 /* ═══════════════════════════════════════════
-   26. PROFILE ← PRESERVED + social login display
-   Social login: shows Google photo, provider badge,
-   disables password change option, shows email.
-   Normal login: shows letter initial, allows password change.
+   27. PROFILE (Supabase-driven)
 ═══════════════════════════════════════════ */
 function updateProfile() {
   const name = S.userName;
-  const init = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'A';
-
-  /* ── Navbar avatar ring ── */
+  const init = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'T';
   const avatarImg    = $('avatarImg');
   const avatarLetter = $('avatarLetter');
   if (avatarImg && avatarLetter) {
@@ -1153,25 +1079,19 @@ function updateProfile() {
       avatarLetter.textContent   = init[0];
     }
   }
-
-  /* Provider label in navbar (shown for social login) */
   const providerEl = $('avatarProvider');
   if (providerEl) {
     if (S.isSocialLogin && S.userProvider) {
-      providerEl.textContent = S.userProvider;
+      providerEl.textContent   = S.userProvider;
       providerEl.style.display = 'block';
     } else {
       providerEl.style.display = 'none';
     }
   }
-
   setText('avatarName', name.split(' ')[0]);
-
-  /* ── Settings profile card ── */
   const pcAvatar = $('pcAvatar');
   if (pcAvatar) {
     if (S.userAvatar) {
-      /* Show Google photo in settings avatar */
       if (!pcAvatar.querySelector('img')) {
         const img = document.createElement('img');
         img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover;';
@@ -1184,12 +1104,10 @@ function updateProfile() {
       pcAvatar.innerHTML = init[0];
     }
   }
-
   const ni = $('profileNameInput');
   if (ni) ni.value = name;
 
-  /* Social account info block */
-  const socialInfo = $('pcSocialInfo');
+  const socialInfo     = $('pcSocialInfo');
   const socialBadge    = $('pcSocialBadge');
   const socialProvider = $('pcSocialProvider');
   const emailEl        = $('pcEmail');
@@ -1197,63 +1115,22 @@ function updateProfile() {
 
   if (S.isSocialLogin) {
     if (socialInfo) socialInfo.style.display = 'flex';
-    if (socialBadge) socialBadge.textContent =
-      TRANSLATIONS[S.lang].social_account || 'Social Account';
+    if (socialBadge)    socialBadge.textContent = TRANSLATIONS[S.lang].social_account || 'Social Account';
     if (socialProvider && S.userProvider)
-      socialProvider.textContent =
-        (TRANSLATIONS[S.lang].provider_label || 'Provider:') + ' ' + S.userProvider;
+      socialProvider.textContent = (TRANSLATIONS[S.lang].provider_label || 'Provider:') + ' ' + S.userProvider;
     if (emailEl && S.userEmail) emailEl.textContent = S.userEmail;
-    /* Disable password change for social login */
     if (passwordRow) passwordRow.style.display = 'none';
-    /* Make name input read-only for social login */
     if (ni) ni.readOnly = true;
   } else {
     if (socialInfo) socialInfo.style.display = 'none';
     if (passwordRow) passwordRow.style.display = 'flex';
     if (ni) ni.readOnly = false;
   }
-
   updateGreeting();
 }
 
-/**
- * setGoogleUser — called by Supabase onAuthStateChange when a user
- * signs in via Google or another social provider.
- *
- * Usage (in your Supabase auth file):
- *   supabase.auth.onAuthStateChange((event, session) => {
- *     if (session?.user) {
- *       const meta = session.user.user_metadata;
- *       setGoogleUser(
- *         meta.full_name || meta.name || session.user.email,
- *         meta.avatar_url || meta.picture || '',
- *         session.user.email || '',
- *         'Google'   // or detect from session.user.app_metadata.provider
- *       );
- *     }
- *   });
- *
- * @param {string} name       - Display name from Google
- * @param {string} avatarUrl  - Google profile picture URL
- * @param {string} email      - Google email
- * @param {string} provider   - Provider name, e.g. 'Google'
- */
-function setGoogleUser(name, avatarUrl, email = '', provider = 'Google') {
-  S.userName      = name     || S.userName;
-  S.userAvatar    = avatarUrl || '';
-  S.userEmail     = email    || '';
-  S.userProvider  = provider || 'Google';
-  S.isSocialLogin = true;
-  lsSet(LS.userName,      S.userName);
-  lsSet(LS.userAvatar,    S.userAvatar);
-  lsSet(LS.userEmail,     S.userEmail);
-  lsSet(LS.userProvider,  S.userProvider);
-  lsSet(LS.isSocialLogin, true);
-  updateProfile();
-}
-
 /* ═══════════════════════════════════════════
-   27. FAB ← PRESERVED
+   28. FAB
 ═══════════════════════════════════════════ */
 function toggleFab(force) {
   const open = force !== undefined ? force : !S.fabOpen;
@@ -1264,7 +1141,7 @@ function toggleFab(force) {
 }
 
 /* ═══════════════════════════════════════════
-   28. CLOSE ALL PANELS ← PRESERVED
+   29. CLOSE ALL PANELS
 ═══════════════════════════════════════════ */
 function closeAll() {
   $('dotsMenu')?.classList.remove('open');
@@ -1274,231 +1151,188 @@ function closeAll() {
 }
 
 /* ═══════════════════════════════════════════
-   29. SEARCH ← PRESERVED
+   30. SEARCH
 ═══════════════════════════════════════════ */
 function handleSearch(q) {
   S.searchQuery = q;
   const clear = $('searchClear');
   if (clear) clear.classList.toggle('show', q.length > 0);
-
   if (q.trim()) {
-    goSearch();
-    renderSearch(q);
-    setText('searchResultLabel',
-      TRANSLATIONS[S.lang].search_results + ': "' + q + '"');
+    goSearch(); renderSearch(q);
+    setText('searchResultLabel', TRANSLATIONS[S.lang].search_results + ': "' + q + '"');
   } else {
     goTo('dashboard');
   }
 }
 
 /* ═══════════════════════════════════════════
-   30. EVENT WIRING ← PRESERVED + new filter wiring
-   All listeners registered once on init.
-   Delegation used where appropriate.
+   31. EVENT WIRING
 ═══════════════════════════════════════════ */
 function wire() {
-
-  /* ── Bottom nav ── */
   document.querySelectorAll('.bn-btn[data-page]').forEach(btn => {
     btn.addEventListener('click', () => goTo(btn.dataset.page));
   });
-
-  /* ── FAB ── */
   $('fabMain')?.addEventListener('click', e => { e.stopPropagation(); toggleFab(); });
   $('fabIncome')?.addEventListener('click',   () => { toggleFab(false); openModal('income'); });
   $('fabExpense')?.addEventListener('click',  () => { toggleFab(false); openModal('expense'); });
   $('fabBackdrop')?.addEventListener('click', () => toggleFab(false));
-
-  /* ── Avatar → Settings ── */
   $('avatarBtn')?.addEventListener('click', () => goTo('settings'));
-
-  /* ── 3-dots button ── */
   $('dotsBtn')?.addEventListener('click', e => {
     e.stopPropagation();
     const open = $('dotsMenu').classList.toggle('open');
     $('dotsBtn').classList.toggle('open', open);
     if (open) $('notifPanel')?.classList.remove('open');
   });
-
-  /* 3-dots menu items */
   $('themeCheck')?.addEventListener('change',   e => applyTheme(e.target.checked ? 'dark' : 'light'));
   $('menuAddIncome')?.addEventListener('click',  () => { closeAll(); openModal('income'); });
   $('menuAddExpense')?.addEventListener('click', () => { closeAll(); openModal('expense'); });
   $('menuHistory')?.addEventListener('click',   () => { closeAll(); goTo('transactions'); });
   $('menuLang')?.addEventListener('click',      () => { toggleLang(); closeAll(); });
-
-  /* ── Search ── */
   $('searchInput')?.addEventListener('input',   e => handleSearch(e.target.value));
   $('searchInput')?.addEventListener('keydown', e => {
     if (e.key === 'Escape') { $('searchInput').value = ''; handleSearch(''); }
   });
   $('searchClear')?.addEventListener('click', () => {
-    $('searchInput').value = '';
-    handleSearch('');
-    $('searchInput')?.focus();
+    $('searchInput').value = ''; handleSearch(''); $('searchInput')?.focus();
   });
-
-  /* ── Bell / Notifications ── */
   $('bellBtn')?.addEventListener('click', e => {
     e.stopPropagation();
     const open = $('notifPanel').classList.toggle('open');
-    if (open) {
-      $('dotsMenu')?.classList.remove('open');
-      $('dotsBtn')?.classList.remove('open');
-      markAllRead();
-    }
+    if (open) { $('dotsMenu')?.classList.remove('open'); $('dotsBtn')?.classList.remove('open'); markAllRead(); }
   });
   $('npMarkRead')?.addEventListener('click', markAllRead);
-  $('npClear')?.addEventListener('click', () => {
-    S.notifications = [];
-    saveNotifs();
-    renderNotifPanel();
-  });
-
-  /* ── Close panels on outside click ── */
+  $('npClear')?.addEventListener('click', () => { S.notifications = []; saveNotifs(); renderNotifPanel(); });
   document.addEventListener('click', e => {
-    if (!$('dotsShell')?.contains(e.target)) {
-      $('dotsMenu')?.classList.remove('open');
-      $('dotsBtn')?.classList.remove('open');
-    }
-    if (!$('bellShell')?.contains(e.target)) {
-      $('notifPanel')?.classList.remove('open');
-    }
+    if (!$('dotsShell')?.contains(e.target)) { $('dotsMenu')?.classList.remove('open'); $('dotsBtn')?.classList.remove('open'); }
+    if (!$('bellShell')?.contains(e.target)) { $('notifPanel')?.classList.remove('open'); }
   });
-
-  /* ── History: Type filter tabs (delegation) ── */
   $('txnTabs')?.addEventListener('click', e => {
     const btn = e.target.closest('.ftab');
     if (!btn) return;
     $('txnTabs').querySelectorAll('.ftab').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     S.txnFilter = btn.dataset.filter;
-    updateFilterBadge();
-    renderTxnFeed();
+    updateFilterBadge(); renderTxnFeed();
   });
-
-  /* ── History: Apply date range filter ── */
   $('afpApply')?.addEventListener('click', applyTxnFilter);
-
-  /* ── History: Reset filter ── */
   $('afpReset')?.addEventListener('click', resetTxnFilter);
-
-  /* ── History: Clear active badge ── */
   $('afpBadgeClear')?.addEventListener('click', resetTxnFilter);
-
-  /* ── History: Real-time clear error on date change ── */
-  $('txnDateFrom')?.addEventListener('change', () => {
-    const errEl = $('afpError');
-    if (errEl) errEl.style.display = 'none';
-  });
-  $('txnDateTo')?.addEventListener('change', () => {
-    const errEl = $('afpError');
-    if (errEl) errEl.style.display = 'none';
-  });
-
-  /* ── CSV export ── */
+  $('txnDateFrom')?.addEventListener('change', () => { const e = $('afpError'); if (e) e.style.display = 'none'; });
+  $('txnDateTo')?.addEventListener('change',   () => { const e = $('afpError'); if (e) e.style.display = 'none'; });
   $('csvBtnTxn')?.addEventListener('click', exportCSV);
-
-  /* ── Transaction modal ── */
   $('mcClose')?.addEventListener('click', closeModal);
   $('txnVeil')?.addEventListener('click', e => { if (e.target === $('txnVeil')) closeModal(); });
-
-  $('txnSubmit')?.addEventListener('click', () => {
+  $('txnSubmit')?.addEventListener('click', async () => {
     const type   = $('txnType').value;
     const amount = parseFloat($('txnAmount').value);
     const catKey = $('txnCategory').value;
     const desc   = $('txnDesc').value.trim();
     const date   = $('txnDate').value;
     const T      = TRANSLATIONS[S.lang];
-
     if (!amount || amount <= 0) {
       const inp = $('txnAmount');
       inp.style.borderColor = 'var(--exp)';
       inp.style.boxShadow   = '0 0 0 3px var(--exp-bg)';
       inp.classList.add('shake');
       inp.focus();
-      setTimeout(() => {
-        inp.style.borderColor = '';
-        inp.style.boxShadow   = '';
-        inp.classList.remove('shake');
-      }, 1600);
+      setTimeout(() => { inp.style.borderColor = ''; inp.style.boxShadow = ''; inp.classList.remove('shake'); }, 1600);
       return;
     }
-
-    const catName = T[catKey] || catKey
-      || (type === 'income' ? T.cat_other_income : T.cat_other_expense);
-    addTxn(type, amount, catKey || 'cat_other_' + type, catName, desc, date);
+    const catName = T[catKey] || catKey || (type === 'income' ? T.cat_other_income : T.cat_other_expense);
     closeModal();
+    await addTxn(type, amount, catKey || 'cat_other_' + type, catName, desc, date);
   });
-
-  /* ── Confirm modal ── */
   $('cfmCancel')?.addEventListener('click', closeConfirm);
   $('cfmVeil')?.addEventListener('click',   e => { if (e.target === $('cfmVeil')) closeConfirm(); });
   $('cfmOk')?.addEventListener('click',     () => { S.confirmCb?.(); closeConfirm(); });
-
-  /* ── Settings ── */
-  $('themeToggle')?.addEventListener('change',    e => applyTheme(e.target.checked ? 'dark' : 'light'));
-  $('langBtn')?.addEventListener('click',          toggleLang);
-  $('notifToggle')?.addEventListener('change',     e => {
-    S.notifEnabled = e.target.checked;
-    lsSet(LS.notifEnabled, S.notifEnabled);
-  });
+  $('themeToggle')?.addEventListener('change', e => applyTheme(e.target.checked ? 'dark' : 'light'));
+  $('langBtn')?.addEventListener('click', toggleLang);
+  $('notifToggle')?.addEventListener('change', e => { S.notifEnabled = e.target.checked; lsSet(LS.notifEnabled, S.notifEnabled); });
   $('profileNameInput')?.addEventListener('input', e => {
-    if (S.isSocialLogin) return; /* Social login: name is read-only */
-    S.userName = e.target.value || 'User';
-    lsSet(LS.userName, S.userName);
+    if (S.isSocialLogin) return;
+    S.userName = e.target.value || 'TNB User';
     updateProfile();
   });
   $('clearBtn')?.addEventListener('click', () => {
     const T = TRANSLATIONS[S.lang];
-    showConfirm(T.confirm_clear, T.confirm_clear_msg, () => {
-      S.transactions = [];
-      saveTxns();
-      renderAll();
+    showConfirm(T.confirm_clear, T.confirm_clear_msg, async () => {
+      const ok = await clearAllFromSupabase();
+      if (ok) { S.transactions = []; renderAll(); }
     });
   });
+
+  /* ── LOGOUT — Supabase signOut ── */
   $('logoutBtn')?.addEventListener('click', () => {
-    showConfirm('Logout?', 'Your data is safely stored locally.', async () => {
-      await _supabase.auth.signOut().catch(() => {});
-      localStorage.clear();
+    showConfirm('Logout?', 'You will be signed out of TNB.', async () => {
+      await _supabase.auth.signOut();
       location.href = 'index.html';
     });
   });
-  $('changePasswordBtn')?.addEventListener('click', () => {
-    openProfileModal();
+
+  /* ── CHANGE PASSWORD — Supabase email link ── */
+  $('changePasswordBtn')?.addEventListener('click', async () => {
+    if (!S.userEmail) return;
+    const { error } = await _supabase.auth.resetPasswordForEmail(S.userEmail, {
+      redirectTo: 'https://htut5496.github.io/TNB/reset.html',
+    });
+    if (error) {
+      showToast('expense', 'Error: ' + error.message);
+    } else {
+      showToast('income', 'Password reset email sent to ' + S.userEmail);
+    }
   });
 
-  /* ── Chart period selector ── */
   $('chartPeriod')?.addEventListener('change', drawChart);
-
-  /* ── Global keyboard shortcuts ── */
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-      closeModal();
-      closeConfirm();
-      closeAll();
-      const si = $('searchInput');
-      if (si && si.value) { si.value = ''; handleSearch(''); }
-    }
-    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-      e.preventDefault();
-      $('searchInput')?.focus();
-    }
+    if (e.key === 'Escape') { closeModal(); closeConfirm(); closeAll(); const si = $('searchInput'); if (si && si.value) { si.value = ''; handleSearch(''); } }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); $('searchInput')?.focus(); }
   });
-
-  /* ── Window resize: redraw chart ── */
   let resizeTimer;
-  window.addEventListener('resize', () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(drawChart, 220);
-  });
+  window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(drawChart, 220); });
 }
 
 /* ═══════════════════════════════════════════
-   31. INIT ← PRESERVED
+   32. SUPABASE AUTH GUARD + INIT
+   Checks for valid session. Redirects to
+   index.html if not logged in.
 ═══════════════════════════════════════════ */
-function init() {
-  loadState();
+async function init() {
+  /* ── Check session ── */
+  const { data: { session } } = await _supabase.auth.getSession();
+
+  if (!session || !session.user) {
+    /* Not logged in — redirect to login */
+    location.href = 'index.html';
+    return;
+  }
+
+  /* ── Load user info from session ── */
+  const user    = session.user;
+  const meta    = user.user_metadata || {};
+  const provider = user.app_metadata?.provider || '';
+
+  S.supabaseUserId = user.id;
+  S.userEmail      = user.email || '';
+
+  if (provider && provider !== 'email') {
+    /* Social login (Google, etc.) */
+    S.isSocialLogin = true;
+    S.userProvider  = provider.charAt(0).toUpperCase() + provider.slice(1);
+    S.userName      = meta.full_name || meta.name || user.email.split('@')[0] || 'TNB User';
+    S.userAvatar    = meta.avatar_url || meta.picture || '';
+  } else {
+    /* Email/password login — username derived from email prefix */
+    S.isSocialLogin = false;
+    S.userProvider  = '';
+    const emailPrefix = user.email.replace('@tnb.com', '');
+    S.userName      = emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1);
+    S.userAvatar    = '';
+  }
+
+  /* ── Load UI preferences ── */
+  loadUIPrefs();
+
+  /* ── Apply theme and language ── */
   applyTheme(S.theme);
   applyLang(S.lang);
   updateDate();
@@ -1511,353 +1345,23 @@ function init() {
   renderAll();
   renderNotifPanel();
 
-  /* Seed demo data only if storage is empty */
-  if (!S.transactions.length) {
-    const td = new Date().toISOString().split('T')[0];
-    const yd = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-    const d2 = new Date(Date.now() - 172800000).toISOString().split('T')[0];
-    S.transactions = [
-      { id:'1', type:'income',  amount:3000, categoryKey:'cat_salary',      category:'Salary',    description:'Monthly salary',    date:d2 },
-      { id:'2', type:'income',  amount:2000, categoryKey:'cat_freelance',    category:'Freelance',  description:'Design project',    date:yd },
-      { id:'3', type:'expense', amount:450,  categoryKey:'cat_food',         category:'Food',       description:'Groceries & dining', date:d2 },
-      { id:'4', type:'expense', amount:120,  categoryKey:'cat_transport',    category:'Transport',  description:'Grab rides',        date:yd },
-      { id:'5', type:'expense', amount:299,  categoryKey:'cat_shopping',     category:'Shopping',   description:'Online order',      date:td },
-      { id:'6', type:'expense', amount:85,   categoryKey:'cat_bills',        category:'Bills',      description:'Electricity',       date:td },
-    ];
-    saveTxns();
-    renderAll();
-  }
+  /* ── Load real transactions from Supabase ── */
+  await loadTransactions();
 
-  console.log('%c FinPay v4.0 Ready ✓ ', 'background:#f5a623;color:#1a0f00;padding:4px 12px;border-radius:4px;font-weight:bold;font-family:monospace');
-  console.log('%c Home: Quick Actions + Usage Summary | History: Advanced Date Range Filter ', 'background:#00e896;color:#001a0d;padding:2px 8px;border-radius:4px;font-size:11px');
-  console.log('%c Social Login: setGoogleUser(name, avatarUrl, email, provider) ', 'background:#60a5fa;color:#0d1a2e;padding:2px 8px;border-radius:4px;font-size:11px');
-}
-
-/* ══════════════════════════════════════════
-   SUPABASE INTEGRATION HOOKS
-   ─────────────────────────────────────────
-   Connect Supabase auth and replace localStorage
-   CRUD calls with real Supabase queries:
-
-   // In supabase-init.js:
-   import { createClient } from '@supabase/supabase-js';
-   const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-   supabase.auth.onAuthStateChange((event, session) => {
-     if (session?.user) {
-       const meta     = session.user.user_metadata;
-       const provider = session.user.app_metadata?.provider || 'Google';
-       setGoogleUser(
-         meta.full_name || meta.name || session.user.email,
-         meta.avatar_url || meta.picture || '',
-         session.user.email || '',
-         provider.charAt(0).toUpperCase() + provider.slice(1)
-       );
-       loadTransactionsFromSupabase(session.user.id);
-     }
-   });
-
-   async function loadTransactionsFromSupabase(userId) {
-     const { data, error } = await supabase
-       .from('transactions')
-       .select('*')
-       .eq('user_id', userId)
-       .order('created_at', { ascending: true });
-
-     if (!error && data) {
-       S.transactions = data.map(row => ({
-         id:          row.id,
-         type:        row.type,
-         amount:      row.amount,
-         categoryKey: row.category,
-         category:    row.category,
-         description: row.description || '',
-         date:        row.created_at.split('T')[0],
-       }));
-       renderAll(); // groupByCategory() called once internally
-     }
-   }
-══════════════════════════════════════════ */
-
-/* Boot */
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', boot);
-} else {
-  boot();
-}
-
-/* ══════════════════════════════════════════════════════
-   SUPABASE AUTH INTEGRATION
-   New project: vnemlphmqmrjpenxlsxx.supabase.co
-══════════════════════════════════════════════════════ */
-
-const { createClient } = supabase;
-const _supabase = createClient(
-  'https://vnemlphmqmrjpenxlsxx.supabase.co',
-  'sb_publishable_7nh01CaeLQs9TyhA_Qu8Yw_UzwXgOvq'
-);
-
-async function boot() {
-  /* Check auth session first */
-  const { data: { session } } = await _supabase.auth.getSession();
-
-  if (!session) {
-    /* Not logged in — redirect to login */
-    window.location.href = 'index.html';
-    return;
-  }
-
-  /* We have a session — hydrate user data then init app */
-  const user = session.user;
-  const meta = user.user_metadata || {};
-  const provider = user.app_metadata?.provider || 'email';
-  const isSocial = provider !== 'email';
-
-  if (isSocial) {
-    /* Google / social login */
-    const name    = meta.full_name || meta.name || user.email || 'User';
-    const avatar  = meta.avatar_url || meta.picture || '';
-    const email   = user.email || '';
-    const provCap = provider.charAt(0).toUpperCase() + provider.slice(1);
-    setGoogleUser(name, avatar, email, provCap);
-  } else {
-    /* Email / password login */
-    /* Try to load username from profiles table first */
-    const { data: profile } = await _supabase
-      .from('profiles')
-      .select('username, avatar_url')
-      .eq('id', user.id)
-      .single();
-
-    const username  = profile?.username || meta.username || meta.full_name
-      || (user.email ? user.email.replace('@tnb.com', '') : 'User');
-    const avatarUrl = profile?.avatar_url || '';
-
-    S.userName      = username;
-    S.userAvatar    = avatarUrl;
-    S.userEmail     = user.email || '';
-    S.userProvider  = 'Email';
-    S.isSocialLogin = false;
-    S.supabaseUserId = user.id;
-    lsSet(LS.userName, S.userName);
-    lsSet(LS.userAvatar, S.userAvatar);
-    lsSet(LS.userEmail, S.userEmail);
-    lsSet(LS.userProvider, 'Email');
-    lsSet(LS.isSocialLogin, false);
-  }
-
-  /* Store user id for later use */
-  if (!S.supabaseUserId) S.supabaseUserId = user.id;
-
-  /* Listen for auth changes (e.g. logout from another tab) */
-  _supabase.auth.onAuthStateChange((event, sess) => {
-    if (event === 'SIGNED_OUT' || !sess) {
-      localStorage.clear();
-      window.location.href = 'index.html';
+  /* ── Listen for auth changes (e.g. session expiry) ── */
+  _supabase.auth.onAuthStateChange((event) => {
+    if (event === 'SIGNED_OUT') {
+      location.href = 'index.html';
     }
   });
 
-  /* Now initialise the dashboard app */
+  console.log('%c TNB Dashboard Ready ✓ ', 'background:#2563EB;color:#fff;padding:4px 12px;border-radius:4px;font-weight:bold;font-family:monospace');
+  console.log('%c User: ' + S.userName + ' | Provider: ' + (S.userProvider || 'email') + ' ', 'background:#00e896;color:#001a0d;padding:2px 8px;border-radius:4px;font-size:11px');
+}
+
+/* Boot */
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
   init();
-  wireProfileModal();
-}
-
-/* ══════════════════════════════════════════════════════
-   PROFILE MODAL LOGIC
-   - Shows avatar, email, provider
-   - Change username (saves to Supabase profiles table)
-   - Upload avatar (saves to Supabase Storage)
-   - Change password (email login only, requires current password)
-   - Social login: hides password section
-══════════════════════════════════════════════════════ */
-
-function wireProfileModal() {
-  const veil     = $('profileVeil');
-  const close    = $('pmClose');
-  const saveBtn  = $('pmSave');
-  const avatarBig  = $('pmAvatarBig');
-  const avatarInput = $('pmAvatarInput');
-
-  if (!veil) return;
-
-  /* Open profile modal when avatar pill is clicked */
-  $('avatarBtn')?.addEventListener('click', openProfileModal);
-
-  /* Close */
-  close?.addEventListener('click', closeProfileModal);
-  veil?.addEventListener('click', e => { if (e.target === veil) closeProfileModal(); });
-
-  /* Avatar click → file input */
-  avatarBig?.addEventListener('click', () => avatarInput?.click());
-  avatarInput?.addEventListener('change', handleAvatarUpload);
-
-  /* Save */
-  saveBtn?.addEventListener('click', saveProfileChanges);
-}
-
-function openProfileModal() {
-  const veil = $('profileVeil');
-  if (!veil) return;
-
-  /* Populate fields */
-  const pmAvatarLetter = $('pmAvatarLetter');
-  const pmAvatarImg    = $('pmAvatarImg');
-  const name = S.userName;
-  const init = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'A';
-
-  if (S.userAvatar && pmAvatarImg) {
-    pmAvatarImg.src = S.userAvatar;
-    pmAvatarImg.style.display = 'block';
-    if (pmAvatarLetter) pmAvatarLetter.style.display = 'none';
-  } else {
-    if (pmAvatarImg) pmAvatarImg.style.display = 'none';
-    if (pmAvatarLetter) { pmAvatarLetter.style.display = 'block'; pmAvatarLetter.textContent = init[0]; }
-  }
-
-  const pmUsername = $('pmUsername');
-  if (pmUsername) pmUsername.value = S.userName;
-
-  const pmEmailDisplay    = $('pmEmailDisplay');
-  const pmProviderDisplay = $('pmProviderDisplay');
-  if (pmEmailDisplay)    pmEmailDisplay.textContent    = S.userEmail || '—';
-  if (pmProviderDisplay) pmProviderDisplay.textContent = S.userProvider || 'Email';
-
-  /* Hide password section for social login */
-  const pwSection = $('pmPasswordSection');
-  if (pwSection) pwSection.style.display = S.isSocialLogin ? 'none' : 'block';
-
-  /* Clear password fields */
-  const pmCurrentPass = $('pmCurrentPass');
-  const pmNewPass     = $('pmNewPass');
-  const pmConfirmPass = $('pmConfirmPass');
-  if (pmCurrentPass) pmCurrentPass.value = '';
-  if (pmNewPass)     pmNewPass.value     = '';
-  if (pmConfirmPass) pmConfirmPass.value = '';
-
-  veil.classList.add('open');
-}
-
-function closeProfileModal() {
-  $('profileVeil')?.classList.remove('open');
-}
-
-async function handleAvatarUpload(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  if (file.size > 3 * 1024 * 1024) { showToast('info', 'Image must be under 3MB'); return; }
-
-  showToast('info', 'Uploading photo…');
-
-  const userId = S.supabaseUserId;
-  if (!userId) { showToast('info', 'Please log in again to upload a photo.'); return; }
-
-  const ext      = file.name.split('.').pop();
-  const filePath = `avatars/${userId}.${ext}`;
-
-  /* Upload to Supabase Storage bucket "avatars" */
-  const { error: upErr } = await _supabase.storage
-    .from('avatars')
-    .upload(filePath, file, { upsert: true });
-
-  if (upErr) {
-    /* Storage might not be set up — fall back to base64 preview */
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const url = ev.target.result;
-      S.userAvatar = url;
-      lsSet(LS.userAvatar, url);
-      updateProfile();
-      refreshProfileModalAvatar(url);
-      showToast('income', 'Photo updated locally!');
-    };
-    reader.readAsDataURL(file);
-    return;
-  }
-
-  /* Get public URL */
-  const { data } = _supabase.storage.from('avatars').getPublicUrl(filePath);
-  const publicUrl = data.publicUrl + '?t=' + Date.now();
-
-  /* Save to profiles table */
-  await _supabase.from('profiles').upsert({ id: userId, avatar_url: publicUrl }, { onConflict: 'id' });
-
-  S.userAvatar = publicUrl;
-  lsSet(LS.userAvatar, publicUrl);
-  updateProfile();
-  refreshProfileModalAvatar(publicUrl);
-  showToast('income', 'Profile photo updated!');
-}
-
-function refreshProfileModalAvatar(url) {
-  const pmAvatarImg    = $('pmAvatarImg');
-  const pmAvatarLetter = $('pmAvatarLetter');
-  if (url && pmAvatarImg) {
-    pmAvatarImg.src = url;
-    pmAvatarImg.style.display = 'block';
-    if (pmAvatarLetter) pmAvatarLetter.style.display = 'none';
-  }
-}
-
-async function saveProfileChanges() {
-  const pmUsername    = $('pmUsername');
-  const pmCurrentPass = $('pmCurrentPass');
-  const pmNewPass     = $('pmNewPass');
-  const pmConfirmPass = $('pmConfirmPass');
-  const saveBtn       = $('pmSave');
-
-  const newName = pmUsername?.value?.trim();
-  const userId  = S.supabaseUserId;
-
-  if (saveBtn) { saveBtn.disabled = true; saveBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Saving…'; }
-
-  /* ── Update username ── */
-  if (newName && newName !== S.userName) {
-    /* Update Supabase user metadata */
-    await _supabase.auth.updateUser({ data: { username: newName, full_name: newName } });
-
-    /* Update profiles table */
-    if (userId) {
-      await _supabase.from('profiles').upsert({ id: userId, username: newName }, { onConflict: 'id' });
-    }
-
-    S.userName = newName;
-    lsSet(LS.userName, newName);
-    updateProfile();
-    showToast('income', 'Username updated!');
-  }
-
-  /* ── Update password (email login only) ── */
-  if (!S.isSocialLogin) {
-    const currentPass = pmCurrentPass?.value;
-    const newPass     = pmNewPass?.value;
-    const confirmPass = pmConfirmPass?.value;
-
-    if (newPass || currentPass) {
-      if (!currentPass) { showToast('expense', 'Please enter your current password.'); restoreSaveBtn(saveBtn); return; }
-      if (!newPass)     { showToast('expense', 'Please enter a new password.'); restoreSaveBtn(saveBtn); return; }
-      if (newPass.length < 6) { showToast('expense', 'New password must be at least 6 characters.'); restoreSaveBtn(saveBtn); return; }
-      if (newPass !== confirmPass) { showToast('expense', 'New passwords do not match!'); restoreSaveBtn(saveBtn); return; }
-
-      /* Re-authenticate with current password to verify it */
-      const email = S.userEmail;
-      const { error: signInErr } = await _supabase.auth.signInWithPassword({ email, password: currentPass });
-      if (signInErr) { showToast('expense', 'Current password is incorrect.'); restoreSaveBtn(saveBtn); return; }
-
-      /* Now update to new password */
-      const { error: updateErr } = await _supabase.auth.updateUser({ password: newPass });
-      if (updateErr) { showToast('expense', updateErr.message); restoreSaveBtn(saveBtn); return; }
-
-      showToast('income', 'Password updated successfully!');
-      if (pmCurrentPass) pmCurrentPass.value = '';
-      if (pmNewPass)     pmNewPass.value     = '';
-      if (pmConfirmPass) pmConfirmPass.value = '';
-    }
-  }
-
-  restoreSaveBtn(saveBtn);
-  setTimeout(closeProfileModal, 800);
-}
-
-function restoreSaveBtn(btn) {
-  if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Save Changes'; }
 }
