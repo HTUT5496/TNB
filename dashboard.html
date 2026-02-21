@@ -16,7 +16,6 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="dashboard.css" />
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   </head>
   <body>
 
@@ -644,6 +643,9 @@
     <!-- Toast container -->
     <div class="toast-container" id="toastContainer"
          aria-live="polite" aria-atomic="false"></div>
+
+    <!-- Supabase SDK — must load before dashboard.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <!-- Main script -->
     <script src="dashboard.js"></script>
