@@ -481,51 +481,76 @@ function emptyEl() {
 }
 
 /** Transactions page feed — respects type + date range filters */
+/** 1. Transaction Feed - စာရင်းဟောင်း/သစ် ပြသခြင်း */
 function renderTxnFeed() {
   const el = $("txnFeed");
   if (!el) return;
 
+  // Transactions များကို Reverse လုပ်ပြီး Filter စစ်ထုတ်ခြင်း
   let list = [...S.transactions].reverse().filter((t) => {
+    // Type Filter (All, Income, Expense)
     const typeOk = S.txnFilter === "all" || t.type === S.txnFilter;
+
+    // Date Range Filter
     let dateOk = true;
     if (S.txnFilterActive) {
+      // String comparison (YYYY-MM-DD) သည် ISO format ဖြစ်၍ တိုက်ရိုက်ယှဉ်နိုင်သည်
       if (S.txnDateFrom) dateOk = dateOk && t.date >= S.txnDateFrom;
       if (S.txnDateTo) dateOk = dateOk && t.date <= S.txnDateTo;
     }
+
     return typeOk && dateOk;
   });
 
   el.innerHTML = "";
-  if (!list.length) {
-    el.appendChild(emptyEl());
+
+  if (list.length === 0) {
+    el.appendChild(emptyEl()); // Data မရှိရင် Empty State ပြမယ်
     return;
   }
-  list.forEach((t, i) => el.appendChild(makeTxnCard(t, i)));
+
+  // Card လေးများကို တစ်ခုချင်း ဆွဲထုတ်ခြင်း
+  list.forEach((t, i) => {
+    const card = makeTxnCard(t, i);
+    // ဝင်လာချိန်မှာ Fade-in effect လေးဖြစ်အောင် animation delay ထည့်နိုင်သည်
+    card.style.animationDelay = `${i * 0.03}s`;
+    el.appendChild(card);
+  });
 }
 
-/** Search results feed */
+/** 2. Search Results - ရှာဖွေမှုရလဒ် ပြသခြင်း */
 function renderSearch(q) {
   const el = $("searchFeed");
   if (!el) return;
+
   const T = TRANSLATIONS[S.lang];
   const low = q.toLowerCase().trim();
+
+  // Search box အလွတ်ဖြစ်ရင် ရှင်းထုတ်လိုက်မယ်
   if (!low) {
     el.innerHTML = "";
     return;
   }
+
   const hits = [...S.transactions].reverse().filter((t) => {
-    const lbl = (T[t.categoryKey] || t.category || "").toLowerCase();
+    const label = (T[t.categoryKey] || t.category || "").toLowerCase();
     const desc = (t.description || "").toLowerCase();
-    return lbl.includes(low) || desc.includes(low);
+    const amount = t.amount.toString();
+    // အမျိုးအစား၊ အကြောင်းအရာ သို့မဟုတ် ပမာဏနဲ့ ရှာလို့ရအောင် လုပ်ထားသည်
+    return label.includes(low) || desc.includes(low) || amount.includes(low);
   });
+
   el.innerHTML = "";
-  if (!hits.length) {
+
+  if (hits.length === 0) {
     el.appendChild(emptyEl());
     return;
   }
+
   hits.forEach((t, i) => el.appendChild(makeTxnCard(t, i)));
 }
 
+/** 3. Usage Summary - အသုံးစရိတ် အနှစ်ချုပ် Bar Chart */
 function renderUsageSummary(catTotals) {
   const el = $("usageSummary");
   if (!el) return;
@@ -533,19 +558,22 @@ function renderUsageSummary(catTotals) {
   const T = TRANSLATIONS[S.lang];
   el.innerHTML = "";
 
-  if (!catTotals.size) {
+  if (!catTotals || catTotals.size === 0) {
     const empty = document.createElement("div");
     empty.className = "empty-state";
-    empty.style.cssText = "background:none;border:none";
-    empty.innerHTML = `<p>${T.no_transactions}</p><p style="font-size:.7rem">${T.add_first}</p>`;
+    empty.style.cssText = "background:none; border:none; padding: 2rem 0;";
+    empty.innerHTML = `
+      <p style="opacity:0.6">${T.no_transactions || "No Data"}</p>
+      <p style="font-size:.7rem; opacity:0.4">${T.add_first || "Start by adding a transaction"}</p>
+    `;
     el.appendChild(empty);
     return;
   }
 
-  /* Sort by total descending, show top 8 */
+  // အများဆုံးသုံးထားတဲ့ Category ကိုရှာပြီး 100% သတ်မှတ်ဖို့ entries ယူမယ်
   const entries = [...catTotals.entries()]
     .sort((a, b) => b[1].total - a[1].total)
-    .slice(0, 8);
+    .slice(0, 8); // Top 8 ပဲပြမယ်
 
   const maxTotal = entries[0][1].total;
 
@@ -555,36 +583,40 @@ function renderUsageSummary(catTotals) {
     const color = data.type === "income" ? "var(--inc)" : "var(--exp)";
     const typeLabel =
       data.type === "income"
-        ? T.qa_total_added || "Total Added"
-        : T.qa_total_used || "Total Used";
+        ? T.qa_total_added || "Income"
+        : T.qa_total_used || "Expense";
 
     const row = document.createElement("div");
     row.className = "usage-row";
-    row.style.animationDelay = i * 0.04 + "s";
+    row.style.animation = `slideIn 0.4s ease forwards ${i * 0.05}s`;
+    row.style.opacity = "0"; // Animation မစခင် ဖျောက်ထားမယ်
 
     row.innerHTML = `
-      <div class="usage-ico ${data.type}">${data.icon}</div>
+      <div class="usage-ico ${data.type}">${data.icon || "💰"}</div>
       <div class="usage-info">
         <div class="usage-cat">${label}</div>
         <span class="usage-type-badge ${data.type}">${typeLabel}</span>
       </div>
       <div class="usage-bar-wrap">
-        <div class="usage-bar" style="width:0%;background:${color}"></div>
+        <div class="usage-bar" style="width: 0%; background: ${color}; transition: width 0.8s cubic-bezier(0.17, 0.55, 0.55, 1);"></div>
       </div>
-      <div class="usage-amount ${data.type}">$${fmt(data.total)}</div>`;
+      <div class="usage-amount ${data.type}">${fmt(data.total)}</div>`;
 
     el.appendChild(row);
 
-    /* Animate the bar after append */
-    requestAnimationFrame(() =>
+    // Bar လေးတွေ တစ်ခုချင်းစီ ရှည်ထွက်လာအောင် Animation လုပ်ခြင်း
+    requestAnimationFrame(() => {
       setTimeout(
         () => {
           const bar = row.querySelector(".usage-bar");
-          if (bar) bar.style.width = pct + "%";
+          if (bar) {
+            bar.style.width = `${pct}%`;
+            row.style.opacity = "1";
+          }
         },
-        50 + i * 40,
-      ),
-    );
+        100 + i * 50,
+      );
+    });
   });
 }
 
@@ -902,35 +934,40 @@ function applyTxnFilter() {
   const to = $("txnDateTo")?.value || "";
   const errEl = $("afpError");
 
-  /* Clear error */
+  /* 1. Error message ကို အရင်ဖျောက်မယ် */
   if (errEl) errEl.style.display = "none";
 
-  /* Validation */
+  /* 2. Validation: ရက်စွဲ တစ်ခုပဲထည့်ပြီး ကျန်တစ်ခု လွတ်နေရင် လက်မခံဘူး */
   if ((from && !to) || (!from && to)) {
     if (errEl) {
-      errEl.textContent = T.err_date_required;
+      errEl.textContent = T.err_date_required || "Please select both dates";
       errEl.style.display = "block";
     }
     return;
   }
 
+  /* 3. Validation: Start date က End date ထက် ကြီးနေရင် လက်မခံဘူး */
   if (from && to && from > to) {
     if (errEl) {
-      errEl.textContent = T.err_date_range;
+      errEl.textContent =
+        T.err_date_range || "Start date cannot be after end date";
       errEl.style.display = "block";
     }
     return;
   }
 
-  /* Apply */
+  /* 4. Filter parameters များကို State (S) ထဲမှာ သိမ်းမယ် */
   S.txnDateFrom = from;
   S.txnDateTo = to;
-  S.txnFilterActive = !!(from || to);
+  S.txnFilterActive = !!(from && to);
 
-  updateFilterBadge();
-  renderTxnFeed();
+  /* 5. UI ကို Update လုပ်မယ် */
+  updateFilterBadge(); // Filter တပ်ထားကြောင်း အမှတ်အသားပြမယ်
+  renderTxnFeed(); // စာရင်းများကို Filter အတိုင်း ပြန်ထုတ်ပြမယ်
+
+  // Filter panel (drawer/dropdown) ကို ပိတ်ချင်ရင် closeAll() ကို ခေါ်နိုင်ပါတယ်
+  if (typeof closeAll === "function") closeAll();
 }
-
 /** Reset all history filters to default state */
 function resetTxnFilter() {
   S.txnFilter = "all";
@@ -1505,29 +1542,30 @@ function wire() {
     lsSet(LS.notifEnabled, S.notifEnabled);
   });
 
-  /* ── Settings: Clear All Data (FIXED) ── */
   /* ── Settings: Clear All Data (FINAL FIXED) ── */
+  /* ── Settings: Clear All Data (Final Solution) ── */
   $("clearBtn")?.addEventListener("click", () => {
     const T = TRANSLATIONS[S.lang];
     showConfirm(T.confirm_clear, T.confirm_clear_msg, () => {
-      // 1. Memory ထဲက data ကို အရင်ရှင်းမယ်
+      // ၁။ Memory ထဲက data ကို အရင်ရှင်းမယ်
       S.transactions = [];
 
-      // 2. Storage ထဲက data ကိုပါ အပြီးရှင်းမယ်
-      // LS.txns ဆိုတာ သင့်ရဲ့ LocalStorage key ဖြစ်ရပါမယ် (ဥပမာ "tnb_txns")
-      localStorage.setItem(LS.txns, JSON.stringify([]));
+      // ၂။ သင်သတ်မှတ်ထားတဲ့ saveTxns() function ကို သုံးပြီး Storage ကို သိမ်းမယ်
+      // ဒါဆိုရင် localStorage ထဲမှာ "novapay_transactions" က [] ဖြစ်သွားပါပြီ
+      saveTxns();
 
-      // 3. အရေးကြီးဆုံးအချက်: init() ထဲက key နဲ့ အတူတူဖြစ်ရပါမယ်
-      // ဒါမှ refresh လုပ်ရင် demo data ပြန်မဝင်မှာပါ
+      // ၃။ Refresh လုပ်ရင် Demo data ပြန်မဝင်အောင် အမှတ်အသားလုပ်မယ်
+      // (ဒီနာမည်က init() ထဲက နာမည်နဲ့ တူရပါမယ်)
       localStorage.setItem("app_initialized", "true");
 
-      // 4. UI ကို Update လုပ်မယ်
+      // ၄။ UI ကို Update လုပ်မယ်
       renderAll();
 
-      // Toast ပြတဲ့ function ရှိရင် သုံးနိုင်ပါတယ်
       if (typeof showToast === "function") {
-        showToast("success", "All data cleared successfully!");
+        showToast("success", "History cleared!");
       }
+
+      console.log("Storage Updated: novapay_transactions is now empty.");
     });
   });
   /* ── SUPABASE LOGOUT ── */
