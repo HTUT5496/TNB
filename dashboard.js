@@ -295,40 +295,6 @@ const S = {
   confirmCb:  null,
 };
 
-/* ═══════════════════════════════════════════
-   4. LOCAL STORAGE ← PRESERVED
-═══════════════════════════════════════════ */
-const LS = {
-  transactions:  'novapay_transactions',
-  notifications: 'novapay_notifications',
-  lang:          'novapay_lang',
-  theme:         'novapay_theme',
-  notifEnabled:  'novapay_notif',
-  userName:      'novapay_username',
-  userAvatar:    'novapay_avatar',
-  userEmail:     'novapay_email',
-  userProvider:  'novapay_provider',
-  isSocialLogin: 'novapay_social',
-};
-
-const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
-const lsGet = (k, fb) => { try { const v = localStorage.getItem(k); return v !== null ? JSON.parse(v) : fb; } catch { return fb; } };
-
-function loadState() {
-  S.transactions  = lsGet(LS.transactions,  []);
-  S.notifications = lsGet(LS.notifications, []);
-  S.lang          = lsGet(LS.lang,  'en');
-  S.theme         = lsGet(LS.theme, 'dark');
-  S.notifEnabled  = lsGet(LS.notifEnabled, true);
-  S.userName      = lsGet(LS.userName,     'Alex Morgan');
-  S.userAvatar    = lsGet(LS.userAvatar,    '');
-  S.userEmail     = lsGet(LS.userEmail,     '');
-  S.userProvider  = lsGet(LS.userProvider,  '');
-  S.isSocialLogin = lsGet(LS.isSocialLogin, false);
-}
-
-const saveTxns   = () => lsSet(LS.transactions,  S.transactions);
-const saveNotifs = () => lsSet(LS.notifications, S.notifications);
 
 /* ═══════════════════════════════════════════
    5. FINANCE CALCULATIONS ← PRESERVED
