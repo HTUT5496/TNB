@@ -4,27 +4,8 @@ const _supabase = createClient(
   "sb_publishable_jDExXkASC_jrulY8B7noFw_r9qut-vQ",
 );
 
-// 1. Auth Guard
-async function checkAuth() {
-  const {
-    data: { session },
-  } = await _supabase.auth.getSession();
-  if (!session) {
-    window.location.href = "index.html";
-  } else {
-    // 2. Sync real user data into your State (S)
-    S.userEmail = session.user.email;
-    S.userName =
-      session.user.user_metadata.full_name || session.user.email.split("@")[0];
-
-    // Update the UI greeting (make sure you have an element with id="userNameDisplay")
-    const nameEl = document.getElementById("userNameDisplay");
-    if (nameEl) nameEl.textContent = S.userName;
-
-    console.log("Welcome,", S.userEmail);
-  }
-}
-checkAuth();
+("use strict");
+// ဒီအောက်မှာ TRANSLATIONS နဲ့ S object တို့ ဆက်ရှိနေပါစေ...
 
 ("use strict");
 /* ═══════════════════════════════════════════
@@ -1361,13 +1342,16 @@ function handleSearch(q) {
    All listeners registered once on init.
    Delegation used where appropriate.
 ═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════
+    30. EVENT WIRING
+═══════════════════════════════════════════ */
 function wire() {
   /* ── Bottom nav ── */
   document.querySelectorAll(".bn-btn[data-page]").forEach((btn) => {
     btn.addEventListener("click", () => goTo(btn.dataset.page));
   });
 
-  /* ── FAB ── */
+  /* ── FAB (Floating Action Button) ── */
   $("fabMain")?.addEventListener("click", (e) => {
     e.stopPropagation();
     toggleFab();
@@ -1385,7 +1369,7 @@ function wire() {
   /* ── Avatar → Settings ── */
   $("avatarBtn")?.addEventListener("click", () => goTo("settings"));
 
-  /* ── 3-dots button ── */
+  /* ── 3-dots Menu ── */
   $("dotsBtn")?.addEventListener("click", (e) => {
     e.stopPropagation();
     const open = $("dotsMenu").classList.toggle("open");
@@ -1393,7 +1377,6 @@ function wire() {
     if (open) $("notifPanel")?.classList.remove("open");
   });
 
-  /* 3-dots menu items */
   $("themeCheck")?.addEventListener("change", (e) =>
     applyTheme(e.target.checked ? "dark" : "light"),
   );
@@ -1414,7 +1397,7 @@ function wire() {
     closeAll();
   });
 
-  /* ── Search ── */
+  /* ── Search Logic ── */
   $("searchInput")?.addEventListener("input", (e) =>
     handleSearch(e.target.value),
   );
@@ -1430,7 +1413,7 @@ function wire() {
     $("searchInput")?.focus();
   });
 
-  /* ── Bell / Notifications ── */
+  /* ── Notifications ── */
   $("bellBtn")?.addEventListener("click", (e) => {
     e.stopPropagation();
     const open = $("notifPanel").classList.toggle("open");
@@ -1447,7 +1430,7 @@ function wire() {
     renderNotifPanel();
   });
 
-  /* ── Close panels on outside click ── */
+  /* ── Global Click (Close Panels) ── */
   document.addEventListener("click", (e) => {
     if (!$("dotsShell")?.contains(e.target)) {
       $("dotsMenu")?.classList.remove("open");
@@ -1458,7 +1441,7 @@ function wire() {
     }
   });
 
-  /* ── History: Type filter tabs (delegation) ── */
+  /* ── Transaction Filters ── */
   $("txnTabs")?.addEventListener("click", (e) => {
     const btn = e.target.closest(".ftab");
     if (!btn) return;
@@ -1471,29 +1454,12 @@ function wire() {
     renderTxnFeed();
   });
 
-  /* ── History: Apply date range filter ── */
   $("afpApply")?.addEventListener("click", applyTxnFilter);
-
-  /* ── History: Reset filter ── */
   $("afpReset")?.addEventListener("click", resetTxnFilter);
-
-  /* ── History: Clear active badge ── */
   $("afpBadgeClear")?.addEventListener("click", resetTxnFilter);
 
-  /* ── History: Real-time clear error on date change ── */
-  $("txnDateFrom")?.addEventListener("change", () => {
-    const errEl = $("afpError");
-    if (errEl) errEl.style.display = "none";
-  });
-  $("txnDateTo")?.addEventListener("change", () => {
-    const errEl = $("afpError");
-    if (errEl) errEl.style.display = "none";
-  });
-
-  /* ── CSV export ── */
+  /* ── Modal & Forms ── */
   $("csvBtnTxn")?.addEventListener("click", exportCSV);
-
-  /* ── Transaction modal ── */
   $("mcClose")?.addEventListener("click", closeModal);
   $("txnVeil")?.addEventListener("click", (e) => {
     if (e.target === $("txnVeil")) closeModal();
@@ -1509,15 +1475,8 @@ function wire() {
 
     if (!amount || amount <= 0) {
       const inp = $("txnAmount");
-      inp.style.borderColor = "var(--exp)";
-      inp.style.boxShadow = "0 0 0 3px var(--exp-bg)";
       inp.classList.add("shake");
-      inp.focus();
-      setTimeout(() => {
-        inp.style.borderColor = "";
-        inp.style.boxShadow = "";
-        inp.classList.remove("shake");
-      }, 1600);
+      setTimeout(() => inp.classList.remove("shake"), 1600);
       return;
     }
 
@@ -1529,17 +1488,14 @@ function wire() {
     closeModal();
   });
 
-  /* ── Confirm modal ── */
+  /* ── Confirmation Modal ── */
   $("cfmCancel")?.addEventListener("click", closeConfirm);
-  $("cfmVeil")?.addEventListener("click", (e) => {
-    if (e.target === $("cfmVeil")) closeConfirm();
-  });
   $("cfmOk")?.addEventListener("click", () => {
     S.confirmCb?.();
     closeConfirm();
   });
 
-  /* ── Settings ── */
+  /* ── Settings Page ── */
   $("themeToggle")?.addEventListener("change", (e) =>
     applyTheme(e.target.checked ? "dark" : "light"),
   );
@@ -1548,12 +1504,7 @@ function wire() {
     S.notifEnabled = e.target.checked;
     lsSet(LS.notifEnabled, S.notifEnabled);
   });
-  $("profileNameInput")?.addEventListener("input", (e) => {
-    if (S.isSocialLogin) return; /* Social login: name is read-only */
-    S.userName = e.target.value || "User";
-    lsSet(LS.userName, S.userName);
-    updateProfile();
-  });
+
   $("clearBtn")?.addEventListener("click", () => {
     const T = TRANSLATIONS[S.lang];
     showConfirm(T.confirm_clear, T.confirm_clear_msg, () => {
@@ -1562,6 +1513,8 @@ function wire() {
       renderAll();
     });
   });
+
+  /* ── SUPABASE LOGOUT ── */
   $("logoutBtn")?.addEventListener("click", () => {
     const T = TRANSLATIONS[S.lang];
     showConfirm(
@@ -1570,43 +1523,15 @@ function wire() {
         ? "Are you sure you want to sign out?"
         : "အကောင့်မှ ထွက်ရန် သေချာပါသလား?",
       async () => {
-        // 1. Clear Supabase Session
         await _supabase.auth.signOut();
-        // 2. Clear local storage
         localStorage.clear();
-        // 3. Redirect to login
         location.href = "index.html";
       },
     );
   });
-  $("changePasswordBtn")?.addEventListener("click", () => {
-    /* Placeholder — wire to Supabase updateUser or custom password change flow */
-    showToast("info", "Password change is not available in demo mode.");
-  });
 
-  /* ── Chart period selector ── */
+  /* ── Charts & Window ── */
   $("chartPeriod")?.addEventListener("change", drawChart);
-
-  /* ── Global keyboard shortcuts ── */
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      closeModal();
-      closeConfirm();
-      closeAll();
-      const si = $("searchInput");
-      if (si && si.value) {
-        si.value = "";
-        handleSearch("");
-      }
-    }
-    if ((e.ctrlKey || e.metaKey) && e.key === "k") {
-      e.preventDefault();
-      $("searchInput")?.focus();
-    }
-  });
-
-  /* ── Window resize: redraw chart ── */
-  let resizeTimer;
   window.addEventListener("resize", () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(drawChart, 220);
@@ -1614,121 +1539,104 @@ function wire() {
 }
 
 /* ═══════════════════════════════════════════
-   31. INIT ← PRESERVED
+    31. INIT & DEMO DATA
 ═══════════════════════════════════════════ */
-/* ═══════════════════════════════════════════
-   31. INIT — Updated for Supabase & Social Login
-═══════════════════════════════════════════ */
+function seedDemoData() {
+  const td = new Date().toISOString().split("T")[0];
+  const yd = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+  const d2 = new Date(Date.now() - 172800000).toISOString().split("T")[0];
+
+  S.transactions = [
+    {
+      id: "1",
+      type: "income",
+      amount: 3000,
+      categoryKey: "cat_salary",
+      category: "Salary",
+      description: "Monthly salary",
+      date: d2,
+    },
+    {
+      id: "2",
+      type: "income",
+      amount: 2000,
+      categoryKey: "cat_freelance",
+      category: "Freelance",
+      description: "Design project",
+      date: yd,
+    },
+    {
+      id: "3",
+      type: "expense",
+      amount: 450,
+      categoryKey: "cat_food",
+      category: "Food",
+      description: "Groceries",
+      date: d2,
+    },
+    {
+      id: "4",
+      type: "expense",
+      amount: 120,
+      categoryKey: "cat_transport",
+      category: "Transport",
+      description: "Grab",
+      date: yd,
+    },
+    {
+      id: "5",
+      type: "expense",
+      amount: 299,
+      categoryKey: "cat_shopping",
+      category: "Shopping",
+      description: "Online",
+      date: td,
+    },
+  ];
+  saveTxns();
+}
+
 async function init() {
-  // 1. Load basic UI settings (Theme, Lang) from LocalStorage
+  // 1. Check Auth FIRST before anything else to prevent loop
+  const {
+    data: { session },
+  } = await _supabase.auth.getSession();
+
+  if (!session) {
+    window.location.href = "index.html";
+    return;
+  }
+
+  // 2. Sync User Data
+  const meta = session.user.user_metadata;
+  S.userEmail = session.user.email;
+  S.userName = meta.full_name || meta.name || S.userEmail.split("@")[0];
+  S.userAvatar = meta.avatar_url || meta.picture || "";
+  S.userProvider = session.user.app_metadata?.provider || "Email";
+  S.isSocialLogin = S.userProvider !== "email";
+
+  // 3. Setup UI
   loadState();
   applyTheme(S.theme);
   applyLang(S.lang);
   updateDate();
+  updateProfile();
 
-  // 2. Supabase Auth Listener
-  // This automatically updates the profile if a user is logged in via Google/Email
-  _supabase.auth.onAuthStateChange((event, session) => {
-    if (session?.user) {
-      const meta = session.user.user_metadata;
-      // Use the helper function you already have in Part 2
-      setGoogleUser(
-        meta.full_name || meta.name || session.user.email,
-        meta.avatar_url || meta.picture || "",
-        session.user.email || "",
-        session.user.app_metadata?.provider || "Google",
-      );
-    } else {
-      // If no session found during init, force redirect to login
-      window.location.href = "index.html";
-    }
-  });
+  if ($("notifToggle")) $("notifToggle").checked = S.notifEnabled;
 
-  // 3. UI Element Sync
-  const nt = $("notifToggle");
-  if (nt) nt.checked = S.notifEnabled;
-
-  // 4. Register all Button Listeners
   wire();
 
-  // 5. Initial Render of Data
-  renderAll();
-  renderNotifPanel();
-
-  /* 6. Seed Demo Data (Only if no transactions exist) */
-  if (!S.transactions.length) {
-    const td = new Date().toISOString().split("T")[0];
-    const yd = new Date(Date.now() - 86400000).toISOString().split("T")[0];
-    const d2 = new Date(Date.now() - 172800000).toISOString().split("T")[0];
-
-    S.transactions = [
-      {
-        id: "1",
-        type: "income",
-        amount: 3000,
-        categoryKey: "cat_salary",
-        category: "Salary",
-        description: "Monthly salary",
-        date: d2,
-      },
-      {
-        id: "2",
-        type: "income",
-        amount: 2000,
-        categoryKey: "cat_freelance",
-        category: "Freelance",
-        description: "Design project",
-        date: yd,
-      },
-      {
-        id: "3",
-        type: "expense",
-        amount: 450,
-        categoryKey: "cat_food",
-        category: "Food",
-        description: "Groceries",
-        date: d2,
-      },
-      {
-        id: "4",
-        type: "expense",
-        amount: 120,
-        categoryKey: "cat_transport",
-        category: "Transport",
-        description: "Grab rides",
-        date: yd,
-      },
-      {
-        id: "5",
-        type: "expense",
-        amount: 299,
-        categoryKey: "cat_shopping",
-        category: "Shopping",
-        description: "Online order",
-        date: td,
-      },
-      {
-        id: "6",
-        type: "expense",
-        amount: 85,
-        categoryKey: "cat_bills",
-        category: "Bills",
-        description: "Electricity",
-        date: td,
-      },
-    ];
-    saveTxns();
-    renderAll();
+  // 4. Handle Demo Data
+  if (!S.transactions || S.transactions.length === 0) {
+    seedDemoData();
   }
 
-  // 7. Success Logs
-  console.log(
-    "%c TNB Dashboard Ready ✓ ",
-    "background:#f5a623;color:#1a0f00;padding:4px 12px;border-radius:4px;font-weight:bold;font-family:monospace",
-  );
+  renderAll();
+  renderNotifPanel();
+  console.log("Dashboard Ready ✓");
 }
 
-/* ── Boot ── */
+/* Boot */
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", init);
 } else {
