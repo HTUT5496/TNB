@@ -480,6 +480,43 @@ function emptyEl() {
   return div;
 }
 
+/** Transactions page feed — respects type + date range filters */
+/** 1. Transaction Feed - စာရင်းဟောင်း/သစ် ပြသခြင်း */
+function renderTxnFeed() {
+  const el = $("txnFeed");
+  if (!el) return;
+
+  // Transactions များကို Reverse လုပ်ပြီး Filter စစ်ထုတ်ခြင်း
+  let list = [...S.transactions].reverse().filter((t) => {
+    // Type Filter (All, Income, Expense)
+    const typeOk = S.txnFilter === "all" || t.type === S.txnFilter;
+
+    // Date Range Filter
+    let dateOk = true;
+    if (S.txnFilterActive) {
+      // String comparison (YYYY-MM-DD) သည် ISO format ဖြစ်၍ တိုက်ရိုက်ယှဉ်နိုင်သည်
+      if (S.txnDateFrom) dateOk = dateOk && t.date >= S.txnDateFrom;
+      if (S.txnDateTo) dateOk = dateOk && t.date <= S.txnDateTo;
+    }
+
+    return typeOk && dateOk;
+  });
+
+  el.innerHTML = "";
+
+  if (list.length === 0) {
+    el.appendChild(emptyEl()); // Data မရှိရင် Empty State ပြမယ်
+    return;
+  }
+
+  // Card လေးများကို တစ်ခုချင်း ဆွဲထုတ်ခြင်း
+  list.forEach((t, i) => {
+    const card = makeTxnCard(t, i);
+    // ဝင်လာချိန်မှာ Fade-in effect လေးဖြစ်အောင် animation delay ထည့်နိုင်သည်
+    card.style.animationDelay = `${i * 0.03}s`;
+    el.appendChild(card);
+  });
+}
 
 /** 2. Search Results - ရှာဖွေမှုရလဒ် ပြသခြင်း */
 function renderSearch(q) {
@@ -891,6 +928,94 @@ function deleteTxn(id) {
   renderAll();
 }
 
+function applyTxnFilter() {
+  const T = TRANSLATIONS[S.lang];
+  const from = $("txnDateFrom")?.value || "";
+  const to = $("txnDateTo")?.value || "";
+  const errEl = $("afpError");
+
+  /* 1. Error message ကို အရင်ဖျောက်မယ် */
+  if (errEl) errEl.style.display = "none";
+
+  /* 2. Validation: ရက်စွဲ တစ်ခုပဲထည့်ပြီး ကျန်တစ်ခု လွတ်နေရင် လက်မခံဘူး */
+  if ((from && !to) || (!from && to)) {
+    if (errEl) {
+      errEl.textContent = T.err_date_required || "Please select both dates";
+      errEl.style.display = "block";
+    }
+    return;
+  }
+
+  /* 3. Validation: Start date က End date ထက် ကြီးနေရင် လက်မခံဘူး */
+  if (from && to && from > to) {
+    if (errEl) {
+      errEl.textContent =
+        T.err_date_range || "Start date cannot be after end date";
+      errEl.style.display = "block";
+    }
+    return;
+  }
+
+  /* 4. Filter parameters များကို State (S) ထဲမှာ သိမ်းမယ် */
+  S.txnDateFrom = from;
+  S.txnDateTo = to;
+  S.txnFilterActive = !!(from && to);
+
+  /* 5. UI ကို Update လုပ်မယ် */
+  updateFilterBadge(); // Filter တပ်ထားကြောင်း အမှတ်အသားပြမယ်
+  renderTxnFeed(); // စာရင်းများကို Filter အတိုင်း ပြန်ထုတ်ပြမယ်
+
+  // Filter panel (drawer/dropdown) ကို ပိတ်ချင်ရင် closeAll() ကို ခေါ်နိုင်ပါတယ်
+  if (typeof closeAll === "function") closeAll();
+}
+/** Reset all history filters to default state */
+function resetTxnFilter() {
+  S.txnFilter = "all";
+  S.txnDateFrom = "";
+  S.txnDateTo = "";
+  S.txnFilterActive = false;
+
+  /* Reset UI */
+  const fromEl = $("txnDateFrom");
+  const toEl = $("txnDateTo");
+  const errEl = $("afpError");
+  if (fromEl) fromEl.value = "";
+  if (toEl) toEl.value = "";
+  if (errEl) errEl.style.display = "none";
+
+  /* Reset tab to All */
+  $("txnTabs")
+    ?.querySelectorAll(".ftab")
+    .forEach((b) => {
+      b.classList.toggle("active", b.dataset.filter === "all");
+    });
+
+  updateFilterBadge();
+  renderTxnFeed();
+}
+
+/** Update the active filter badge below filter panel */
+function updateFilterBadge() {
+  const T = TRANSLATIONS[S.lang];
+  const badge = $("afpActiveBadge");
+  const text = $("afpActiveText");
+  if (!badge || !text) return;
+
+  if (!S.txnFilterActive && S.txnFilter === "all") {
+    badge.style.display = "none";
+    return;
+  }
+
+  let parts = [];
+  if (S.txnFilter !== "all") parts.push(T[S.txnFilter] || S.txnFilter);
+  if (S.txnDateFrom) parts.push(S.txnDateFrom);
+  if (S.txnDateTo) parts.push("→ " + S.txnDateTo);
+
+  text.textContent =
+    (T.filter_active || "Filter active") + ": " + parts.join(" · ");
+  badge.style.display = "flex";
+}
+
 function renderAll() {
   /* O(n) single pass — shared by quick actions + usage summary */
   const catTotals = groupByCategory();
@@ -898,6 +1023,7 @@ function renderAll() {
   updateTotals();
   renderQuickActions(catTotals);
   renderUsageSummary(catTotals);
+  renderTxnFeed();
   renderCatBreakdown();
   drawChart();
 }
@@ -1308,7 +1434,7 @@ function wire() {
   });
   $("menuHistory")?.addEventListener("click", () => {
     closeAll();
-    location.href = "history.html";
+    goTo("transactions");
   });
   $("menuLang")?.addEventListener("click", () => {
     toggleLang();
@@ -1359,7 +1485,25 @@ function wire() {
     }
   });
 
+  /* ── Transaction Filters ── */
+  $("txnTabs")?.addEventListener("click", (e) => {
+    const btn = e.target.closest(".ftab");
+    if (!btn) return;
+    $("txnTabs")
+      .querySelectorAll(".ftab")
+      .forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+    S.txnFilter = btn.dataset.filter;
+    updateFilterBadge();
+    renderTxnFeed();
+  });
+
+  $("afpApply")?.addEventListener("click", applyTxnFilter);
+  $("afpReset")?.addEventListener("click", resetTxnFilter);
+  $("afpBadgeClear")?.addEventListener("click", resetTxnFilter);
+
   /* ── Modal & Forms ── */
+  $("csvBtnTxn")?.addEventListener("click", exportCSV);
   $("mcClose")?.addEventListener("click", closeModal);
   $("txnVeil")?.addEventListener("click", (e) => {
     if (e.target === $("txnVeil")) closeModal();

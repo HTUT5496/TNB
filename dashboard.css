@@ -763,13 +763,122 @@ body {
   transition: width 0.7s var(--ease);
 }
 
+/* ══════════════════════════════════════════════════════
+   ADVANCED FILTER PANEL — History page
+══════════════════════════════════════════════════════ */
+.adv-filter-panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r4);
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: var(--sh1);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
 
+.afp-row {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
 
+.afp-label {
+  font-size: 0.68rem; font-weight: 700; color: var(--tx2);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  white-space: nowrap; min-width: 36px;
+}
 
+.afp-dates {
+  display: flex; gap: 12px; flex-wrap: wrap;
+}
+.afp-date-group {
+  display: flex; align-items: center; gap: 8px;
+  flex: 1; min-width: 140px;
+}
 
+.afp-error {
+  background: var(--exp-bg); border: 1px solid var(--exp-bdr);
+  border-radius: var(--r2); padding: 8px 12px;
+  font-size: 0.76rem; color: var(--exp); font-weight: 500;
+  animation: fadeIn 0.2s var(--ease);
+}
+@keyframes fadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
 
+.afp-actions {
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+}
 
+.afp-apply {
+  padding: 8px 18px;
+  background: var(--amber-grad); border: none;
+  border-radius: var(--r2);
+  font-family: 'Syne', sans-serif; font-size: 0.78rem; font-weight: 700;
+  color: #1a0f00; cursor: pointer;
+  box-shadow: 0 4px 14px var(--amber-glow);
+  transition: all var(--fast) var(--ease);
+}
+.afp-apply:hover { transform: translateY(-1px); box-shadow: 0 8px 20px var(--amber-glow); }
+.afp-apply:active { transform: scale(0.97); }
 
+.afp-reset {
+  padding: 8px 14px;
+  background: var(--raised); border: 1px solid var(--border);
+  border-radius: var(--r2);
+  font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 600;
+  color: var(--tx2); cursor: pointer;
+  transition: all var(--fast) var(--ease);
+}
+.afp-reset:hover { background: var(--glassH); color: var(--tx1); }
+
+/* Active filter badge */
+.afp-active-badge {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--amber-dim); border: 1px solid rgba(245,166,35,0.2);
+  border-radius: 20px; padding: 5px 12px;
+  font-size: 0.73rem; font-weight: 600; color: var(--amber);
+  animation: fadeIn 0.2s var(--ease);
+}
+.afp-badge-clear {
+  background: none; border: none; color: var(--amber);
+  font-size: 0.72rem; cursor: pointer; padding: 0 2px;
+  opacity: 0.7; transition: opacity var(--fast) var(--ease);
+}
+.afp-badge-clear:hover { opacity: 1; }
+
+/* ── CSV button ── */
+.csv-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 7px 12px; background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r2); font-size: 0.75rem; font-weight: 600;
+  color: var(--tx2); cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: all var(--fast) var(--ease); white-space: nowrap;
+}
+.csv-btn:hover { background: var(--amber); border-color: var(--amber); color: #1a0f00; box-shadow: var(--sh-amber); }
+
+/* ── Filter bar & tabs ── */
+.filter-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+.filter-tabs {
+  display: flex; background: var(--card); border: 1px solid var(--border);
+  border-radius: 28px; padding: 3px; gap: 2px;
+}
+.ftab {
+  background: none; border: none; padding: 5px 14px;
+  border-radius: 22px; font-size: 0.76rem; font-weight: 600;
+  color: var(--tx2); cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: all var(--fast) var(--ease); white-space: nowrap;
+}
+.ftab.active { background: var(--amber); color: #1a0f00; box-shadow: 0 3px 12px var(--amber-glow); }
+
+.date-pick {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r2); padding: 7px 11px;
+  font-size: 0.75rem; color: var(--tx1); font-family: 'DM Sans', sans-serif;
+  outline: none; cursor: pointer;
+  transition: border-color var(--fast) var(--ease);
+  max-width: 160px; width: 100%;
+}
+.date-pick:focus { border-color: var(--amber); }
+.date-pick::-webkit-calendar-picker-indicator { filter: invert(0.5); cursor: pointer; }
 
 /* ── Transaction feed ── */
 .txn-feed {

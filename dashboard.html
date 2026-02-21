@@ -91,12 +91,20 @@
             </button>
             <div class="notif-panel" id="notifPanel">
               <div class="np-head">
-                <span class="np-title" data-i18n="notifications">Notifications</span>
-                <button class="np-markread" id="npMarkRead">Mark all read</button>
-                <button class="np-clear" id="npClear" data-i18n="clear_all">Clear All</button>
+                <span class="np-title" data-i18n="notifications"
+                  >Notifications</span
+                >
+                <button class="np-markread" id="npMarkRead">
+                  Mark all read
+                </button>
+                <button class="np-clear" id="npClear" data-i18n="clear_all">
+                  Clear All
+                </button>
               </div>
               <div class="np-body" id="npBody">
-                <p class="np-empty" id="npEmpty" data-i18n="no_notifs">No notifications yet</p>
+                <p class="np-empty" id="npEmpty" data-i18n="no_notifs">
+                  No notifications yet
+                </p>
               </div>
             </div>
           </div>
@@ -123,20 +131,28 @@
               <div class="dmenu-divider"></div>
               <button class="dmenu-row" id="menuAddIncome" role="menuitem">
                 <span class="dmenu-icon income-ico">＋</span>
-                <span class="dmenu-label" data-i18n="add_income">Add Income</span>
+                <span class="dmenu-label" data-i18n="add_income"
+                  >Add Income</span
+                >
               </button>
               <button class="dmenu-row" id="menuAddExpense" role="menuitem">
                 <span class="dmenu-icon expense-ico">－</span>
-                <span class="dmenu-label" data-i18n="add_expense">Add Expense</span>
+                <span class="dmenu-label" data-i18n="add_expense"
+                  >Add Expense</span
+                >
               </button>
               <div class="dmenu-divider"></div>
               <button class="dmenu-row" id="menuHistory" role="menuitem">
                 <span class="dmenu-icon">📋</span>
-                <span class="dmenu-label" data-i18n="nav_transactions">History</span>
+                <span class="dmenu-label" data-i18n="nav_transactions"
+                  >History</span
+                >
               </button>
               <button class="dmenu-row" id="menuLang" role="menuitem">
                 <span class="dmenu-icon">🌐</span>
-                <span class="dmenu-label" id="menuLangLabel">Switch to မြန်မာ</span>
+                <span class="dmenu-label" id="menuLangLabel"
+                  >Switch to မြန်မာ</span
+                >
               </button>
             </div>
           </div>
@@ -189,17 +205,89 @@
         <!-- Quick Actions -->
         <div class="section-row">
           <h2 class="section-label" data-i18n="quick_actions">Quick Actions</h2>
-          <span class="qa-subtitle-hint" data-i18n="tap_to_add">Tap to add transaction</span>
+          <span class="qa-subtitle-hint" data-i18n="tap_to_add"
+            >Tap to add transaction</span
+          >
         </div>
         <div class="qcat-grid" id="qcatGrid">
           <!-- Cards injected by renderQuickActions() -->
         </div>
+      </section>
 
-        <!-- Usage Summary -->
-        <div class="section-row">
-          <h2 class="section-label" data-i18n="usage_summary">Usage Summary</h2>
+      <!-- ══ HISTORY PAGE ══ -->
+      <section class="page hidden" id="page-transactions">
+        <div class="page-head">
+          <h2 class="page-title" data-i18n="all_transactions">
+            All Transactions
+          </h2>
         </div>
-        <div class="usage-summary" id="usageSummary"></div>
+
+        <!-- Advanced filter panel -->
+        <div class="adv-filter-panel" id="advFilterPanel">
+          <!-- Type filter -->
+          <div class="afp-row">
+            <span class="afp-label" data-i18n="filter_type">Type</span>
+            <div class="filter-tabs" id="txnTabs">
+              <button class="ftab active" data-filter="all" data-i18n="all">
+                All
+              </button>
+              <button class="ftab" data-filter="income" data-i18n="income">
+                Income
+              </button>
+              <button class="ftab" data-filter="expense" data-i18n="expense">
+                Expense
+              </button>
+            </div>
+          </div>
+          <!-- Date range filter -->
+          <div class="afp-row afp-dates">
+            <div class="afp-date-group">
+              <label class="afp-label" data-i18n="start_date">From</label>
+              <input type="date" class="date-pick" id="txnDateFrom" />
+            </div>
+            <div class="afp-date-group">
+              <label class="afp-label" data-i18n="end_date">To</label>
+              <input type="date" class="date-pick" id="txnDateTo" />
+            </div>
+          </div>
+          <!-- Error message -->
+          <div class="afp-error" id="afpError" style="display: none"></div>
+          <!-- Actions -->
+          <div class="afp-actions">
+            <button class="afp-apply" id="afpApply" data-i18n="apply_filter">
+              Apply Filter
+            </button>
+            <button class="afp-reset" id="afpReset" data-i18n="reset_filter">
+              Reset
+            </button>
+            <button class="csv-btn" id="csvBtnTxn">
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.2"
+              >
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              <span data-i18n="export_csv">Export CSV</span>
+            </button>
+          </div>
+          <!-- Active filter indicator -->
+          <div
+            class="afp-active-badge"
+            id="afpActiveBadge"
+            style="display: none"
+          >
+            <span id="afpActiveText"></span>
+            <button class="afp-badge-clear" id="afpBadgeClear">✕</button>
+          </div>
+        </div>
+
+        <div class="txn-feed" id="txnFeed"></div>
       </section>
 
       <!-- REPORTS -->
@@ -210,54 +298,86 @@
         <div class="rep-cards">
           <div class="rep-card income-rc">
             <div class="rep-icon income-ico-wrap">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
                 <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
               </svg>
             </div>
             <div>
-              <span class="rep-lbl" data-i18n="total_income">Total Income</span>
-              <span class="rep-val income-col" id="repIncome">$0.00</span>
+              <span class="rep-lbl" data-i18n="total_income">Total Income</span
+              ><span class="rep-val income-col" id="repIncome">$0.00</span>
             </div>
           </div>
           <div class="rep-card expense-rc">
             <div class="rep-icon expense-ico-wrap">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
                 <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
               </svg>
             </div>
             <div>
-              <span class="rep-lbl" data-i18n="total_expense">Total Expense</span>
-              <span class="rep-val expense-col" id="repExpense">$0.00</span>
+              <span class="rep-lbl" data-i18n="total_expense"
+                >Total Expense</span
+              ><span class="rep-val expense-col" id="repExpense">$0.00</span>
             </div>
           </div>
           <div class="rep-card">
             <div class="rep-icon balance-ico-wrap">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
                 <line x1="12" y1="1" x2="12" y2="23" />
                 <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
               </svg>
             </div>
             <div>
-              <span class="rep-lbl" data-i18n="net_balance">Net Balance</span>
-              <span class="rep-val" id="repBalance">$0.00</span>
+              <span class="rep-lbl" data-i18n="net_balance">Net Balance</span
+              ><span class="rep-val" id="repBalance">$0.00</span>
             </div>
           </div>
           <div class="rep-card">
             <div class="rep-icon count-ico-wrap">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
                 <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
               </svg>
             </div>
             <div>
-              <span class="rep-lbl" data-i18n="total_transactions">Transactions</span>
-              <span class="rep-val" id="repCount">0</span>
+              <span class="rep-lbl" data-i18n="total_transactions"
+                >Transactions</span
+              ><span class="rep-val" id="repCount">0</span>
             </div>
           </div>
         </div>
 
         <div class="chart-card">
           <div class="cc-head">
-            <h3 class="section-label" data-i18n="spending_overview">Spending Overview</h3>
+            <h3 class="section-label" data-i18n="spending_overview">
+              Spending Overview
+            </h3>
             <select class="period-sel" id="chartPeriod">
               <option value="7" data-i18n="last_7">Last 7 Days</option>
               <option value="30" data-i18n="last_30">Last 30 Days</option>
@@ -266,7 +386,13 @@
           <div class="chart-wrap"><canvas id="spendingCanvas"></canvas></div>
         </div>
 
-        <h3 class="section-label" style="margin: 20px 0 10px" data-i18n="category_breakdown">Category Breakdown</h3>
+        <h3
+          class="section-label"
+          style="margin: 20px 0 10px"
+          data-i18n="category_breakdown"
+        >
+          Category Breakdown
+        </h3>
         <div class="cat-breakdown" id="catBreakdown"></div>
       </section>
 
@@ -276,14 +402,24 @@
           <h2 class="page-title" data-i18n="settings">Settings</h2>
         </div>
 
-        <!-- Profile card -->
+        <!-- Profile card — social vs normal login -->
         <div class="profile-card" id="profileCard">
           <div class="pc-avatar" id="pcAvatar">A</div>
           <div class="pc-info">
-            <input class="pc-name-input" id="profileNameInput" value="Alex Morgan" placeholder="Your name" />
-            <span class="pc-badge" data-i18n="premium_member">Premium Member</span>
+            <input
+              class="pc-name-input"
+              id="profileNameInput"
+              value="Alex Morgan"
+              placeholder="Your name"
+            />
+            <span class="pc-badge" data-i18n="premium_member"
+              >Premium Member</span
+            >
+            <!-- Social account badge — hidden unless social login -->
             <div class="pc-social-info" id="pcSocialInfo" style="display: none">
-              <span class="pc-social-badge" id="pcSocialBadge">Social Account</span>
+              <span class="pc-social-badge" id="pcSocialBadge"
+                >Social Account</span
+              >
               <span class="pc-social-provider" id="pcSocialProvider"></span>
               <span class="pc-email" id="pcEmail"></span>
             </div>
@@ -294,17 +430,22 @@
           <div class="sg-row">
             <div class="sg-info">
               <span class="sg-title" data-i18n="dark_mode">Dark Mode</span>
-              <span class="sg-sub" data-i18n="dark_mode_sub">Switch between dark and light</span>
+              <span class="sg-sub" data-i18n="dark_mode_sub"
+                >Switch between dark and light</span
+              >
             </div>
-            <label class="tog-switch">
-              <input type="checkbox" id="themeToggle" checked />
-              <span class="tog-track"></span>
-            </label>
+            <label class="tog-switch"
+              ><input type="checkbox" id="themeToggle" checked /><span
+                class="tog-track"
+              ></span
+            ></label>
           </div>
           <div class="sg-row">
             <div class="sg-info">
               <span class="sg-title" data-i18n="language">Language</span>
-              <span class="sg-sub" data-i18n="language_sub">English / Burmese</span>
+              <span class="sg-sub" data-i18n="language_sub"
+                >English / Burmese</span
+              >
             </div>
             <button class="lang-btn" id="langBtn">
               <span id="langBtnLbl">English</span> ›
@@ -312,37 +453,63 @@
           </div>
           <div class="sg-row">
             <div class="sg-info">
-              <span class="sg-title" data-i18n="notifications_setting">Notifications</span>
-              <span class="sg-sub" data-i18n="notifications_sub">Balance change alerts</span>
+              <span class="sg-title" data-i18n="notifications_setting"
+                >Notifications</span
+              >
+              <span class="sg-sub" data-i18n="notifications_sub"
+                >Balance change alerts</span
+              >
             </div>
-            <label class="tog-switch">
-              <input type="checkbox" id="notifToggle" checked />
-              <span class="tog-track"></span>
-            </label>
+            <label class="tog-switch"
+              ><input type="checkbox" id="notifToggle" checked /><span
+                class="tog-track"
+              ></span
+            ></label>
           </div>
           <!-- Password change — hidden for social login -->
           <div class="sg-row" id="passwordRow">
             <div class="sg-info">
-              <span class="sg-title" data-i18n="change_password">Change Password</span>
-              <span class="sg-sub" data-i18n="change_password_sub">Update your account password</span>
+              <span class="sg-title" data-i18n="change_password"
+                >Change Password</span
+              >
+              <span class="sg-sub" data-i18n="change_password_sub"
+                >Update your account password</span
+              >
             </div>
-            <button class="lang-btn" id="changePasswordBtn" data-i18n="change">Change</button>
+            <button class="lang-btn" id="changePasswordBtn" data-i18n="change">
+              Change
+            </button>
           </div>
           <div class="sg-row">
             <div class="sg-info">
-              <span class="sg-title" data-i18n="clear_data">Clear All Data</span>
-              <span class="sg-sub" data-i18n="clear_data_sub">Remove all transactions</span>
+              <span class="sg-title" data-i18n="clear_data"
+                >Clear All Data</span
+              >
+              <span class="sg-sub" data-i18n="clear_data_sub"
+                >Remove all transactions</span
+              >
             </div>
-            <button class="danger-btn" id="clearBtn" data-i18n="clear">Clear</button>
+            <button class="danger-btn" id="clearBtn" data-i18n="clear">
+              Clear
+            </button>
           </div>
         </div>
         <button class="logout-btn" id="logoutBtn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
             <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
             <polyline points="16 17 21 12 16 7" />
             <line x1="21" y1="12" x2="9" y2="12" />
           </svg>
-          <span data-i18n="logout">Logout</span>
+          <span data-i18n="logout">
+            <span data-i18n="logout">Logout</span>
+          </span>
         </button>
       </section>
     </main>
@@ -352,7 +519,15 @@
 ══════════════════════════════════════════ -->
     <nav class="bot-nav" id="botNav">
       <button class="bn-btn active" data-page="dashboard" id="bn-dashboard">
-        <svg class="bn-ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <svg
+          class="bn-ico"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+        >
           <rect x="3" y="3" width="7" height="7" rx="1.5" />
           <rect x="14" y="3" width="7" height="7" rx="1.5" />
           <rect x="3" y="14" width="7" height="7" rx="1.5" />
@@ -361,9 +536,16 @@
         <span class="bn-lbl" data-i18n="nav_dashboard">Home</span>
       </button>
 
-      <!-- History link — navigates to history.html -->
-      <button class="bn-btn" id="bn-transactions" onclick="location.href='history.html'">
-        <svg class="bn-ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+      <button class="bn-btn" data-page="transactions" id="bn-transactions">
+        <svg
+          class="bn-ico"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+        >
           <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
         </svg>
         <span class="bn-lbl" data-i18n="nav_transactions">History</span>
@@ -372,20 +554,41 @@
       <!-- Centre FAB — Add Transaction -->
       <div class="fab-zone">
         <button class="fab-main" id="fabMain" aria-label="Add transaction">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+          >
             <line x1="12" y1="5" x2="12" y2="19" />
             <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
         </button>
         <div class="fab-sub" id="fabSub">
           <button class="fab-sub-btn fab-income" id="fabIncome">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
               <polyline points="18 15 12 9 6 15" />
             </svg>
             <span data-i18n="add_income">Income</span>
           </button>
           <button class="fab-sub-btn fab-expense" id="fabExpense">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
               <polyline points="6 9 12 15 18 9" />
             </svg>
             <span data-i18n="add_expense">Expense</span>
@@ -395,16 +598,34 @@
       </div>
 
       <button class="bn-btn" data-page="reports" id="bn-reports">
-        <svg class="bn-ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <svg
+          class="bn-ico"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+        >
           <path d="M18 20V10M12 20V4M6 20v-6" />
         </svg>
         <span class="bn-lbl" data-i18n="reports">Reports</span>
       </button>
 
       <button class="bn-btn" data-page="settings" id="bn-settings">
-        <svg class="bn-ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <svg
+          class="bn-ico"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+        >
           <circle cx="12" cy="12" r="3" />
-          <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
+          <path
+            d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"
+          />
         </svg>
         <span class="bn-lbl" data-i18n="nav_settings">Settings</span>
       </button>
@@ -442,13 +663,20 @@
           </div>
           <div class="field">
             <label class="field-lbl" data-i18n="description">Description</label>
-            <input type="text" class="field-input" id="txnDesc" placeholder="e.g. Monthly salary" />
+            <input
+              type="text"
+              class="field-input"
+              id="txnDesc"
+              placeholder="e.g. Monthly salary"
+            />
           </div>
           <div class="field">
             <label class="field-lbl" data-i18n="date">Date</label>
             <input type="date" class="field-input" id="txnDate" />
           </div>
-          <button class="submit-btn" id="txnSubmit" data-i18n="add_transaction">Add Transaction</button>
+          <button class="submit-btn" id="txnSubmit" data-i18n="add_transaction">
+            Add Transaction
+          </button>
         </div>
       </div>
     </div>
@@ -459,8 +687,12 @@
         <h3 class="cfm-title" id="cfmTitle">Are you sure?</h3>
         <p class="cfm-msg" id="cfmMsg">This cannot be undone.</p>
         <div class="cfm-btns">
-          <button class="cfm-cancel" id="cfmCancel" data-i18n="cancel">Cancel</button>
-          <button class="danger-btn cfm-ok" id="cfmOk" data-i18n="confirm">Confirm</button>
+          <button class="cfm-cancel" id="cfmCancel" data-i18n="cancel">
+            Cancel
+          </button>
+          <button class="danger-btn cfm-ok" id="cfmOk" data-i18n="confirm">
+            Confirm
+          </button>
         </div>
       </div>
     </div>
