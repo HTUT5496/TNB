@@ -11,7 +11,7 @@
    - All existing styles preserved and enhanced
 ══════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
+/* Fonts loaded via <link> in HTML for better performance (avoids render-blocking @import) */
 
 /* ─── RESET ───────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1286,4 +1286,191 @@ input:checked + .tog-track::after { transform: translateX(20px); background: #ff
 @media (hover: none) {
   .txn-del       { opacity: 0.4; }
   .qcat-add-chip { opacity: 1; transform: scale(0.9); }
+}
+
+/* ══════════════════════════════════════════════════════
+   ACCESSIBILITY — Focus Visible (keyboard nav)
+══════════════════════════════════════════════════════ */
+
+/* Remove default outline everywhere; add polished focus-visible ring */
+:focus { outline: none; }
+
+:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Ensure focus rings are visible on dark backgrounds */
+.cmd-bar :focus-visible,
+.bot-nav :focus-visible,
+.modal-veil :focus-visible {
+  outline-color: var(--amber);
+  box-shadow: 0 0 0 4px var(--amber-dim);
+}
+
+/* Skip-to-main link (screen reader / keyboard users) */
+.skip-link {
+  position: fixed;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--amber);
+  color: #1a0f00;
+  padding: 10px 20px;
+  border-radius: 0 0 var(--r2) var(--r2);
+  font-family: 'Syne', sans-serif;
+  font-size: 0.86rem;
+  font-weight: 700;
+  z-index: 9999;
+  text-decoration: none;
+  transition: top 0.2s var(--ease);
+}
+.skip-link:focus { top: 0; }
+
+/* ══════════════════════════════════════════════════════
+   REDUCED MOTION — Respect user preference
+══════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Keep critical functional transitions but make them instant */
+  .modal-veil,
+  .modal-card,
+  .dots-menu,
+  .notif-panel,
+  .fab-sub {
+    transition: opacity 0.01ms, transform 0.01ms !important;
+  }
+
+  /* Disable decorative animations entirely */
+  .hc-orb1,
+  .hc-orb2,
+  .avatar-ring::after,
+  .bell-dot,
+  .hc-badge::before {
+    animation: none !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   HIGH CONTRAST — Support forced-colors/high-contrast mode
+══════════════════════════════════════════════════════ */
+@media (forced-colors: active) {
+  .avatar-ring,
+  .fab-main,
+  .submit-btn,
+  .afp-apply,
+  .ftab.active {
+    forced-color-adjust: none;
+  }
+
+  :focus-visible {
+    outline: 3px solid ButtonText;
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   PRINT STYLES
+══════════════════════════════════════════════════════ */
+@media print {
+  /* Hide navigation chrome */
+  .cmd-bar,
+  .bot-nav,
+  .fab-zone,
+  .toast-container,
+  .modal-veil,
+  .dots-shell,
+  .bell-shell,
+  .search-shell,
+  .txn-del,
+  .adv-filter-panel,
+  .afp-actions,
+  .afp-active-badge,
+  .logout-btn,
+  .settings-group .sg-row:has(.danger-btn),
+  .settings-group .sg-row:has(.lang-btn),
+  .csv-btn {
+    display: none !important;
+  }
+
+  body {
+    padding: 0;
+    background: #fff;
+    color: #000;
+    font-size: 11pt;
+    line-height: 1.5;
+  }
+
+  .app-main {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  /* Show all pages when printing */
+  .page { display: block !important; break-before: page; }
+  .page:first-of-type { break-before: avoid; }
+
+  /* Flatten cards for print */
+  .hero-card,
+  .rep-card,
+  .chart-card,
+  .settings-group,
+  .profile-card,
+  .txn-feed,
+  .usage-summary,
+  .adv-filter-panel {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+    background: #fff !important;
+    color: #000 !important;
+    break-inside: avoid;
+  }
+
+  /* Force dark text */
+  .hc-num,
+  .hcs-v,
+  .rep-val,
+  .txn-cat,
+  .txn-amt,
+  .ss-val {
+    color: #000 !important;
+  }
+
+  /* Color-coded amounts preserved via text */
+  .income-col, .txn-amt.income { color: #006b3c !important; }
+  .expense-col, .txn-amt.expense { color: #9b1919 !important; }
+
+  /* Orbs and decorative elements */
+  .hc-orb,
+  .hc-grid-lines,
+  .hc-badge { display: none !important; }
+
+  .hero-card { color: #000 !important; }
+
+  /* Page title for each section */
+  .page-title { font-size: 16pt; font-weight: bold; margin-bottom: 12pt; }
+
+  /* Transaction feed */
+  .txn-card { border-bottom: 1px solid #eee !important; }
+
+  /* Chart — note canvas doesn't print well */
+  .chart-wrap { display: none; }
+  .chart-card::after {
+    content: 'Chart not available in print view';
+    display: block;
+    font-size: 0.8rem;
+    color: #666;
+    font-style: italic;
+    padding: 8px 0;
+  }
+
+  a[href]::after { content: ' (' attr(href) ')'; font-size: 9pt; color: #666; }
 }
