@@ -1,17 +1,10 @@
-/* ═══════════════════════════════════════════════
-   TNB – Login Script  |  login-script.js
-   ⚠️  Supabase logic is UNTOUCHED.
-   Only UI feedback improvements added.
-═══════════════════════════════════════════════ */
-
-// ── Supabase Client Initialization (UNCHANGED) ──
+// Supabase Client Initialization
 const { createClient } = supabase;
 const _supabase = createClient(
   "https://lqfjeamzbxayfbjntarr.supabase.co",
   "sb_publishable_jDExXkASC_jrulY8B7noFw_r9qut-vQ",
 );
 
-// ── Language Data (UNCHANGED) ──
 const langData = {
   en: {
     note: "Welcome to the financial management software. We will always try to distinguish your assets and losses.",
@@ -37,7 +30,7 @@ const langData = {
 
 let currentLang = "en";
 
-// ── Theme Toggle (UNCHANGED behavior) ──
+// Theme Toggle (Dark/Light Mode)
 document.getElementById("theme-btn").onclick = () => {
   document.body.classList.toggle("dark-mode");
   document.body.classList.toggle("light-mode");
@@ -45,67 +38,79 @@ document.getElementById("theme-btn").onclick = () => {
     document.body.classList.contains("dark-mode") ? "🌙 Dark" : "☀️ Light";
 };
 
-// ── Language Switcher (UNCHANGED behavior) ──
+// Language Switcher (ဘာသာစကားပြောင်းလဲခြင်း)
 document.getElementById("lang-btn").onclick = () => {
   currentLang = currentLang === "en" ? "my" : "en";
   const d = langData[currentLang];
-  document.getElementById("lang-btn").innerHTML =
-    `<i class="fas fa-language"></i> ${d.label}`;
+
+  document.getElementById("lang-btn").innerText = d.label;
   document.getElementById("note-text").innerText = d.note;
   document.getElementById("title").innerText = d.title;
   document.getElementById("username").placeholder = d.user;
   document.getElementById("password").placeholder = d.pass;
-  document.querySelector("#login-btn .btn-text").innerText = d.btn;
+  document.getElementById("login-btn").innerText = d.btn;
+
   document.getElementById("signup-text").innerHTML =
     `${d.signup} <a href="register.html">Sign Up</a>`;
   document.getElementById("reset-text").innerHTML =
     `${d.reset} <a href="reset.html">Reset Password</a>`;
 };
 
-// ── Login Logic — Email/Password (UNCHANGED Supabase logic) ──
+// Login Logic (Email/Password)
 document.getElementById("login-form").onsubmit = async (e) => {
   e.preventDefault();
   const email    = document.getElementById("username").value + "@tnb.com";
   const password = document.getElementById("password").value;
+  const btn      = document.getElementById("login-btn");
 
-  // UI: show loading state
-  const btnText   = document.querySelector("#login-btn .btn-text");
-  const btnLoader = document.querySelector("#login-btn .btn-loader");
-  if (btnText)   btnText.style.display   = "none";
-  if (btnLoader) btnLoader.style.display = "inline";
+  btn.disabled    = true;
+  btn.textContent = currentLang === "en" ? "Logging in…" : "ဝင်နေသည်…";
 
-  // UNCHANGED Supabase auth call
   const { data, error } = await _supabase.auth.signInWithPassword({
     email,
     password,
   });
 
-  // UI: restore button
-  if (btnText)   btnText.style.display   = "inline";
-  if (btnLoader) btnLoader.style.display = "none";
-
   if (error) {
-    // UNCHANGED error handling behavior
+    btn.disabled    = false;
+    btn.textContent = langData[currentLang].btn;
     alert(
       currentLang === "en"
         ? "Invalid Username or Password!"
         : "အသုံးပြုသူအမည် သို့မဟုတ် လျှို့ဝှက်နံပါတ် မှားယွင်းနေပါသည်။",
     );
   } else {
-    // UNCHANGED redirect
-    location.href = "dashboard.html";
+    /* Session is now live in memory.
+       Wait for onAuthStateChange to confirm it is fully
+       persisted to localStorage before we navigate away.
+       This prevents the dashboard from seeing an empty
+       session and bouncing back to the login page. */
+    await new Promise((resolve) => {
+      const { data: { subscription } } = _supabase.auth.onAuthStateChange(
+        (event, session) => {
+          if (event === "SIGNED_IN" && session) {
+            subscription.unsubscribe();
+            resolve();
+          }
+        }
+      );
+      /* Safety timeout — navigate anyway after 2s */
+      setTimeout(resolve, 2000);
+    });
+    window.location.href = "dashboard.html";
   }
 };
 
-// ── Gmail Login — Google OAuth (UNCHANGED Supabase logic) ──
+// Gmail Login (Google OAuth) - Modified for Accuracy
 document.getElementById("gmail-btn").onclick = async () => {
   const { data, error } = await _supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      // UNCHANGED redirect URL
+      // GitHub Pages လိပ်စာ (image_13d165.png) နှင့် ကိုက်ညီအောင် ပြင်ဆင်ထားသည်
       redirectTo: "https://htut5496.github.io/TNB/dashboard.html",
     },
   });
+
   if (error) {
     alert("Google Login Error: " + error.message);
   }

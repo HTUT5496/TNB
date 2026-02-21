@@ -333,26 +333,50 @@ const _supabase = (() => {
 
 /* ═══════════════════════════════════════════
    5. AUTH GUARD
-   — Checks session on load.
-   — Redirects to index.html if not logged in.
-   — Returns the Supabase session object.
+   Uses onAuthStateChange instead of a one-shot
+   getSession() call, which avoids the race condition
+   where the session token hasn't been written to
+   localStorage yet when dashboard.js first runs
+   (happens right after signInWithPassword redirect).
 ═══════════════════════════════════════════ */
-async function getSession() {
-  if (!_supabase) return null;
-  const { data: { session } } = await _supabase.auth.getSession();
-  return session;
+
+/**
+ * Wait for Supabase to emit its first auth event.
+ * Returns a Promise that resolves to the session (or null).
+ * Has a 6-second timeout to prevent hanging forever.
+ */
+function waitForSession() {
+  return new Promise((resolve) => {
+    if (!_supabase) { resolve(null); return; }
+
+    let settled = false;
+
+    const { data: { subscription } } = _supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (settled) return;
+        settled = true;
+        subscription.unsubscribe();
+        resolve(session);
+      }
+    );
+
+    /* Fallback: if onAuthStateChange never fires (e.g. SDK issue),
+       fall back to getSession() after a short delay */
+    setTimeout(async () => {
+      if (settled) return;
+      settled = true;
+      subscription.unsubscribe();
+      const { data: { session } } = await _supabase.auth.getSession();
+      resolve(session);
+    }, 6000);
+  });
 }
 
-async function authGuard() {
-  const session = await getSession();
-  if (!session) {
-    /* Not logged in → send to login */
-    window.location.replace('index.html');
-    return null;
-  }
-  /* Populate auth state */
-  S.userId       = session.user.id;
-  S.userEmail    = session.user.email || '';
+/** Populate S.* from a valid Supabase session object */
+function applySession(session) {
+  S.userId    = session.user.id;
+  S.userEmail = session.user.email || '';
+
   const meta     = session.user.user_metadata || {};
   const provider = session.user.app_metadata?.provider || '';
   S.isSocialLogin = provider !== 'email';
@@ -360,23 +384,28 @@ async function authGuard() {
     ? provider.charAt(0).toUpperCase() + provider.slice(1)
     : '';
 
-  /* Social login: use OAuth display name / avatar */
   if (S.isSocialLogin) {
     S.userName   = meta.full_name || meta.name || S.userEmail || 'User';
     S.userAvatar = meta.avatar_url || meta.picture || '';
-    /* Persist to localStorage so profile looks right offline */
     lsSet(LS.userName,      S.userName);
     lsSet(LS.userAvatar,    S.userAvatar);
     lsSet(LS.userProvider,  S.userProvider);
     lsSet(LS.isSocialLogin, true);
   } else {
-    /* Email login: use stored display name */
     S.userName      = lsGet(LS.userName, 'Alex Morgan');
     S.userAvatar    = lsGet(LS.userAvatar, '');
     S.isSocialLogin = false;
     lsSet(LS.isSocialLogin, false);
   }
+}
 
+async function authGuard() {
+  const session = await waitForSession();
+  if (!session) {
+    window.location.replace('index.html');
+    return null;
+  }
+  applySession(session);
   return session;
 }
 
