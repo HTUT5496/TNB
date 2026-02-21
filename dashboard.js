@@ -1505,15 +1505,26 @@ function wire() {
     lsSet(LS.notifEnabled, S.notifEnabled);
   });
 
+  /* ── Settings: Clear All Data (FIXED) ── */
   $("clearBtn")?.addEventListener("click", () => {
     const T = TRANSLATIONS[S.lang];
     showConfirm(T.confirm_clear, T.confirm_clear_msg, () => {
+      // 1. Clear the active state
       S.transactions = [];
-      saveTxns();
+
+      // 2. Force clear the specific LocalStorage key
+      // Use the exact key name you defined in your LS object (likely "tnb_txns")
+      localStorage.setItem(LS.txns, JSON.stringify([]));
+
+      // 3. Mark that we don't want demo data anymore (Optional but recommended)
+      // This prevents the seedDemoData() from firing on the next refresh
+      localStorage.setItem("demo_seeded", "true");
+
+      // 4. Update the UI
       renderAll();
+      showToast("success", "All data cleared!");
     });
   });
-
   /* ── SUPABASE LOGOUT ── */
   $("logoutBtn")?.addEventListener("click", () => {
     const T = TRANSLATIONS[S.lang];
