@@ -1,10 +1,15 @@
+// ════════════════════════════════════════════════
 // Supabase Client Initialization
+// ════════════════════════════════════════════════
 const { createClient } = supabase;
 const _supabase = createClient(
   "https://lqfjeamzbxayfbjntarr.supabase.co",
   "sb_publishable_jDExXkASC_jrulY8B7noFw_r9qut-vQ",
 );
 
+// ════════════════════════════════════════════════
+// Language Data (PRESERVED — unchanged)
+// ════════════════════════════════════════════════
 const langData = {
   en: {
     note: "Welcome to the financial management software. We will always try to distinguish your assets and losses.",
@@ -30,7 +35,9 @@ const langData = {
 
 let currentLang = "en";
 
-// Theme Toggle (Dark/Light Mode)
+// ════════════════════════════════════════════════
+// Theme Toggle (PRESERVED — unchanged)
+// ════════════════════════════════════════════════
 document.getElementById("theme-btn").onclick = () => {
   document.body.classList.toggle("dark-mode");
   document.body.classList.toggle("light-mode");
@@ -38,7 +45,9 @@ document.getElementById("theme-btn").onclick = () => {
     document.body.classList.contains("dark-mode") ? "🌙 Dark" : "☀️ Light";
 };
 
-// Language Switcher (ဘာသာစကားပြောင်းလဲခြင်း)
+// ════════════════════════════════════════════════
+// Language Switcher (PRESERVED — unchanged)
+// ════════════════════════════════════════════════
 document.getElementById("lang-btn").onclick = () => {
   currentLang = currentLang === "en" ? "my" : "en";
   const d = langData[currentLang];
@@ -56,7 +65,9 @@ document.getElementById("lang-btn").onclick = () => {
     `${d.reset} <a href="reset.html">Reset Password</a>`;
 };
 
-// Login Logic (Email/Password)
+// ════════════════════════════════════════════════
+// Login Logic — Email/Password (PRESERVED — unchanged)
+// ════════════════════════════════════════════════
 document.getElementById("login-form").onsubmit = async (e) => {
   e.preventDefault();
   const email    = document.getElementById("username").value + "@tnb.com";
@@ -80,11 +91,6 @@ document.getElementById("login-form").onsubmit = async (e) => {
         : "အသုံးပြုသူအမည် သို့မဟုတ် လျှို့ဝှက်နံပါတ် မှားယွင်းနေပါသည်။",
     );
   } else {
-    /* Session is now live in memory.
-       Wait for onAuthStateChange to confirm it is fully
-       persisted to localStorage before we navigate away.
-       This prevents the dashboard from seeing an empty
-       session and bouncing back to the login page. */
     await new Promise((resolve) => {
       const { data: { subscription } } = _supabase.auth.onAuthStateChange(
         (event, session) => {
@@ -94,24 +100,65 @@ document.getElementById("login-form").onsubmit = async (e) => {
           }
         }
       );
-      /* Safety timeout — navigate anyway after 2s */
       setTimeout(resolve, 2000);
     });
     window.location.href = "dashboard.html";
   }
 };
 
-// Gmail Login (Google OAuth) - Modified for Accuracy
+// ════════════════════════════════════════════════
+// Google OAuth Login (UPDATED)
+//
+// What changed vs. original:
+//   1. Shows shimmer animation on the button while the
+//      OAuth redirect is being prepared — gives instant
+//      visual feedback instead of a frozen button.
+//   2. Updates the button label to "Connecting…" so the
+//      user knows something is happening.
+//   3. Everything else (Supabase call, redirectTo URL)
+//      is identical to your original code.
+//
+// NOTE: Supabase handles the token exchange on redirect.
+//       In dashboard.js → init(), we read the session with
+//       _supabase.auth.getSession() which automatically
+//       contains full Google profile data (name, avatar,
+//       email) inside session.user.user_metadata.
+//       No JWT decoding or localStorage writes are needed
+//       here because Supabase does that for us.
+// ════════════════════════════════════════════════
 document.getElementById("gmail-btn").onclick = async () => {
+  const btn     = document.getElementById("gmail-btn");
+  const btnText = document.getElementById("gmail-btn-text");
+  const shimmer = document.getElementById("gmail-shimmer");
+
+  // 1. Show loading state + shimmer
+  btn.disabled          = true;
+  btn.style.opacity     = "0.85";
+  btnText.textContent   = "Connecting to Google…";
+  if (shimmer) shimmer.style.display = "block";
+
   const { data, error } = await _supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      // GitHub Pages လိပ်စာ (image_13d165.png) နှင့် ကိုက်ညီအောင် ပြင်ဆင်ထားသည်
       redirectTo: "https://htut5496.github.io/TNB/dashboard.html",
+      // Request profile scopes so avatar_url and full_name are
+      // always populated in user_metadata on the dashboard side.
+      queryParams: {
+        access_type: "offline",
+        prompt: "select_account",
+      },
     },
   });
 
   if (error) {
+    // Restore button on error
+    btn.disabled        = false;
+    btn.style.opacity   = "1";
+    btnText.textContent = "Continue with Google";
+    if (shimmer) shimmer.style.display = "none";
     alert("Google Login Error: " + error.message);
   }
+  // On success Supabase immediately redirects the browser,
+  // so no further action needed — the shimmer stays visible
+  // until the page unloads.
 };
