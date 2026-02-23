@@ -1,13 +1,11 @@
 /* ══════════════════════════════════════════════════════
-   FINPAY – SMART FINANCE  |  dashboard.css  v4.0
+   FINPAY – SMART FINANCE  |  dashboard.css  v5.0
    Aesthetic: Editorial Finance × Precision Engineering
    Fonts: Syne (display) + DM Sans (body) + DM Mono (numbers)
-   v4.0 changes:
-   - Navbar #1: Bell + 3-dots moved to right side of Row 1
-   - Navbar #2: Premium financial summary card style
-   - History page: Advanced date range filter panel
-   - Usage Summary: Real-time category rows on Home
-   - Profile: Social account indicators
+   v5.0 changes:
+   - Row 2 navbar: Full glassmorphism financial summary strip
+   - Entrance animations: stripEnter + valFadeUp
+   - Colors per spec: Amber #ffb300, Emerald #00c853, Rose #ff5252
    - All existing styles preserved and enhanced
 ══════════════════════════════════════════════════════ */
 
@@ -55,7 +53,7 @@ html { font-size: 16px; scroll-behavior: smooth; -webkit-text-size-adjust: 100%;
   --r1: 6px;  --r2: 10px; --r3: 14px;
   --r4: 18px; --r5: 24px; --r6: 32px;
 
-  --navbar-h:  108px;
+  --navbar-h:  112px;
   --botnav-h:  70px;
 
   --ease:   cubic-bezier(0.4,0,0.2,1);
@@ -70,6 +68,11 @@ html { font-size: 16px; scroll-behavior: smooth; -webkit-text-size-adjust: 100%;
   --sh-amber: 0 6px 24px rgba(245,166,35,0.28);
   --sh-inc:   0 4px 20px rgba(0,232,150,0.20);
   --sh-exp:   0 4px 20px rgba(255,61,113,0.20);
+
+  /* Summary strip spec colors */
+  --ss-balance-col: #ffb300;
+  --ss-income-col:  #00c853;
+  --ss-expense-col: #ff5252;
 }
 
 /* ─── LIGHT THEME ─────────────────────────────────── */
@@ -95,6 +98,13 @@ html { font-size: 16px; scroll-behavior: smooth; -webkit-text-size-adjust: 100%;
 [data-theme="light"] .cmd-bar   { background: rgba(232,238,249,0.96); }
 [data-theme="light"] .bot-nav   { background: rgba(242,246,254,0.98); }
 [data-theme="light"] .hero-card { --hero-grad: linear-gradient(145deg, #0c1f54 0%, #1535a0 45%, #0e3080 70%, #0a2060 100%); }
+[data-theme="light"] .summary-strip {
+  background: rgba(0,0,0,0.04);
+  border-color: rgba(0,0,0,0.09);
+}
+[data-theme="light"] .ss-label { color: rgba(0,0,0,0.35); }
+[data-theme="light"] .ss-sep   { background: rgba(0,0,0,0.09); }
+[data-theme="light"] .ss-item:hover { background: rgba(0,0,0,0.03); }
 
 /* ─── BASE ────────────────────────────────────────── */
 body {
@@ -284,63 +294,134 @@ body {
 .dm-switch input:checked + .dm-track::after { transform: translateX(16px); background: #fff; }
 
 /* ══════════════════════════════════════════════════════
-   ROW 2 — PREMIUM FINANCIAL SUMMARY CARD
+   ROW 2 — GLASSMORPHISM FINANCIAL SUMMARY STRIP
 ══════════════════════════════════════════════════════ */
 .cmd-row2 {
-  height: 54px;
-  padding: 0 16px;
-  background: linear-gradient(90deg,
-    rgba(245,166,35,0.03) 0%,
-    rgba(0,232,150,0.03) 50%,
-    rgba(255,61,113,0.03) 100%);
-  position: relative;
-}
-.cmd-row2::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(245,166,35,0.04), transparent);
-  pointer-events: none;
+  height: 58px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
 }
 
+/* ── Strip container — glassmorphism ── */
 .summary-strip {
-  display: flex; align-items: center; flex: 1; height: 100%;
+  display: flex;
+  align-items: stretch;
+  flex: 1;
+  height: 40px;
+  /* Frosted glass effect */
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(18px) saturate(1.5);
+  -webkit-backdrop-filter: blur(18px) saturate(1.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
   overflow: hidden;
+  /* Subtle inner highlight on top edge */
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.07),
+    0 4px 16px rgba(0,0,0,0.25);
+  /* Entrance animation */
+  animation: stripEnter 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* Strip entrance: slide down + fade */
+@keyframes stripEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scaleY(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+/* ── Each stat item ── */
 .ss-item {
-  display: flex; flex-direction: column; justify-content: center;
-  padding: 0 16px; min-width: 0; position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  flex: 1;
+  padding: 0 16px;
+  gap: 2px;
+  position: relative;
+  transition: background var(--fast) var(--ease);
+  min-width: 0;
 }
-.ss-item:first-child { padding-left: 2px; }
 
+.ss-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* Slight emphasis on balance item */
 .ss-balance {
-  /* Highlight the balance item slightly */
-  background: rgba(255,255,255,0.02);
-  border-radius: var(--r2);
-  padding: 4px 14px;
+  background: transparent;
+  border-radius: 0;
+  padding: 0 16px;
 }
 
+/* ── Labels: small, all-caps, clean sans-serif ── */
 .ss-label {
-  font-family: 'DM Sans', sans-serif; font-size: 0.57rem; font-weight: 600;
-  text-transform: uppercase; letter-spacing: 0.1em; color: var(--tx3); white-space: nowrap;
-  margin-bottom: 2px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.52rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  color: rgba(255, 255, 255, 0.32);
+  white-space: nowrap;
+  line-height: 1;
 }
-.ss-val {
-  font-family: 'DM Mono', monospace; font-size: 0.92rem; font-weight: 500;
-  white-space: nowrap; letter-spacing: -0.01em;
-  transition: color var(--fast) var(--ease);
-}
-.ss-sep { width: 1px; height: 30px; background: var(--border); flex-shrink: 0; }
-.balance-col { color: var(--tx1); }
-.income-col  { color: var(--inc); }
-.expense-col { color: var(--exp); }
 
-/* Balance value gets slightly larger */
-.ss-balance .ss-val {
-  font-size: 1rem;
-  color: var(--amber);
-  font-weight: 600;
+/* Balance label gets amber tint */
+.ss-balance .ss-label {
+  color: rgba(255, 179, 0, 0.5);
 }
+
+/* ── Values: bold, DM Mono, larger ── */
+.ss-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  transition: color var(--fast) var(--ease);
+  /* Number entrance: stagger after strip */
+  animation: valFadeUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both;
+}
+
+/* Number fade-up entrance */
+@keyframes valFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Balance value slightly larger + bolder */
+.ss-balance .ss-val {
+  font-size: 0.97rem;
+  font-weight: 700;
+}
+
+/* ── Separator lines ── */
+.ss-sep {
+  width: 1px;
+  height: 22px;
+  background: rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+  align-self: center;
+}
+
+/* ── Color palette per spec ── */
+.balance-col { color: var(--ss-balance-col); }  /* #ffb300 Amber/Gold  */
+.income-col  { color: var(--ss-income-col);  }  /* #00c853 Emerald     */
+.expense-col { color: var(--ss-expense-col); }  /* #ff5252 Rose Red    */
 
 /* ── Bell ── */
 .bell-shell { position: relative; flex-shrink: 0; }
@@ -1248,36 +1329,44 @@ input:checked + .tog-track::after { transform: translateX(20px); background: #ff
    RESPONSIVE
 ══════════════════════════════════════════════════════ */
 @media (max-width: 480px) {
-  :root { --navbar-h: 108px; }
-  .avatar-info    { display: none; }
-  .avatar-pill    { gap: 0; padding: 4px; }
-  .ss-item        { padding: 0 8px; }
-  .ss-balance     { padding: 4px 10px; }
-  .ss-val         { font-size: 0.82rem; }
-  .ss-balance .ss-val { font-size: 0.88rem; }
-  .app-main       { padding: 14px 12px; }
-  .qcat-grid      { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-  .hc-num         { font-size: 2.3rem; }
-  .rep-cards      { grid-template-columns: 1fr 1fr; }
-  .notif-panel    { width: 278px; right: -8px; }
-  .dots-menu      { width: 200px; }
-  .afp-date-group { min-width: 120px; }
+  :root { --navbar-h: 112px; }
+  .avatar-info        { display: none; }
+  .avatar-pill        { gap: 0; padding: 4px; }
+  .ss-item            { padding: 0 10px; }
+  .ss-balance         { padding: 0 10px; }
+  .ss-val             { font-size: 0.78rem; }
+  .ss-balance .ss-val { font-size: 0.84rem; }
+  .ss-label           { font-size: 0.48rem; letter-spacing: 0.1em; }
+  .summary-strip      { border-radius: 10px; }
+  .app-main           { padding: 14px 12px; }
+  .qcat-grid          { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .hc-num             { font-size: 2.3rem; }
+  .rep-cards          { grid-template-columns: 1fr 1fr; }
+  .notif-panel        { width: 278px; right: -8px; }
+  .dots-menu          { width: 200px; }
+  .afp-date-group     { min-width: 120px; }
 }
+
 @media (max-width: 360px) {
-  .ss-label     { font-size: 0.5rem; }
-  .rep-cards    { grid-template-columns: 1fr; }
-  .qcat-name    { font-size: 0.65rem; }
-  .qcat-amount  { font-size: 0.75rem; }
-  .afp-row      { flex-direction: column; align-items: flex-start; }
+  .ss-item            { padding: 0 7px; }
+  .ss-val             { font-size: 0.72rem; }
+  .ss-label           { font-size: 0.44rem; letter-spacing: 0.08em; }
+  .rep-cards          { grid-template-columns: 1fr; }
+  .qcat-name          { font-size: 0.65rem; }
+  .qcat-amount        { font-size: 0.75rem; }
+  .afp-row            { flex-direction: column; align-items: flex-start; }
 }
+
 @media (min-width: 480px) and (max-width: 639px) {
   .qcat-grid { grid-template-columns: repeat(3, 1fr); }
 }
+
 @media (min-width: 640px) {
   .qcat-grid  { grid-template-columns: repeat(4, 1fr); gap: 12px; }
   .rep-cards  { grid-template-columns: repeat(4, 1fr); }
   .app-main   { padding: 24px 22px; }
 }
+
 @media (min-width: 900px) {
   .notif-panel { width: 340px; }
 }
