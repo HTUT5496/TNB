@@ -1,0 +1,286 @@
+/* ══════════════════════════════════════════════════════
+   PROFILE PAGE  |  profile.css
+   Styles moved from dashboard.css (profile-related sections)
+   + new profile top bar styles
+══════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+/* ─── RESET ───────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+/* ─── DESIGN TOKENS (mirrored from dashboard.css) ─── */
+:root {
+  --void:    #040508;
+  --base:    #080b12;
+  --surface: #0c1020;
+  --raised:  #121828;
+  --card:    #161e30;
+  --card2:   #1a2438;
+  --glass:   rgba(255,255,255,0.03);
+  --glassH:  rgba(255,255,255,0.07);
+
+  --border:  rgba(255,255,255,0.06);
+  --borderH: rgba(255,255,255,0.12);
+  --borderA: rgba(255,255,255,0.18);
+
+  --amber:      #f5a623;
+  --amber-dim:  rgba(245,166,35,0.12);
+  --amber-glow: rgba(245,166,35,0.30);
+  --amber-grad: linear-gradient(135deg, #d4820a 0%, #f5a623 60%, #ffd580 100%);
+
+  --inc:      #00e896;
+  --inc-bg:   rgba(0,232,150,0.10);
+  --inc-bdr:  rgba(0,232,150,0.20);
+  --exp:      #ff3d71;
+  --exp-bg:   rgba(255,61,113,0.10);
+  --exp-bdr:  rgba(255,61,113,0.20);
+  --exp-glow: rgba(255,61,113,0.25);
+
+  --tx1: #e2ecff;
+  --tx2: #5a6d88;
+  --tx3: #2e3d55;
+
+  --r1: 6px;  --r2: 10px; --r3: 14px;
+  --r4: 18px; --r5: 24px; --r6: 32px;
+
+  --profbar-h: 56px;
+
+  --ease:   cubic-bezier(0.4,0,0.2,1);
+  --spring: cubic-bezier(0.34,1.56,0.64,1);
+  --fast:   0.15s;
+  --med:    0.26s;
+
+  --sh1: 0 2px 12px rgba(0,0,0,0.5);
+  --sh2: 0 8px 32px rgba(0,0,0,0.6);
+  --sh3: 0 20px 64px rgba(0,0,0,0.75);
+  --sh-amber: 0 6px 24px rgba(245,166,35,0.28);
+  --sh-exp:   0 4px 20px rgba(255,61,113,0.20);
+}
+
+/* ─── LIGHT THEME ─────────────────────────────────── */
+[data-theme="light"] {
+  --void:    #dde5f5;
+  --base:    #e8eef9;
+  --surface: #f2f6fe;
+  --raised:  #ffffff;
+  --card:    #ffffff;
+  --card2:   #f7f9ff;
+  --glass:   rgba(0,0,0,0.02);
+  --glassH:  rgba(0,0,0,0.06);
+  --border:  rgba(0,0,0,0.07);
+  --borderH: rgba(0,0,0,0.13);
+  --tx1: #0d1a2e;
+  --tx2: #4a5e7a;
+  --tx3: #9aafcc;
+  --sh1: 0 2px 12px rgba(0,0,0,0.06);
+  --sh2: 0 8px 32px rgba(0,0,0,0.09);
+  --sh3: 0 20px 64px rgba(0,0,0,0.12);
+}
+[data-theme="light"] .prof-bar { background: rgba(232,238,249,0.96); }
+
+/* ─── BASE ────────────────────────────────────────── */
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--base);
+  color: var(--tx1);
+  min-height: 100vh;
+  overflow-x: hidden;
+  padding-top: var(--profbar-h);
+  padding-bottom: 40px;
+  transition: background var(--med) var(--ease), color var(--med) var(--ease);
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--raised); border-radius: 2px; }
+
+/* ══════════════════════════════════════════════════════
+   PROFILE TOP BAR (NEW — not in dashboard.css)
+══════════════════════════════════════════════════════ */
+.prof-bar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 500;
+  height: var(--profbar-h);
+  background: rgba(8,11,18,0.97);
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 12px;
+}
+
+/* NAVIGATION: Back link to Dashboard */
+.prof-back {
+  display: flex; align-items: center; gap: 6px;
+  text-decoration: none; color: var(--amber);
+  font-family: 'DM Sans', sans-serif; font-size: 0.84rem; font-weight: 600;
+  padding: 6px 10px 6px 6px;
+  border-radius: var(--r2);
+  transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.prof-back:hover { background: var(--amber-dim); color: var(--amber); }
+.prof-back svg { flex-shrink: 0; }
+
+.prof-bar-title {
+  flex: 1; text-align: center;
+  font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 800;
+  letter-spacing: -0.02em; color: var(--tx1);
+}
+
+/* Spacer mirrors the back button width to center title */
+.prof-bar-spacer {
+  flex-shrink: 0;
+  width: 108px; /* approximate width of back button */
+}
+
+/* ══════════════════════════════════════════════════════
+   MAIN CONTENT
+══════════════════════════════════════════════════════ */
+.prof-main {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: pageIn 0.3s var(--ease) both;
+}
+
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ══════════════════════════════════════════════════════
+   PROFILE CARD (moved from dashboard.css — unchanged)
+══════════════════════════════════════════════════════ */
+.profile-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r4); padding: 22px 20px;
+  display: flex; align-items: flex-start; gap: 16px;
+}
+.pc-avatar {
+  width: 54px; height: 54px;
+  background: var(--amber-grad); border-radius: 50%;
+  display: grid; place-items: center;
+  font-family: 'Syne', sans-serif; font-size: 1.35rem; font-weight: 800; color: #1a0f00;
+  flex-shrink: 0; box-shadow: var(--sh-amber);
+  position: relative; overflow: hidden;
+}
+.pc-avatar img {
+  width: 100%; height: 100%; object-fit: cover;
+  position: absolute; inset: 0; border-radius: 50%;
+}
+.pc-info { flex: 1; min-width: 0; }
+.pc-name-input {
+  background: none; border: none;
+  border-bottom: 1px solid var(--border);
+  font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; color: var(--tx1);
+  width: 100%; padding: 4px 0; outline: none; display: block; margin-bottom: 6px;
+  transition: border-color var(--fast) var(--ease);
+}
+.pc-name-input:focus { border-color: var(--amber); }
+.pc-badge {
+  font-size: 0.64rem; font-weight: 700; color: var(--amber);
+  background: var(--amber-dim); border-radius: 10px; padding: 2px 10px;
+  display: inline-block; font-family: 'DM Sans', sans-serif; margin-bottom: 8px;
+}
+
+/* Social account info block (moved from dashboard.css — unchanged) */
+.pc-social-info {
+  display: flex; flex-direction: column; gap: 3px; margin-top: 4px;
+}
+.pc-social-badge {
+  font-size: 0.62rem; font-weight: 700; color: #60a5fa;
+  background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.2);
+  border-radius: 10px; padding: 2px 9px; display: inline-block;
+  font-family: 'DM Sans', sans-serif;
+}
+.pc-social-provider {
+  font-size: 0.68rem; font-weight: 600; color: var(--tx2);
+  font-family: 'DM Sans', sans-serif;
+}
+.pc-email {
+  font-size: 0.68rem; color: var(--tx3);
+  font-family: 'DM Mono', monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ══════════════════════════════════════════════════════
+   SETTINGS GROUP (moved from dashboard.css — unchanged)
+══════════════════════════════════════════════════════ */
+.settings-group {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r4); overflow: hidden;
+}
+.sg-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 18px; border-bottom: 1px solid var(--border);
+  transition: background var(--fast) var(--ease);
+}
+.sg-row:last-child { border-bottom: none; }
+.sg-row:hover { background: var(--glass); }
+.sg-info { flex: 1; min-width: 0; }
+.sg-title { font-size: 0.86rem; font-weight: 600; display: block; }
+.sg-sub   { font-size: 0.7rem; color: var(--tx3); margin-top: 2px; display: block; }
+
+/* ── Toggle switch (moved from dashboard.css — unchanged) ── */
+.tog-switch { position: relative; width: 44px; height: 24px; cursor: pointer; flex-shrink: 0; }
+.tog-switch input { opacity: 0; width: 0; height: 0; }
+.tog-track {
+  position: absolute; inset: 0;
+  background: var(--raised); border: 1px solid var(--borderH);
+  border-radius: 12px; transition: all var(--fast) var(--ease);
+}
+.tog-track::after {
+  content: ''; position: absolute;
+  width: 17px; height: 17px; top: 2.5px; left: 3px;
+  background: var(--tx3); border-radius: 50%;
+  transition: all var(--fast) var(--ease);
+}
+input:checked + .tog-track { background: var(--amber); border-color: var(--amber); }
+input:checked + .tog-track::after { transform: translateX(20px); background: #fff; }
+
+/* ── Lang/action button (moved from dashboard.css — unchanged) ── */
+.lang-btn {
+  display: flex; align-items: center; gap: 4px;
+  background: var(--raised); border: 1px solid var(--border);
+  border-radius: var(--r2); padding: 7px 12px;
+  font-size: 0.77rem; font-weight: 600; color: var(--tx1);
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: all var(--fast) var(--ease); white-space: nowrap;
+}
+.lang-btn:hover { border-color: var(--amber); color: var(--amber); }
+
+/* ── Danger button (moved from dashboard.css — unchanged) ── */
+.danger-btn {
+  background: var(--exp-bg); border: 1px solid var(--exp-bdr);
+  color: var(--exp); border-radius: var(--r2); padding: 7px 13px;
+  font-size: 0.77rem; font-weight: 600; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; transition: all var(--fast) var(--ease);
+}
+.danger-btn:hover { background: var(--exp); color: #fff; }
+
+/* ── Logout button (moved from dashboard.css — unchanged) ── */
+.logout-btn {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 9px;
+  padding: 13px; background: var(--exp-bg); border: 1px solid var(--exp-bdr);
+  border-radius: var(--r4); color: var(--exp);
+  font-family: 'Syne', sans-serif; font-size: 0.86rem; font-weight: 700;
+  cursor: pointer; transition: all var(--fast) var(--ease);
+}
+.logout-btn:hover { background: var(--exp); color: #fff; transform: translateY(-1px); box-shadow: var(--sh-exp); }
+
+/* ══════════════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+  .prof-main { padding: 16px 12px; }
+  .prof-bar-spacer { width: 80px; }
+}

@@ -17,6 +17,7 @@
     <header class="cmd-bar" id="cmdBar">
       <!-- ── ROW 1 ─────────────────────────── -->
       <div class="cmd-row cmd-row1">
+        <!-- CHANGED: avatarBtn now links to profile.html instead of settings page -->
         <button class="avatar-pill" id="avatarBtn" aria-label="Profile">
           <span class="avatar-ring" id="avatarRing">
             <img
@@ -396,35 +397,23 @@
         <div class="cat-breakdown" id="catBreakdown"></div>
       </section>
 
-      <!-- SETTINGS / PROFILE -->
+      <!-- ══ SETTINGS PAGE (kept for dark mode / language / notifications / clear data) ══ -->
+      <!-- NOTE: Profile card has been moved to profile.html -->
       <section class="page hidden" id="page-settings">
         <div class="page-head">
           <h2 class="page-title" data-i18n="settings">Settings</h2>
         </div>
 
-        <!-- Profile card — social vs normal login -->
-        <div class="profile-card" id="profileCard">
-          <div class="pc-avatar" id="pcAvatar">A</div>
-          <div class="pc-info">
-            <input
-              class="pc-name-input"
-              id="profileNameInput"
-              value="Alex Morgan"
-              placeholder="Your name"
-            />
-            <span class="pc-badge" data-i18n="premium_member"
-              >Premium Member</span
-            >
-            <!-- Social account badge — hidden unless social login -->
-            <div class="pc-social-info" id="pcSocialInfo" style="display: none">
-              <span class="pc-social-badge" id="pcSocialBadge"
-                >Social Account</span
-              >
-              <span class="pc-social-provider" id="pcSocialProvider"></span>
-              <span class="pc-email" id="pcEmail"></span>
+        <!-- ADDED: Navigation link to Profile page -->
+        <a href="profile.html" class="profile-nav-link" id="goToProfile">
+          <div class="profile-nav-card">
+            <div class="pnc-avatar" id="pncAvatar">A</div>
+            <div class="pnc-info">
+              <span class="pnc-name" id="pncName">Alex Morgan</span>
+              <span class="pnc-sub">View &amp; edit profile →</span>
             </div>
           </div>
-        </div>
+        </a>
 
         <div class="settings-group">
           <div class="sg-row">
@@ -465,20 +454,6 @@
                 class="tog-track"
               ></span
             ></label>
-          </div>
-          <!-- Password change — hidden for social login -->
-          <div class="sg-row" id="passwordRow">
-            <div class="sg-info">
-              <span class="sg-title" data-i18n="change_password"
-                >Change Password</span
-              >
-              <span class="sg-sub" data-i18n="change_password_sub"
-                >Update your account password</span
-              >
-            </div>
-            <button class="lang-btn" id="changePasswordBtn" data-i18n="change">
-              Change
-            </button>
           </div>
           <div class="sg-row">
             <div class="sg-info">

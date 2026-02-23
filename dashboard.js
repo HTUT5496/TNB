@@ -1205,6 +1205,11 @@ function exportCSV() {
   URL.revokeObjectURL(url);
 }
 
+/* ═══════════════════════════════════════════
+   26. UPDATE PROFILE — MOVED: full implementation in profile.js
+   This stripped-down version only updates dashboard UI elements
+   (navbar avatar, greeting) from localStorage values.
+═══════════════════════════════════════════ */
 function updateProfile() {
   const name = S.userName;
   const init =
@@ -1244,55 +1249,22 @@ function updateProfile() {
 
   setText("avatarName", name.split(" ")[0]);
 
-  /* ── Settings profile card ── */
-  const pcAvatar = $("pcAvatar");
-  if (pcAvatar) {
+  /* ── ADDED: Settings page profile nav card ── */
+  const pncAvatar = $("pncAvatar");
+  if (pncAvatar) {
     if (S.userAvatar) {
-      /* Show Google photo in settings avatar */
-      if (!pcAvatar.querySelector("img")) {
+      if (!pncAvatar.querySelector("img")) {
         const img = document.createElement("img");
-        img.style.cssText =
-          "position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover;";
-        pcAvatar.appendChild(img);
+        pncAvatar.appendChild(img);
       }
-      pcAvatar.querySelector("img").src = S.userAvatar;
-      pcAvatar.textContent = "";
-      pcAvatar.appendChild(pcAvatar.querySelector("img"));
+      pncAvatar.querySelector("img").src = S.userAvatar;
+      pncAvatar.textContent = "";
+      pncAvatar.appendChild(pncAvatar.querySelector("img"));
     } else {
-      pcAvatar.innerHTML = init[0];
+      pncAvatar.innerHTML = init[0];
     }
   }
-
-  const ni = $("profileNameInput");
-  if (ni) ni.value = name;
-
-  /* Social account info block */
-  const socialInfo = $("pcSocialInfo");
-  const socialBadge = $("pcSocialBadge");
-  const socialProvider = $("pcSocialProvider");
-  const emailEl = $("pcEmail");
-  const passwordRow = $("passwordRow");
-
-  if (S.isSocialLogin) {
-    if (socialInfo) socialInfo.style.display = "flex";
-    if (socialBadge)
-      socialBadge.textContent =
-        TRANSLATIONS[S.lang].social_account || "Social Account";
-    if (socialProvider && S.userProvider)
-      socialProvider.textContent =
-        (TRANSLATIONS[S.lang].provider_label || "Provider:") +
-        " " +
-        S.userProvider;
-    if (emailEl && S.userEmail) emailEl.textContent = S.userEmail;
-    /* Disable password change for social login */
-    if (passwordRow) passwordRow.style.display = "none";
-    /* Make name input read-only for social login */
-    if (ni) ni.readOnly = true;
-  } else {
-    if (socialInfo) socialInfo.style.display = "none";
-    if (passwordRow) passwordRow.style.display = "flex";
-    if (ni) ni.readOnly = false;
-  }
+  setText("pncName", name);
 
   updateGreeting();
 }
@@ -1382,12 +1354,8 @@ function handleSearch(q) {
 }
 
 /* ═══════════════════════════════════════════
-   30. EVENT WIRING ← PRESERVED + new filter wiring
-   All listeners registered once on init.
-   Delegation used where appropriate.
-═══════════════════════════════════════════ */
-/* ═══════════════════════════════════════════
-    30. EVENT WIRING
+    30. EVENT WIRING ← PRESERVED
+    NOTE: avatarBtn now navigates to profile.html
 ═══════════════════════════════════════════ */
 function wire() {
   /* ── Bottom nav ── */
@@ -1410,8 +1378,10 @@ function wire() {
   });
   $("fabBackdrop")?.addEventListener("click", () => toggleFab(false));
 
-  /* ── Avatar → Settings ── */
-  $("avatarBtn")?.addEventListener("click", () => goTo("settings"));
+  /* ── Avatar → Profile page (CHANGED: navigates to profile.html) ── */
+  $("avatarBtn")?.addEventListener("click", () => {
+    window.location.href = "profile.html";
+  });
 
   /* ── 3-dots Menu ── */
   $("dotsBtn")?.addEventListener("click", (e) => {
@@ -1550,22 +1520,12 @@ function wire() {
   });
 
   /* ── Settings: Clear All Data (FINAL FIXED) ── */
-  /* ── Settings: Clear All Data (Final Solution) ── */
   $("clearBtn")?.addEventListener("click", () => {
     const T = TRANSLATIONS[S.lang];
     showConfirm(T.confirm_clear, T.confirm_clear_msg, () => {
-      // ၁။ Memory ထဲက data ကို အရင်ရှင်းမယ်
       S.transactions = [];
-
-      // ၂။ သင်သတ်မှတ်ထားတဲ့ saveTxns() function ကို သုံးပြီး Storage ကို သိမ်းမယ်
-      // ဒါဆိုရင် localStorage ထဲမှာ "novapay_transactions" က [] ဖြစ်သွားပါပြီ
       saveTxns();
-
-      // ၃။ Refresh လုပ်ရင် Demo data ပြန်မဝင်အောင် အမှတ်အသားလုပ်မယ်
-      // (ဒီနာမည်က init() ထဲက နာမည်နဲ့ တူရပါမယ်)
       localStorage.setItem("app_initialized", "true");
-
-      // ၄။ UI ကို Update လုပ်မယ်
       renderAll();
 
       if (typeof showToast === "function") {
@@ -1575,9 +1535,9 @@ function wire() {
       console.log("Storage Updated: novapay_transactions is now empty.");
     });
   });
+
   /* ── SUPABASE LOGOUT ── */
   $("logoutBtn")?.addEventListener("click", () => {
-    const T = TRANSLATIONS[S.lang];
     showConfirm(
       S.lang === "en" ? "Logout?" : "ထွက်မည်?",
       S.lang === "en"
@@ -1658,7 +1618,7 @@ function seedDemoData() {
 }
 
 /* ═══════════════════════════════════════════
-   31. INIT — Final Optimized Version
+   32. INIT — Final Optimized Version
 ═══════════════════════════════════════════ */
 async function init() {
   const {
@@ -1702,12 +1662,10 @@ async function init() {
   wire();
 
   // 4. Handle Demo Data (FIXED: အကောင့်အသစ်ဆိုမှ တစ်ခါပဲ Demo data ထည့်မယ်)
-  // localstorage မှာ တစ်ခါမှ မဖွင့်ရသေးဘူးဆိုရင်ပဲ Demo data ပြမယ်
   const isFirstTime = !localStorage.getItem("app_initialized");
 
   if (isFirstTime && (!S.transactions || S.transactions.length === 0)) {
     seedDemoData();
-    // Demo data တစ်ခါဝင်ပြီးရင် နောက်တစ်ခါ refresh လုပ်ရင် ထပ်မဝင်အောင် မှတ်ထားမယ်
     localStorage.setItem("app_initialized", "true");
   }
 

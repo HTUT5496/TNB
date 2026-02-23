@@ -985,7 +985,51 @@ body {
 .cat-bar { height: 100%; border-radius: 3px; transition: width 0.7s var(--ease); }
 .cat-amt { font-family: 'DM Mono', monospace; font-size: 0.76rem; font-weight: 500; min-width: 68px; text-align: right; }
 
-/* ── Settings / Profile ── */
+/* ══════════════════════════════════════════════════════
+   SETTINGS — Profile Nav Card (ADDED: links to profile.html)
+══════════════════════════════════════════════════════ */
+.profile-nav-link {
+  display: block; text-decoration: none; margin-bottom: 14px;
+}
+.profile-nav-card {
+  background: var(--card); border: 1px solid var(--borderH);
+  border-radius: var(--r4); padding: 16px 18px;
+  display: flex; align-items: center; gap: 14px;
+  transition: all var(--fast) var(--ease);
+  position: relative; overflow: hidden;
+}
+.profile-nav-card::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, rgba(245,166,35,0.04), transparent);
+  opacity: 0; transition: opacity var(--fast) var(--ease);
+}
+.profile-nav-card:hover { border-color: var(--amber); background: var(--card2); transform: translateY(-1px); box-shadow: var(--sh1); }
+.profile-nav-card:hover::after { opacity: 1; }
+.pnc-avatar {
+  width: 44px; height: 44px;
+  background: var(--amber-grad); border-radius: 50%;
+  display: grid; place-items: center;
+  font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 800; color: #1a0f00;
+  flex-shrink: 0; box-shadow: var(--sh-amber);
+  position: relative; overflow: hidden;
+}
+.pnc-avatar img {
+  width: 100%; height: 100%; object-fit: cover;
+  position: absolute; inset: 0; border-radius: 50%;
+}
+.pnc-info { flex: 1; min-width: 0; }
+.pnc-name {
+  font-family: 'Syne', sans-serif; font-size: 0.92rem; font-weight: 700; color: var(--tx1);
+  display: block; margin-bottom: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pnc-sub {
+  font-size: 0.68rem; color: var(--amber); font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ── Settings / Profile (kept for existing usage) ── */
 .profile-card {
   background: var(--card); border: 1px solid var(--border);
   border-radius: var(--r4); padding: 22px 20px;
