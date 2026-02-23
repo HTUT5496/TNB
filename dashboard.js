@@ -1,1687 +1,1289 @@
-const { createClient } = supabase;
-const _supabase = createClient(
-  "https://lqfjeamzbxayfbjntarr.supabase.co",
-  "sb_publishable_jDExXkASC_jrulY8B7noFw_r9qut-vQ",
-);
+/* ══════════════════════════════════════════════════════
+   FINPAY – SMART FINANCE  |  dashboard.css  v4.0
+   Aesthetic: Editorial Finance × Precision Engineering
+   Fonts: Syne (display) + DM Sans (body) + DM Mono (numbers)
+   v4.0 changes:
+   - Navbar #1: Bell + 3-dots moved to right side of Row 1
+   - Navbar #2: Premium financial summary card style
+   - History page: Advanced date range filter panel
+   - Usage Summary: Real-time category rows on Home
+   - Profile: Social account indicators
+   - All existing styles preserved and enhanced
+══════════════════════════════════════════════════════ */
 
-("use strict");
-// ဒီအောက်မှာ TRANSLATIONS နဲ့ S object တို့ ဆက်ရှိနေပါစေ...
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
 
-("use strict");
-/* ═══════════════════════════════════════════
-   1. TRANSLATIONS (English / Burmese) ← PRESERVED + new keys
-═══════════════════════════════════════════ */
-const TRANSLATIONS = {
-  en: {
-    brand: "FinPay",
-    nav_dashboard: "Home",
-    nav_transactions: "History",
-    nav_reports: "Reports",
-    nav_settings: "Settings",
-    premium_member: "Premium Member",
-    good_morning: "Good morning,",
-    good_afternoon: "Good afternoon,",
-    good_evening: "Good evening,",
-    available_balance: "Balance",
-    income: "Income",
-    expense: "Expense",
-    add_income: "Add Income",
-    add_expense: "Add Expense",
-    reports: "Reports",
-    spending_overview: "Spending Overview",
-    last_7: "Last 7 Days",
-    last_30: "Last 30 Days",
-    recent_transactions: "Recent Activity",
-    all_transactions: "All Transactions",
-    all: "All",
-    export_csv: "Export CSV",
-    total_income: "Total Income",
-    total_expense: "Total Expense",
-    net_balance: "Net Balance",
-    total_transactions: "Transactions",
-    category_breakdown: "Category Breakdown",
-    settings: "Settings",
-    dark_mode: "Dark Mode",
-    dark_mode_sub: "Switch between dark and light",
-    language: "Language",
-    language_sub: "English / Burmese",
-    notifications_setting: "Notifications",
-    notifications_sub: "Balance change alerts",
-    clear_data: "Clear All Data",
-    clear_data_sub: "Remove all transactions",
-    clear: "Clear",
-    logout: "Logout",
-    notifications: "Notifications",
-    clear_all: "Clear All",
-    no_notifs: "No notifications yet",
-    amount: "Amount ($)",
-    category: "Category",
-    description: "Description",
-    date: "Date",
-    add_transaction: "Add Transaction",
-    cancel: "Cancel",
-    confirm: "Confirm",
-    modal_income_title: "Add Income",
-    modal_expense_title: "Add Expense",
-    notif_balance_now: "Your balance is now",
-    notif_added_income: "↑ Income Added",
-    notif_added_expense: "↓ Expense Added",
-    confirm_delete: "Delete this transaction?",
-    confirm_delete_msg: "This action cannot be undone.",
-    confirm_clear: "Clear all data?",
-    confirm_clear_msg: "All transactions will be permanently removed.",
-    no_transactions: "No transactions yet",
-    add_first: "Tap + to add your first entry",
-    search_results: "Search Results",
-    quick_actions: "Quick Actions",
-    tap_to_add: "Tap to add transaction",
-    usage_summary: "Usage Summary",
-    qa_total_added: "Total Added",
-    qa_total_used: "Total Used",
-    /* History filter */
-    filter_type: "Type",
-    start_date: "From",
-    end_date: "To",
-    apply_filter: "Apply Filter",
-    reset_filter: "Reset",
-    err_date_range: "Start date must be before end date.",
-    err_date_required: "Please select both start and end dates.",
-    filter_active: "Filter active",
-    /* Profile / Social */
-    change_password: "Change Password",
-    change_password_sub: "Update your account password",
-    change: "Change",
-    social_account: "Social Account",
-    provider_label: "Provider:",
-    /* Categories */
-    cat_salary: "Salary",
-    cat_freelance: "Freelance",
-    cat_investment: "Invest",
-    cat_gift: "Gift",
-    cat_other_income: "Other Income",
-    cat_food: "Food",
-    cat_transport: "Transport",
-    cat_shopping: "Shopping",
-    cat_bills: "Bills",
-    cat_health: "Health",
-    cat_entertainment: "Entertain",
-    cat_education: "Education",
-    cat_rent: "Rent",
-    cat_other_expense: "Other",
-  },
-  my: {
-    brand: "FinPay",
-    nav_dashboard: "ဒက်ရ်ဘုတ်",
-    nav_transactions: "မှတ်တမ်း",
-    nav_reports: "အစီရင်ခံ",
-    nav_settings: "ဆက်တင်",
-    premium_member: "ပရီမီယံ အဖွဲ့ဝင်",
-    good_morning: "မင်္ဂလာနံနက်ခင်းပါ၊",
-    good_afternoon: "မင်္ဂလာနေ့လည်ပါ၊",
-    good_evening: "မင်္ဂလာညနေပါ၊",
-    available_balance: "လက်ကျန်",
-    income: "ဝင်ငွေ",
-    expense: "ထွက်ငွေ",
-    add_income: "ဝင်ငွေထည့်",
-    add_expense: "ထွက်ငွေထည့်",
-    reports: "အစီရင်ခံ",
-    spending_overview: "ငွေသုံးမှု အနှစ်ချုပ်",
-    last_7: "ၿပီးခဲ့သော ၇ ရက်",
-    last_30: "ၿပီးခဲ့သော ၃၀ ရက်",
-    recent_transactions: "မကြာမီ လုပ်ဆောင်ချက်",
-    all_transactions: "ငွေသွင်း/ထုတ် အားလုံး",
-    all: "အားလုံး",
-    export_csv: "CSV ထုတ်ယူ",
-    total_income: "စုစုပေါင်း ဝင်ငွေ",
-    total_expense: "စုစုပေါင်း ထွက်ငွေ",
-    net_balance: "အသားတင် လက်ကျန်",
-    total_transactions: "ငွေလွှဲ စုစုပေါင်း",
-    category_breakdown: "အမျိုးအစားအလိုက်",
-    settings: "ဆက်တင်",
-    dark_mode: "အမဲရောင် မုဒ်",
-    dark_mode_sub: "အမဲ / အဖြူ ပြောင်းလဲ",
-    language: "ဘာသာစကား",
-    language_sub: "အင်္ဂလိပ် / မြန်မာ",
-    notifications_setting: "အကြောင်းကြားချက်",
-    notifications_sub: "လက်ကျန်ငွေ သတိပေး",
-    clear_data: "ဒေတာ အားလုံး ရှင်းလင်း",
-    clear_data_sub: "ငွေသွင်း/ထုတ် အားလုံး ဖျက်မည်",
-    clear: "ရှင်းလင်း",
-    logout: "ထွက်မည်",
-    notifications: "အကြောင်းကြားချက်",
-    clear_all: "အားလုံး ရှင်းလင်း",
-    no_notifs: "အကြောင်းကြားချက် မရှိသေးပါ",
-    amount: "ငွေပမာဏ ($)",
-    category: "အမျိုးအစား",
-    description: "ဖော်ပြချက်",
-    date: "ရက်စွဲ",
-    add_transaction: "ငွေသွင်း/ထုတ် ထည့်",
-    cancel: "မလုပ်တော့",
-    confirm: "အတည်ပြု",
-    modal_income_title: "ဝင်ငွေ ထည့်သည်",
-    modal_expense_title: "ထွက်ငွေ ထည့်သည်",
-    notif_balance_now: "သင့်လက်ကျန်ငွေ",
-    notif_added_income: "↑ ဝင်ငွေ ထည့်ပြီး",
-    notif_added_expense: "↓ ထွက်ငွေ ထည့်ပြီး",
-    confirm_delete: "ဤငွေလွှဲကို ဖျက်မလား?",
-    confirm_delete_msg: "ဤလုပ်ဆောင်ချက်ကို ပြန်မလုပ်နိုင်ပါ။",
-    confirm_clear: "ဒေတာ အားလုံး ရှင်းမလား?",
-    confirm_clear_msg: "ငွေသွင်း/ထုတ် အားလုံး ပြည်တမ်း ဖျက်မည်။",
-    no_transactions: "ငွေသွင်း/ထုတ် မရှိသေးပါ",
-    add_first: "+ ကိုနှိပ်၍ ထည့်ပါ",
-    search_results: "ရှာဖွေမှု ရလဒ်",
-    quick_actions: "မြန်ဆန်သော လုပ်ဆောင်ချက်",
-    tap_to_add: "ငွေသွင်း/ထုတ် ထည့်ရန် နှိပ်ပါ",
-    usage_summary: "အသုံးပြုမှု အနှစ်ချုပ်",
-    qa_total_added: "စုစုပေါင်း ထည့်သည်",
-    qa_total_used: "စုစုပေါင်း သုံးသည်",
-    filter_type: "အမျိုးအစား",
-    start_date: "စတင်ရက်",
-    end_date: "ပြီးဆုံးရက်",
-    apply_filter: "စစ်ထုတ်မည်",
-    reset_filter: "ပြန်သတ်မှတ်",
-    err_date_range: "စတင်ရက်သည် ပြီးဆုံးရက်မတိုင်မီ ဖြစ်ရမည်။",
-    err_date_required: "ရက်စွဲ နှစ်ခု ရွေးပါ။",
-    filter_active: "စစ်ထုတ်မှု ဖွင့်ထားသည်",
-    change_password: "စကားဝှက် ပြောင်းရန်",
-    change_password_sub: "အကောင့် စကားဝှက် ပြောင်းမည်",
-    change: "ပြောင်းမည်",
-    social_account: "ဆိုရှယ် အကောင့်",
-    provider_label: "ဝန်ဆောင်မှု:",
-    cat_salary: "လစာ",
-    cat_freelance: "ဖရီးလန်စ်",
-    cat_investment: "ရင်းနှီး",
-    cat_gift: "လက်ဆောင်",
-    cat_other_income: "အခြား ဝင်ငွေ",
-    cat_food: "အစားအသောက်",
-    cat_transport: "သယ်ယူ",
-    cat_shopping: "ဈေးဝယ်",
-    cat_bills: "ဘီလ်",
-    cat_health: "ကျန်းမာ",
-    cat_entertainment: "အပျော်",
-    cat_education: "ပညာ",
-    cat_rent: "အငှားခ",
-    cat_other_expense: "အခြား",
-  },
-};
+/* ─── RESET ───────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 
-/* ═══════════════════════════════════════════
-   2. CATEGORIES ← PRESERVED
-═══════════════════════════════════════════ */
-const CATEGORIES = {
-  income: [
-    { key: "cat_salary", icon: "💼" },
-    { key: "cat_freelance", icon: "💻" },
-    { key: "cat_investment", icon: "📈" },
-    { key: "cat_gift", icon: "🎁" },
-    { key: "cat_other_income", icon: "💰" },
-  ],
-  expense: [
-    { key: "cat_food", icon: "🍜" },
-    { key: "cat_transport", icon: "🚗" },
-    { key: "cat_shopping", icon: "🛍️" },
-    { key: "cat_bills", icon: "📄" },
-    { key: "cat_health", icon: "💊" },
-    { key: "cat_entertainment", icon: "🎬" },
-    { key: "cat_education", icon: "📚" },
-    { key: "cat_rent", icon: "🏠" },
-    { key: "cat_other_expense", icon: "💸" },
-  ],
-};
+/* ─── DESIGN TOKENS ───────────────────────────────── */
+:root {
+  --void:    #040508;
+  --base:    #080b12;
+  --surface: #0c1020;
+  --raised:  #121828;
+  --card:    #161e30;
+  --card2:   #1a2438;
+  --glass:   rgba(255,255,255,0.03);
+  --glassH:  rgba(255,255,255,0.07);
 
-/* Quick Actions shown on home screen */
-const QUICK_ACTIONS = [
-  { key: "cat_salary", type: "income", icon: "💼" },
-  { key: "cat_freelance", type: "income", icon: "💻" },
-  { key: "cat_investment", type: "income", icon: "📈" },
-  { key: "cat_food", type: "expense", icon: "🍜" },
-  { key: "cat_transport", type: "expense", icon: "🚗" },
-  { key: "cat_shopping", type: "expense", icon: "🛍️" },
-  { key: "cat_bills", type: "expense", icon: "📄" },
-  { key: "cat_health", type: "expense", icon: "💊" },
-];
+  --border:  rgba(255,255,255,0.06);
+  --borderH: rgba(255,255,255,0.12);
+  --borderA: rgba(255,255,255,0.18);
 
-/* ═══════════════════════════════════════════
-   3. APP STATE ← PRESERVED + txn date range
-═══════════════════════════════════════════ */
-const S = {
-  transactions: [],
-  notifications: [],
-  lang: "en",
-  theme: "dark",
-  notifEnabled: true,
-  userName: "Alex Morgan",
-  userAvatar: "",
-  userEmail: "",
-  userProvider: "", // e.g. 'Google', 'Facebook'
-  isSocialLogin: false,
-  /* filters */
-  dashFilter: "all",
-  txnFilter: "all",
-  txnDateFrom: "",
-  txnDateTo: "",
-  txnFilterActive: false,
-  searchQuery: "",
-  /* ui */
-  fabOpen: false,
-  confirmCb: null,
-};
+  --amber:      #f5a623;
+  --amber-dim:  rgba(245,166,35,0.12);
+  --amber-glow: rgba(245,166,35,0.30);
+  --amber-grad: linear-gradient(135deg, #d4820a 0%, #f5a623 60%, #ffd580 100%);
 
-/* ═══════════════════════════════════════════
-   4. LOCAL STORAGE ← PRESERVED
-═══════════════════════════════════════════ */
-const LS = {
-  transactions: "novapay_transactions",
-  notifications: "novapay_notifications",
-  lang: "novapay_lang",
-  theme: "novapay_theme",
-  notifEnabled: "novapay_notif",
-  userName: "novapay_username",
-  userAvatar: "novapay_avatar",
-  userEmail: "novapay_email",
-  userProvider: "novapay_provider",
-  isSocialLogin: "novapay_social",
-};
+  --hero-grad: linear-gradient(145deg, #080f28 0%, #0d1d4a 40%, #082040 70%, #061830 100%);
 
-const lsSet = (k, v) => {
-  try {
-    localStorage.setItem(k, JSON.stringify(v));
-  } catch {}
-};
-const lsGet = (k, fb) => {
-  try {
-    const v = localStorage.getItem(k);
-    return v !== null ? JSON.parse(v) : fb;
-  } catch {
-    return fb;
-  }
-};
+  --inc:      #00e896;
+  --inc-bg:   rgba(0,232,150,0.10);
+  --inc-bdr:  rgba(0,232,150,0.20);
+  --inc-glow: rgba(0,232,150,0.25);
+  --exp:      #ff3d71;
+  --exp-bg:   rgba(255,61,113,0.10);
+  --exp-bdr:  rgba(255,61,113,0.20);
+  --exp-glow: rgba(255,61,113,0.25);
 
-function loadState() {
-  S.transactions = lsGet(LS.transactions, []);
-  S.notifications = lsGet(LS.notifications, []);
-  S.lang = lsGet(LS.lang, "en");
-  S.theme = lsGet(LS.theme, "dark");
-  S.notifEnabled = lsGet(LS.notifEnabled, true);
-  S.userName = lsGet(LS.userName, "Alex Morgan");
-  S.userAvatar = lsGet(LS.userAvatar, "");
-  S.userEmail = lsGet(LS.userEmail, "");
-  S.userProvider = lsGet(LS.userProvider, "");
-  S.isSocialLogin = lsGet(LS.isSocialLogin, false);
+  --tx1: #e2ecff;
+  --tx2: #5a6d88;
+  --tx3: #2e3d55;
+
+  --r1: 6px;  --r2: 10px; --r3: 14px;
+  --r4: 18px; --r5: 24px; --r6: 32px;
+
+  --navbar-h:  108px;
+  --botnav-h:  70px;
+
+  --ease:   cubic-bezier(0.4,0,0.2,1);
+  --spring: cubic-bezier(0.34,1.56,0.64,1);
+  --fast:   0.15s;
+  --med:    0.26s;
+  --slow:   0.42s;
+
+  --sh1: 0 2px 12px rgba(0,0,0,0.5);
+  --sh2: 0 8px 32px rgba(0,0,0,0.6);
+  --sh3: 0 20px 64px rgba(0,0,0,0.75);
+  --sh-amber: 0 6px 24px rgba(245,166,35,0.28);
+  --sh-inc:   0 4px 20px rgba(0,232,150,0.20);
+  --sh-exp:   0 4px 20px rgba(255,61,113,0.20);
 }
 
-const saveTxns = () => lsSet(LS.transactions, S.transactions);
-const saveNotifs = () => lsSet(LS.notifications, S.notifications);
+/* ─── LIGHT THEME ─────────────────────────────────── */
+[data-theme="light"] {
+  --void:    #dde5f5;
+  --base:    #e8eef9;
+  --surface: #f2f6fe;
+  --raised:  #ffffff;
+  --card:    #ffffff;
+  --card2:   #f7f9ff;
+  --glass:   rgba(0,0,0,0.02);
+  --glassH:  rgba(0,0,0,0.06);
+  --border:  rgba(0,0,0,0.07);
+  --borderH: rgba(0,0,0,0.13);
+  --borderA: rgba(0,0,0,0.20);
+  --tx1: #0d1a2e;
+  --tx2: #4a5e7a;
+  --tx3: #9aafcc;
+  --sh1: 0 2px 12px rgba(0,0,0,0.06);
+  --sh2: 0 8px 32px rgba(0,0,0,0.09);
+  --sh3: 0 20px 64px rgba(0,0,0,0.12);
+}
+[data-theme="light"] .cmd-bar   { background: rgba(232,238,249,0.96); }
+[data-theme="light"] .bot-nav   { background: rgba(242,246,254,0.98); }
+[data-theme="light"] .hero-card { --hero-grad: linear-gradient(145deg, #0c1f54 0%, #1535a0 45%, #0e3080 70%, #0a2060 100%); }
 
-/* ═══════════════════════════════════════════
-   5. FINANCE CALCULATIONS ← PRESERVED
-═══════════════════════════════════════════ */
-
-/** Returns { inc, exp, bal } totals */
-function calcTotals() {
-  let inc = 0,
-    exp = 0;
-  for (const t of S.transactions) {
-    t.type === "income" ? (inc += t.amount) : (exp += t.amount);
-  }
-  return { inc, exp, bal: inc - exp };
+/* ─── BASE ────────────────────────────────────────── */
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--base);
+  color: var(--tx1);
+  min-height: 100vh;
+  overflow-x: hidden;
+  padding-top: var(--navbar-h);
+  padding-bottom: calc(var(--botnav-h) + 20px);
+  transition: background var(--med) var(--ease), color var(--med) var(--ease);
 }
 
-/**
- * Single-pass grouping of all transactions by categoryKey.
- * O(n) — called once per renderAll().
- * @returns {Map<string, {total: number, type: string, icon: string}>}
- */
-function groupByCategory() {
-  const map = new Map();
-  for (const t of S.transactions) {
-    const existing = map.get(t.categoryKey);
-    if (existing) {
-      existing.total += t.amount;
-    } else {
-      const meta = getCatMeta(t.type, t.categoryKey);
-      map.set(t.categoryKey, {
-        total: t.amount,
-        type: t.type,
-        icon: meta.icon,
-      });
-    }
-  }
-  return map;
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--raised); border-radius: 2px; }
+
+/* ══════════════════════════════════════════════════════
+   COMMAND BAR — TWO ROWS
+══════════════════════════════════════════════════════ */
+.cmd-bar {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 500;
+  background: rgba(8,11,18,0.97);
+  backdrop-filter: blur(24px) saturate(1.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
 }
 
-/** Format number to USD string */
-const fmt = (n) =>
-  new Intl.NumberFormat("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(n);
-
-/* ═══════════════════════════════════════════
-   6. DOM HELPERS
-═══════════════════════════════════════════ */
-const $ = (id) => document.getElementById(id);
-const setText = (id, v) => {
-  const e = $(id);
-  if (e) e.textContent = v;
-};
-
-/* ═══════════════════════════════════════════
-   7. ANIMATED COUNTER ← PRESERVED
-═══════════════════════════════════════════ */
-function animCount(elId, target) {
-  const el = $(elId);
-  if (!el) return;
-  const from = parseFloat(el.textContent.replace(/,/g, "")) || 0;
-  const diff = target - from;
-  const dur = 660;
-  let t0 = null;
-  const step = (ts) => {
-    if (!t0) t0 = ts;
-    const p = Math.min((ts - t0) / dur, 1);
-    const ease = 1 - Math.pow(1 - p, 3);
-    el.textContent = fmt(from + diff * ease);
-    if (p < 1) requestAnimationFrame(step);
-  };
-  requestAnimationFrame(step);
+.cmd-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  height: 54px;
+}
+.cmd-row1 {
+  border-bottom: 1px solid var(--border);
 }
 
-/* ═══════════════════════════════════════════
-   8. UPDATE TOTALS ← PRESERVED
-═══════════════════════════════════════════ */
-function updateTotals() {
-  const { inc, exp, bal } = calcTotals();
+/* ── Avatar pill ── */
+.avatar-pill {
+  display: flex; align-items: center; gap: 8px;
+  background: none; border: none; cursor: pointer;
+  padding: 4px 10px 4px 4px;
+  border-radius: 28px;
+  transition: background var(--fast) var(--ease);
+  flex-shrink: 0;
+}
+.avatar-pill:hover { background: var(--glassH); }
+.avatar-ring {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--amber-grad);
+  display: grid; place-items: center;
+  box-shadow: var(--sh-amber);
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+.avatar-ring::after {
+  content: '';
+  position: absolute; inset: -2px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, var(--amber), transparent 60%);
+  z-index: -1;
+  animation: ring-spin 4s linear infinite;
+  opacity: 0.5;
+}
+@keyframes ring-spin { to { transform: rotate(360deg); } }
 
-  /* Hero balance card */
-  animCount("balanceDisplay", bal);
-  setText("totalIncomeDisplay", "$" + fmt(inc));
-  setText("totalExpenseDisplay", "$" + fmt(exp));
-
-  /* Row-2 summary strip */
-  setText("r2Balance", "$" + fmt(bal));
-  setText("r2Income", "$" + fmt(inc));
-  setText("r2Expense", "$" + fmt(exp));
-
-  /* Reports page */
-  setText("repIncome", "$" + fmt(inc));
-  setText("repExpense", "$" + fmt(exp));
-  setText("repBalance", "$" + fmt(bal));
-  setText("repCount", S.transactions.length);
-
-  const rb = $("repBalance");
-  if (rb) rb.style.color = bal >= 0 ? "var(--inc)" : "var(--exp)";
+.avatar-img {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+  position: absolute; inset: 0;
+}
+.avatar-letter {
+  font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 800; color: #1a0f00;
 }
 
-/* ═══════════════════════════════════════════
-   9. TRANSACTION CARD BUILDER ← PRESERVED
-═══════════════════════════════════════════ */
-function getCatMeta(type, key) {
-  return (
-    (CATEGORIES[type] || []).find((c) => c.key === key) || {
-      icon: type === "income" ? "💰" : "💸",
-    }
-  );
+.avatar-info {
+  display: flex; flex-direction: column; gap: 1px;
+}
+.avatar-name {
+  font-family: 'Syne', sans-serif; font-size: 0.82rem; font-weight: 700; color: var(--tx1);
+  white-space: nowrap; max-width: 80px; overflow: hidden; text-overflow: ellipsis;
+}
+.avatar-provider {
+  font-size: 0.58rem; font-weight: 600; color: var(--amber);
+  text-transform: uppercase; letter-spacing: 0.06em;
 }
 
-function makeTxnCard(txn, idx) {
-  const T = TRANSLATIONS[S.lang];
-  const meta = getCatMeta(txn.type, txn.categoryKey);
-  const lbl = T[txn.categoryKey] || txn.category;
-  const sign = txn.type === "income" ? "+" : "-";
-  const ds = txn.date
-    ? new Date(txn.date + "T00:00:00").toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      })
-    : "";
+/* ── Search shell ── */
+.search-shell { flex: 1; position: relative; display: flex; align-items: center; }
+.search-ico { position: absolute; left: 12px; color: var(--tx3); pointer-events: none; }
+.search-input {
+  width: 100%; height: 36px;
+  background: var(--raised);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 0 36px 0 34px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.84rem; color: var(--tx1);
+  outline: none; appearance: none; -webkit-appearance: none;
+  transition: border-color var(--fast) var(--ease), box-shadow var(--fast) var(--ease), background var(--fast) var(--ease);
+}
+.search-input:focus {
+  border-color: var(--amber);
+  box-shadow: 0 0 0 3px var(--amber-dim);
+  background: var(--surface);
+}
+.search-input::placeholder { color: var(--tx3); }
+.search-input::-webkit-search-cancel-button { display: none; }
+.search-clear {
+  position: absolute; right: 10px; background: none; border: none;
+  color: var(--tx3); font-size: 0.72rem; cursor: pointer;
+  display: none; padding: 4px; border-radius: 50%;
+  transition: color var(--fast) var(--ease), background var(--fast) var(--ease);
+}
+.search-clear:hover { color: var(--tx1); background: var(--glassH); }
+.search-clear.show { display: block; }
 
-  const div = document.createElement("div");
-  div.className = "txn-card";
-  div.dataset.type = txn.type;
-  div.style.animationDelay = Math.min(idx * 0.04, 0.5) + "s";
-  div.innerHTML = `
-    <div class="txn-ico ${txn.type}">${meta.icon}</div>
-    <div class="txn-info">
-      <div class="txn-cat">${lbl}</div>
-      <div class="txn-desc">${txn.description || ""}</div>
-    </div>
-    <div class="txn-meta">
-      <div class="txn-amt ${txn.type}">${sign}$${fmt(txn.amount)}</div>
-      <div class="txn-date">${ds}</div>
-    </div>
-    <button class="txn-del" data-id="${txn.id}" title="Delete">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-        <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>
-        <path d="M10 11v6M14 11v6M9 6V4h6v2"/>
-      </svg>
-    </button>`;
-
-  div.querySelector(".txn-del").addEventListener("click", (e) => {
-    e.stopPropagation();
-    const id = e.currentTarget.dataset.id;
-    const T2 = TRANSLATIONS[S.lang];
-    showConfirm(T2.confirm_delete, T2.confirm_delete_msg, () => deleteTxn(id));
-  });
-  return div;
+/* ── Nav actions (bell + dots, right side of row 1) ── */
+.nav-actions {
+  display: flex; align-items: center; gap: 6px; flex-shrink: 0;
 }
 
-function emptyEl() {
-  const T = TRANSLATIONS[S.lang];
-  const div = document.createElement("div");
-  div.className = "empty-state";
-  div.innerHTML = `
-    <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
-      <path d="M20 7H4a2 2 0 00-2 2v9a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
-      <path d="M16 3H8v4h8V3z"/>
-    </svg>
-    <p>${T.no_transactions}</p>
-    <p style="font-size:.7rem">${T.add_first}</p>`;
-  return div;
+/* ── 3-dots ── */
+.dots-shell { position: relative; flex-shrink: 0; }
+.dots-btn {
+  width: 36px; height: 36px;
+  background: var(--raised); border: 1px solid var(--border);
+  border-radius: 50%; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 3.5px;
+  cursor: pointer; transition: all var(--fast) var(--ease);
+}
+.dots-btn span {
+  width: 4px; height: 4px; background: var(--tx2);
+  border-radius: 50%; display: block; transition: background var(--fast) var(--ease);
+}
+.dots-btn:hover { background: var(--glassH); border-color: var(--borderH); }
+.dots-btn:hover span, .dots-btn.open span { background: var(--amber); }
+.dots-btn.open { border-color: var(--amber-dim); background: var(--amber-dim); }
+
+.dots-menu {
+  position: absolute; top: calc(100% + 10px); right: 0; width: 216px;
+  background: var(--card2);
+  border: 1px solid var(--borderH);
+  border-radius: var(--r4); box-shadow: var(--sh3); overflow: hidden;
+  opacity: 0; transform: scale(0.88) translateY(-12px); transform-origin: top right;
+  pointer-events: none;
+  transition: opacity var(--med) var(--ease), transform var(--med) var(--spring);
+  z-index: 600;
+}
+.dots-menu.open { opacity: 1; transform: scale(1) translateY(0); pointer-events: all; }
+.dmenu-row {
+  width: 100%; display: flex; align-items: center; gap: 10px;
+  padding: 13px 15px; background: none; border: none;
+  font-family: 'DM Sans', sans-serif; font-size: 0.86rem; font-weight: 500;
+  color: var(--tx1); cursor: pointer; text-align: left;
+  transition: background var(--fast) var(--ease);
+}
+.dmenu-row:hover { background: var(--glassH); }
+.dmenu-icon { font-size: 0.95rem; flex-shrink: 0; }
+.income-ico  { color: var(--inc); }
+.expense-ico { color: var(--exp); }
+.dmenu-label { flex: 1; }
+.dmenu-divider { height: 1px; background: var(--border); margin: 2px 0; }
+
+.dm-switch { position: relative; width: 38px; height: 21px; flex-shrink: 0; }
+.dm-switch input { opacity: 0; width: 0; height: 0; }
+.dm-track {
+  position: absolute; inset: 0;
+  background: var(--raised); border: 1px solid var(--borderH);
+  border-radius: 11px; cursor: pointer;
+  transition: all var(--fast) var(--ease);
+}
+.dm-track::after {
+  content: ''; position: absolute;
+  width: 14px; height: 14px; top: 2.5px; left: 3px;
+  background: var(--tx3); border-radius: 50%;
+  transition: all var(--fast) var(--ease);
+}
+.dm-switch input:checked + .dm-track { background: var(--amber); border-color: var(--amber); }
+.dm-switch input:checked + .dm-track::after { transform: translateX(16px); background: #fff; }
+
+/* ══════════════════════════════════════════════════════
+   ROW 2 — PREMIUM FINANCIAL SUMMARY CARD
+══════════════════════════════════════════════════════ */
+.cmd-row2 {
+  height: 54px;
+  padding: 0 16px;
+  background: linear-gradient(90deg,
+    rgba(245,166,35,0.03) 0%,
+    rgba(0,232,150,0.03) 50%,
+    rgba(255,61,113,0.03) 100%);
+  position: relative;
+}
+.cmd-row2::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(245,166,35,0.04), transparent);
+  pointer-events: none;
 }
 
-/** Transactions page feed — respects type + date range filters */
-/** 1. Transaction Feed - စာရင်းဟောင်း/သစ် ပြသခြင်း */
-function renderTxnFeed() {
-  const el = $("txnFeed");
-  if (!el) return;
-
-  // Transactions များကို Reverse လုပ်ပြီး Filter စစ်ထုတ်ခြင်း
-  let list = [...S.transactions].reverse().filter((t) => {
-    // Type Filter (All, Income, Expense)
-    const typeOk = S.txnFilter === "all" || t.type === S.txnFilter;
-
-    // Date Range Filter
-    let dateOk = true;
-    if (S.txnFilterActive) {
-      // String comparison (YYYY-MM-DD) သည် ISO format ဖြစ်၍ တိုက်ရိုက်ယှဉ်နိုင်သည်
-      if (S.txnDateFrom) dateOk = dateOk && t.date >= S.txnDateFrom;
-      if (S.txnDateTo) dateOk = dateOk && t.date <= S.txnDateTo;
-    }
-
-    return typeOk && dateOk;
-  });
-
-  el.innerHTML = "";
-
-  if (list.length === 0) {
-    el.appendChild(emptyEl()); // Data မရှိရင် Empty State ပြမယ်
-    return;
-  }
-
-  // Card လေးများကို တစ်ခုချင်း ဆွဲထုတ်ခြင်း
-  list.forEach((t, i) => {
-    const card = makeTxnCard(t, i);
-    // ဝင်လာချိန်မှာ Fade-in effect လေးဖြစ်အောင် animation delay ထည့်နိုင်သည်
-    card.style.animationDelay = `${i * 0.03}s`;
-    el.appendChild(card);
-  });
+.summary-strip {
+  display: flex; align-items: center; flex: 1; height: 100%;
+  overflow: hidden;
 }
 
-/** 2. Search Results - ရှာဖွေမှုရလဒ် ပြသခြင်း */
-function renderSearch(q) {
-  const el = $("searchFeed");
-  if (!el) return;
+.ss-item {
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 0 16px; min-width: 0; position: relative;
+}
+.ss-item:first-child { padding-left: 2px; }
 
-  const T = TRANSLATIONS[S.lang];
-  const low = q.toLowerCase().trim();
-
-  // Search box အလွတ်ဖြစ်ရင် ရှင်းထုတ်လိုက်မယ်
-  if (!low) {
-    el.innerHTML = "";
-    return;
-  }
-
-  const hits = [...S.transactions].reverse().filter((t) => {
-    const label = (T[t.categoryKey] || t.category || "").toLowerCase();
-    const desc = (t.description || "").toLowerCase();
-    const amount = t.amount.toString();
-    // အမျိုးအစား၊ အကြောင်းအရာ သို့မဟုတ် ပမာဏနဲ့ ရှာလို့ရအောင် လုပ်ထားသည်
-    return label.includes(low) || desc.includes(low) || amount.includes(low);
-  });
-
-  el.innerHTML = "";
-
-  if (hits.length === 0) {
-    el.appendChild(emptyEl());
-    return;
-  }
-
-  hits.forEach((t, i) => el.appendChild(makeTxnCard(t, i)));
+.ss-balance {
+  /* Highlight the balance item slightly */
+  background: rgba(255,255,255,0.02);
+  border-radius: var(--r2);
+  padding: 4px 14px;
 }
 
-/** 3. Usage Summary - အသုံးစရိတ် အနှစ်ချုပ် Bar Chart */
-function renderUsageSummary(catTotals) {
-  const el = $("usageSummary");
-  if (!el) return;
+.ss-label {
+  font-family: 'DM Sans', sans-serif; font-size: 0.57rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.1em; color: var(--tx3); white-space: nowrap;
+  margin-bottom: 2px;
+}
+.ss-val {
+  font-family: 'DM Mono', monospace; font-size: 0.92rem; font-weight: 500;
+  white-space: nowrap; letter-spacing: -0.01em;
+  transition: color var(--fast) var(--ease);
+}
+.ss-sep { width: 1px; height: 30px; background: var(--border); flex-shrink: 0; }
+.balance-col { color: var(--tx1); }
+.income-col  { color: var(--inc); }
+.expense-col { color: var(--exp); }
 
-  const T = TRANSLATIONS[S.lang];
-  el.innerHTML = "";
-
-  if (!catTotals || catTotals.size === 0) {
-    const empty = document.createElement("div");
-    empty.className = "empty-state";
-    empty.style.cssText = "background:none; border:none; padding: 2rem 0;";
-    empty.innerHTML = `
-      <p style="opacity:0.6">${T.no_transactions || "No Data"}</p>
-      <p style="font-size:.7rem; opacity:0.4">${T.add_first || "Start by adding a transaction"}</p>
-    `;
-    el.appendChild(empty);
-    return;
-  }
-
-  // အများဆုံးသုံးထားတဲ့ Category ကိုရှာပြီး 100% သတ်မှတ်ဖို့ entries ယူမယ်
-  const entries = [...catTotals.entries()]
-    .sort((a, b) => b[1].total - a[1].total)
-    .slice(0, 8); // Top 8 ပဲပြမယ်
-
-  const maxTotal = entries[0][1].total;
-
-  entries.forEach(([key, data], i) => {
-    const label = T[key] || key;
-    const pct = (data.total / maxTotal) * 100;
-    const color = data.type === "income" ? "var(--inc)" : "var(--exp)";
-    const typeLabel =
-      data.type === "income"
-        ? T.qa_total_added || "Income"
-        : T.qa_total_used || "Expense";
-
-    const row = document.createElement("div");
-    row.className = "usage-row";
-    row.style.animation = `slideIn 0.4s ease forwards ${i * 0.05}s`;
-    row.style.opacity = "0"; // Animation မစခင် ဖျောက်ထားမယ်
-
-    row.innerHTML = `
-      <div class="usage-ico ${data.type}">${data.icon || "💰"}</div>
-      <div class="usage-info">
-        <div class="usage-cat">${label}</div>
-        <span class="usage-type-badge ${data.type}">${typeLabel}</span>
-      </div>
-      <div class="usage-bar-wrap">
-        <div class="usage-bar" style="width: 0%; background: ${color}; transition: width 0.8s cubic-bezier(0.17, 0.55, 0.55, 1);"></div>
-      </div>
-      <div class="usage-amount ${data.type}">${fmt(data.total)}</div>`;
-
-    el.appendChild(row);
-
-    // Bar လေးတွေ တစ်ခုချင်းစီ ရှည်ထွက်လာအောင် Animation လုပ်ခြင်း
-    requestAnimationFrame(() => {
-      setTimeout(
-        () => {
-          const bar = row.querySelector(".usage-bar");
-          if (bar) {
-            bar.style.width = `${pct}%`;
-            row.style.opacity = "1";
-          }
-        },
-        100 + i * 50,
-      );
-    });
-  });
+/* Balance value gets slightly larger */
+.ss-balance .ss-val {
+  font-size: 1rem;
+  color: var(--amber);
+  font-weight: 600;
 }
 
-/* ═══════════════════════════════════════════
-   12. CATEGORY BREAKDOWN ← PRESERVED
-═══════════════════════════════════════════ */
-const CAT_COLORS = [
-  "#f5a623",
-  "#00e896",
-  "#ff3d71",
-  "#a78bfa",
-  "#38bdf8",
-  "#34d399",
-  "#f97316",
-  "#e879f9",
-  "#60a5fa",
-  "#fb923c",
-];
-
-function renderCatBreakdown() {
-  const el = $("catBreakdown");
-  if (!el) return;
-  el.innerHTML = "";
-  const T = TRANSLATIONS[S.lang];
-  const map = {};
-  for (const txn of S.transactions) {
-    const lbl = T[txn.categoryKey] || txn.category;
-    if (!map[lbl]) map[lbl] = { total: 0, type: txn.type };
-    map[lbl].total += txn.amount;
-  }
-  const entries = Object.entries(map).sort((a, b) => b[1].total - a[1].total);
-  if (!entries.length) {
-    el.innerHTML =
-      '<p style="color:var(--tx3);font-size:.8rem;text-align:center;padding:20px">No data yet</p>';
-    return;
-  }
-  const maxV = entries[0][1].total;
-  entries.forEach(([name, data], i) => {
-    const pct = (data.total / maxV) * 100;
-    const color =
-      data.type === "income" ? "var(--inc)" : CAT_COLORS[i % CAT_COLORS.length];
-    const row = document.createElement("div");
-    row.className = "cat-row";
-    row.innerHTML = `
-      <div class="cat-dot" style="background:${color}"></div>
-      <span class="cat-name">${name}</span>
-      <div class="cat-bar-wrap"><div class="cat-bar" style="width:0%;background:${color}"></div></div>
-      <span class="cat-amt" style="color:${color}">$${fmt(data.total)}</span>`;
-    el.appendChild(row);
-    requestAnimationFrame(() =>
-      setTimeout(
-        () => {
-          row.querySelector(".cat-bar").style.width = pct + "%";
-        },
-        60 + i * 55,
-      ),
-    );
-  });
+/* ── Bell ── */
+.bell-shell { position: relative; flex-shrink: 0; }
+.bell-btn {
+  width: 36px; height: 36px;
+  background: var(--raised); border: 1px solid var(--border);
+  border-radius: 50%; display: grid; place-items: center;
+  cursor: pointer; color: var(--tx2); position: relative;
+  transition: all var(--fast) var(--ease);
+}
+.bell-btn:hover { background: var(--glassH); color: var(--tx1); border-color: var(--borderH); }
+.bell-btn.ringing { color: var(--amber); border-color: var(--amber-dim); box-shadow: 0 0 0 4px var(--amber-dim); }
+.bell-btn.ringing svg { animation: bell-shake 0.5s var(--spring); }
+@keyframes bell-shake {
+  0%,100% { transform: rotate(0); }
+  20% { transform: rotate(-20deg); }
+  40% { transform: rotate(20deg); }
+  60% { transform: rotate(-12deg); }
+  80% { transform: rotate(8deg); }
+}
+.bell-dot {
+  position: absolute; top: -2px; right: -2px;
+  width: 11px; height: 11px;
+  background: var(--exp); border-radius: 50%;
+  border: 2px solid var(--surface);
+  animation: dot-pulse 2.4s ease-in-out infinite;
+}
+@keyframes dot-pulse {
+  0%,100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,61,113,0.5); }
+  50%      { transform: scale(1.15); box-shadow: 0 0 0 6px rgba(255,61,113,0); }
 }
 
-/* ═══════════════════════════════════════════
-   13. SPENDING CHART ← PRESERVED
-═══════════════════════════════════════════ */
-function drawChart() {
-  const canvas = $("spendingCanvas");
-  if (!canvas) return;
-  const days = parseInt($("chartPeriod")?.value) || 7;
-  const ctx = canvas.getContext("2d");
-  const dpr = window.devicePixelRatio || 1;
-  const rect = canvas.parentElement.getBoundingClientRect();
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
-  canvas.style.width = rect.width + "px";
-  canvas.style.height = rect.height + "px";
-  ctx.scale(dpr, dpr);
+/* Notification panel */
+.notif-panel {
+  position: absolute; top: calc(100% + 12px); right: 0;
+  width: 310px; background: var(--card2);
+  border: 1px solid var(--borderH);
+  border-radius: var(--r4); box-shadow: var(--sh3);
+  overflow: hidden; opacity: 0;
+  transform: translateY(-12px) scale(0.96);
+  pointer-events: none;
+  transition: opacity var(--fast) var(--ease), transform var(--med) var(--spring);
+  z-index: 600; max-height: 400px;
+  display: flex; flex-direction: column;
+}
+.notif-panel.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: all; }
+.np-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 13px 15px; border-bottom: 1px solid var(--border); flex-shrink: 0; gap: 8px;
+}
+.np-title { font-family: 'Syne', sans-serif; font-size: 0.86rem; font-weight: 700; flex: 1; }
+.np-markread {
+  background: none; border: none; font-size: 0.69rem; font-weight: 600;
+  color: var(--tx2); cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: color var(--fast) var(--ease); white-space: nowrap; padding: 0 4px;
+}
+.np-markread:hover { color: var(--tx1); }
+.np-clear {
+  background: none; border: none; font-size: 0.7rem; font-weight: 600;
+  color: var(--amber); cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: opacity var(--fast) var(--ease); white-space: nowrap;
+}
+.np-clear:hover { opacity: 0.7; }
+.np-body { overflow-y: auto; flex: 1; scrollbar-width: thin; scrollbar-color: var(--raised) transparent; }
+.np-empty { text-align: center; padding: 32px 14px; font-size: 0.8rem; color: var(--tx3); }
+.np-item {
+  display: flex; align-items: flex-start; gap: 11px;
+  padding: 12px 15px; border-bottom: 1px solid var(--border);
+  transition: background var(--fast) var(--ease);
+  animation: notifSlide 0.24s var(--ease) both;
+}
+@keyframes notifSlide {
+  from { opacity: 0; transform: translateX(12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.np-item:last-child { border-bottom: none; }
+.np-item:hover { background: var(--glass); }
+.np-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  margin-top: 6px; flex-shrink: 0;
+}
+.np-dot.income  { background: var(--inc); box-shadow: 0 0 6px var(--inc-glow); }
+.np-dot.expense { background: var(--exp); box-shadow: 0 0 6px var(--exp-glow); }
+.np-dot.info    { background: var(--amber); box-shadow: 0 0 6px var(--amber-glow); }
+.np-content { flex: 1; min-width: 0; }
+.np-msg  { font-size: 0.79rem; color: var(--tx1); line-height: 1.55; }
+.np-time { font-size: 0.66rem; color: var(--tx3); margin-top: 3px; font-family: 'DM Mono', monospace; }
+.np-unread-dot { width: 6px; height: 6px; background: var(--amber); border-radius: 50%; margin-top: 7px; flex-shrink: 0; }
 
-  const W = rect.width,
-    H = rect.height;
-  const PAD = { t: 12, r: 12, b: 26, l: 46 };
-  const now = new Date();
+/* ══════════════════════════════════════════════════════
+   TOAST NOTIFICATIONS
+══════════════════════════════════════════════════════ */
+.toast-container {
+  position: fixed; bottom: calc(var(--botnav-h) + 16px); left: 50%;
+  transform: translateX(-50%); z-index: 800;
+  display: flex; flex-direction: column; gap: 8px; align-items: center;
+  pointer-events: none; width: min(calc(100vw - 32px), 380px);
+}
+.toast {
+  background: var(--card2); border: 1px solid var(--borderH);
+  border-radius: var(--r4); padding: 12px 16px;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: var(--sh3); pointer-events: all;
+  animation: toastIn 0.3s var(--spring) both;
+  width: 100%;
+}
+.toast.out { animation: toastOut 0.25s var(--ease) forwards; }
+@keyframes toastIn  { from { opacity:0; transform:translateY(16px) scale(0.94); } to { opacity:1; transform:translateY(0) scale(1); } }
+@keyframes toastOut { to   { opacity:0; transform:translateY(8px); } }
+.toast-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.toast-dot.income  { background: var(--inc); box-shadow: 0 0 8px var(--inc-glow); }
+.toast-dot.expense { background: var(--exp); box-shadow: 0 0 8px var(--exp-glow); }
+.toast-msg { font-size: 0.8rem; color: var(--tx1); flex: 1; line-height: 1.4; }
 
-  const buckets = {};
-  for (let i = days - 1; i >= 0; i--) {
-    const d = new Date(now);
-    d.setDate(d.getDate() - i);
-    buckets[d.toISOString().split("T")[0]] = 0;
-  }
-  for (const txn of S.transactions) {
-    if (txn.type === "expense" && buckets[txn.date] !== undefined)
-      buckets[txn.date] += txn.amount;
-  }
+/* ══════════════════════════════════════════════════════
+   MAIN CONTENT
+══════════════════════════════════════════════════════ */
+.app-main { max-width: 680px; margin: 0 auto; padding: 20px 16px; }
 
-  const labels = Object.keys(buckets);
-  const vals = Object.values(buckets);
-  const maxV = Math.max(...vals, 1);
-  const cW = W - PAD.l - PAD.r;
-  const cH = H - PAD.t - PAD.b;
-  const step = cW / (labels.length - 1 || 1);
+.page { display: none; animation: pageIn 0.3s var(--ease) both; }
+.page.active { display: block; }
+@keyframes pageIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
 
-  const pts = labels.map((_, i) => ({
-    x: PAD.l + i * step,
-    y: PAD.t + cH - (vals[i] / maxV) * cH,
-  }));
+.page-head { margin-bottom: 20px; }
+.page-title { font-family: 'Syne', sans-serif; font-size: 1.55rem; font-weight: 800; letter-spacing: -0.03em; }
 
-  ctx.clearRect(0, 0, W, H);
-
-  const g = ctx.createLinearGradient(0, PAD.t, 0, PAD.t + cH);
-  g.addColorStop(0, "rgba(245,166,35,0.30)");
-  g.addColorStop(1, "rgba(245,166,35,0.00)");
-  ctx.beginPath();
-  ctx.moveTo(pts[0].x, pts[0].y);
-  for (let i = 1; i < pts.length; i++) {
-    const cx = (pts[i - 1].x + pts[i].x) / 2;
-    ctx.bezierCurveTo(cx, pts[i - 1].y, cx, pts[i].y, pts[i].x, pts[i].y);
-  }
-  ctx.lineTo(pts[pts.length - 1].x, PAD.t + cH);
-  ctx.lineTo(pts[0].x, PAD.t + cH);
-  ctx.closePath();
-  ctx.fillStyle = g;
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.moveTo(pts[0].x, pts[0].y);
-  for (let i = 1; i < pts.length; i++) {
-    const cx = (pts[i - 1].x + pts[i].x) / 2;
-    ctx.bezierCurveTo(cx, pts[i - 1].y, cx, pts[i].y, pts[i].x, pts[i].y);
-  }
-  ctx.strokeStyle = "#f5a623";
-  ctx.lineWidth = 2.4;
-  ctx.stroke();
-
-  const muted = "#2e3d55";
-  ctx.fillStyle = muted;
-  ctx.font = "10px DM Mono, monospace";
-  ctx.textAlign = "right";
-  ctx.fillText("$" + Math.round(maxV), PAD.l - 6, PAD.t + 10);
-  const fd = (d) =>
-    new Date(d + "T00:00:00").toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    });
-  ctx.textAlign = "left";
-  ctx.fillText(fd(labels[0]), PAD.l, H - 5);
-  ctx.textAlign = "right";
-  ctx.fillText(fd(labels[labels.length - 1]), W - PAD.r, H - 5);
-
-  pts.forEach((p) => {
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
-    ctx.fillStyle = "#f5a623";
-    ctx.fill();
-    ctx.strokeStyle = "rgba(245,166,35,0.3)";
-    ctx.lineWidth = 3;
-    ctx.stroke();
-  });
+/* Greeting */
+.greet-row {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 20px; gap: 10px; flex-wrap: wrap;
+}
+.greet-sub  { font-size: 0.78rem; color: var(--tx2); margin-bottom: 3px; font-weight: 400; }
+.greet-name { font-family: 'Syne', sans-serif; font-size: 1.48rem; font-weight: 800; letter-spacing: -0.03em; }
+.date-chip {
+  font-family: 'DM Mono', monospace; font-size: 0.68rem; font-weight: 400;
+  color: var(--tx2); background: var(--raised);
+  border: 1px solid var(--border); border-radius: 20px;
+  padding: 6px 13px; white-space: nowrap; align-self: flex-start;
 }
 
-function renderQuickActions(catTotals) {
-  const grid = $("qcatGrid");
-  if (!grid) return;
+/* ── Hero card ── */
+.hero-card {
+  background: var(--hero-grad);
+  border-radius: var(--r6); padding: 24px 24px 20px;
+  margin-bottom: 22px; position: relative; overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0,15,60,0.7), 0 0 0 1px rgba(255,255,255,0.04);
+  cursor: default; transition: transform var(--slow) var(--spring);
+}
+.hero-card:hover { transform: translateY(-4px); }
 
-  const T = TRANSLATIONS[S.lang];
-  grid.innerHTML = "";
+.hc-orb {
+  position: absolute; border-radius: 50%; pointer-events: none;
+  filter: blur(50px); opacity: 0.18;
+}
+.hc-orb1 {
+  width: 220px; height: 220px;
+  background: radial-gradient(circle, #3a6cf4 0%, transparent 70%);
+  top: -60px; right: -60px;
+  animation: orb-drift1 8s ease-in-out infinite alternate;
+}
+.hc-orb2 {
+  width: 160px; height: 160px;
+  background: radial-gradient(circle, #00e896 0%, transparent 70%);
+  bottom: -40px; left: 20px;
+  animation: orb-drift2 10s ease-in-out infinite alternate;
+}
+@keyframes orb-drift1 { from { transform: translate(0,0) scale(1); } to { transform: translate(-20px,15px) scale(1.1); } }
+@keyframes orb-drift2 { from { transform: translate(0,0) scale(1); } to { transform: translate(20px,-10px) scale(1.15); } }
 
-  QUICK_ACTIONS.forEach((qa, idx) => {
-    const entry = catTotals.get(qa.key);
-    const total = entry ? entry.total : 0;
-    const hasData = total > 0;
-
-    const subtitle =
-      qa.type === "income"
-        ? T.qa_total_added || "Total Added"
-        : T.qa_total_used || "Total Used";
-
-    const amountText = hasData ? "$" + fmt(total) : "$0.00";
-
-    const card = document.createElement("button");
-    card.className = `qcat-card qcat-${qa.type}`;
-    card.dataset.type = qa.type;
-    card.dataset.cat = qa.key;
-    card.style.cssText = `animation: cardSlide 0.28s cubic-bezier(0.4,0,0.2,1) ${idx * 0.05}s both`;
-
-    card.innerHTML = `
-      <div class="qcat-icon-wrap">
-        <span class="qcat-emoji">${qa.icon}</span>
-      </div>
-      <span class="qcat-name">${T[qa.key] || qa.key}</span>
-      <span class="qcat-subtitle">${subtitle}</span>
-      <span class="qcat-amount${hasData ? "" : " zero"}">${amountText}</span>
-      <span class="qcat-add-chip" aria-hidden="true">+</span>`;
-
-    card.addEventListener("click", () => openModal(qa.type, qa.key));
-    grid.appendChild(card);
-  });
+.hc-grid-lines {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 40px),
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 40px);
 }
 
-/* ═══════════════════════════════════════════
-   15. NOTIFICATION SYSTEM ← PRESERVED
-═══════════════════════════════════════════ */
-function addNotif(type, amount, newBalance) {
-  if (!S.notifEnabled) return;
-  const T = TRANSLATIONS[S.lang];
-  const msg =
-    type === "income"
-      ? `${T.notif_added_income} $${fmt(amount)}. ${T.notif_balance_now} $${fmt(newBalance)}`
-      : `${T.notif_added_expense} $${fmt(amount)}. ${T.notif_balance_now} $${fmt(newBalance)}`;
+.hc-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.hc-label { font-size: 0.63rem; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(255,255,255,0.45); font-weight: 600; }
+.hc-badge {
+  background: rgba(0,232,150,0.15); border: 1px solid rgba(0,232,150,0.3);
+  color: #00e896; font-size: 0.58rem; font-weight: 700; font-family: 'DM Mono', monospace;
+  letter-spacing: 0.1em; border-radius: 20px; padding: 3px 9px;
+  position: relative; overflow: hidden;
+}
+.hc-badge::before {
+  content: '';
+  position: absolute; left: 5px; top: 50%; transform: translateY(-50%);
+  width: 4px; height: 4px; background: #00e896; border-radius: 50%;
+  animation: live-blink 1.5s ease-in-out infinite;
+}
+@keyframes live-blink { 0%,100% { opacity:1; } 50% { opacity:0.2; } }
 
-  S.notifications.unshift({
-    id: Date.now().toString(),
-    type,
-    msg,
-    time: new Date().toISOString(),
-    read: false,
-  });
-  if (S.notifications.length > 20) S.notifications.length = 20;
-  saveNotifs();
-  renderNotifPanel();
-  showToast(type, msg);
+.hc-amount { display: flex; align-items: flex-start; gap: 3px; margin-bottom: 20px; }
+.hc-cur { font-size: 1.3rem; font-weight: 400; color: rgba(255,255,255,0.5); margin-top: 8px; font-family: 'DM Sans', sans-serif; }
+.hc-num {
+  font-family: 'DM Mono', monospace; font-size: 2.9rem; font-weight: 500;
+  color: #fff; letter-spacing: -0.04em; line-height: 1;
 }
 
-function renderNotifPanel() {
-  const body = $("npBody");
-  const empty = $("npEmpty");
-  const dot = $("bellDot");
-  const bell = $("bellBtn");
-  if (!body) return;
+.hc-stats {
+  display: flex; align-items: center;
+  background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--r3); padding: 13px 18px; margin-bottom: 18px;
+  backdrop-filter: blur(8px);
+}
+.hcs-div { width: 1px; height: 28px; background: rgba(255,255,255,0.1); margin: 0 18px; }
+.hcs-item { display: flex; align-items: center; gap: 10px; flex: 1; }
+.hcs-icon {
+  width: 26px; height: 26px; border-radius: 8px;
+  display: grid; place-items: center; flex-shrink: 0;
+}
+.hcs-icon.up  { background: rgba(0,232,150,0.15); color: #00e896; }
+.hcs-icon.dn  { background: rgba(255,61,113,0.15); color: #ff3d71; }
+.hcs-l { display: block; font-size: 0.58rem; color: rgba(255,255,255,0.38); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 2px; font-family: 'DM Sans', sans-serif; }
+.hcs-v { display: block; font-family: 'DM Mono', monospace; font-size: 0.95rem; font-weight: 500; }
 
-  const unread = S.notifications.filter((n) => !n.read).length;
-  if (dot) dot.style.display = unread > 0 ? "block" : "none";
-  if (bell) bell.classList.toggle("ringing", unread > 0);
+.hc-foot { display: flex; justify-content: space-between; align-items: center; }
+.hc-card-num { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: rgba(255,255,255,0.28); letter-spacing: 0.15em; }
+.hc-brand { font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700; color: rgba(255,255,255,0.42); font-style: italic; }
 
-  body.querySelectorAll(".np-item").forEach((el) => el.remove());
-
-  if (!S.notifications.length) {
-    if (empty) empty.style.display = "block";
-    return;
-  }
-  if (empty) empty.style.display = "none";
-
-  S.notifications.forEach((n, i) => {
-    const div = document.createElement("div");
-    div.className = "np-item";
-    div.style.animationDelay = i * 0.035 + "s";
-    div.innerHTML = `
-      <div class="np-dot ${n.type || "info"}"></div>
-      <div class="np-content">
-        <div class="np-msg">${n.msg}</div>
-        <div class="np-time">${relTime(new Date(n.time))}</div>
-      </div>
-      ${!n.read ? '<div class="np-unread-dot"></div>' : ""}`;
-    body.appendChild(div);
-  });
+/* ── Section row ── */
+.section-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 12px; gap: 8px; flex-wrap: wrap;
+}
+.section-label { font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700; letter-spacing: -0.01em; }
+.qa-subtitle-hint {
+  font-size: 0.65rem; font-weight: 500; color: var(--tx3);
+  font-family: 'DM Sans', sans-serif; letter-spacing: 0.02em;
 }
 
-function markAllRead() {
-  S.notifications.forEach((n) => (n.read = true));
-  saveNotifs();
-  renderNotifPanel();
+/* ══════════════════════════════════════════════════════
+   QUICK ACTION CARDS
+══════════════════════════════════════════════════════ */
+.qcat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 26px;
 }
 
-function relTime(date) {
-  const s = Math.floor((Date.now() - date) / 1000);
-  if (s < 60) return "Just now";
-  if (s < 3600) return Math.floor(s / 60) + "m ago";
-  if (s < 86400) return Math.floor(s / 3600) + "h ago";
-  return Math.floor(s / 86400) + "d ago";
+.qcat-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  padding: 14px 13px 12px;
+  border-radius: var(--r4);
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--card);
+  overflow: hidden;
+  transition: transform var(--med) var(--spring),
+              box-shadow var(--med) var(--ease),
+              border-color var(--med) var(--ease),
+              background var(--med) var(--ease);
+  -webkit-tap-highlight-color: transparent;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
-/* ═══════════════════════════════════════════
-   16. TOAST SYSTEM ← PRESERVED
-═══════════════════════════════════════════ */
-function showToast(type, msg) {
-  const container = $("toastContainer");
-  if (!container) return;
-  const toast = document.createElement("div");
-  toast.className = "toast";
-  toast.innerHTML = `
-    <div class="toast-dot ${type}"></div>
-    <div class="toast-msg">${msg}</div>`;
-  container.appendChild(toast);
-  setTimeout(() => {
-    toast.classList.add("out");
-    setTimeout(() => toast.remove(), 280);
-  }, 3500);
+.qcat-card::before {
+  content: '';
+  position: absolute;
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  top: -20px; right: -20px;
+  filter: blur(28px);
+  opacity: 0;
+  transition: opacity var(--med) var(--ease);
+  pointer-events: none;
 }
 
-/* ═══════════════════════════════════════════
-   17. TRANSACTION CRUD ← PRESERVED
-═══════════════════════════════════════════ */
-function addTxn(type, amount, categoryKey, category, description, date) {
-  S.transactions.push({
-    id: Date.now().toString(),
-    type,
-    amount,
-    categoryKey,
-    category,
-    description,
-    date,
-  });
-  saveTxns();
-  const { bal } = calcTotals();
-  addNotif(type, amount, bal);
-  renderAll();
+.qcat-card::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.00) 60%);
+  opacity: 0;
+  transition: opacity var(--fast) var(--ease);
+  border-radius: inherit;
+  pointer-events: none;
+}
+.qcat-card:hover::after { opacity: 1; }
+
+.qcat-card.qcat-income {
+  background: linear-gradient(145deg, var(--card) 0%, rgba(0,232,150,0.04) 100%);
+}
+.qcat-card.qcat-income::before { background: var(--inc); }
+.qcat-card.qcat-income:hover {
+  border-color: var(--inc-bdr);
+  background: linear-gradient(145deg, var(--card2) 0%, rgba(0,232,150,0.09) 100%);
+  box-shadow: 0 8px 32px rgba(0,232,150,0.12), var(--sh1);
+  transform: translateY(-3px) scale(1.01);
+}
+.qcat-card.qcat-income:hover::before { opacity: 0.25; }
+.qcat-card.qcat-income:active { transform: scale(0.96); }
+
+.qcat-card.qcat-expense {
+  background: linear-gradient(145deg, var(--card) 0%, rgba(255,61,113,0.04) 100%);
+}
+.qcat-card.qcat-expense::before { background: var(--exp); }
+.qcat-card.qcat-expense:hover {
+  border-color: var(--exp-bdr);
+  background: linear-gradient(145deg, var(--card2) 0%, rgba(255,61,113,0.09) 100%);
+  box-shadow: 0 8px 32px rgba(255,61,113,0.12), var(--sh1);
+  transform: translateY(-3px) scale(1.01);
+}
+.qcat-card.qcat-expense:hover::before { opacity: 0.25; }
+.qcat-card.qcat-expense:active { transform: scale(0.96); }
+
+.qcat-icon-wrap {
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  flex-shrink: 0;
+  transition: transform var(--med) var(--spring);
+}
+.qcat-card:hover .qcat-icon-wrap { transform: scale(1.12) rotate(-4deg); }
+
+.qcat-income .qcat-icon-wrap {
+  background: var(--inc-bg);
+  border: 1px solid var(--inc-bdr);
+}
+.qcat-expense .qcat-icon-wrap {
+  background: var(--exp-bg);
+  border: 1px solid var(--exp-bdr);
 }
 
-function deleteTxn(id) {
-  S.transactions = S.transactions.filter((t) => t.id !== id);
-  saveTxns();
-  renderAll();
+.qcat-emoji { font-size: 1.1rem; line-height: 1; display: block; }
+.qcat-name {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem; font-weight: 600; color: var(--tx1);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  max-width: 100%; margin-bottom: 3px; letter-spacing: 0.01em;
+}
+.qcat-subtitle {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.56rem; font-weight: 500; color: var(--tx3);
+  text-transform: uppercase; letter-spacing: 0.07em;
+  margin-bottom: 5px; white-space: nowrap;
+}
+.qcat-amount {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.82rem; font-weight: 500; letter-spacing: -0.02em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  max-width: 100%;
+  transition: color var(--fast) var(--ease);
+}
+.qcat-income .qcat-amount  { color: var(--inc); }
+.qcat-expense .qcat-amount { color: var(--exp); }
+.qcat-amount.zero          { color: var(--tx3); }
+
+.qcat-add-chip {
+  position: absolute; bottom: 8px; right: 8px;
+  width: 18px; height: 18px; border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: 0.75rem; font-weight: 700;
+  opacity: 0; transform: scale(0.6);
+  transition: opacity var(--med) var(--ease), transform var(--med) var(--spring);
+  pointer-events: none;
+}
+.qcat-income .qcat-add-chip  { background: var(--inc-bg); color: var(--inc); border: 1px solid var(--inc-bdr); }
+.qcat-expense .qcat-add-chip { background: var(--exp-bg); color: var(--exp); border: 1px solid var(--exp-bdr); }
+.qcat-card:hover .qcat-add-chip { opacity: 1; transform: scale(1); }
+
+/* ══════════════════════════════════════════════════════
+   USAGE SUMMARY — Real-time category rows on Home
+══════════════════════════════════════════════════════ */
+.usage-summary {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r4);
+  overflow: hidden;
+  margin-bottom: 26px;
+  box-shadow: var(--sh1);
 }
 
-function applyTxnFilter() {
-  const T = TRANSLATIONS[S.lang];
-  const from = $("txnDateFrom")?.value || "";
-  const to = $("txnDateTo")?.value || "";
-  const errEl = $("afpError");
-
-  /* 1. Error message ကို အရင်ဖျောက်မယ် */
-  if (errEl) errEl.style.display = "none";
-
-  /* 2. Validation: ရက်စွဲ တစ်ခုပဲထည့်ပြီး ကျန်တစ်ခု လွတ်နေရင် လက်မခံဘူး */
-  if ((from && !to) || (!from && to)) {
-    if (errEl) {
-      errEl.textContent = T.err_date_required || "Please select both dates";
-      errEl.style.display = "block";
-    }
-    return;
-  }
-
-  /* 3. Validation: Start date က End date ထက် ကြီးနေရင် လက်မခံဘူး */
-  if (from && to && from > to) {
-    if (errEl) {
-      errEl.textContent =
-        T.err_date_range || "Start date cannot be after end date";
-      errEl.style.display = "block";
-    }
-    return;
-  }
-
-  /* 4. Filter parameters များကို State (S) ထဲမှာ သိမ်းမယ် */
-  S.txnDateFrom = from;
-  S.txnDateTo = to;
-  S.txnFilterActive = !!(from && to);
-
-  /* 5. UI ကို Update လုပ်မယ် */
-  updateFilterBadge(); // Filter တပ်ထားကြောင်း အမှတ်အသားပြမယ်
-  renderTxnFeed(); // စာရင်းများကို Filter အတိုင်း ပြန်ထုတ်ပြမယ်
-
-  // Filter panel (drawer/dropdown) ကို ပိတ်ချင်ရင် closeAll() ကို ခေါ်နိုင်ပါတယ်
-  if (typeof closeAll === "function") closeAll();
+.usage-row {
+  display: flex; align-items: center; gap: 13px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  transition: background var(--fast) var(--ease);
+  animation: cardSlide 0.28s var(--ease) both;
 }
-/** Reset all history filters to default state */
-function resetTxnFilter() {
-  S.txnFilter = "all";
-  S.txnDateFrom = "";
-  S.txnDateTo = "";
-  S.txnFilterActive = false;
+.usage-row:last-child { border-bottom: none; }
+.usage-row:hover { background: var(--glass); }
 
-  /* Reset UI */
-  const fromEl = $("txnDateFrom");
-  const toEl = $("txnDateTo");
-  const errEl = $("afpError");
-  if (fromEl) fromEl.value = "";
-  if (toEl) toEl.value = "";
-  if (errEl) errEl.style.display = "none";
+.usage-ico {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: grid; place-items: center; font-size: 1rem; flex-shrink: 0;
+}
+.usage-ico.income  { background: var(--inc-bg);  border: 1px solid var(--inc-bdr); }
+.usage-ico.expense { background: var(--exp-bg); border: 1px solid var(--exp-bdr); }
 
-  /* Reset tab to All */
-  $("txnTabs")
-    ?.querySelectorAll(".ftab")
-    .forEach((b) => {
-      b.classList.toggle("active", b.dataset.filter === "all");
-    });
+.usage-info { flex: 1; min-width: 0; }
+.usage-cat  { font-size: 0.84rem; font-weight: 600; }
+.usage-type-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+  padding: 2px 7px; border-radius: 20px; margin-top: 3px;
+}
+.usage-type-badge.income  { background: var(--inc-bg);  color: var(--inc);  border: 1px solid var(--inc-bdr); }
+.usage-type-badge.expense { background: var(--exp-bg); color: var(--exp); border: 1px solid var(--exp-bdr); }
 
-  updateFilterBadge();
-  renderTxnFeed();
+.usage-amount {
+  font-family: 'DM Mono', monospace; font-size: 0.88rem; font-weight: 500;
+  flex-shrink: 0;
+}
+.usage-amount.income  { color: var(--inc); }
+.usage-amount.expense { color: var(--exp); }
+
+.usage-bar-wrap {
+  width: 60px; height: 4px; background: var(--raised); border-radius: 2px;
+  overflow: hidden; flex-shrink: 0;
+}
+.usage-bar {
+  height: 100%; border-radius: 2px;
+  transition: width 0.7s var(--ease);
 }
 
-/** Update the active filter badge below filter panel */
-function updateFilterBadge() {
-  const T = TRANSLATIONS[S.lang];
-  const badge = $("afpActiveBadge");
-  const text = $("afpActiveText");
-  if (!badge || !text) return;
-
-  if (!S.txnFilterActive && S.txnFilter === "all") {
-    badge.style.display = "none";
-    return;
-  }
-
-  let parts = [];
-  if (S.txnFilter !== "all") parts.push(T[S.txnFilter] || S.txnFilter);
-  if (S.txnDateFrom) parts.push(S.txnDateFrom);
-  if (S.txnDateTo) parts.push("→ " + S.txnDateTo);
-
-  text.textContent =
-    (T.filter_active || "Filter active") + ": " + parts.join(" · ");
-  badge.style.display = "flex";
+/* ══════════════════════════════════════════════════════
+   ADVANCED FILTER PANEL — History page
+══════════════════════════════════════════════════════ */
+.adv-filter-panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r4);
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: var(--sh1);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
-function renderAll() {
-  /* O(n) single pass — shared by quick actions + usage summary */
-  const catTotals = groupByCategory();
-
-  updateTotals();
-  renderQuickActions(catTotals);
-  renderUsageSummary(catTotals);
-  renderTxnFeed();
-  renderCatBreakdown();
-  drawChart();
+.afp-row {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
 }
 
-/* ═══════════════════════════════════════════
-   20. NAVIGATION ← PRESERVED
-═══════════════════════════════════════════ */
-function goTo(page) {
-  document.querySelectorAll(".page").forEach((p) => {
-    p.classList.remove("active");
-    p.classList.add("hidden");
-  });
-  const target = $("page-" + page);
-  if (target) {
-    target.classList.remove("hidden");
-    target.classList.add("active");
-  }
-  document
-    .querySelectorAll(".bn-btn")
-    .forEach((b) => b.classList.remove("active"));
-  const btn = $("bn-" + page);
-  if (btn) btn.classList.add("active");
-
-  closeAll();
-  if (page === "reports") {
-    renderCatBreakdown();
-    setTimeout(drawChart, 80);
-  }
-  window.scrollTo({ top: 0, behavior: "smooth" });
+.afp-label {
+  font-size: 0.68rem; font-weight: 700; color: var(--tx2);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  white-space: nowrap; min-width: 36px;
 }
 
-function goSearch() {
-  document.querySelectorAll(".page").forEach((p) => {
-    p.classList.remove("active");
-    p.classList.add("hidden");
-  });
-  const p = $("page-search");
-  if (p) {
-    p.classList.remove("hidden");
-    p.classList.add("active");
-  }
-  document
-    .querySelectorAll(".bn-btn")
-    .forEach((b) => b.classList.remove("active"));
-  $("bn-dashboard")?.classList.add("active");
+.afp-dates {
+  display: flex; gap: 12px; flex-wrap: wrap;
+}
+.afp-date-group {
+  display: flex; align-items: center; gap: 8px;
+  flex: 1; min-width: 140px;
 }
 
-/* ═══════════════════════════════════════════
-   21. MODAL ← PRESERVED
-═══════════════════════════════════════════ */
-function openModal(type, prefillCat = "") {
-  const T = TRANSLATIONS[S.lang];
-  const box = $("txnCard");
-  $("txnType").value = type;
-  setText(
-    "mcTitle",
-    type === "income" ? T.modal_income_title : T.modal_expense_title,
-  );
-  box.className = `modal-card modal-${type}`;
+.afp-error {
+  background: var(--exp-bg); border: 1px solid var(--exp-bdr);
+  border-radius: var(--r2); padding: 8px 12px;
+  font-size: 0.76rem; color: var(--exp); font-weight: 500;
+  animation: fadeIn 0.2s var(--ease);
+}
+@keyframes fadeIn { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
 
-  const sel = $("txnCategory");
-  sel.innerHTML = "";
-  CATEGORIES[type].forEach((cat) => {
-    const opt = document.createElement("option");
-    opt.value = cat.key;
-    opt.textContent = cat.icon + " " + (T[cat.key] || cat.key);
-    sel.appendChild(opt);
-  });
-  if (prefillCat) sel.value = prefillCat;
-
-  $("txnDate").value = new Date().toISOString().split("T")[0];
-  $("txnAmount").value = "";
-  $("txnDesc").value = "";
-  setText("txnSubmit", T.add_transaction);
-
-  $("txnVeil").classList.add("open");
-  setTimeout(() => $("txnAmount")?.focus(), 230);
+.afp-actions {
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
 }
 
-function closeModal() {
-  $("txnVeil").classList.remove("open");
+.afp-apply {
+  padding: 8px 18px;
+  background: var(--amber-grad); border: none;
+  border-radius: var(--r2);
+  font-family: 'Syne', sans-serif; font-size: 0.78rem; font-weight: 700;
+  color: #1a0f00; cursor: pointer;
+  box-shadow: 0 4px 14px var(--amber-glow);
+  transition: all var(--fast) var(--ease);
+}
+.afp-apply:hover { transform: translateY(-1px); box-shadow: 0 8px 20px var(--amber-glow); }
+.afp-apply:active { transform: scale(0.97); }
+
+.afp-reset {
+  padding: 8px 14px;
+  background: var(--raised); border: 1px solid var(--border);
+  border-radius: var(--r2);
+  font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 600;
+  color: var(--tx2); cursor: pointer;
+  transition: all var(--fast) var(--ease);
+}
+.afp-reset:hover { background: var(--glassH); color: var(--tx1); }
+
+/* Active filter badge */
+.afp-active-badge {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--amber-dim); border: 1px solid rgba(245,166,35,0.2);
+  border-radius: 20px; padding: 5px 12px;
+  font-size: 0.73rem; font-weight: 600; color: var(--amber);
+  animation: fadeIn 0.2s var(--ease);
+}
+.afp-badge-clear {
+  background: none; border: none; color: var(--amber);
+  font-size: 0.72rem; cursor: pointer; padding: 0 2px;
+  opacity: 0.7; transition: opacity var(--fast) var(--ease);
+}
+.afp-badge-clear:hover { opacity: 1; }
+
+/* ── CSV button ── */
+.csv-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 7px 12px; background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r2); font-size: 0.75rem; font-weight: 600;
+  color: var(--tx2); cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: all var(--fast) var(--ease); white-space: nowrap;
+}
+.csv-btn:hover { background: var(--amber); border-color: var(--amber); color: #1a0f00; box-shadow: var(--sh-amber); }
+
+/* ── Filter bar & tabs ── */
+.filter-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+.filter-tabs {
+  display: flex; background: var(--card); border: 1px solid var(--border);
+  border-radius: 28px; padding: 3px; gap: 2px;
+}
+.ftab {
+  background: none; border: none; padding: 5px 14px;
+  border-radius: 22px; font-size: 0.76rem; font-weight: 600;
+  color: var(--tx2); cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: all var(--fast) var(--ease); white-space: nowrap;
+}
+.ftab.active { background: var(--amber); color: #1a0f00; box-shadow: 0 3px 12px var(--amber-glow); }
+
+.date-pick {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r2); padding: 7px 11px;
+  font-size: 0.75rem; color: var(--tx1); font-family: 'DM Sans', sans-serif;
+  outline: none; cursor: pointer;
+  transition: border-color var(--fast) var(--ease);
+  max-width: 160px; width: 100%;
+}
+.date-pick:focus { border-color: var(--amber); }
+.date-pick::-webkit-calendar-picker-indicator { filter: invert(0.5); cursor: pointer; }
+
+/* ── Transaction feed ── */
+.txn-feed {
+  display: flex; flex-direction: column;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r4); overflow: hidden; margin-bottom: 20px;
+  box-shadow: var(--sh1);
+}
+.txn-card {
+  display: flex; align-items: center; gap: 13px;
+  padding: 14px 16px; border-bottom: 1px solid var(--border);
+  transition: background var(--fast) var(--ease);
+  animation: cardSlide 0.28s var(--ease) both;
+  position: relative;
+}
+.txn-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  opacity: 0; transition: opacity var(--fast) var(--ease);
+}
+.txn-card:hover::before { opacity: 1; }
+.txn-card[data-type="income"]::before  { background: var(--inc); }
+.txn-card[data-type="expense"]::before { background: var(--exp); }
+.txn-card:last-child { border-bottom: none; }
+.txn-card:hover { background: var(--glass); }
+@keyframes cardSlide { from { opacity:0; transform:translateX(-10px); } to { opacity:1; transform:translateX(0); } }
+
+.txn-ico {
+  width: 40px; height: 40px; border-radius: 12px;
+  display: grid; place-items: center; font-size: 1.05rem; flex-shrink: 0;
+}
+.txn-ico.income  { background: var(--inc-bg);  border: 1px solid var(--inc-bdr); }
+.txn-ico.expense { background: var(--exp-bg); border: 1px solid var(--exp-bdr); }
+.txn-info { flex: 1; min-width: 0; }
+.txn-cat  { font-family: 'DM Sans', sans-serif; font-size: 0.87rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.txn-desc { font-size: 0.7rem; color: var(--tx3); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.txn-meta { text-align: right; flex-shrink: 0; }
+.txn-amt  { font-family: 'DM Mono', monospace; font-size: 0.87rem; font-weight: 500; }
+.txn-amt.income  { color: var(--inc); }
+.txn-amt.expense { color: var(--exp); }
+.txn-date { font-family: 'DM Mono', monospace; font-size: 0.64rem; color: var(--tx3); margin-top: 3px; }
+.txn-del {
+  width: 28px; height: 28px; background: none; border: none;
+  border-radius: 8px; display: grid; place-items: center;
+  cursor: pointer; color: var(--tx3); opacity: 0; flex-shrink: 0;
+  transition: all var(--fast) var(--ease);
+}
+.txn-card:hover .txn-del { opacity: 1; }
+.txn-del:hover { background: var(--exp-bg); color: var(--exp); }
+
+/* Empty state */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 48px 20px; gap: 8px; color: var(--tx3); width: 100%;
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--r4);
+}
+.empty-state svg { opacity: 0.15; }
+.empty-state p { font-size: 0.83rem; }
+
+/* ── Reports ── */
+.rep-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+.rep-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r4); padding: 17px 16px;
+  display: flex; align-items: center; gap: 12px;
+  transition: transform var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
+}
+.rep-card:hover { transform: translateY(-2px); box-shadow: var(--sh1); }
+.rep-icon {
+  width: 40px; height: 40px; border-radius: 11px;
+  display: grid; place-items: center; flex-shrink: 0;
+}
+.income-ico-wrap  { background: var(--inc-bg);  border: 1px solid var(--inc-bdr); color: var(--inc); }
+.expense-ico-wrap { background: var(--exp-bg); border: 1px solid var(--exp-bdr); color: var(--exp); }
+.balance-ico-wrap { background: var(--amber-dim); border: 1px solid rgba(245,166,35,0.2); color: var(--amber); }
+.count-ico-wrap   { background: rgba(139,92,246,0.10); border: 1px solid rgba(139,92,246,0.2); color: #a78bfa; }
+.rep-lbl { display: block; font-size: 0.67rem; color: var(--tx3); margin-bottom: 4px; font-weight: 500; }
+.rep-val { display: block; font-family: 'DM Mono', monospace; font-size: 1.12rem; font-weight: 500; letter-spacing: -0.02em; }
+
+/* Chart */
+.chart-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r4); padding: 18px; margin-bottom: 6px;
+}
+.cc-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.period-sel {
+  background: var(--raised); border: 1px solid var(--border);
+  border-radius: 20px; padding: 5px 13px;
+  font-size: 0.73rem; color: var(--tx2); font-family: 'DM Sans', sans-serif;
+  outline: none; cursor: pointer;
+}
+.chart-wrap { height: 106px; position: relative; }
+#spendingCanvas { width: 100% !important; height: 100% !important; }
+
+/* Category breakdown */
+.cat-breakdown {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r4); padding: 16px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.cat-row { display: flex; align-items: center; gap: 10px; }
+.cat-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.cat-name { font-size: 0.8rem; font-weight: 500; min-width: 88px; }
+.cat-bar-wrap { flex: 1; height: 5px; background: var(--raised); border-radius: 3px; overflow: hidden; }
+.cat-bar { height: 100%; border-radius: 3px; transition: width 0.7s var(--ease); }
+.cat-amt { font-family: 'DM Mono', monospace; font-size: 0.76rem; font-weight: 500; min-width: 68px; text-align: right; }
+
+/* ── Settings / Profile ── */
+.profile-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r4); padding: 22px 20px;
+  display: flex; align-items: flex-start; gap: 16px; margin-bottom: 14px;
+}
+.pc-avatar {
+  width: 54px; height: 54px;
+  background: var(--amber-grad); border-radius: 50%;
+  display: grid; place-items: center;
+  font-family: 'Syne', sans-serif; font-size: 1.35rem; font-weight: 800; color: #1a0f00;
+  flex-shrink: 0; box-shadow: var(--sh-amber);
+  position: relative; overflow: hidden;
+}
+.pc-avatar img {
+  width: 100%; height: 100%; object-fit: cover;
+  position: absolute; inset: 0; border-radius: 50%;
+}
+.pc-info { flex: 1; min-width: 0; }
+.pc-name-input {
+  background: none; border: none;
+  border-bottom: 1px solid var(--border);
+  font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; color: var(--tx1);
+  width: 100%; padding: 4px 0; outline: none; display: block; margin-bottom: 6px;
+  transition: border-color var(--fast) var(--ease);
+}
+.pc-name-input:focus { border-color: var(--amber); }
+.pc-badge {
+  font-size: 0.64rem; font-weight: 700; color: var(--amber);
+  background: var(--amber-dim); border-radius: 10px; padding: 2px 10px;
+  display: inline-block; font-family: 'DM Sans', sans-serif; margin-bottom: 8px;
 }
 
-function showConfirm(title, msg, cb) {
-  setText("cfmTitle", title);
-  setText("cfmMsg", msg);
-  S.confirmCb = cb;
-  $("cfmVeil").classList.add("open");
+/* Social account info block */
+.pc-social-info {
+  display: flex; flex-direction: column; gap: 3px; margin-top: 4px;
 }
-function closeConfirm() {
-  $("cfmVeil").classList.remove("open");
-  S.confirmCb = null;
+.pc-social-badge {
+  font-size: 0.62rem; font-weight: 700; color: #60a5fa;
+  background: rgba(96,165,250,0.1); border: 1px solid rgba(96,165,250,0.2);
+  border-radius: 10px; padding: 2px 9px; display: inline-block;
+  font-family: 'DM Sans', sans-serif;
 }
-
-/* ═══════════════════════════════════════════
-   22. THEME SYSTEM ← PRESERVED
-═══════════════════════════════════════════ */
-function applyTheme(t) {
-  S.theme = t;
-  document.documentElement.dataset.theme = t;
-  const tc = $("themeCheck");
-  if (tc) tc.checked = t === "dark";
-  const tt = $("themeToggle");
-  if (tt) tt.checked = t === "dark";
-  lsSet(LS.theme, t);
-  setTimeout(drawChart, 60);
+.pc-social-provider {
+  font-size: 0.68rem; font-weight: 600; color: var(--tx2);
+  font-family: 'DM Sans', sans-serif;
+}
+.pc-email {
+  font-size: 0.68rem; color: var(--tx3);
+  font-family: 'DM Mono', monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
-/* ═══════════════════════════════════════════
-   23. LANGUAGE SYSTEM ← PRESERVED + new keys
-═══════════════════════════════════════════ */
-function applyLang(lang) {
-  S.lang = lang;
-  const T = TRANSLATIONS[lang];
-  lsSet(LS.lang, lang);
+.settings-group {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r4); overflow: hidden; margin-bottom: 14px;
+}
+.sg-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 18px; border-bottom: 1px solid var(--border);
+  transition: background var(--fast) var(--ease);
+}
+.sg-row:last-child { border-bottom: none; }
+.sg-row:hover { background: var(--glass); }
+.sg-title { font-size: 0.86rem; font-weight: 600; }
+.sg-sub   { font-size: 0.7rem; color: var(--tx3); margin-top: 2px; display: block; }
+.tog-switch { position: relative; width: 44px; height: 24px; cursor: pointer; flex-shrink: 0; }
+.tog-switch input { opacity: 0; width: 0; height: 0; }
+.tog-track {
+  position: absolute; inset: 0;
+  background: var(--raised); border: 1px solid var(--borderH);
+  border-radius: 12px; transition: all var(--fast) var(--ease);
+}
+.tog-track::after {
+  content: ''; position: absolute;
+  width: 17px; height: 17px; top: 2.5px; left: 3px;
+  background: var(--tx3); border-radius: 50%;
+  transition: all var(--fast) var(--ease);
+}
+input:checked + .tog-track { background: var(--amber); border-color: var(--amber); }
+input:checked + .tog-track::after { transform: translateX(20px); background: #fff; }
 
-  document.querySelectorAll("[data-i18n]").forEach((el) => {
-    const k = el.dataset.i18n;
-    if (T[k] !== undefined) el.textContent = T[k];
-  });
+.lang-btn {
+  display: flex; align-items: center; gap: 4px;
+  background: var(--raised); border: 1px solid var(--border);
+  border-radius: var(--r2); padding: 7px 12px;
+  font-size: 0.77rem; font-weight: 600; color: var(--tx1);
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: all var(--fast) var(--ease); white-space: nowrap;
+}
+.lang-btn:hover { border-color: var(--amber); color: var(--amber); }
+.danger-btn {
+  background: var(--exp-bg); border: 1px solid var(--exp-bdr);
+  color: var(--exp); border-radius: var(--r2); padding: 7px 13px;
+  font-size: 0.77rem; font-weight: 600; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; transition: all var(--fast) var(--ease);
+}
+.danger-btn:hover { background: var(--exp); color: #fff; }
+.logout-btn {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 9px;
+  padding: 13px; background: var(--exp-bg); border: 1px solid var(--exp-bdr);
+  border-radius: var(--r4); color: var(--exp);
+  font-family: 'Syne', sans-serif; font-size: 0.86rem; font-weight: 700;
+  cursor: pointer; transition: all var(--fast) var(--ease);
+}
+.logout-btn:hover { background: var(--exp); color: #fff; transform: translateY(-1px); box-shadow: var(--sh-exp); }
 
-  const isEn = lang === "en";
-  setText("langBtnLbl", isEn ? "English" : "မြန်မာ");
-  setText("menuLangLabel", isEn ? "Switch to မြန်မာ" : "Switch to English");
+/* ══════════════════════════════════════════════════════
+   BOTTOM NAV
+══════════════════════════════════════════════════════ */
+.bot-nav {
+  position: fixed; inset: auto 0 0 0;
+  height: var(--botnav-h);
+  background: rgba(8,11,18,0.98);
+  border-top: 1px solid var(--border);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  display: flex; align-items: center; justify-content: space-around;
+  z-index: 400; padding: 0 6px;
+  transition: background var(--med) var(--ease);
+}
+.bn-btn {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 8px 4px; background: none; border: none; cursor: pointer;
+  color: var(--tx3); font-family: 'DM Sans', sans-serif;
+  border-radius: var(--r2); transition: all var(--fast) var(--ease);
+  min-height: 50px; justify-content: center; -webkit-tap-highlight-color: transparent;
+}
+.bn-btn.active { color: var(--amber); }
+.bn-btn:hover  { color: var(--tx2); }
+.bn-ico { transition: transform 0.3s var(--spring); }
+.bn-btn.active .bn-ico { transform: translateY(-2px); filter: drop-shadow(0 3px 8px var(--amber-glow)); }
+.bn-btn:active .bn-ico { transform: scale(0.84); }
+.bn-lbl { font-size: 0.57rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
 
-  /* Update filter badge text in new language */
-  updateFilterBadge();
-  updateGreeting();
-  renderAll();
-  renderNotifPanel();
+/* FAB */
+.fab-zone { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; }
+.fab-main {
+  width: 52px; height: 52px;
+  background: var(--amber-grad); border: none; border-radius: 50%;
+  color: #1a0f00; display: grid; place-items: center; cursor: pointer;
+  box-shadow: var(--sh-amber), 0 0 0 5px rgba(8,11,18,0.98);
+  transition: all 0.3s var(--spring); margin-top: -14px;
+  position: relative; z-index: 10; -webkit-tap-highlight-color: transparent;
+}
+.fab-main:hover  { transform: scale(1.1); box-shadow: 0 14px 36px var(--amber-glow), 0 0 0 5px rgba(8,11,18,0.98); }
+.fab-main.open   { transform: rotate(45deg) scale(1.05); }
+.fab-main:active { transform: scale(0.88); }
+
+.fab-sub {
+  position: absolute; bottom: calc(100% + 12px); left: 50%;
+  transform: translateX(-50%) translateY(12px) scale(0.86);
+  display: flex; flex-direction: column; gap: 8px; align-items: center;
+  opacity: 0; pointer-events: none;
+  transition: all 0.28s var(--spring); z-index: 450; width: 158px;
+}
+.fab-sub.open { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); pointer-events: all; }
+.fab-sub-btn {
+  display: flex; align-items: center; gap: 9px;
+  padding: 10px 18px; border-radius: 26px; border: none;
+  font-family: 'Syne', sans-serif; font-size: 0.82rem; font-weight: 700;
+  cursor: pointer; box-shadow: var(--sh2); transition: all var(--fast) var(--ease);
+  white-space: nowrap; -webkit-tap-highlight-color: transparent; width: 100%; justify-content: center;
+}
+.fab-income  { background: var(--inc); color: #001a0d; box-shadow: var(--sh-inc); }
+.fab-income:hover  { transform: scale(1.04) translateY(-1px); }
+.fab-expense { background: var(--exp); color: #1a0009; box-shadow: var(--sh-exp); }
+.fab-expense:hover { transform: scale(1.04) translateY(-1px); }
+.fab-backdrop { display: none; position: fixed; inset: 0; z-index: 390; }
+.fab-backdrop.show { display: block; }
+
+/* ══════════════════════════════════════════════════════
+   MODALS
+══════════════════════════════════════════════════════ */
+.modal-veil {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.78); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  z-index: 700; display: grid; place-items: center;
+  padding: 16px; opacity: 0; pointer-events: none;
+  transition: opacity var(--med) var(--ease);
+}
+.modal-veil.open { opacity: 1; pointer-events: all; }
+.modal-card {
+  background: var(--card2); border: 1px solid var(--borderH);
+  border-radius: var(--r5); width: 100%; max-width: 400px;
+  box-shadow: var(--sh3); transform: scale(0.90) translateY(20px);
+  transition: transform 0.32s var(--spring); overflow: hidden;
+}
+.modal-veil.open .modal-card { transform: scale(1) translateY(0); }
+.mc-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 20px 22px 0;
+}
+.mc-title { font-family: 'Syne', sans-serif; font-size: 1.08rem; font-weight: 800; letter-spacing: -0.02em; }
+.mc-close {
+  width: 32px; height: 32px;
+  background: var(--raised); border: 1px solid var(--border);
+  border-radius: 50%; display: grid; place-items: center;
+  cursor: pointer; font-size: 0.78rem; color: var(--tx2);
+  transition: all var(--fast) var(--ease);
+}
+.mc-close:hover { background: var(--exp-bg); color: var(--exp); border-color: var(--exp-bdr); }
+.mc-body { padding: 18px 22px 22px; display: flex; flex-direction: column; gap: 14px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field-lbl {
+  font-size: 0.7rem; font-weight: 700; color: var(--tx2);
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.field-input {
+  background: var(--raised); border: 1px solid var(--border);
+  border-radius: var(--r2); padding: 11px 13px;
+  font-size: 0.88rem; color: var(--tx1); font-family: 'DM Sans', sans-serif;
+  outline: none; width: 100%; appearance: none; -webkit-appearance: none;
+  transition: border-color var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
+}
+.field-input:focus { border-color: var(--amber); box-shadow: 0 0 0 3px var(--amber-dim); }
+.field-input option { background: var(--card2); }
+.amount-wrap { position: relative; }
+.amt-prefix { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); font-size: 0.92rem; color: var(--tx3); pointer-events: none; }
+.amt-input { padding-left: 28px; font-family: 'DM Mono', monospace; font-size: 1.05rem; font-weight: 500; }
+
+.submit-btn {
+  width: 100%; padding: 13px; border-radius: var(--r2); border: none;
+  font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700;
+  cursor: pointer; color: #1a0f00; background: var(--amber-grad);
+  box-shadow: 0 6px 20px var(--amber-glow); transition: all var(--fast) var(--ease); margin-top: 4px;
+}
+.submit-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 30px var(--amber-glow); }
+.submit-btn:active { transform: scale(0.97); }
+
+.modal-income  .mc-title  { color: var(--inc); }
+.modal-income  .submit-btn { background: linear-gradient(135deg, #008a56 0%, #00e896 100%); box-shadow: 0 6px 20px var(--inc-glow); color: #001a0d; }
+.modal-expense .mc-title  { color: var(--exp); }
+.modal-expense .submit-btn { background: linear-gradient(135deg, #c01448 0%, #ff3d71 100%); box-shadow: 0 6px 20px var(--exp-glow); color: #fff; }
+
+/* Confirm modal */
+.cfm-card { max-width: 315px; text-align: center; }
+.cfm-icon  { font-size: 2.2rem; padding: 22px 0 8px; }
+.cfm-title { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 800; padding: 0 20px; margin-bottom: 7px; }
+.cfm-msg   { font-size: 0.8rem; color: var(--tx2); padding: 0 20px 18px; }
+.cfm-btns  { display: flex; gap: 9px; padding: 0 20px 22px; }
+.cfm-cancel {
+  flex: 1; padding: 11px;
+  background: var(--raised); border: 1px solid var(--border);
+  border-radius: var(--r2); font-family: 'DM Sans', sans-serif;
+  font-size: 0.86rem; font-weight: 600; color: var(--tx1); cursor: pointer;
+  transition: all var(--fast) var(--ease);
+}
+.cfm-cancel:hover { background: var(--glassH); }
+.cfm-ok { flex: 1; padding: 11px; border-radius: var(--r2); font-weight: 700; font-family: 'Syne', sans-serif; }
+
+/* ── Shake animation ── */
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+.shake { animation: shake 0.36s var(--ease); }
+
+/* ══════════════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+  :root { --navbar-h: 108px; }
+  .avatar-info    { display: none; }
+  .avatar-pill    { gap: 0; padding: 4px; }
+  .ss-item        { padding: 0 8px; }
+  .ss-balance     { padding: 4px 10px; }
+  .ss-val         { font-size: 0.82rem; }
+  .ss-balance .ss-val { font-size: 0.88rem; }
+  .app-main       { padding: 14px 12px; }
+  .qcat-grid      { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .hc-num         { font-size: 2.3rem; }
+  .rep-cards      { grid-template-columns: 1fr 1fr; }
+  .notif-panel    { width: 278px; right: -8px; }
+  .dots-menu      { width: 200px; }
+  .afp-date-group { min-width: 120px; }
+}
+@media (max-width: 360px) {
+  .ss-label     { font-size: 0.5rem; }
+  .rep-cards    { grid-template-columns: 1fr; }
+  .qcat-name    { font-size: 0.65rem; }
+  .qcat-amount  { font-size: 0.75rem; }
+  .afp-row      { flex-direction: column; align-items: flex-start; }
+}
+@media (min-width: 480px) and (max-width: 639px) {
+  .qcat-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 640px) {
+  .qcat-grid  { grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .rep-cards  { grid-template-columns: repeat(4, 1fr); }
+  .app-main   { padding: 24px 22px; }
+}
+@media (min-width: 900px) {
+  .notif-panel { width: 340px; }
 }
 
-const toggleLang = () => applyLang(S.lang === "en" ? "my" : "en");
-
-/* ═══════════════════════════════════════════
-   24. GREETING & DATE ← PRESERVED
-═══════════════════════════════════════════ */
-function updateGreeting() {
-  const h = new Date().getHours();
-  const T = TRANSLATIONS[S.lang];
-  setText(
-    "greetText",
-    h < 12 ? T.good_morning : h < 17 ? T.good_afternoon : T.good_evening,
-  );
-  setText("greetName", S.userName.split(" ")[0] + " 👋");
-}
-
-function updateDate() {
-  const el = $("dateChip");
-  if (el)
-    el.textContent = new Date().toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-}
-
-/* ═══════════════════════════════════════════
-   25. EXPORT CSV ← PRESERVED
-═══════════════════════════════════════════ */
-function exportCSV() {
-  const T = TRANSLATIONS[S.lang];
-  const hdr = ["Date", "Type", "Category", "Description", "Amount"].join(",");
-  const rows = S.transactions.map((t) =>
-    [
-      t.date,
-      t.type,
-      (T[t.categoryKey] || t.category).replace(/,/g, ";"),
-      (t.description || "").replace(/,/g, ";"),
-      t.amount.toFixed(2),
-    ].join(","),
-  );
-  const csv = [hdr, ...rows].join("\n");
-  const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `finpay-${new Date().toISOString().split("T")[0]}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-/* ═══════════════════════════════════════════
-   26. UPDATE PROFILE — MOVED: full implementation in profile.js
-   This stripped-down version only updates dashboard UI elements
-   (navbar avatar, greeting) from localStorage values.
-═══════════════════════════════════════════ */
-function updateProfile() {
-  const name = S.userName;
-  const init =
-    name
-      .split(" ")
-      .map((w) => w[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2) || "A";
-
-  /* ── Navbar avatar ring ── */
-  const avatarImg = $("avatarImg");
-  const avatarLetter = $("avatarLetter");
-  if (avatarImg && avatarLetter) {
-    if (S.userAvatar) {
-      avatarImg.src = S.userAvatar;
-      avatarImg.alt = name;
-      avatarImg.style.display = "block";
-      avatarLetter.style.display = "none";
-    } else {
-      avatarImg.style.display = "none";
-      avatarLetter.style.display = "block";
-      avatarLetter.textContent = init[0];
-    }
-  }
-
-  /* Provider label in navbar (shown for social login) */
-  const providerEl = $("avatarProvider");
-  if (providerEl) {
-    if (S.isSocialLogin && S.userProvider) {
-      providerEl.textContent = S.userProvider;
-      providerEl.style.display = "block";
-    } else {
-      providerEl.style.display = "none";
-    }
-  }
-
-  setText("avatarName", name.split(" ")[0]);
-
-  /* ── ADDED: Settings page profile nav card ── */
-  const pncAvatar = $("pncAvatar");
-  if (pncAvatar) {
-    if (S.userAvatar) {
-      if (!pncAvatar.querySelector("img")) {
-        const img = document.createElement("img");
-        pncAvatar.appendChild(img);
-      }
-      pncAvatar.querySelector("img").src = S.userAvatar;
-      pncAvatar.textContent = "";
-      pncAvatar.appendChild(pncAvatar.querySelector("img"));
-    } else {
-      pncAvatar.innerHTML = init[0];
-    }
-  }
-  setText("pncName", name);
-
-  updateGreeting();
-}
-
-/**
- * setGoogleUser — Supabase မှ ရလာသော User Data များကို
- * App State (S) ထဲသို့ ထည့်သွင်းပြီး UI ကို Update လုပ်ပေးသည်။
- */
-function setGoogleUser(name, avatarUrl, email, provider) {
-  // 1. App State (S) ကို Update လုပ်ခြင်း
-  S.userName = name || "User";
-  S.userAvatar = avatarUrl || "";
-  S.userEmail = email || "";
-  S.userProvider = provider || "Email";
-  S.isSocialLogin = S.userProvider.toLowerCase() !== "email";
-
-  // 2. LocalStorage တွင်ပါ တစ်ခါတည်း သိမ်းဆည်းခြင်း (Refresh လုပ်လျှင် ပြန်ရရန်)
-  localStorage.setItem("novapay_username", S.userName);
-  localStorage.setItem("novapay_avatar", S.userAvatar);
-  localStorage.setItem("novapay_email", S.userEmail);
-  localStorage.setItem("novapay_provider", S.userProvider);
-  localStorage.setItem("novapay_social", JSON.stringify(S.isSocialLogin));
-
-  // 3. UI ကို ချက်ချင်းပြောင်းလဲရန် ခေါ်ယူခြင်း
-  if (typeof updateProfile === "function") {
-    updateProfile();
-  }
-
-  console.log(
-    `%c User Synced: ${S.userName} via ${S.userProvider} `,
-    "background: #4285F4; color: #fff; border-radius: 3px;",
-  );
-}
-function setGoogleUser(name, avatarUrl, email = "", provider = "Google") {
-  S.userName = name || S.userName;
-  S.userAvatar = avatarUrl || "";
-  S.userEmail = email || "";
-  S.userProvider = provider || "Google";
-  S.isSocialLogin = true;
-  lsSet(LS.userName, S.userName);
-  lsSet(LS.userAvatar, S.userAvatar);
-  lsSet(LS.userEmail, S.userEmail);
-  lsSet(LS.userProvider, S.userProvider);
-  lsSet(LS.isSocialLogin, true);
-  updateProfile();
-}
-
-/* ═══════════════════════════════════════════
-   27. FAB ← PRESERVED
-═══════════════════════════════════════════ */
-function toggleFab(force) {
-  const open = force !== undefined ? force : !S.fabOpen;
-  S.fabOpen = open;
-  $("fabMain")?.classList.toggle("open", open);
-  $("fabSub")?.classList.toggle("open", open);
-  $("fabBackdrop")?.classList.toggle("show", open);
-}
-
-/* ═══════════════════════════════════════════
-   28. CLOSE ALL PANELS ← PRESERVED
-═══════════════════════════════════════════ */
-function closeAll() {
-  $("dotsMenu")?.classList.remove("open");
-  $("dotsBtn")?.classList.remove("open");
-  $("notifPanel")?.classList.remove("open");
-  toggleFab(false);
-}
-
-/* ═══════════════════════════════════════════
-   29. SEARCH ← PRESERVED
-═══════════════════════════════════════════ */
-function handleSearch(q) {
-  S.searchQuery = q;
-  const clear = $("searchClear");
-  if (clear) clear.classList.toggle("show", q.length > 0);
-
-  if (q.trim()) {
-    goSearch();
-    renderSearch(q);
-    setText(
-      "searchResultLabel",
-      TRANSLATIONS[S.lang].search_results + ': "' + q + '"',
-    );
-  } else {
-    goTo("dashboard");
-  }
-}
-
-/* ═══════════════════════════════════════════
-    30. EVENT WIRING ← PRESERVED
-    NOTE: avatarBtn now navigates to profile.html
-═══════════════════════════════════════════ */
-function wire() {
-  /* ── Bottom nav ── */
-  document.querySelectorAll(".bn-btn[data-page]").forEach((btn) => {
-    btn.addEventListener("click", () => goTo(btn.dataset.page));
-  });
-
-  /* ── FAB (Floating Action Button) ── */
-  $("fabMain")?.addEventListener("click", (e) => {
-    e.stopPropagation();
-    toggleFab();
-  });
-  $("fabIncome")?.addEventListener("click", () => {
-    toggleFab(false);
-    openModal("income");
-  });
-  $("fabExpense")?.addEventListener("click", () => {
-    toggleFab(false);
-    openModal("expense");
-  });
-  $("fabBackdrop")?.addEventListener("click", () => toggleFab(false));
-
-  /* ── Avatar → Profile page (CHANGED: navigates to profile.html) ── */
-  $("avatarBtn")?.addEventListener("click", () => {
-    window.location.href = "profile.html";
-  });
-
-  /* ── 3-dots Menu ── */
-  $("dotsBtn")?.addEventListener("click", (e) => {
-    e.stopPropagation();
-    const open = $("dotsMenu").classList.toggle("open");
-    $("dotsBtn").classList.toggle("open", open);
-    if (open) $("notifPanel")?.classList.remove("open");
-  });
-
-  $("themeCheck")?.addEventListener("change", (e) =>
-    applyTheme(e.target.checked ? "dark" : "light"),
-  );
-  $("menuAddIncome")?.addEventListener("click", () => {
-    closeAll();
-    openModal("income");
-  });
-  $("menuAddExpense")?.addEventListener("click", () => {
-    closeAll();
-    openModal("expense");
-  });
-  $("menuHistory")?.addEventListener("click", () => {
-    closeAll();
-    goTo("transactions");
-  });
-  $("menuLang")?.addEventListener("click", () => {
-    toggleLang();
-    closeAll();
-  });
-
-  /* ── Search Logic ── */
-  $("searchInput")?.addEventListener("input", (e) =>
-    handleSearch(e.target.value),
-  );
-  $("searchInput")?.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      $("searchInput").value = "";
-      handleSearch("");
-    }
-  });
-  $("searchClear")?.addEventListener("click", () => {
-    $("searchInput").value = "";
-    handleSearch("");
-    $("searchInput")?.focus();
-  });
-
-  /* ── Notifications ── */
-  $("bellBtn")?.addEventListener("click", (e) => {
-    e.stopPropagation();
-    const open = $("notifPanel").classList.toggle("open");
-    if (open) {
-      $("dotsMenu")?.classList.remove("open");
-      $("dotsBtn")?.classList.remove("open");
-      markAllRead();
-    }
-  });
-  $("npMarkRead")?.addEventListener("click", markAllRead);
-  $("npClear")?.addEventListener("click", () => {
-    S.notifications = [];
-    saveNotifs();
-    renderNotifPanel();
-  });
-
-  /* ── Global Click (Close Panels) ── */
-  document.addEventListener("click", (e) => {
-    if (!$("dotsShell")?.contains(e.target)) {
-      $("dotsMenu")?.classList.remove("open");
-      $("dotsBtn")?.classList.remove("open");
-    }
-    if (!$("bellShell")?.contains(e.target)) {
-      $("notifPanel")?.classList.remove("open");
-    }
-  });
-
-  /* ── Transaction Filters ── */
-  $("txnTabs")?.addEventListener("click", (e) => {
-    const btn = e.target.closest(".ftab");
-    if (!btn) return;
-    $("txnTabs")
-      .querySelectorAll(".ftab")
-      .forEach((b) => b.classList.remove("active"));
-    btn.classList.add("active");
-    S.txnFilter = btn.dataset.filter;
-    updateFilterBadge();
-    renderTxnFeed();
-  });
-
-  $("afpApply")?.addEventListener("click", applyTxnFilter);
-  $("afpReset")?.addEventListener("click", resetTxnFilter);
-  $("afpBadgeClear")?.addEventListener("click", resetTxnFilter);
-
-  /* ── Modal & Forms ── */
-  $("csvBtnTxn")?.addEventListener("click", exportCSV);
-  $("mcClose")?.addEventListener("click", closeModal);
-  $("txnVeil")?.addEventListener("click", (e) => {
-    if (e.target === $("txnVeil")) closeModal();
-  });
-
-  $("txnSubmit")?.addEventListener("click", () => {
-    const type = $("txnType").value;
-    const amount = parseFloat($("txnAmount").value);
-    const catKey = $("txnCategory").value;
-    const desc = $("txnDesc").value.trim();
-    const date = $("txnDate").value;
-    const T = TRANSLATIONS[S.lang];
-
-    if (!amount || amount <= 0) {
-      const inp = $("txnAmount");
-      inp.classList.add("shake");
-      setTimeout(() => inp.classList.remove("shake"), 1600);
-      return;
-    }
-
-    const catName =
-      T[catKey] ||
-      catKey ||
-      (type === "income" ? T.cat_other_income : T.cat_other_expense);
-    addTxn(type, amount, catKey || "cat_other_" + type, catName, desc, date);
-    closeModal();
-  });
-
-  /* ── Confirmation Modal ── */
-  $("cfmCancel")?.addEventListener("click", closeConfirm);
-  $("cfmOk")?.addEventListener("click", () => {
-    S.confirmCb?.();
-    closeConfirm();
-  });
-
-  /* ── Settings Page ── */
-  $("themeToggle")?.addEventListener("change", (e) =>
-    applyTheme(e.target.checked ? "dark" : "light"),
-  );
-  $("langBtn")?.addEventListener("click", toggleLang);
-  $("notifToggle")?.addEventListener("change", (e) => {
-    S.notifEnabled = e.target.checked;
-    lsSet(LS.notifEnabled, S.notifEnabled);
-  });
-
-  /* ── Settings: Clear All Data (FINAL FIXED) ── */
-  $("clearBtn")?.addEventListener("click", () => {
-    const T = TRANSLATIONS[S.lang];
-    showConfirm(T.confirm_clear, T.confirm_clear_msg, () => {
-      S.transactions = [];
-      saveTxns();
-      localStorage.setItem("app_initialized", "true");
-      renderAll();
-
-      if (typeof showToast === "function") {
-        showToast("success", "History cleared!");
-      }
-
-      console.log("Storage Updated: novapay_transactions is now empty.");
-    });
-  });
-
-  /* ── SUPABASE LOGOUT ── */
-  $("logoutBtn")?.addEventListener("click", () => {
-    showConfirm(
-      S.lang === "en" ? "Logout?" : "ထွက်မည်?",
-      S.lang === "en"
-        ? "Are you sure you want to sign out?"
-        : "အကောင့်မှ ထွက်ရန် သေချာပါသလား?",
-      async () => {
-        await _supabase.auth.signOut();
-        localStorage.clear();
-        location.href = "index.html";
-      },
-    );
-  });
-
-  /* ── Charts & Window ── */
-  $("chartPeriod")?.addEventListener("change", drawChart);
-  window.addEventListener("resize", () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(drawChart, 220);
-  });
-}
-
-/* ═══════════════════════════════════════════
-    31. INIT & DEMO DATA
-═══════════════════════════════════════════ */
-function seedDemoData() {
-  const td = new Date().toISOString().split("T")[0];
-  const yd = new Date(Date.now() - 86400000).toISOString().split("T")[0];
-  const d2 = new Date(Date.now() - 172800000).toISOString().split("T")[0];
-
-  S.transactions = [
-    {
-      id: "1",
-      type: "income",
-      amount: 3000,
-      categoryKey: "cat_salary",
-      category: "Salary",
-      description: "Monthly salary",
-      date: d2,
-    },
-    {
-      id: "2",
-      type: "income",
-      amount: 2000,
-      categoryKey: "cat_freelance",
-      category: "Freelance",
-      description: "Design project",
-      date: yd,
-    },
-    {
-      id: "3",
-      type: "expense",
-      amount: 450,
-      categoryKey: "cat_food",
-      category: "Food",
-      description: "Groceries",
-      date: d2,
-    },
-    {
-      id: "4",
-      type: "expense",
-      amount: 120,
-      categoryKey: "cat_transport",
-      category: "Transport",
-      description: "Grab",
-      date: yd,
-    },
-    {
-      id: "5",
-      type: "expense",
-      amount: 299,
-      categoryKey: "cat_shopping",
-      category: "Shopping",
-      description: "Online",
-      date: td,
-    },
-  ];
-  saveTxns();
-}
-
-/* ═══════════════════════════════════════════
-   32. INIT — Final Optimized Version
-═══════════════════════════════════════════ */
-async function init() {
-  const {
-    data: { session },
-  } = await _supabase.auth.getSession();
-
-  // ✅ Guard first — then log
-  if (!session) {
-    window.location.href = "index.html";
-    return;
-  }
-
-  // ✅ Now safe to log
-  console.log("User metadata:", session.user.user_metadata);
-  console.log("Avatar:", session.user.user_metadata?.avatar_url);
-
-  if (!session) {
-    window.location.href = "index.html";
-    return; // အကောင့်မရှိရင် အောက်က code တွေကို ဆက်မလုပ်တော့ဘူး
-  }
-
-  // 2. User Information များကို Sync လုပ်မယ်
-  const meta = session.user.user_metadata;
-  S.userEmail = session.user.email;
-  S.userName = meta.full_name || meta.name || S.userEmail.split("@")[0];
-  S.userAvatar = meta.avatar_url || meta.picture || "";
-  S.userProvider = session.user.app_metadata?.provider || "Email";
-  S.isSocialLogin = S.userProvider.toLowerCase() !== "email";
-
-  // 3. UI Settings များကို Load လုပ်မယ်
-  loadState();
-  applyTheme(S.theme);
-  applyLang(S.lang);
-  updateDate();
-  updateProfile();
-
-  // Notification toggle status ကို sync လုပ်မယ်
-  if ($("notifToggle")) $("notifToggle").checked = S.notifEnabled;
-
-  // Event Listeners များကို ချိတ်ဆက်မယ်
-  wire();
-
-  // 4. Handle Demo Data (FIXED: အကောင့်အသစ်ဆိုမှ တစ်ခါပဲ Demo data ထည့်မယ်)
-  const isFirstTime = !localStorage.getItem("app_initialized");
-
-  if (isFirstTime && (!S.transactions || S.transactions.length === 0)) {
-    seedDemoData();
-    localStorage.setItem("app_initialized", "true");
-  }
-
-  // 5. Final Rendering
-  renderAll();
-  renderNotifPanel();
-
-  console.log(
-    "%c Dashboard Ready ✓ ",
-    "background:#22c55e; color:#fff; padding:2px 5px; border-radius:3px;",
-  );
-}
-
-/* ── Boot Logic ── */
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", init);
-} else {
-  init();
+/* Touch: always show delete */
+@media (hover: none) {
+  .txn-del       { opacity: 0.4; }
+  .qcat-add-chip { opacity: 1; transform: scale(0.9); }
 }
