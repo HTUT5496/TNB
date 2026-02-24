@@ -9,130 +9,6 @@
     <title>TNB Dashboard</title>
     <link rel="stylesheet" href="dashboard.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <!--
-      ════════════════════════════════════════════════════
-      INLINE STYLES — Google Profile UI/UX
-      (kept inline to preserve original intent)
-
-      1. Shimmer/pulse on avatar while image loads
-      2. Blue verified checkmark next to name
-      3. Hover tooltip on avatar showing "Log Out"
-      ════════════════════════════════════════════════════
-    -->
-    <style>
-      /* ── 1. Avatar shimmer / pulse while loading ── */
-      @keyframes avatarShimmer {
-        0%   { background-position: -200% 0; }
-        100% { background-position:  200% 0; }
-      }
-      @keyframes avatarPulse {
-        0%, 100% { box-shadow: 0 0 0 0   rgba(66,133,244,0.5); }
-        50%       { box-shadow: 0 0 0 6px rgba(66,133,244,0);   }
-      }
-      .avatar-ring.is-loading {
-        background: linear-gradient(
-          100deg,
-          rgba(255,255,255,0.06) 25%,
-          rgba(255,255,255,0.18) 50%,
-          rgba(255,255,255,0.06) 75%
-        ) !important;
-        background-size: 200% 100% !important;
-        animation: avatarShimmer 1.2s infinite linear,
-                   avatarPulse   1.5s infinite ease-in-out !important;
-      }
-
-      /* ── 2. Verified checkmark badge ── */
-      .verified-badge {
-        display: inline-flex;
-        align-items: center; justify-content: center;
-        width: 14px; height: 14px;
-        border-radius: 50%; background: #4285F4;
-        margin-left: 4px; vertical-align: middle; flex-shrink: 0;
-        box-shadow: 0 1px 4px rgba(66,133,244,0.5);
-        animation: badgePop 0.35s cubic-bezier(0.175,0.885,0.32,1.275) both;
-      }
-      @keyframes badgePop {
-        from { transform: scale(0); opacity: 0; }
-        to   { transform: scale(1); opacity: 1; }
-      }
-
-      /* ── 3. Avatar hover → logout tooltip ── */
-      .avatar-pill-wrap {
-        position: relative; display: inline-flex; align-items: center;
-      }
-      .avatar-logout-tip {
-        position: absolute; top: calc(100% + 8px); left: 0; z-index: 9999;
-        background: rgba(10,16,32,0.97);
-        border: 1px solid rgba(255,255,255,0.11);
-        border-radius: 12px; padding: 0; min-width: 170px;
-        opacity: 0; pointer-events: none; transform: translateY(-6px);
-        transition: opacity 0.18s ease, transform 0.18s ease;
-        overflow: hidden; box-shadow: 0 12px 36px rgba(0,0,0,0.55);
-      }
-      .avatar-pill-wrap:hover .avatar-logout-tip,
-      .avatar-pill-wrap:focus-within .avatar-logout-tip {
-        opacity: 1; pointer-events: auto; transform: translateY(0);
-      }
-      .avatar-tip-profile {
-        display: flex; align-items: center; gap: 9px;
-        padding: 12px 14px 9px;
-        border-bottom: 1px solid rgba(255,255,255,0.07);
-      }
-      .avatar-tip-img {
-        width: 32px; height: 32px; border-radius: 50%; object-fit: cover;
-        flex-shrink: 0; border: 1.5px solid rgba(255,255,255,0.15);
-      }
-      .avatar-tip-letter {
-        width: 32px; height: 32px; border-radius: 50%;
-        background: linear-gradient(135deg, #f59e0b, #b45309);
-        display: flex; align-items: center; justify-content: center;
-        font-weight: 800; font-size: 13px; color: #1c0d00; flex-shrink: 0;
-      }
-      .avatar-tip-name {
-        font-size: 13px; font-weight: 600; line-height: 1.2;
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 106px;
-      }
-      .avatar-tip-email {
-        font-size: 10.5px; opacity: 0.50; white-space: nowrap;
-        overflow: hidden; text-overflow: ellipsis; max-width: 106px; margin-top: 1px;
-      }
-      .avatar-tip-logout {
-        display: flex; align-items: center; gap: 8px; width: 100%;
-        padding: 10px 14px; background: transparent; border: none; color: #f87171;
-        font-size: 13px; font-weight: 500; cursor: pointer; text-align: left;
-        transition: background 0.15s; font-family: 'Plus Jakarta Sans', sans-serif;
-      }
-      .avatar-tip-logout:hover { background: rgba(248,113,113,0.10); }
-      .avatar-tip-settings {
-        display: flex; align-items: center; gap: 8px; width: 100%;
-        padding: 10px 14px; background: transparent; border: none;
-        border-bottom: 1px solid rgba(255,255,255,0.07);
-        color: inherit; font-size: 13px; cursor: pointer; text-align: left;
-        opacity: 0.75; transition: background 0.15s, opacity 0.15s;
-        font-family: 'Plus Jakarta Sans', sans-serif;
-      }
-      .avatar-tip-settings:hover { background: rgba(255,255,255,0.05); opacity: 1; }
-
-      /* ── Gmail address under greeting ── */
-      .greet-email {
-        font-size: 12px; opacity: 0.45; margin-top: 3px; letter-spacing: 0.01em;
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px;
-        animation: fadeSlideIn 0.4s ease both;
-        font-family: 'DM Mono', monospace;
-      }
-      @keyframes fadeSlideIn {
-        from { opacity: 0; transform: translateY(4px); }
-        to   { opacity: 0.45; transform: translateY(0); }
-      }
-
-      .avatar-name-row {
-        display: flex; align-items: center; gap: 3px;
-      }
-      .avatar-ring .avatar-img {
-        width: 100%; height: 100%; border-radius: 50%; object-fit: cover;
-      }
-    </style>
   </head>
   <body>
 
@@ -147,14 +23,14 @@
         <div class="avatar-pill-wrap">
           <button class="avatar-pill" id="avatarBtn" aria-label="Profile">
             <span class="avatar-ring" id="avatarRing">
-              <img class="avatar-img" id="avatarImg" src="" alt="" style="display:none;" />
+              <img class="avatar-img is-hidden" id="avatarImg" src="" alt="" />
               <span class="avatar-letter" id="avatarLetter">A</span>
             </span>
             <div class="avatar-info">
               <span class="avatar-name-row">
                 <span class="avatar-name" id="avatarName">Alex</span>
               </span>
-              <span class="avatar-provider" id="avatarProvider" style="display:none;"></span>
+              <span class="avatar-provider is-hidden" id="avatarProvider"></span>
             </div>
           </button>
 
@@ -162,13 +38,12 @@
           <div class="avatar-logout-tip" id="avatarLogoutTip" role="menu">
             <div class="avatar-tip-profile">
               <span id="tipAvatarPlaceholder" class="avatar-tip-letter">A</span>
-              <div style="overflow:hidden;">
+              <div class="avatar-tip-text-wrap">
                 <div class="avatar-tip-name" id="tipName">Alex</div>
-                <div class="avatar-tip-email" id="tipEmail" style="display:none;"></div>
+                <div class="avatar-tip-email is-hidden" id="tipEmail"></div>
               </div>
             </div>
             <button class="avatar-tip-settings" id="tipSettingsBtn">
-              <!-- Settings icon — stroke 1.6 -->
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="3"/>
                 <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
@@ -176,7 +51,6 @@
               Settings
             </button>
             <button class="avatar-tip-logout" id="tipLogoutBtn">
-              <!-- Log-out icon — stroke 1.6 -->
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
                 <polyline points="16 17 21 12 16 7"/>
@@ -189,7 +63,6 @@
 
         <!-- Search -->
         <div class="search-shell">
-          <!-- Search icon — stroke 1.6 -->
           <svg class="search-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="11" cy="11" r="8"/>
             <line x1="21" y1="21" x2="16.65" y2="16.65"/>
@@ -199,7 +72,6 @@
             type="search" placeholder="Search transactions…" autocomplete="off"
           />
           <button class="search-clear" id="searchClear" aria-label="Clear search">
-            <!-- X icon — stroke 1.6 -->
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
@@ -211,12 +83,11 @@
           <!-- Bell -->
           <div class="bell-shell" id="bellShell">
             <button class="bell-btn" id="bellBtn" aria-label="Notifications" aria-expanded="false">
-              <!-- Bell icon — stroke 1.6 -->
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                 <path d="M13.73 21a2 2 0 01-3.46 0"/>
               </svg>
-              <span class="bell-dot" id="bellDot" style="display:none;"></span>
+              <span class="bell-dot is-hidden" id="bellDot"></span>
             </button>
 
             <div class="notif-panel" id="notifPanel">
@@ -239,7 +110,6 @@
             <div class="dots-menu" id="dotsMenu" role="menu">
               <label class="dmenu-row dmenu-toggle" role="menuitem">
                 <span class="dmenu-icon">
-                  <!-- Moon icon — stroke 1.6 -->
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/>
                   </svg>
@@ -253,7 +123,6 @@
               <div class="dmenu-divider"></div>
               <button class="dmenu-row" id="menuAddIncome" role="menuitem">
                 <span class="dmenu-icon income-ico">
-                  <!-- Plus-circle — stroke 1.6 -->
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"/>
                     <line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
@@ -263,7 +132,6 @@
               </button>
               <button class="dmenu-row" id="menuAddExpense" role="menuitem">
                 <span class="dmenu-icon expense-ico">
-                  <!-- Minus-circle — stroke 1.6 -->
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"/>
                     <line x1="8" y1="12" x2="16" y2="12"/>
@@ -274,7 +142,6 @@
               <div class="dmenu-divider"></div>
               <button class="dmenu-row" id="menuHistory" role="menuitem">
                 <span class="dmenu-icon">
-                  <!-- List icon — stroke 1.6 -->
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
                     <line x1="8" y1="18" x2="21" y2="18"/>
@@ -286,7 +153,6 @@
               </button>
               <button class="dmenu-row" id="menuLang" role="menuitem">
                 <span class="dmenu-icon">
-                  <!-- Globe icon — stroke 1.6 -->
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"/>
                     <line x1="2" y1="12" x2="22" y2="12"/>
@@ -339,10 +205,10 @@
         <div class="greet-row">
           <div>
             <p class="greet-sub" id="greetText">Good morning,</p>
-            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+            <div class="greet-name-row">
               <h1 class="greet-name" id="greetName">Alex 👋</h1>
             </div>
-            <p class="greet-email" id="greetEmail" style="display:none;"></p>
+            <p class="greet-email is-hidden" id="greetEmail"></p>
           </div>
           <span class="date-chip" id="dateChip"></span>
         </div>
@@ -357,11 +223,11 @@
         </div>
 
         <!-- Recent Activity -->
-        <div class="section-row" style="margin-top:4px;">
+        <div class="section-row section-row--spaced">
           <h2 class="section-label" data-i18n="recent_activity">Recent Activity</h2>
         </div>
         <div class="usage-summary" id="usageSummary">
-          <p class="np-empty" style="text-align:center;padding:32px 14px;font-size:0.8rem;">
+          <p class="np-empty usage-empty-msg">
             No activity yet — add a transaction to get started.
           </p>
         </div>
@@ -391,12 +257,11 @@
               <input type="date" class="date-pick" id="txnDateTo"/>
             </div>
           </div>
-          <div class="afp-error" id="afpError" style="display:none;"></div>
+          <div class="afp-error is-hidden" id="afpError"></div>
           <div class="afp-actions">
             <button class="afp-apply" id="afpApply" data-i18n="apply_filter">Apply Filter</button>
             <button class="afp-reset" id="afpReset" data-i18n="reset_filter">Reset</button>
             <button class="csv-btn" id="csvBtnTxn">
-              <!-- Download icon — stroke 1.6 -->
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
                 <polyline points="7 10 12 15 17 10"/>
@@ -405,7 +270,7 @@
               <span data-i18n="export_csv">Export CSV</span>
             </button>
           </div>
-          <div class="afp-active-badge" id="afpActiveBadge" style="display:none;">
+          <div class="afp-active-badge is-hidden" id="afpActiveBadge">
             <span id="afpActiveText"></span>
             <button class="afp-badge-clear" id="afpBadgeClear">✕</button>
           </div>
@@ -423,7 +288,6 @@
           <!-- Income card -->
           <div class="rep-card income-rc">
             <div class="rep-icon income-ico-wrap">
-              <!-- Trend-up icon — stroke 1.6 -->
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
                 <polyline points="17 6 23 6 23 12"/>
@@ -438,7 +302,6 @@
           <!-- Expense card -->
           <div class="rep-card expense-rc">
             <div class="rep-icon expense-ico-wrap">
-              <!-- Trend-down icon — stroke 1.6 -->
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
                 <polyline points="17 18 23 18 23 12"/>
@@ -453,7 +316,6 @@
           <!-- Balance card -->
           <div class="rep-card">
             <div class="rep-icon balance-ico-wrap">
-              <!-- Dollar-sign icon — stroke 1.6 -->
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="12" y1="1" x2="12" y2="23"/>
                 <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
@@ -468,7 +330,6 @@
           <!-- Count card -->
           <div class="rep-card">
             <div class="rep-icon count-ico-wrap">
-              <!-- List icon — stroke 1.6 -->
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="8"  y1="6"  x2="21" y2="6"/>
                 <line x1="8"  y1="12" x2="21" y2="12"/>
@@ -498,7 +359,7 @@
         </div>
 
         <!-- Category breakdown -->
-        <h3 class="section-label" style="margin:20px 0 10px" data-i18n="category_breakdown">Category Breakdown</h3>
+        <h3 class="section-label section-label--reports" data-i18n="category_breakdown">Category Breakdown</h3>
         <div class="cat-breakdown" id="catBreakdown"></div>
       </section>
 
@@ -513,7 +374,7 @@
           <div class="pc-info">
             <input class="pc-name-input" id="profileNameInput" value="Alex Morgan" placeholder="Your name"/>
             <span class="pc-badge" data-i18n="premium_member">Premium Member</span>
-            <div class="pc-social-info" id="pcSocialInfo" style="display:none;">
+            <div class="pc-social-info is-hidden" id="pcSocialInfo">
               <span class="pc-social-badge" id="pcSocialBadge">Social Account</span>
               <span class="pc-social-provider" id="pcSocialProvider"></span>
               <span class="pc-email" id="pcEmail"></span>
@@ -568,7 +429,6 @@
         </div>
 
         <button class="logout-btn" id="logoutBtn">
-          <!-- Log-out icon — stroke 1.6 -->
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
             <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
             <polyline points="16 17 21 12 16 7"/>
@@ -587,7 +447,6 @@
 
       <!-- Home -->
       <button class="bn-btn active" data-page="dashboard" id="bn-dashboard">
-        <!-- Grid/Home icon — stroke 1.6 -->
         <svg class="bn-ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
           <rect x="3" y="3" width="7" height="7" rx="1.5"/>
           <rect x="14" y="3" width="7" height="7" rx="1.5"/>
@@ -599,7 +458,6 @@
 
       <!-- History -->
       <button class="bn-btn" data-page="transactions" id="bn-transactions">
-        <!-- Receipt/list icon — stroke 1.6 -->
         <svg class="bn-ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
           <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
         </svg>
@@ -609,7 +467,6 @@
       <!-- FAB (centre) -->
       <div class="fab-zone">
         <button class="fab-main" id="fabMain" aria-label="Add transaction">
-          <!-- Plus icon — stroke 2 (intentionally bolder for FAB) -->
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
             <line x1="12" y1="5" x2="12" y2="19"/>
             <line x1="5"  y1="12" x2="19" y2="12"/>
@@ -617,14 +474,12 @@
         </button>
         <div class="fab-sub" id="fabSub">
           <button class="fab-sub-btn fab-income" id="fabIncome">
-            <!-- Chevron-up — stroke 2 -->
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="18 15 12 9 6 15"/>
             </svg>
             <span data-i18n="add_income">Income</span>
           </button>
           <button class="fab-sub-btn fab-expense" id="fabExpense">
-            <!-- Chevron-down — stroke 2 -->
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="6 9 12 15 18 9"/>
             </svg>
@@ -636,7 +491,6 @@
 
       <!-- Reports -->
       <button class="bn-btn" data-page="reports" id="bn-reports">
-        <!-- Bar-chart icon — stroke 1.6 -->
         <svg class="bn-ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="20" x2="18" y2="10"/>
           <line x1="12" y1="20" x2="12" y2="4"/>
@@ -647,7 +501,6 @@
 
       <!-- Settings -->
       <button class="bn-btn" data-page="settings" id="bn-settings">
-        <!-- Settings icon — stroke 1.6 -->
         <svg class="bn-ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3"/>
           <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
@@ -667,7 +520,6 @@
         <div class="mc-head">
           <h2 class="mc-title" id="mcTitle">Add Income</h2>
           <button class="mc-close" id="mcClose" aria-label="Close">
-            <!-- X — stroke 1.6 -->
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>

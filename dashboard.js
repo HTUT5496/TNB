@@ -330,6 +330,12 @@ const fmt = (n) =>
 const $       = (id) => document.getElementById(id);
 const setText = (id, v) => { const e = $(id); if (e) e.textContent = v; };
 
+/* ── Visibility helpers replacing element.style.display ── */
+const show = (el) => { if (el) el.classList.remove("is-hidden"); };
+const hide = (el) => { if (el) el.classList.add("is-hidden"); };
+const showFlex = (el) => { if (el) { el.classList.remove("is-hidden"); el.classList.add("is-flex"); } };
+const hideFlex = (el) => { if (el) { el.classList.add("is-hidden"); el.classList.remove("is-flex"); } };
+
 /* ═══════════════════════════════════════════
    7. ANIMATED COUNTER (PRESERVED)
 ═══════════════════════════════════════════ */
@@ -347,7 +353,7 @@ function animCount(elId, target) {
 }
 
 /* ═══════════════════════════════════════════
-   8. UPDATE TOTALS (PRESERVED)
+   8. UPDATE TOTALS
 ═══════════════════════════════════════════ */
 function updateTotals() {
   const { inc, exp, bal } = calcTotals();
@@ -361,8 +367,12 @@ function updateTotals() {
   setText("repExpense", "$" + fmt(exp));
   setText("repBalance", "$" + fmt(bal));
   setText("repCount", S.transactions.length);
+  // Net balance color — use CSS class instead of inline style
   const rb = $("repBalance");
-  if (rb) rb.style.color = bal >= 0 ? "var(--inc)" : "var(--exp)";
+  if (rb) {
+    rb.classList.remove("income-col", "expense-col");
+    rb.classList.add(bal >= 0 ? "income-col" : "expense-col");
+  }
 }
 
 /* ═══════════════════════════════════════════
@@ -418,7 +428,7 @@ function emptyEl() {
       <path d="M16 3H8v4h8V3z"/>
     </svg>
     <p>${T.no_transactions}</p>
-    <p style="font-size:.7rem">${T.add_first}</p>`;
+    <p class="empty-state-hint">${T.add_first}</p>`;
   return div;
 }
 
@@ -460,9 +470,9 @@ function renderUsageSummary(catTotals) {
   el.innerHTML = "";
   if (!catTotals || catTotals.size === 0) {
     const empty = document.createElement("div");
-    empty.className = "empty-state";
-    empty.style.cssText = "background:none;border:none;padding:2rem 0;";
-    empty.innerHTML = `<p style="opacity:0.6">${T.no_transactions}</p>`;
+    // Use CSS class instead of cssText
+    empty.className = "empty-state empty-state--bare";
+    empty.innerHTML = `<p>${T.no_transactions}</p>`;
     el.appendChild(empty); return;
   }
   const entries = [...catTotals.entries()].sort((a, b) => b[1].total - a[1].total).slice(0, 8);
@@ -508,7 +518,7 @@ function renderCatBreakdown() {
     map[lbl].total += txn.amount;
   }
   const entries = Object.entries(map).sort((a, b) => b[1].total - a[1].total);
-  if (!entries.length) { el.innerHTML = '<p style="color:var(--tx3);font-size:.8rem;text-align:center;padding:20px">No data yet</p>'; return; }
+  if (!entries.length) { el.innerHTML = '<p class="cat-empty-msg">No data yet</p>'; return; }
   const maxV = entries[0][1].total;
   entries.forEach(([name, data], i) => {
     const pct   = (data.total / maxV) * 100;
@@ -609,14 +619,21 @@ function addNotif(type, amount, newBalance) {
 }
 
 function renderNotifPanel() {
-  const body = $("npBody"), empty = $("npEmpty"), dot = $("bellDot"), bell = $("bellBtn");
+  const body  = $("npBody");
+  const empty = $("npEmpty");
+  const dot   = $("bellDot");
+  const bell  = $("bellBtn");
   if (!body) return;
   const unread = S.notifications.filter((n) => !n.read).length;
-  if (dot)  dot.style.display = unread > 0 ? "block" : "none";
+  // Replace style.display with class toggling
+  if (dot) dot.classList.toggle("is-hidden", unread === 0);
   if (bell) bell.classList.toggle("ringing", unread > 0);
   body.querySelectorAll(".np-item").forEach((el) => el.remove());
-  if (!S.notifications.length) { if (empty) empty.style.display = "block"; return; }
-  if (empty) empty.style.display = "none";
+  if (!S.notifications.length) {
+    if (empty) show(empty);
+    return;
+  }
+  if (empty) hide(empty);
   S.notifications.forEach((n, i) => {
     const div = document.createElement("div");
     div.className = "np-item"; div.style.animationDelay = i * 0.035 + "s";
@@ -664,12 +681,13 @@ function applyTxnFilter() {
   const T = TRANSLATIONS[S.lang];
   const from = $("txnDateFrom")?.value || "", to = $("txnDateTo")?.value || "";
   const errEl = $("afpError");
-  if (errEl) errEl.style.display = "none";
+  // Replace errEl.style.display with class toggle
+  if (errEl) hide(errEl);
   if ((from && !to) || (!from && to)) {
-    if (errEl) { errEl.textContent = T.err_date_required; errEl.style.display = "block"; } return;
+    if (errEl) { errEl.textContent = T.err_date_required; show(errEl); } return;
   }
   if (from && to && from > to) {
-    if (errEl) { errEl.textContent = T.err_date_range; errEl.style.display = "block"; } return;
+    if (errEl) { errEl.textContent = T.err_date_range; show(errEl); } return;
   }
   S.txnDateFrom = from; S.txnDateTo = to; S.txnFilterActive = !!(from && to);
   updateFilterBadge(); renderTxnFeed();
@@ -679,7 +697,8 @@ function applyTxnFilter() {
 function resetTxnFilter() {
   S.txnFilter = "all"; S.txnDateFrom = ""; S.txnDateTo = ""; S.txnFilterActive = false;
   const fromEl = $("txnDateFrom"), toEl = $("txnDateTo"), errEl = $("afpError");
-  if (fromEl) fromEl.value = ""; if (toEl) toEl.value = ""; if (errEl) errEl.style.display = "none";
+  if (fromEl) fromEl.value = ""; if (toEl) toEl.value = "";
+  if (errEl) hide(errEl);
   $("txnTabs")?.querySelectorAll(".ftab").forEach((b) => b.classList.toggle("active", b.dataset.filter === "all"));
   updateFilterBadge(); renderTxnFeed();
 }
@@ -687,13 +706,16 @@ function resetTxnFilter() {
 function updateFilterBadge() {
   const T = TRANSLATIONS[S.lang], badge = $("afpActiveBadge"), text = $("afpActiveText");
   if (!badge || !text) return;
-  if (!S.txnFilterActive && S.txnFilter === "all") { badge.style.display = "none"; return; }
+  if (!S.txnFilterActive && S.txnFilter === "all") {
+    // Replace badge.style.display with class toggle
+    hide(badge); return;
+  }
   let parts = [];
   if (S.txnFilter !== "all") parts.push(T[S.txnFilter] || S.txnFilter);
   if (S.txnDateFrom) parts.push(S.txnDateFrom);
   if (S.txnDateTo)   parts.push("→ " + S.txnDateTo);
   text.textContent = (T.filter_active || "Filter active") + ": " + parts.join(" · ");
-  badge.style.display = "flex";
+  showFlex(badge);
 }
 
 function renderAll() {
@@ -801,13 +823,9 @@ function exportCSV() {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   26. UPDATE PROFILE  ← UPDATED
-       New behaviour (inline CSS, no external stylesheet changes):
-       ① Shimmer/pulse on avatar ring while Google photo loads
-       ② Verified blue checkmark badge next to name (navbar + greet)
-       ③ Hover tooltip populated with name, email, logout button
-       ④ Gmail address displayed under greeting name
-       All existing Settings card logic is fully preserved.
+   26. UPDATE PROFILE
+   All element.style.display / element.style.cssText calls
+   replaced with show() / hide() / showFlex() / class helpers.
 ═══════════════════════════════════════════════════════════════ */
 function updateProfile() {
   const name = S.userName;
@@ -835,39 +853,35 @@ function updateProfile() {
 
   if (avatarImg && avatarLetter) {
     if (S.userAvatar) {
-      /* ① Show shimmer on ring while image is loading */
       if (avatarRing) avatarRing.classList.add("is-loading");
 
       avatarImg.alt = name;
-      avatarImg.style.display  = "block";
-      avatarLetter.style.display = "none";
+      show(avatarImg);
+      hide(avatarLetter);
 
-      /* Load image — remove shimmer once loaded */
       const tempImg = new Image();
       tempImg.onload = () => {
         avatarImg.src = S.userAvatar;
         if (avatarRing) avatarRing.classList.remove("is-loading");
       };
       tempImg.onerror = () => {
-        /* Fallback to letter if image fails */
-        avatarImg.style.display  = "none";
-        avatarLetter.style.display = "block";
+        hide(avatarImg);
+        show(avatarLetter);
         avatarLetter.textContent = init[0];
         if (avatarRing) avatarRing.classList.remove("is-loading");
       };
       tempImg.src = S.userAvatar;
     } else {
-      avatarImg.style.display  = "none";
-      avatarLetter.style.display = "block";
+      hide(avatarImg);
+      show(avatarLetter);
       avatarLetter.textContent = init[0];
       if (avatarRing) avatarRing.classList.remove("is-loading");
     }
   }
 
-  /* ── Navbar: first name ── */
   setText("avatarName", name.split(" ")[0]);
 
-  /* ② Verified badge in navbar avatar-name-row */
+  /* Verified badge in navbar avatar-name-row */
   const nameRow = document.querySelector(".avatar-name-row");
   if (nameRow) {
     const existing = nameRow.querySelector(".verified-badge");
@@ -875,46 +889,46 @@ function updateProfile() {
     if (S.isSocialLogin) nameRow.appendChild(makeVerifiedBadge("avatarVerified"));
   }
 
-  /* Provider label (below name in avatar-pill) */
+  /* Provider label */
   const providerEl = $("avatarProvider");
   if (providerEl) {
     if (S.isSocialLogin && S.userProvider) {
       providerEl.textContent = S.userProvider;
-      providerEl.style.display = "block";
-    } else { providerEl.style.display = "none"; }
+      show(providerEl);
+    } else {
+      hide(providerEl);
+    }
   }
 
   /* ══════════════════════════════════════
-     ③ HOVER TOOLTIP — populate content
+     HOVER TOOLTIP — populate content
   ══════════════════════════════════════ */
   const tipPlaceholder = $("tipAvatarPlaceholder");
   if (tipPlaceholder) {
-    /* Rebuild as <img> or letter span */
     if (S.userAvatar) {
-      tipPlaceholder.outerHTML = `<img
-        id="tipAvatarPlaceholder"
-        class="avatar-tip-img"
-        src="${S.userAvatar}"
-        alt="${name}"
-        style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0;border:1.5px solid rgba(255,255,255,0.15);"
-      >`;
+      /* Replace letter span with img — same pattern, no inline style */
+      const img = document.createElement("img");
+      img.id        = "tipAvatarPlaceholder";
+      img.className = "avatar-tip-img";
+      img.src       = S.userAvatar;
+      img.alt       = name;
+      tipPlaceholder.replaceWith(img);
     } else {
-      /* Restore as letter span */
-      tipPlaceholder.style.display = "flex";
-      tipPlaceholder.textContent   = init[0];
+      show(tipPlaceholder);
+      tipPlaceholder.textContent = init[0];
     }
   }
   setText("tipName", name.split(" ")[0]);
   const tipEmail = $("tipEmail");
   if (tipEmail) {
-    if (S.userEmail) { tipEmail.textContent = S.userEmail; tipEmail.style.display = "block"; }
-    else { tipEmail.style.display = "none"; }
+    if (S.userEmail) { tipEmail.textContent = S.userEmail; show(tipEmail); }
+    else { hide(tipEmail); }
   }
 
   /* ══════════════════════════════════════
-     ④ GREET SECTION: name badge + email
+     GREET SECTION: name badge + email
   ══════════════════════════════════════ */
-  updateGreeting(); // sets greetName text
+  updateGreeting();
 
   /* Verified badge next to greeting h1 */
   const greetNameEl = $("greetName");
@@ -923,8 +937,8 @@ function updateProfile() {
     if (existingGBadge) existingGBadge.remove();
     if (S.isSocialLogin) {
       const gb = makeVerifiedBadge("greetVerified");
-      /* Style it slightly larger for the heading context */
-      gb.style.cssText = "display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#4285F4;margin-left:6px;vertical-align:middle;flex-shrink:0;box-shadow:0 2px 6px rgba(66,133,244,0.45);";
+      /* Use CSS modifier class for the larger variant */
+      gb.classList.add("verified-badge--lg");
       greetNameEl.parentElement.appendChild(gb);
     }
   }
@@ -933,10 +947,10 @@ function updateProfile() {
   const greetEmail = $("greetEmail");
   if (greetEmail) {
     if (S.isSocialLogin && S.userEmail) {
-      greetEmail.textContent  = S.userEmail;
-      greetEmail.style.display = "block";
+      greetEmail.textContent = S.userEmail;
+      show(greetEmail);
     } else {
-      greetEmail.style.display = "none";
+      hide(greetEmail);
     }
   }
 
@@ -946,12 +960,14 @@ function updateProfile() {
   const pcAvatar = $("pcAvatar");
   if (pcAvatar) {
     if (S.userAvatar) {
-      if (!pcAvatar.querySelector("img")) {
-        const img = document.createElement("img");
-        img.style.cssText = "position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover;";
+      let img = pcAvatar.querySelector("img");
+      if (!img) {
+        img = document.createElement("img");
+        /* Use CSS class instead of cssText */
+        img.className = "pc-avatar-img";
         pcAvatar.appendChild(img);
       }
-      pcAvatar.querySelector("img").src = S.userAvatar;
+      img.src = S.userAvatar;
       const txt = pcAvatar.childNodes[0];
       if (txt && txt.nodeType === 3) pcAvatar.removeChild(txt);
     } else {
@@ -969,17 +985,17 @@ function updateProfile() {
   const passwordRow    = $("passwordRow");
 
   if (S.isSocialLogin) {
-    if (socialInfo)     socialInfo.style.display = "flex";
+    showFlex(socialInfo);
     if (socialBadge)    socialBadge.textContent  = TRANSLATIONS[S.lang].social_account || "Social Account";
     if (socialProvider && S.userProvider)
       socialProvider.textContent = (TRANSLATIONS[S.lang].provider_label || "Provider:") + " " + S.userProvider;
     if (emailEl && S.userEmail) emailEl.textContent = S.userEmail;
-    if (passwordRow)    passwordRow.style.display = "none";
-    if (ni)             ni.readOnly = true;
+    hide(passwordRow);
+    if (ni) ni.readOnly = true;
   } else {
-    if (socialInfo)  socialInfo.style.display = "none";
-    if (passwordRow) passwordRow.style.display = "flex";
-    if (ni)          ni.readOnly = false;
+    hide(socialInfo);
+    showFlex(passwordRow);
+    if (ni) ni.readOnly = false;
   }
 }
 
@@ -1033,7 +1049,7 @@ function handleSearch(q) {
 }
 
 /* ═══════════════════════════════════════════
-   30. EVENT WIRING (PRESERVED + tooltip wiring)
+   30. EVENT WIRING (PRESERVED)
 ═══════════════════════════════════════════ */
 let resizeTimer;
 
@@ -1049,13 +1065,13 @@ function wire() {
   $("fabExpense")?.addEventListener("click", () => { toggleFab(false); openModal("expense"); });
   $("fabBackdrop")?.addEventListener("click", () => toggleFab(false));
 
-  /* Avatar → Settings (existing) */
+  /* Avatar → Settings */
   $("avatarBtn")?.addEventListener("click", () => goTo("settings"));
 
-  /* ── Tooltip: Settings shortcut ── */
+  /* Tooltip: Settings shortcut */
   $("tipSettingsBtn")?.addEventListener("click", (e) => { e.stopPropagation(); goTo("settings"); });
 
-  /* ── Tooltip: Log Out ── */
+  /* Tooltip: Log Out */
   $("tipLogoutBtn")?.addEventListener("click", (e) => {
     e.stopPropagation();
     showConfirm(
@@ -1146,7 +1162,7 @@ function wire() {
     });
   });
 
-  /* Supabase logout (Settings page button — preserved) */
+  /* Supabase logout */
   $("logoutBtn")?.addEventListener("click", () => {
     showConfirm(
       S.lang === "en" ? "Logout?" : "ထွက်မည်?",
@@ -1182,14 +1198,6 @@ async function init() {
 
   if (!session) { window.location.href = "index.html"; return; }
 
-  /* ──────────────────────────────────────────────────
-     GOOGLE PROFILE DATA — read from Supabase session
-     session.user.user_metadata contains:
-       full_name   → display name from Google
-       avatar_url  → Google profile picture URL
-       email       → Gmail address
-     app_metadata.provider → "google" for OAuth logins
-  ────────────────────────────────────────────────── */
   const meta        = session.user.user_metadata;
   S.userEmail       = session.user.email || "";
   S.userName        = meta.full_name || meta.name || S.userEmail.split("@")[0] || "User";
@@ -1200,17 +1208,14 @@ async function init() {
                         : "Email";
   S.isSocialLogin   = S.userProvider.toLowerCase() !== "email";
 
-  /* Persist for page refreshes */
   lsSet(LS.userName,      S.userName);
   lsSet(LS.userAvatar,    S.userAvatar);
   lsSet(LS.userEmail,     S.userEmail);
   lsSet(LS.userProvider,  S.userProvider);
   lsSet(LS.isSocialLogin, S.isSocialLogin);
 
-  /* Load UI prefs (theme, lang, transactions) from localStorage */
   loadState();
 
-  /* Re-apply live session data (loadState would overwrite with stale values) */
   S.userEmail     = session.user.email || lsGet(LS.userEmail, "");
   S.userName      = meta.full_name || meta.name || S.userEmail.split("@")[0] || lsGet(LS.userName, "User");
   S.userAvatar    = meta.avatar_url || meta.picture || lsGet(LS.userAvatar, "");
@@ -1219,13 +1224,12 @@ async function init() {
   applyTheme(S.theme);
   applyLang(S.lang);
   updateDate();
-  updateProfile();   /* ← Shimmer + badge + tooltip + greet email all fire here */
+  updateProfile();
 
   if ($("notifToggle")) $("notifToggle").checked = S.notifEnabled;
 
   wire();
 
-  /* Seed demo data once on first visit */
   if (!localStorage.getItem("app_initialized") && (!S.transactions || S.transactions.length === 0)) {
     seedDemoData();
     localStorage.setItem("app_initialized", "true");
