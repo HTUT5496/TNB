@@ -433,17 +433,46 @@
           <span class="date-chip" id="dateChip"></span>
         </div>
 
-        <!-- Quick Actions (PRESERVED — unchanged) -->
+        <!-- Quick Actions (cards injected by JS renderQuickActions()) -->
         <div class="section-row">
           <h2 class="section-label" data-i18n="quick_actions">Quick Actions</h2>
           <span class="qa-subtitle-hint" data-i18n="tap_to_add">Tap to add transaction</span>
         </div>
         <div class="qcat-grid" id="qcatGrid">
-          <!-- Cards injected by renderQuickActions() -->
+          <!-- Cards injected by renderQuickActions() in dashboard.js
+               Each card gets: class="qcat-card qcat-income" or "qcat-card qcat-expense"
+               Icons use: <span class="qcat-icon-wrap"><span class="qcat-emoji">emoji</span></span>
+               Totals use: <span class="qcat-amount" id="cat-X-total">$0.00</span>
+               Plus btn uses: <span class="qcat-add-chip">+</span>
+          -->
+        </div>
+
+        <!-- Usage Summary — live category breakdown on home page -->
+        <div class="section-row" style="margin-top:4px;">
+          <h2 class="section-label" data-i18n="recent_activity">Recent Activity</h2>
+        </div>
+        <div class="usage-summary" id="usageSummary">
+          <!-- Rows injected by JS renderUsageSummary()
+               Structure per row:
+               <div class="usage-row">
+                 <span class="usage-ico income">emoji</span>
+                 <div class="usage-info">
+                   <span class="usage-cat">Category</span>
+                   <span class="usage-type-badge income">Income</span>
+                 </div>
+                 <span class="usage-amount income">$0.00</span>
+                 <div class="usage-bar-wrap">
+                   <div class="usage-bar" style="width:0%;background:var(--inc);"></div>
+                 </div>
+               </div>
+          -->
+          <p class="np-empty" style="text-align:center;padding:28px 14px;font-size:0.8rem;opacity:0.45;">
+            No activity yet — add a transaction to get started.
+          </p>
         </div>
       </section>
 
-      <!-- ══ HISTORY PAGE (PRESERVED) ══ -->
+      <!-- ══ HISTORY PAGE ══ -->
       <section class="page hidden" id="page-transactions">
         <div class="page-head">
           <h2 class="page-title" data-i18n="all_transactions">All Transactions</h2>
@@ -488,11 +517,13 @@
         <div class="txn-feed" id="txnFeed"></div>
       </section>
 
-      <!-- ══ REPORTS PAGE (PRESERVED) ══ -->
+      <!-- ══ REPORTS PAGE ══ -->
       <section class="page hidden" id="page-reports">
         <div class="page-head">
           <h2 class="page-title" data-i18n="reports">Reports</h2>
         </div>
+
+        <!-- Stat summary cards — 2×2 grid (4 cards) -->
         <div class="rep-cards">
           <div class="rep-card income-rc">
             <div class="rep-icon income-ico-wrap">
@@ -540,6 +571,8 @@
             </div>
           </div>
         </div>
+
+        <!-- Spending chart -->
         <div class="chart-card">
           <div class="cc-head">
             <h3 class="section-label" data-i18n="spending_overview">Spending Overview</h3>
@@ -550,15 +583,19 @@
           </div>
           <div class="chart-wrap"><canvas id="spendingCanvas"></canvas></div>
         </div>
+
+        <!-- Category breakdown -->
         <h3 class="section-label" style="margin:20px 0 10px" data-i18n="category_breakdown">Category Breakdown</h3>
         <div class="cat-breakdown" id="catBreakdown"></div>
       </section>
 
-      <!-- ══ SETTINGS PAGE (PRESERVED) ══ -->
+      <!-- ══ SETTINGS PAGE ══ -->
       <section class="page hidden" id="page-settings">
         <div class="page-head">
           <h2 class="page-title" data-i18n="settings">Settings</h2>
         </div>
+
+        <!-- Profile card -->
         <div class="profile-card" id="profileCard">
           <div class="pc-avatar" id="pcAvatar">A</div>
           <div class="pc-info">
@@ -571,6 +608,8 @@
             </div>
           </div>
         </div>
+
+        <!-- Settings toggles and actions -->
         <div class="settings-group">
           <div class="sg-row">
             <div class="sg-info">
@@ -616,6 +655,7 @@
             <button class="danger-btn" id="clearBtn" data-i18n="clear">Clear</button>
           </div>
         </div>
+
         <button class="logout-btn" id="logoutBtn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
@@ -629,7 +669,7 @@
     </main>
 
     <!-- ══════════════════════════════════════════
-         BOTTOM NAVIGATION BAR (PRESERVED — unchanged)
+         BOTTOM NAVIGATION BAR
     ══════════════════════════════════════════ -->
     <nav class="bot-nav" id="botNav">
       <button class="bn-btn active" data-page="dashboard" id="bn-dashboard">
@@ -689,7 +729,7 @@
     </nav>
 
     <!-- ══════════════════════════════════════════
-         MODALS (PRESERVED — unchanged)
+         MODALS
     ══════════════════════════════════════════ -->
     <div class="modal-veil" id="txnVeil">
       <div class="modal-card" id="txnCard">
