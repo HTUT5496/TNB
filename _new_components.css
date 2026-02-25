@@ -1,0 +1,91 @@
+
+/* ══════════════════════════════════════════════════════
+   NEW COMPONENTS  v9.0  (cache layer additions)
+   ──────────────────────────────────────────────────────
+   · .refresh-btn        — circular refresh icon button
+   · .refresh-btn.spinning — rotating state
+   · .last-updated-chip  — amber "Updated X ago" tag
+   · .toast-dot.info     — teal dot for info toasts
+   · .is-hidden override for afp-error (replaces inline style)
+══════════════════════════════════════════════════════ */
+
+/* ── Refresh button ──────────────────────────────────── */
+.refresh-btn {
+  width: 36px; height: 36px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.11);
+  border-radius: 50%;
+  display: grid; place-items: center;
+  cursor: pointer; color: var(--tx2);
+  flex-shrink: 0;
+  transition:
+    background var(--fast) var(--ease),
+    color      var(--fast) var(--ease),
+    border-color var(--fast) var(--ease),
+    transform 0.28s var(--spring);
+}
+.refresh-btn:hover {
+  background: var(--glassH);
+  color: var(--amber);
+  border-color: var(--amber-dim);
+}
+.refresh-btn:active { transform: scale(0.88); }
+
+/* Spinning state applied by JS during refresh */
+@keyframes spinCW {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.refresh-btn.spinning {
+  color: var(--amber);
+  border-color: var(--amber-dim);
+  pointer-events: none;
+}
+.refresh-btn.spinning svg {
+  animation: spinCW 0.7s linear infinite;
+}
+
+/* ── Last Updated chip ───────────────────────────────── */
+.last-updated-chip {
+  flex-shrink: 0;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  font-weight: 400;
+  color: var(--tx3);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  padding: 4px 10px;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  transition: color var(--fast) var(--ease), border-color var(--fast) var(--ease);
+  margin-left: auto;
+  align-self: center;
+}
+
+/* Pulse briefly after a successful refresh */
+@keyframes chipPulse {
+  0%,100% { color: var(--tx3); }
+  40%     { color: var(--amber); border-color: var(--amber-dim); }
+}
+.last-updated-chip.did-refresh {
+  animation: chipPulse 1.4s var(--ease);
+}
+
+[data-theme="light"] .last-updated-chip {
+  background: rgba(0,0,0,0.04);
+  border-color: rgba(0,0,0,0.09);
+}
+
+/* ── Info toast dot ──────────────────────────────────── */
+.toast-dot.info    { background: #38bdf8; box-shadow: 0 0 7px rgba(56,189,248,0.50); }
+.toast-dot.success { background: var(--inc); box-shadow: 0 0 7px var(--inc-glow); }
+
+/* ── afp-error: ensure is-hidden works on block elements ── */
+.afp-error.is-hidden { display: none !important; }
+
+/* ── Responsive tweaks ───────────────────────────────── */
+@media (max-width: 480px) {
+  .last-updated-chip { font-size: 0.50rem; padding: 3px 8px; }
+  .refresh-btn       { width: 32px; height: 32px; }
+}

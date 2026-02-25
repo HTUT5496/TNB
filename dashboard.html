@@ -2,10 +2,7 @@
 <html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"
-    />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
     <title>TNB Dashboard</title>
     <link rel="stylesheet" href="dashboard.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -59,18 +56,14 @@
               Log Out
             </button>
           </div>
-        </div><!-- /avatar-pill-wrap -->
+        </div>
 
         <!-- Search -->
         <div class="search-shell">
           <svg class="search-ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"/>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
-          <input
-            class="search-input" id="searchInput"
-            type="search" placeholder="Search transactions…" autocomplete="off"
-          />
+          <input class="search-input" id="searchInput" type="search" placeholder="Search transactions…" autocomplete="off"/>
           <button class="search-clear" id="searchClear" aria-label="Clear search">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -79,6 +72,14 @@
         </div>
 
         <div class="nav-actions">
+
+          <!-- ── Refresh button (NEW) ── -->
+          <button class="refresh-btn" id="refreshBtn" aria-label="Refresh data" title="Refresh data">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 4v6h-6"/><path d="M1 20v-6h6"/>
+              <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+            </svg>
+          </button>
 
           <!-- Bell -->
           <div class="bell-shell" id="bellShell">
@@ -124,8 +125,7 @@
               <button class="dmenu-row" id="menuAddIncome" role="menuitem">
                 <span class="dmenu-icon income-ico">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"/>
-                    <line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
                   </svg>
                 </span>
                 <span class="dmenu-label" data-i18n="add_income">Add Income</span>
@@ -133,8 +133,7 @@
               <button class="dmenu-row" id="menuAddExpense" role="menuitem">
                 <span class="dmenu-icon expense-ico">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"/>
-                    <line x1="8" y1="12" x2="16" y2="12"/>
+                    <circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/>
                   </svg>
                 </span>
                 <span class="dmenu-label" data-i18n="add_expense">Add Expense</span>
@@ -145,7 +144,7 @@
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
                     <line x1="8" y1="18" x2="21" y2="18"/>
-                    <line x1="3" y1="6"  x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/>
+                    <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/>
                     <line x1="3" y1="18" x2="3.01" y2="18"/>
                   </svg>
                 </span>
@@ -154,8 +153,7 @@
               <button class="dmenu-row" id="menuLang" role="menuitem">
                 <span class="dmenu-icon">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"/>
-                    <line x1="2" y1="12" x2="22" y2="12"/>
+                    <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
                     <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
                   </svg>
                 </span>
@@ -184,6 +182,9 @@
             <span class="ss-val expense-col" id="r2Expense">$0.00</span>
           </div>
         </div>
+
+        <!-- ── Last Updated chip (NEW) ── -->
+        <span class="last-updated-chip" id="lastUpdatedChip">Updated —</span>
       </div>
     </header>
 
@@ -200,7 +201,7 @@
         <div class="txn-feed" id="searchFeed"></div>
       </section>
 
-      <!-- ══ HOME PAGE ══ -->
+      <!-- HOME PAGE -->
       <section class="page active" id="page-dashboard">
         <div class="greet-row">
           <div>
@@ -213,27 +214,21 @@
           <span class="date-chip" id="dateChip"></span>
         </div>
 
-        <!-- Quick Actions -->
         <div class="section-row">
           <h2 class="section-label" data-i18n="quick_actions">Quick Actions</h2>
           <span class="qa-subtitle-hint" data-i18n="tap_to_add">Tap to add transaction</span>
         </div>
-        <div class="qcat-grid" id="qcatGrid">
-          <!-- Injected by renderQuickActions() in dashboard.js -->
-        </div>
+        <div class="qcat-grid" id="qcatGrid"></div>
 
-        <!-- Recent Activity -->
         <div class="section-row section-row--spaced">
           <h2 class="section-label" data-i18n="recent_activity">Recent Activity</h2>
         </div>
         <div class="usage-summary" id="usageSummary">
-          <p class="np-empty usage-empty-msg">
-            No activity yet — add a transaction to get started.
-          </p>
+          <p class="np-empty usage-empty-msg">No activity yet — add a transaction to get started.</p>
         </div>
       </section>
 
-      <!-- ══ HISTORY PAGE ══ -->
+      <!-- HISTORY PAGE -->
       <section class="page hidden" id="page-transactions">
         <div class="page-head">
           <h2 class="page-title" data-i18n="all_transactions">All Transactions</h2>
@@ -242,9 +237,9 @@
           <div class="afp-row">
             <span class="afp-label" data-i18n="filter_type">Type</span>
             <div class="filter-tabs" id="txnTabs">
-              <button class="ftab active" data-filter="all"     data-i18n="all">All</button>
-              <button class="ftab"        data-filter="income"  data-i18n="income">Income</button>
-              <button class="ftab"        data-filter="expense" data-i18n="expense">Expense</button>
+              <button class="ftab active" data-filter="all" data-i18n="all">All</button>
+              <button class="ftab" data-filter="income" data-i18n="income">Income</button>
+              <button class="ftab" data-filter="expense" data-i18n="expense">Expense</button>
             </div>
           </div>
           <div class="afp-row afp-dates">
@@ -278,101 +273,67 @@
         <div class="txn-feed" id="txnFeed"></div>
       </section>
 
-      <!-- ══ REPORTS PAGE ══ -->
+      <!-- REPORTS PAGE -->
       <section class="page hidden" id="page-reports">
         <div class="page-head">
           <h2 class="page-title" data-i18n="reports">Reports</h2>
         </div>
-
         <div class="rep-cards">
-          <!-- Income card -->
           <div class="rep-card income-rc">
             <div class="rep-icon income-ico-wrap">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-                <polyline points="17 6 23 6 23 12"/>
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
               </svg>
             </div>
-            <div>
-              <span class="rep-lbl" data-i18n="total_income">Total Income</span>
-              <span class="rep-val income-col" id="repIncome">$0.00</span>
-            </div>
+            <div><span class="rep-lbl" data-i18n="total_income">Total Income</span><span class="rep-val income-col" id="repIncome">$0.00</span></div>
           </div>
-
-          <!-- Expense card -->
           <div class="rep-card expense-rc">
             <div class="rep-icon expense-ico-wrap">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
-                <polyline points="17 18 23 18 23 12"/>
+                <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/>
               </svg>
             </div>
-            <div>
-              <span class="rep-lbl" data-i18n="total_expense">Total Expense</span>
-              <span class="rep-val expense-col" id="repExpense">$0.00</span>
-            </div>
+            <div><span class="rep-lbl" data-i18n="total_expense">Total Expense</span><span class="rep-val expense-col" id="repExpense">$0.00</span></div>
           </div>
-
-          <!-- Balance card -->
           <div class="rep-card">
             <div class="rep-icon balance-ico-wrap">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="1" x2="12" y2="23"/>
-                <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
               </svg>
             </div>
-            <div>
-              <span class="rep-lbl" data-i18n="net_balance">Net Balance</span>
-              <span class="rep-val" id="repBalance">$0.00</span>
-            </div>
+            <div><span class="rep-lbl" data-i18n="net_balance">Net Balance</span><span class="rep-val" id="repBalance">$0.00</span></div>
           </div>
-
-          <!-- Count card -->
           <div class="rep-card">
             <div class="rep-icon count-ico-wrap">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="8"  y1="6"  x2="21" y2="6"/>
-                <line x1="8"  y1="12" x2="21" y2="12"/>
-                <line x1="8"  y1="18" x2="21" y2="18"/>
-                <line x1="3"  y1="6"  x2="3.01" y2="6"/>
-                <line x1="3"  y1="12" x2="3.01" y2="12"/>
-                <line x1="3"  y1="18" x2="3.01" y2="18"/>
+                <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+                <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
               </svg>
             </div>
-            <div>
-              <span class="rep-lbl" data-i18n="total_transactions">Transactions</span>
-              <span class="rep-val" id="repCount">0</span>
-            </div>
+            <div><span class="rep-lbl" data-i18n="total_transactions">Transactions</span><span class="rep-val" id="repCount">0</span></div>
           </div>
         </div>
-
-        <!-- Spending chart -->
         <div class="chart-card">
           <div class="cc-head">
             <h3 class="section-label" data-i18n="spending_overview">Spending Overview</h3>
             <select class="period-sel" id="chartPeriod">
-              <option value="7"  data-i18n="last_7">Last 7 Days</option>
+              <option value="7" data-i18n="last_7">Last 7 Days</option>
               <option value="30" data-i18n="last_30">Last 30 Days</option>
             </select>
           </div>
           <div class="chart-wrap"><canvas id="spendingCanvas"></canvas></div>
         </div>
-
-        <!-- Category breakdown -->
         <h3 class="section-label section-label--reports" data-i18n="category_breakdown">Category Breakdown</h3>
         <div class="cat-breakdown" id="catBreakdown"></div>
       </section>
 
-      <!-- ══ SETTINGS PAGE ══ -->
+      <!-- SETTINGS PAGE -->
       <section class="page hidden" id="page-settings">
         <div class="page-head">
           <h2 class="page-title" data-i18n="settings">Settings</h2>
         </div>
-
-        <!-- ══ AI AGENT COMMAND CENTER ══ -->
         <div class="dashboard-container">
           <h2>AI Agent Command Center</h2>
-
           <div class="agent-input-group">
             <input type="text" id="user-input" placeholder="Ask your agent to do something...">
             <button onclick="askAgent(document.getElementById('user-input').value)">Send Command</button>
@@ -383,8 +344,6 @@
           </div>
           <div id="ai-result" class="ai-response-area"></div>
         </div>
-        <!-- ══ /AI AGENT COMMAND CENTER ══ -->
-
         <div class="profile-card" id="profileCard">
           <div class="pc-avatar" id="pcAvatar">A</div>
           <div class="pc-info">
@@ -397,12 +356,11 @@
             </div>
           </div>
         </div>
-
         <div class="settings-group">
           <div class="sg-row">
             <div class="sg-info">
               <span class="sg-title" data-i18n="dark_mode">Dark Mode</span>
-              <span class="sg-sub"   data-i18n="dark_mode_sub">Switch between dark and light</span>
+              <span class="sg-sub" data-i18n="dark_mode_sub">Switch between dark and light</span>
             </div>
             <label class="tog-switch">
               <input type="checkbox" id="themeToggle" checked/>
@@ -412,16 +370,14 @@
           <div class="sg-row">
             <div class="sg-info">
               <span class="sg-title" data-i18n="language">Language</span>
-              <span class="sg-sub"   data-i18n="language_sub">English / Burmese</span>
+              <span class="sg-sub" data-i18n="language_sub">English / Burmese</span>
             </div>
-            <button class="lang-btn" id="langBtn">
-              <span id="langBtnLbl">English</span> ›
-            </button>
+            <button class="lang-btn" id="langBtn"><span id="langBtnLbl">English</span> ›</button>
           </div>
           <div class="sg-row">
             <div class="sg-info">
               <span class="sg-title" data-i18n="notifications_setting">Notifications</span>
-              <span class="sg-sub"   data-i18n="notifications_sub">Balance change alerts</span>
+              <span class="sg-sub" data-i18n="notifications_sub">Balance change alerts</span>
             </div>
             <label class="tog-switch">
               <input type="checkbox" id="notifToggle" checked/>
@@ -431,24 +387,22 @@
           <div class="sg-row" id="passwordRow">
             <div class="sg-info">
               <span class="sg-title" data-i18n="change_password">Change Password</span>
-              <span class="sg-sub"   data-i18n="change_password_sub">Update your account password</span>
+              <span class="sg-sub" data-i18n="change_password_sub">Update your account password</span>
             </div>
             <button class="lang-btn" id="changePasswordBtn" data-i18n="change">Change</button>
           </div>
           <div class="sg-row">
             <div class="sg-info">
               <span class="sg-title" data-i18n="clear_data">Clear All Data</span>
-              <span class="sg-sub"   data-i18n="clear_data_sub">Remove all transactions</span>
+              <span class="sg-sub" data-i18n="clear_data_sub">Remove all transactions</span>
             </div>
             <button class="danger-btn" id="clearBtn" data-i18n="clear">Clear</button>
           </div>
         </div>
-
         <button class="logout-btn" id="logoutBtn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
             <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
-            <polyline points="16 17 21 12 16 7"/>
-            <line x1="21" y1="12" x2="9" y2="12"/>
+            <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
           </svg>
           <span data-i18n="logout">Logout</span>
         </button>
@@ -456,36 +410,25 @@
 
     </main>
 
-    <!-- ══════════════════════════════════════════
-         BOTTOM NAV — FLOATING GLASS PILL
-    ══════════════════════════════════════════ -->
+    <!-- BOTTOM NAV -->
     <nav class="bot-nav" id="botNav">
-
-      <!-- Home -->
       <button class="bn-btn active" data-page="dashboard" id="bn-dashboard">
         <svg class="bn-ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="7" height="7" rx="1.5"/>
-          <rect x="14" y="3" width="7" height="7" rx="1.5"/>
-          <rect x="3" y="14" width="7" height="7" rx="1.5"/>
-          <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+          <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/>
+          <rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
         </svg>
         <span class="bn-lbl" data-i18n="nav_dashboard">Home</span>
       </button>
-
-      <!-- History -->
       <button class="bn-btn" data-page="transactions" id="bn-transactions">
         <svg class="bn-ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
           <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
         </svg>
         <span class="bn-lbl" data-i18n="nav_transactions">History</span>
       </button>
-
-      <!-- FAB (centre) -->
       <div class="fab-zone">
         <button class="fab-main" id="fabMain" aria-label="Add transaction">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-            <line x1="12" y1="5" x2="12" y2="19"/>
-            <line x1="5"  y1="12" x2="19" y2="12"/>
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
         </button>
         <div class="fab-sub" id="fabSub">
@@ -504,18 +447,12 @@
         </div>
         <div class="fab-backdrop" id="fabBackdrop"></div>
       </div>
-
-      <!-- Reports -->
       <button class="bn-btn" data-page="reports" id="bn-reports">
         <svg class="bn-ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="18" y1="20" x2="18" y2="10"/>
-          <line x1="12" y1="20" x2="12" y2="4"/>
-          <line x1="6"  y1="20" x2="6"  y2="14"/>
+          <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
         </svg>
         <span class="bn-lbl" data-i18n="reports">Reports</span>
       </button>
-
-      <!-- Settings -->
       <button class="bn-btn" data-page="settings" id="bn-settings">
         <svg class="bn-ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="3"/>
@@ -523,14 +460,9 @@
         </svg>
         <span class="bn-lbl" data-i18n="nav_settings">Settings</span>
       </button>
-
     </nav>
 
-    <!-- ══════════════════════════════════════════
-         MODALS
-    ══════════════════════════════════════════ -->
-
-    <!-- Add Transaction modal -->
+    <!-- MODALS -->
     <div class="modal-veil" id="txnVeil">
       <div class="modal-card" id="txnCard">
         <div class="mc-head">
@@ -547,10 +479,7 @@
             <label class="field-lbl" data-i18n="amount">Amount ($)</label>
             <div class="amount-wrap">
               <span class="amt-prefix">$</span>
-              <input
-                type="number" class="field-input amt-input" id="txnAmount"
-                placeholder="0.00" min="0.01" step="0.01" inputmode="decimal"
-              />
+              <input type="number" class="field-input amt-input" id="txnAmount" placeholder="0.00" min="0.01" step="0.01" inputmode="decimal"/>
             </div>
           </div>
           <div class="field">
@@ -570,7 +499,6 @@
       </div>
     </div>
 
-    <!-- Confirm modal -->
     <div class="modal-veil" id="cfmVeil">
       <div class="modal-card cfm-card">
         <div class="cfm-icon">⚠️</div>
@@ -583,9 +511,10 @@
       </div>
     </div>
 
-    <!-- Toast container -->
     <div class="toast-container" id="toastContainer"></div>
 
+    <!-- cache.js MUST be loaded before dashboard.js -->
+    <script src="cache.js"></script>
     <script src="dashboard.js"></script>
   </body>
 </html>
