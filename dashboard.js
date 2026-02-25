@@ -1,3 +1,37 @@
+// dashboard.js ရဲ့ ထိပ်ဆုံးနားမှာ ထည့်ပါ
+function checkAuth() {
+    const sessionActive = lsGet(LS.userSession, false);
+    
+    if (!sessionActive) {
+        // Login မဝင်ထားရင် index.html ကို ချက်ချင်းလွှတ်မယ်
+        window.location.replace('index.html');
+        return false;
+    }
+    return true;
+}
+
+function loadState() {
+    // Auth ကို အရင်စစ်မယ်၊ မအောင်မြင်ရင် ရှေ့ဆက်မလုပ်တော့ဘူး
+    if (!checkAuth()) return;
+
+    try {
+        S.transactions  = AppCache.getTransactions() || [];
+        S.notifications = AppCache.getNotifications() || [];
+        S.lang          = lsGet(LS.lang, "en");
+        S.theme         = lsGet(LS.theme, "dark");
+        S.notifEnabled  = lsGet(LS.notifEnabled, true);
+        S.userName      = lsGet(LS.userName, "User");
+        
+        // အောင်မြင်စွာ Load လုပ်ပြီးကြောင်း
+        console.log("State loaded successfully");
+    } catch (e) {
+        console.error("Error loading state:", e);
+    }
+}
+
+// စာမျက်နှာ စပွင့်တာနဲ့ loadState ကို ခေါ်ပါ
+document.addEventListener('DOMContentLoaded', loadState);
+
 const { createClient } = supabase;
 const _supabase = createClient(
   "https://lqfjeamzbxayfbjntarr.supabase.co",
