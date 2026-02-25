@@ -1198,22 +1198,45 @@ function seedDemoData() {
    askAgent()       — sends a prompt to Gemini 1.5 Flash
    updateDashboardUI() — handles the AI response in the UI
 ═══════════════════════════════════════════ */
-const API_KEY = "AIzaSyDDSHtwFNeJoKAOAf4H1FBqCDQC1AbtGN0";
+// Dashboard/dashboard.js
 
-async function askAgent(userPrompt) {
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: userPrompt }] }],
-      }),
+async function askAgent() {
+    const API_KEY = "AIzaSyDDSHtwFNeJoKAOAf4H1FBqCDQC1AbtGN0"; // Key အသစ်ကို ဒီမှာထည့်ပါ
+    const userPrompt = document.getElementById('user-input').value;
+    const statusEl = document.getElementById('agent-status');
+    const resultEl = document.getElementById('ai-result');
+
+    if (!userPrompt) return;
+
+    statusEl.innerText = "Thinking...";
+
+    try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: userPrompt }] }]
+            })
+        });
+
+        const data = await response.json();
+
+        // Error checking
+        if (data.error) {
+            statusEl.innerText = "Error: " + data.error.message;
+            console.error("API Error:", data.error);
+            return;
+        }
+
+        const aiResponse = data.candidates[0].content.parts[0].text;
+        statusEl.innerText = "Ready to assist";
+        resultEl.innerText = aiResponse;
+
+    } catch (error) {
+        statusEl.innerText = "Connection failed!";
+        console.error("Fetch Error:", error);
     }
-  );
-
-  const data = await response.json();
-  const aiResponse = data.candidates[0].content.parts[0].text;
+}
 
   // UI Update logic (Agentic feedback)
   updateDashboardUI(aiResponse);
