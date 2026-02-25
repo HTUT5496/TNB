@@ -3,7 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-    <title>TNB Dashboard</title>
+    <meta name="description" content="FinPay — Personal finance dashboard" />
+    <meta name="theme-color" content="#070c18" />
+    <title>FinPay Dashboard</title>
     <link rel="stylesheet" href="dashboard.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
@@ -73,7 +75,16 @@
 
         <div class="nav-actions">
 
-    
+          <!-- Last updated chip -->
+          <span class="date-chip" id="lastUpdatedChip" title="Last data refresh"></span>
+
+          <!-- Refresh button -->
+          <button class="dots-btn" id="refreshBtn" aria-label="Refresh data" title="Refresh">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"/>
+              <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/>
+            </svg>
+          </button>
 
          <!-- Bell -->
           <div class="bell-shell" id="bellShell">
@@ -175,7 +186,8 @@
             <span class="ss-label" data-i18n="expense">Expense</span>
             <span class="ss-val expense-col" id="r2Expense">$0.00</span>
           </div>
-        
+        </div><!-- /.summary-strip -->
+      </div><!-- /.cmd-row2 -->
     </header>
 
     <!-- ══════════════════════════════════════════
@@ -202,6 +214,43 @@
             <p class="greet-email is-hidden" id="greetEmail"></p>
           </div>
           <span class="date-chip" id="dateChip"></span>
+        </div>
+
+        <!-- Balance summary cards — IDs required by dashboard.js animCount/setText -->
+        <div class="rep-cards" style="margin-bottom:24px;">
+          <div class="rep-card" style="grid-column:span 2;">
+            <div class="rep-icon balance-ico-wrap">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+              </svg>
+            </div>
+            <div>
+              <span class="rep-lbl" data-i18n="available_balance">Balance</span>
+              <span class="rep-val balance-col" id="balanceDisplay">0.00</span>
+            </div>
+          </div>
+          <div class="rep-card">
+            <div class="rep-icon income-ico-wrap">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
+              </svg>
+            </div>
+            <div>
+              <span class="rep-lbl" data-i18n="income">Income</span>
+              <span class="rep-val income-col" id="totalIncomeDisplay">$0.00</span>
+            </div>
+          </div>
+          <div class="rep-card">
+            <div class="rep-icon expense-ico-wrap">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/>
+              </svg>
+            </div>
+            <div>
+              <span class="rep-lbl" data-i18n="expense">Expense</span>
+              <span class="rep-val expense-col" id="totalExpenseDisplay">$0.00</span>
+            </div>
+          </div>
         </div>
 
         <div class="section-row">
@@ -234,11 +283,11 @@
           </div>
           <div class="afp-row afp-dates">
             <div class="afp-date-group">
-              <label class="afp-label" data-i18n="start_date">From</label>
+              <label class="afp-label" for="txnDateFrom" data-i18n="start_date">From</label>
               <input type="date" class="date-pick" id="txnDateFrom"/>
             </div>
             <div class="afp-date-group">
-              <label class="afp-label" data-i18n="end_date">To</label>
+              <label class="afp-label" for="txnDateTo" data-i18n="end_date">To</label>
               <input type="date" class="date-pick" id="txnDateTo"/>
             </div>
           </div>
@@ -322,11 +371,12 @@
         <div class="page-head">
           <h2 class="page-title" data-i18n="settings">Settings</h2>
         </div>
-        <div class="dashboard-container">
-          <h2>AI Agent Command Center</h2>
+        <div class="settings-group" style="padding:18px 20px; margin-bottom:16px;">
+          <h3 class="sg-title" style="margin-bottom:14px;">🤖 AI Agent Command Center</h3>
           <div class="agent-input-group">
-            <input type="text" id="user-input" placeholder="Ask your agent to do something...">
-            <button onclick="askAgent(document.getElementById('user-input').value)">Send Command</button>
+            <label class="field-lbl is-hidden" for="user-input">Ask agent</label>
+            <input type="text" class="field-input" id="user-input" placeholder="Ask your agent to do something…" autocomplete="off"/>
+            <button class="afp-apply" id="agentSendBtn" aria-label="Send command">Send</button>
           </div>
           <div id="agent-status-box">
             <span class="status-dot"></span>
@@ -466,22 +516,22 @@
         <div class="mc-body">
           <input type="hidden" id="txnType" value="income"/>
           <div class="field">
-            <label class="field-lbl" data-i18n="amount">Amount ($)</label>
+            <label class="field-lbl" for="txnAmount" data-i18n="amount">Amount ($)</label>
             <div class="amount-wrap">
               <span class="amt-prefix">$</span>
               <input type="number" class="field-input amt-input" id="txnAmount" placeholder="0.00" min="0.01" step="0.01" inputmode="decimal"/>
             </div>
           </div>
           <div class="field">
-            <label class="field-lbl" data-i18n="category">Category</label>
+            <label class="field-lbl" for="txnCategory" data-i18n="category">Category</label>
             <select class="field-input" id="txnCategory"></select>
           </div>
           <div class="field">
-            <label class="field-lbl" data-i18n="description">Description</label>
+            <label class="field-lbl" for="txnDesc" data-i18n="description">Description</label>
             <input type="text" class="field-input" id="txnDesc" placeholder="e.g. Monthly salary"/>
           </div>
           <div class="field">
-            <label class="field-lbl" data-i18n="date">Date</label>
+            <label class="field-lbl" for="txnDate" data-i18n="date">Date</label>
             <input type="date" class="field-input" id="txnDate"/>
           </div>
           <button class="submit-btn" id="txnSubmit" data-i18n="add_transaction">Add Transaction</button>
@@ -496,7 +546,7 @@
         <p class="cfm-msg" id="cfmMsg">This cannot be undone.</p>
         <div class="cfm-btns">
           <button class="cfm-cancel" id="cfmCancel" data-i18n="cancel">Cancel</button>
-          <button class="danger-btn cfm-ok" id="cfmOk" data-i18n="confirm">Confirm</button>
+          <button class="cfm-ok" id="cfmOk" data-i18n="confirm">Confirm</button>
         </div>
       </div>
     </div>
@@ -506,5 +556,18 @@
     <!-- cache.js MUST be loaded before dashboard.js -->
     <script src="cache.js"></script>
     <script src="dashboard.js"></script>
+    <!-- FIX: AI Agent send button wired here to avoid inline onclick and ensure dashboard.js is loaded -->
+    <script>
+      document.getElementById('agentSendBtn')?.addEventListener('click', function() {
+        const val = document.getElementById('user-input')?.value?.trim();
+        if (val && typeof askAgent === 'function') askAgent(val);
+      });
+      document.getElementById('user-input')?.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+          const val = this.value.trim();
+          if (val && typeof askAgent === 'function') askAgent(val);
+        }
+      });
+    </script>
   </body>
 </html>

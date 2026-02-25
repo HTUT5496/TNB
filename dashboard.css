@@ -588,6 +588,10 @@ body::after {
 .toast-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 .toast-dot.income  { background: var(--inc); box-shadow: 0 0 7px var(--inc-glow); }
 .toast-dot.expense { background: var(--exp); box-shadow: 0 0 7px var(--exp-glow); }
+/* FIX: .success variant was missing — showToast("success",...) calls exist in dashboard.js */
+.toast-dot.success { background: var(--inc); box-shadow: 0 0 7px var(--inc-glow); }
+.toast-dot.error   { background: var(--exp); box-shadow: 0 0 7px var(--exp-glow); }
+.toast-dot.info    { background: var(--amber); box-shadow: 0 0 7px var(--amber-glow); }
 .toast-msg { font-size: 0.79rem; color: var(--tx1); flex: 1; line-height: 1.4; }
 
 /* ══════════════════════════════════════════════════════
@@ -715,7 +719,7 @@ body::after {
     rgba(52,211,153,0.06) 100%
   );
 }
-.qcat-card.qcat-income::after  { background: var(--inc); }
+.qcat-card.qcat-income::after  { background: var(--inc); opacity: 0; }
 .qcat-card.qcat-income:hover {
   transform: translateY(-5px) scale(1.01);
   border-color: rgba(52,211,153,0.30);
@@ -729,7 +733,6 @@ body::after {
     rgba(52,211,153,0.10) 100%
   );
 }
-.qcat-card.qcat-income::after { opacity: 0; }
 .qcat-card.qcat-income:hover::after { opacity: 0.30; }
 .qcat-card.qcat-income:active {
   transform: scale(0.95);
@@ -744,7 +747,7 @@ body::after {
     rgba(251,113,133,0.06) 100%
   );
 }
-.qcat-card.qcat-expense::after { background: var(--exp); }
+.qcat-card.qcat-expense::after { background: var(--exp); opacity: 0; }
 .qcat-card.qcat-expense:hover {
   transform: translateY(-5px) scale(1.01);
   border-color: rgba(251,113,133,0.30);
@@ -758,7 +761,6 @@ body::after {
     rgba(251,113,133,0.10) 100%
   );
 }
-.qcat-card.qcat-expense::after { opacity: 0; }
 .qcat-card.qcat-expense:hover::after { opacity: 0.30; }
 .qcat-card.qcat-expense:active {
   transform: scale(0.95);
@@ -1002,6 +1004,12 @@ body::after {
   padding: 52px 20px; gap: 8px; color: var(--tx3); width: 100%;
   background: var(--glass-card-bg); backdrop-filter: var(--glass-card-blur); -webkit-backdrop-filter: var(--glass-card-blur);
   border: var(--glass-card-border); border-radius: var(--glass-card-radius); box-shadow: var(--glass-card-shadow);
+}
+/* FIX: inside .txn-feed the parent already provides card bg/border/shadow — reset to avoid double-border */
+.txn-feed .empty-state,
+.search-feed .empty-state {
+  background: none; border: none; box-shadow: none;
+  border-radius: 0; backdrop-filter: none; -webkit-backdrop-filter: none;
 }
 .empty-state svg { opacity: 0.14; }
 .empty-state p { font-size: 0.81rem; }
@@ -1300,7 +1308,17 @@ input:checked + .tog-track::after { transform: translateX(20px); background: #ff
   transition: all var(--fast) var(--ease);
 }
 .cfm-cancel:hover { background: var(--glassH); }
-.cfm-ok { flex: 1; padding: 11px; border-radius: var(--r2); font-weight: 700; font-family: 'Syne', sans-serif; }
+/* FIX: was missing border, cursor, background, color — rendered as broken unstyled button */
+.cfm-ok {
+  flex: 1; padding: 11px; border-radius: var(--r2);
+  font-weight: 700; font-family: 'Syne', sans-serif; font-size: 0.84rem;
+  border: none; cursor: pointer;
+  background: var(--amber-grad); color: #1c0d00;
+  box-shadow: 0 4px 14px var(--amber-glow);
+  transition: all var(--fast) var(--ease);
+}
+.cfm-ok:hover  { transform: translateY(-1px); box-shadow: 0 8px 20px var(--amber-glow); }
+.cfm-ok:active { transform: scale(0.97); }
 
 /* ── Shake ── */
 @keyframes shake {
@@ -1367,40 +1385,39 @@ input:checked + .tog-track::after { transform: translateX(20px); background: #ff
 /* ══════════════════════════════════════════════════════
    AI AGENT COMMAND CENTER
 ══════════════════════════════════════════════════════ */
-/* dashboard.css */
 .agent-input-group {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
+  display: flex; gap: 10px; margin-bottom: 20px;
 }
 #user-input {
-    flex: 1;
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.3);
-    background: rgba(255,255,255,0.1);
-    color: white;
+  flex: 1; padding: 12px;
+  border-radius: var(--r2);
+  border: 1px solid var(--borderH);
+  background: var(--glass-card-bg);
+  color: var(--tx1);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.84rem; outline: none;
+  transition: border-color var(--fast) var(--ease);
 }
+#user-input:focus { border-color: var(--amber); box-shadow: 0 0 0 3px var(--amber-dim); }
+#user-input::placeholder { color: var(--tx3); }
+/* FIX: was hardcoded #4285f4 (Google Blue) — now uses design tokens */
 .ai-response-area {
-    margin-top: 20px;
-    padding: 15px;
-    background: rgba(0, 0, 0, 0.2);
-    border-left: 4px solid #4285f4; /* Google Blue */
-    border-radius: 5px;
-    min-height: 50px;
-    line-height: 1.6;
+  margin-top: 20px; padding: 15px;
+  background: rgba(0,0,0,0.20);
+  border-left: 4px solid var(--amber);
+  border-radius: var(--r1);
+  min-height: 50px; line-height: 1.6;
+  font-size: 0.84rem; color: var(--tx1);
 }
-/* Loading Animation */
+/* FIX: renamed rotation → loader-spin to avoid keyframe name collision */
 .loader {
-    width: 12px;
-    height: 12px;
-    border: 2px solid #FFF;
-    border-bottom-color: transparent;
-    border-radius: 50%;
-    display: inline-block;
-    animation: rotation 1s linear infinite;
+  width: 12px; height: 12px;
+  border: 2px solid var(--tx1); /* FIX: was #FFF — broke in light theme */
+  border-bottom-color: transparent;
+  border-radius: 50%; display: inline-block;
+  animation: loader-spin 1s linear infinite;
 }
-@keyframes rotation {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+@keyframes loader-spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
