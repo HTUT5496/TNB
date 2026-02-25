@@ -369,6 +369,22 @@
           <h2 class="page-title" data-i18n="settings">Settings</h2>
         </div>
 
+        <!-- ══ AI AGENT COMMAND CENTER ══ -->
+        <div class="dashboard-container">
+          <h2>AI Agent Command Center</h2>
+
+          <div class="agent-input-group">
+            <input type="text" id="user-input" placeholder="Ask your agent to do something...">
+            <button onclick="askAgent(document.getElementById('user-input').value)">Send Command</button>
+          </div>
+          <div id="agent-status-box">
+            <span class="status-dot"></span>
+            <span id="agent-status">Ready to assist</span>
+          </div>
+          <div id="ai-result" class="ai-response-area"></div>
+        </div>
+        <!-- ══ /AI AGENT COMMAND CENTER ══ -->
+
         <div class="profile-card" id="profileCard">
           <div class="pc-avatar" id="pcAvatar">A</div>
           <div class="pc-info">

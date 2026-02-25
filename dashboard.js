@@ -1193,6 +1193,38 @@ function seedDemoData() {
   saveTxns();
 }
 
+/* ═══════════════════════════════════════════
+   32. AI AGENT (GEMINI)
+   askAgent()       — sends a prompt to Gemini 1.5 Flash
+   updateDashboardUI() — handles the AI response in the UI
+═══════════════════════════════════════════ */
+const API_KEY = "AIzaSyCFO_Rw7CFH7X1MOtFV6pSCUjgozW9S95g";
+
+async function askAgent(userPrompt) {
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: userPrompt }] }],
+      }),
+    }
+  );
+
+  const data = await response.json();
+  const aiResponse = data.candidates[0].content.parts[0].text;
+
+  // UI Update logic (Agentic feedback)
+  updateDashboardUI(aiResponse);
+}
+
+function updateDashboardUI(text) {
+  const statusEl = document.getElementById("agent-status");
+  statusEl.innerText = "Agent processed your request.";
+  // Result ကို display လုပ်မည့် logic
+}
+
 async function init() {
   const { data: { session } } = await _supabase.auth.getSession();
 

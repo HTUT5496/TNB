@@ -1363,3 +1363,44 @@ input:checked + .tog-track::after { transform: translateX(20px); background: #ff
   .cat-breakdown:hover,
   .profile-card:hover { transform: none; box-shadow: var(--glass-card-shadow); }
 }
+
+/* ══════════════════════════════════════════════════════
+   AI AGENT COMMAND CENTER
+══════════════════════════════════════════════════════ */
+/* dashboard.css */
+.agent-input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+#user-input {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.1);
+    color: white;
+}
+.ai-response-area {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.2);
+    border-left: 4px solid #4285f4; /* Google Blue */
+    border-radius: 5px;
+    min-height: 50px;
+    line-height: 1.6;
+}
+/* Loading Animation */
+.loader {
+    width: 12px;
+    height: 12px;
+    border: 2px solid #FFF;
+    border-bottom-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    animation: rotation 1s linear infinite;
+}
+@keyframes rotation {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
