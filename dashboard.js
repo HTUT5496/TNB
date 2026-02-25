@@ -214,45 +214,55 @@ function startLastUpdatedTicker() {
 }
 
 /* ═══════════════════════════════════════════
-   8. REFRESH LOGIC  ← NEW
-   Force-reload data from source (localStorage is the source here;
-   extend this to an API call if you add a backend sync later).
+   8. REFRESH LOGIC  ← UPDATED
+   Data တွေကို clear လုပ်ပြီးမှ source ကနေ အသစ်ပြန်ဆွဲယူဖို့ ပြင်ဆင်ထားပါတယ်။
 ═══════════════════════════════════════════ */
 let _isRefreshing = false;
 
 async function refreshData(force = true) {
   if (_isRefreshing) return;
 
-  // If data is still fresh and this isn't a forced refresh, skip
-  if (!force && AppCache.isFresh()) {
-    updateLastUpdatedChip();
-    return;
-  }
-
   _isRefreshing = true;
   const btn = $("refreshBtn");
   if (btn) btn.classList.add("spinning");
 
-  // Simulate async reload (replace this block with a real API fetch if needed)
-  await new Promise(r => setTimeout(r, 420));
+  try {
+    // ၁။ အကယ်၍ force refresh ဆိုရင် cache က data ကို မယူဘဲ 
+    // အသစ်တကယ် ဖြစ်စေဖို့ ခဏစောင့်ဆိုင်းပြီး logic ကို run ပါမယ်
+    if (force) {
+      console.log("Forcing data re-sync...");
+      // ဒီနေရာမှာ Supabase သို့မဟုတ် API သုံးရင် fetch(url) ကို ထည့်ရပါမယ်
+    }
 
-  // Re-read from localStorage (already the source of truth)
-  S.transactions  = AppCache.getTransactions();
-  S.notifications = AppCache.getNotifications();
+    // ၂။ Simulate network latency (UI/UX အရ loading ပြဖို့)
+    await new Promise(r => setTimeout(r, 600));
 
-  // Stamp a fresh timestamp
-  AppCache.setTransactions(S.transactions);
+    // ၃။ အရေးကြီးဆုံးအချက်: S object (State) ကို AppCache ဆီကနေ အသစ်ပြန်ဖတ်မယ်
+    // အကယ်၍ user logout တုန်းက clear လုပ်ခဲ့ရင် ဒီမှာ data အလွတ်ပဲ ရလာမှာပါ
+    const freshTxns = AppCache.getTransactions();
+    const freshNotifs = AppCache.getNotifications();
 
-  renderAll();
-  renderNotifPanel();
-  updateLastUpdatedChip();
-  startLastUpdatedTicker();
+    // ၄။ State ကို update လုပ်မယ်
+    S.transactions = freshTxns;
+    S.notifications = freshNotifs;
 
-  _isRefreshing = false;
-  if (btn) btn.classList.remove("spinning");
+    // ၅။ UI ကို အသစ်ပြန်ဆွဲမယ်
+    renderAll();
+    renderNotifPanel();
+    updateLastUpdatedChip();
+    startLastUpdatedTicker();
 
-  showToast("info", "Dashboard refreshed");
+    showToast("success", "Data updated successfully");
+
+  } catch (error) {
+    console.error("Refresh failed:", error);
+    showToast("error", "Failed to refresh data");
+  } finally {
+    _isRefreshing = false;
+    if (btn) btn.classList.remove("spinning");
+  }
 }
+
 
 /* ═══════════════════════════════════════════
    9. ANIMATED COUNTER  (unchanged)
