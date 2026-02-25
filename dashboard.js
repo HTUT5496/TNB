@@ -1198,10 +1198,7 @@ function seedDemoData() {
    askAgent()       — sends a prompt to Gemini 1.5 Flash
    updateDashboardUI() — handles the AI response in the UI
 ═══════════════════════════════════════════ */
-import { GoogleGenAI } from "@google/genai";
-
-const ai = new GoogleGenAI({ apiKey: "AIzaSyDDSHtwFNeJoKAOAf4H1FBqCDQC1AbtGN0" });
-;
+const API_KEY = "AIzaSyCFO_Rw7CFH7X1MOtFV6pSCUjgozW9S95g";
 
 async function askAgent(userPrompt) {
   const response = await fetch(
