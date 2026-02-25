@@ -1,11 +1,12 @@
 /* ══════════════════════════════════════════════════════
    TNB Financial Manager  |  sw.js
-   Service Worker — Cache Strategy: Stale-While-Revalidate
-   ⚠️  Cache logic and offline behavior UNTOUCHED.
-   Cache version bumped to reflect UI v5.1 assets + history page split.
+   Service Worker — Updated for Folder Structure & Fresh Data
+   Strategy: Network-First for Pages, Stale-While-Revalidate for Assets
 ══════════════════════════════════════════════════════ */
-const CACHE_NAME = 'tnb-v2026-v3';
-/* All static assets to precache on install (UNCHANGED list) */
+
+const CACHE_NAME = 'tnb-v2026-v3.2'; // Version ကို တိုးလိုက်တာက cache အဟောင်းတွေကို ရှင်းထုတ်ဖို့ဖြစ်ပါတယ်
+
+// သင့် folder structure ထဲက ဖိုင်အားလုံးကို ဒီမှာ ထည့်သွင်းထားပါတယ်
 const ASSETS = [
   'index.html',
   'register.html',
@@ -17,23 +18,30 @@ const ASSETS = [
   'reset-style.css',
   'dashboard.css',
   'history.css',
+  '_new_components.css', // Folder ထဲမှာ ရှိတဲ့ CSS အသစ်
   'login-script.js',
   'register-script.js',
   'reset-script.js',
   'dashboard.js',
   'history.js',
+  'cache.js',           // Folder ထဲမှာ ပါတဲ့ cache utility
   'manifest.json',
   'icon.png',
   'icon-512.png',
 ];
-/* ── INSTALL — precache all assets (UNCHANGED) ── */
+
+/* ── INSTALL ── */
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+    caches.open(CACHE_NAME).then(cache => {
+      console.log('Caching all assets');
+      return cache.addAll(ASSETS);
+    })
   );
   self.skipWaiting();
 });
-/* ── ACTIVATE — delete old caches (UNCHANGED) ── */
+
+/* ── ACTIVATE ── */
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
@@ -46,32 +54,44 @@ self.addEventListener('activate', event => {
   );
   self.clients.claim();
 });
-/* ── FETCH — Stale-While-Revalidate for UI,
-              Network-Only for Supabase (UNCHANGED) ── */
+
+/* ── FETCH ── */
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
-  /* Network-only for Supabase API calls (UNCHANGED) */
+
+  // ၁။ Supabase API (Data) အတွက်ဆိုရင် Network ကနေပဲ တိုက်ရိုက်ယူမယ်
   if (url.hostname.includes('supabase.co')) {
     event.respondWith(fetch(event.request));
     return;
   }
-  /* Network-only for non-GET requests (UNCHANGED) */
-  if (event.request.method !== 'GET') {
-    event.respondWith(fetch(event.request));
+
+  // ၂။ HTML Pages တွေအတွက် Network-First Strategy သုံးမယ်
+  // ဒါမှ Logout လုပ်ပြီး ပြန်ဝင်ရင် Data အဟောင်းကြီး မပေါ်နေမှာ ဖြစ်ပါတယ်
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          return caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, response.clone());
+            return response;
+          });
+        })
+        .catch(() => caches.match(event.request)) // Offline ဖြစ်မှသာ cache ထဲကဟာကို ပြမယ်
+    );
     return;
   }
-  /* Stale-While-Revalidate for all other requests (UNCHANGED) */
+
+  // ၃။ CSS, JS နဲ့ ပုံတွေအတွက် Stale-While-Revalidate သုံးမယ် (မြန်အောင်လို့ပါ)
   event.respondWith(
     caches.open(CACHE_NAME).then(cache =>
       cache.match(event.request).then(cached => {
         const networkFetch = fetch(event.request).then(response => {
-          /* Cache valid responses (UNCHANGED) */
-          if (response && response.status === 200 && response.type === 'basic') {
+          if (response && response.status === 200) {
             cache.put(event.request, response.clone());
           }
           return response;
         }).catch(() => cached);
-        /* Serve cached immediately, update in background (UNCHANGED) */
+        
         return cached || networkFetch;
       })
     )
