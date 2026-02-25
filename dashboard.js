@@ -1,44 +1,19 @@
-// dashboard.js ရဲ့ ထိပ်ဆုံးနားမှာ ထည့်ပါ
-function checkAuth() {
-    const sessionActive = lsGet(LS.userSession, false);
-    
-    if (!sessionActive) {
-        // Login မဝင်ထားရင် index.html ကို ချက်ချင်းလွှတ်မယ်
-        window.location.replace('index.html');
-        return false;
-    }
-    return true;
-}
+"use strict";
 
-function loadState() {
-    // Auth ကို အရင်စစ်မယ်၊ မအောင်မြင်ရင် ရှေ့ဆက်မလုပ်တော့ဘူး
-    if (!checkAuth()) return;
+// FIX 1: Moved "use strict" to top (was after code, invalid placement).
+// FIX 2: Removed duplicate premature loadState() + checkAuth() + DOMContentLoaded
+//         that fired before AppCache/LS were defined, causing ReferenceErrors
+//         and redirect loops (LS.userSession was never written to localStorage).
+// FIX 3: API keys moved to a single config object — replace with env vars in production.
 
-    try {
-        S.transactions  = AppCache.getTransactions() || [];
-        S.notifications = AppCache.getNotifications() || [];
-        S.lang          = lsGet(LS.lang, "en");
-        S.theme         = lsGet(LS.theme, "dark");
-        S.notifEnabled  = lsGet(LS.notifEnabled, true);
-        S.userName      = lsGet(LS.userName, "User");
-        
-        // အောင်မြင်စွာ Load လုပ်ပြီးကြောင်း
-        console.log("State loaded successfully");
-    } catch (e) {
-        console.error("Error loading state:", e);
-    }
-}
-
-// စာမျက်နှာ စပွင့်တာနဲ့ loadState ကို ခေါ်ပါ
-document.addEventListener('DOMContentLoaded', loadState);
+const CONFIG = {
+  supabaseUrl: "https://lqfjeamzbxayfbjntarr.supabase.co",
+  supabaseKey: "sb_publishable_jDExXkASC_jrulY8B7noFw_r9qut-vQ",
+  geminiKey:   "AIzaSyCFO_Rw7CFH7X1MOtFV6pSCUjgozW9S95g",
+};
 
 const { createClient } = supabase;
-const _supabase = createClient(
-  "https://lqfjeamzbxayfbjntarr.supabase.co",
-  "sb_publishable_jDExXkASC_jrulY8B7noFw_r9qut-vQ",
-);
-
-"use strict";
+const _supabase = createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey);
 
 /* ═══════════════════════════════════════════
    1. TRANSLATIONS  (unchanged)
@@ -168,22 +143,17 @@ function clearAppData() {
   console.log("Session and local data cleared.");
 }
 
+// FIX 4: Removed LS.userSession guard from loadState() — it was never written
+// to localStorage anywhere, so lsGet(LS.userSession, false) always returned
+// false and caused an infinite redirect loop.
+// Auth is already handled by init() via Supabase's getSession() check.
 function loadState() {
-  // အကယ်၍ user login မဝင်ထားရင် dashboard မှာ data တွေ မပြအောင် စစ်ဆေးမယ်
-  const sessionActive = lsGet(LS.userSession, false);
-  
-  if (!sessionActive) {
-    // Session မရှိရင် login page ကို ပြန်ပို့မယ်
-    window.location.href = 'index.html';
-    return;
-  }
-
-  S.transactions  = AppCache.getTransactions();
-  S.notifications = AppCache.getNotifications();
+  S.transactions  = AppCache.getTransactions() || [];
+  S.notifications = AppCache.getNotifications() || [];
   S.lang          = lsGet(LS.lang, "en");
   S.theme         = lsGet(LS.theme, "dark");
   S.notifEnabled  = lsGet(LS.notifEnabled, true);
-  S.userName      = lsGet(LS.userName, "User"); // Default name ကို ပြောင်းထားပါတယ်
+  S.userName      = lsGet(LS.userName, "User");
   S.userAvatar    = lsGet(LS.userAvatar, "");
   S.userEmail     = lsGet(LS.userEmail, "");
   S.userProvider  = lsGet(LS.userProvider, "");
@@ -982,10 +952,10 @@ function seedDemoData(){
 /* ═══════════════════════════════════════════
    28. AI AGENT  (unchanged)
 ═══════════════════════════════════════════ */
-const API_KEY="AIzaSyCFO_Rw7CFH7X1MOtFV6pSCUjgozW9S95g";
+// FIX 5: API key now referenced from CONFIG object (defined at top of file).
 async function askAgent(userPrompt){
   const response=await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${CONFIG.geminiKey}`,
     {method:"POST",headers:{"Content-Type":"application/json"},
      body:JSON.stringify({contents:[{parts:[{text:userPrompt}]}]}),}
   );
