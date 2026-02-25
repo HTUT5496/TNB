@@ -1,10 +1,13 @@
-const { createClient } = supabase;
-const _supabase = createClient(
-  "https://lqfjeamzbxayfbjntarr.supabase.co",
-  "sb_publishable_jDExXkASC_jrulY8B7noFw_r9qut-vQ",
-);
-
 "use strict";
+
+/* ── CONFIG — replace with environment variables in production ── */
+const CONFIG = {
+  supabaseUrl: "https://lqfjeamzbxayfbjntarr.supabase.co",
+  supabaseKey: "sb_publishable_jDExXkASC_jrulY8B7noFw_r9qut-vQ",
+};
+
+const { createClient } = supabase;
+const _supabase = createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey);
 
 /* ═══════════════════════════════════════════
    1. TRANSLATIONS  (unchanged)
@@ -150,21 +153,27 @@ async function refreshData(force=true){
   const btn=$("refreshBtn");
   if(btn)btn.classList.add("spinning");
 
-  await new Promise(r=>setTimeout(r,420));
+  // FIX #9: wrapped in try/finally so _isRefreshing is always reset even if an error occurs
+  try{
+    await new Promise(r=>setTimeout(r,420));
 
-  S.transactions  = AppCache.getTransactions();
-  S.notifications = AppCache.getNotifications();
-  AppCache.setTransactions(S.transactions); // refresh timestamp
+    S.transactions  = AppCache.getTransactions();
+    S.notifications = AppCache.getNotifications();
+    AppCache.setTransactions(S.transactions); // refresh timestamp
 
-  updateTotals();
-  renderTxnFeed();
-  renderNotifPanel();
-  updateLastUpdatedChip();
-  startLastUpdatedTicker();
-
-  _isRefreshing=false;
-  if(btn)btn.classList.remove("spinning");
-  showToast("info","History refreshed");
+    updateTotals();
+    renderTxnFeed();
+    renderNotifPanel();
+    updateLastUpdatedChip();
+    startLastUpdatedTicker();
+    showToast("info","History refreshed");
+  }catch(err){
+    console.error("refreshData failed:",err);
+    showToast("error","Refresh failed — please try again");
+  }finally{
+    _isRefreshing=false;
+    if(btn)btn.classList.remove("spinning");
+  }
 }
 
 /* ═══════════════════════════════════════════
@@ -227,7 +236,7 @@ function emptyEl(){
       <path d="M16 3H8v4h8V3z"/>
     </svg>
     <p>${T.no_transactions}</p>
-    <p style="font-size:.7rem">${T.add_first}</p>`;
+    <p class="empty-state-hint">${T.add_first}</p>`;
   return div;
 }
 
@@ -304,7 +313,9 @@ function updateFilterBadge(){
   if(S.txnDateFrom)parts.push(S.txnDateFrom);
   if(S.txnDateTo)parts.push("→ "+S.txnDateTo);
   text.textContent=(T.filter_active||"Filter active")+": "+parts.join(" · ");
-  badge.style.display="flex";
+  // FIX #5: was badge.style.display="flex" — use class system instead
+  badge.classList.remove("is-hidden");
+  badge.classList.add("is-flex");
 }
 
 /* ═══════════════════════════════════════════
@@ -358,11 +369,12 @@ function renderNotifPanel(){
   const body=$("npBody"),empty=$("npEmpty"),dot=$("bellDot"),bell=$("bellBtn");
   if(!body)return;
   const unread=S.notifications.filter(n=>!n.read).length;
-  if(dot)dot.style.display=unread>0?"block":"none";
+  // FIX #6: was dot.style.display — use class-based show/hide to match HTML is-hidden system
+  if(dot){ unread>0 ? show(dot) : hide(dot); }
   if(bell)bell.classList.toggle("ringing",unread>0);
   body.querySelectorAll(".np-item").forEach(el=>el.remove());
-  if(!S.notifications.length){if(empty)empty.style.display="block";return;}
-  if(empty)empty.style.display="none";
+  if(!S.notifications.length){ if(empty)show(empty); return; }
+  if(empty)hide(empty);
   S.notifications.forEach((n,i)=>{
     const div=document.createElement("div");div.className="np-item";div.style.animationDelay=i*0.035+"s";
     div.innerHTML=`
@@ -524,11 +536,14 @@ function wire(){
   $("refreshBtn")?.addEventListener("click",()=>refreshData(true));
 
   /* Cross-tab sync: if dashboard.js mutates transactions, history refreshes too */
-  window._onCacheUpdate=()=>{
-    S.transactions=AppCache.getTransactions();
-    S.notifications=AppCache.getNotifications();
-    updateTotals();renderTxnFeed();renderNotifPanel();updateLastUpdatedChip();
-  };
+  // FIX #10: guard against duplicate registration if wire() is called more than once
+  if(!window._onCacheUpdate){
+    window._onCacheUpdate=()=>{
+      S.transactions=AppCache.getTransactions();
+      S.notifications=AppCache.getNotifications();
+      updateTotals();renderTxnFeed();renderNotifPanel();updateLastUpdatedChip();
+    };
+  }
 }
 
 /* ═══════════════════════════════════════════
@@ -539,11 +554,14 @@ async function init(){
   if(!session){window.location.href="index.html";return;}
 
   const meta=session.user.user_metadata;
-  S.userEmail    =session.user.email;
-  S.userName     =meta.full_name||meta.name||S.userEmail.split("@")[0];
-  S.userAvatar   =meta.avatar_url||meta.picture||"";
-  S.userProvider =session.user.app_metadata?.provider||"Email";
-  S.isSocialLogin=S.userProvider.toLowerCase()!=="email";
+  // FIX #3: guard against null email — OAuth providers may omit it
+  S.userEmail    = session.user.email || "";
+  S.userName     = meta.full_name || meta.name || (S.userEmail ? S.userEmail.split("@")[0] : "User");
+  S.userAvatar   = meta.avatar_url || meta.picture || "";
+  // FIX #4: capitalise provider to match dashboard.js (e.g. "google" → "Google")
+  const rawProvider = session.user.app_metadata?.provider || "email";
+  S.userProvider = rawProvider.charAt(0).toUpperCase() + rawProvider.slice(1);
+  S.isSocialLogin = S.userProvider.toLowerCase() !== "email";
 
   // ── CACHE GATE: only read from cache, not a new fetch ──
   loadState();

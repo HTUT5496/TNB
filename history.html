@@ -3,7 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-    <title>TNB History</title>
+    <meta name="description" content="FinPay — Transaction history" />
+    <meta name="theme-color" content="#070c18" />
+    <title>FinPay — History</title>
     <link rel="stylesheet" href="history.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
@@ -45,7 +47,7 @@
                 <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                 <path d="M13.73 21a2 2 0 01-3.46 0"/>
               </svg>
-              <span class="bell-dot" id="bellDot" style="display:none"></span>
+              <span class="bell-dot is-hidden" id="bellDot"></span>
             </button>
             <div class="notif-panel" id="notifPanel">
               <div class="np-head">
@@ -144,11 +146,11 @@
           </div>
           <div class="afp-row afp-dates">
             <div class="afp-date-group">
-              <label class="afp-label" data-i18n="start_date">From</label>
+              <label class="afp-label" for="txnDateFrom" data-i18n="start_date">From</label>
               <input type="date" class="date-pick" id="txnDateFrom"/>
             </div>
             <div class="afp-date-group">
-              <label class="afp-label" data-i18n="end_date">To</label>
+              <label class="afp-label" for="txnDateTo" data-i18n="end_date">To</label>
               <input type="date" class="date-pick" id="txnDateTo"/>
             </div>
           </div>
@@ -176,7 +178,7 @@
 
     <!-- BOTTOM NAV -->
     <nav class="bot-nav" id="botNav">
-      <button class="bn-btn" onclick="location.href='dashboard.html'" id="bn-dashboard">
+      <button class="bn-btn" id="bn-dashboard">
         <svg class="bn-ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
           <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/>
           <rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
@@ -211,13 +213,13 @@
         </div>
         <div class="fab-backdrop" id="fabBackdrop"></div>
       </div>
-      <button class="bn-btn" onclick="location.href='dashboard.html#reports'" id="bn-reports">
+      <button class="bn-btn" id="bn-reports">
         <svg class="bn-ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
           <path d="M18 20V10M12 20V4M6 20v-6"/>
         </svg>
         <span class="bn-lbl" data-i18n="reports">Reports</span>
       </button>
-      <button class="bn-btn" onclick="location.href='dashboard.html#settings'" id="bn-settings">
+      <button class="bn-btn" id="bn-settings">
         <svg class="bn-ico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
           <circle cx="12" cy="12" r="3"/>
           <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
@@ -231,27 +233,27 @@
       <div class="modal-card" id="txnCard">
         <div class="mc-head">
           <h2 class="mc-title" id="mcTitle">Add Income</h2>
-          <button class="mc-close" id="mcClose">✕</button>
+          <button class="mc-close" id="mcClose" aria-label="Close">✕</button>
         </div>
         <div class="mc-body">
           <input type="hidden" id="txnType" value="income"/>
           <div class="field">
-            <label class="field-lbl" data-i18n="amount">Amount ($)</label>
+            <label class="field-lbl" for="txnAmount" data-i18n="amount">Amount ($)</label>
             <div class="amount-wrap">
               <span class="amt-prefix">$</span>
               <input type="number" class="field-input amt-input" id="txnAmount" placeholder="0.00" min="0.01" step="0.01" inputmode="decimal"/>
             </div>
           </div>
           <div class="field">
-            <label class="field-lbl" data-i18n="category">Category</label>
+            <label class="field-lbl" for="txnCategory" data-i18n="category">Category</label>
             <select class="field-input" id="txnCategory"></select>
           </div>
           <div class="field">
-            <label class="field-lbl" data-i18n="description">Description</label>
+            <label class="field-lbl" for="txnDesc" data-i18n="description">Description</label>
             <input type="text" class="field-input" id="txnDesc" placeholder="e.g. Monthly salary"/>
           </div>
           <div class="field">
-            <label class="field-lbl" data-i18n="date">Date</label>
+            <label class="field-lbl" for="txnDate" data-i18n="date">Date</label>
             <input type="date" class="field-input" id="txnDate"/>
           </div>
           <button class="submit-btn" id="txnSubmit" data-i18n="add_transaction">Add Transaction</button>
@@ -266,7 +268,7 @@
         <p class="cfm-msg" id="cfmMsg">This cannot be undone.</p>
         <div class="cfm-btns">
           <button class="cfm-cancel" id="cfmCancel" data-i18n="cancel">Cancel</button>
-          <button class="danger-btn cfm-ok" id="cfmOk" data-i18n="confirm">Confirm</button>
+          <button class="cfm-ok" id="cfmOk" data-i18n="confirm">Confirm</button>
         </div>
       </div>
     </div>
@@ -276,5 +278,11 @@
     <!-- cache.js MUST be loaded before history.js -->
     <script src="cache.js"></script>
     <script src="history.js"></script>
+    <!-- FIX: bottom-nav page links wired here (removed inline onclick to comply with CSP) -->
+    <script>
+      document.getElementById('bn-dashboard')?.addEventListener('click', () => location.href = 'dashboard.html');
+      document.getElementById('bn-reports')?.addEventListener('click',   () => location.href = 'dashboard.html#reports');
+      document.getElementById('bn-settings')?.addEventListener('click',  () => location.href = 'dashboard.html#settings');
+    </script>
   </body>
 </html>
