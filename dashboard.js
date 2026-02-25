@@ -102,32 +102,69 @@ const S = {
    4. LOCAL STORAGE  (extended with cache helpers)
 ═══════════════════════════════════════════ */
 const LS = {
-  transactions:"novapay_transactions",notifications:"novapay_notifications",
-  lang:"novapay_lang",theme:"novapay_theme",notifEnabled:"novapay_notif",
-  userName:"novapay_username",userAvatar:"novapay_avatar",userEmail:"novapay_email",
-  userProvider:"novapay_provider",isSocialLogin:"novapay_social",
+  transactions: "novapay_transactions",
+  notifications: "novapay_notifications",
+  lang: "novapay_lang",
+  theme: "novapay_theme",
+  notifEnabled: "novapay_notif",
+  userName: "novapay_username",
+  userAvatar: "novapay_avatar",
+  userEmail: "novapay_email",
+  userProvider: "novapay_provider",
+  isSocialLogin: "novapay_social",
+  userSession: "novapay_session_active" // Session ရှိမရှိ စစ်ဖို့ key အသစ်
 };
 
-const lsSet = (k,v) => { try { localStorage.setItem(k,JSON.stringify(v)); } catch {} };
-const lsGet = (k,fb) => {
-  try { const v=localStorage.getItem(k); return v!==null?JSON.parse(v):fb; } catch { return fb; }
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+const lsGet = (k, fb) => {
+  try { const v = localStorage.getItem(k); return v !== null ? JSON.parse(v) : fb; } catch { return fb; }
 };
+
+// --- ဖြည့်စွက်ချက်: Logout လုပ်တဲ့အခါ အကုန်ရှင်းမယ့် function ---
+function clearAppData() {
+  // LS object ထဲက key အားလုံးကို ဖျက်ပစ်မယ်
+  Object.values(LS).forEach(key => localStorage.removeItem(key));
+  
+  // AppCache ထဲက data တွေကိုပါ ရှင်းမယ်
+  if (window.AppCache) {
+    AppCache.setTransactions([]);
+    AppCache.setNotifications([]);
+  }
+  
+  console.log("Session and local data cleared.");
+}
 
 function loadState() {
+  // အကယ်၍ user login မဝင်ထားရင် dashboard မှာ data တွေ မပြအောင် စစ်ဆေးမယ်
+  const sessionActive = lsGet(LS.userSession, false);
+  
+  if (!sessionActive) {
+    // Session မရှိရင် login page ကို ပြန်ပို့မယ်
+    window.location.href = 'index.html';
+    return;
+  }
+
   S.transactions  = AppCache.getTransactions();
   S.notifications = AppCache.getNotifications();
-  S.lang          = lsGet(LS.lang,"en");
-  S.theme         = lsGet(LS.theme,"dark");
-  S.notifEnabled  = lsGet(LS.notifEnabled,true);
-  S.userName      = lsGet(LS.userName,"Alex Morgan");
-  S.userAvatar    = lsGet(LS.userAvatar,"");
-  S.userEmail     = lsGet(LS.userEmail,"");
-  S.userProvider  = lsGet(LS.userProvider,"");
-  S.isSocialLogin = lsGet(LS.isSocialLogin,false);
+  S.lang          = lsGet(LS.lang, "en");
+  S.theme         = lsGet(LS.theme, "dark");
+  S.notifEnabled  = lsGet(LS.notifEnabled, true);
+  S.userName      = lsGet(LS.userName, "User"); // Default name ကို ပြောင်းထားပါတယ်
+  S.userAvatar    = lsGet(LS.userAvatar, "");
+  S.userEmail     = lsGet(LS.userEmail, "");
+  S.userProvider  = lsGet(LS.userProvider, "");
+  S.isSocialLogin = lsGet(LS.isSocialLogin, false);
+}
+
+// Logout ခလုတ်ကို နှိပ်တဲ့အခါ ဒါကို ခေါ်သုံးပါ
+function handleLogout() {
+  clearAppData();
+  window.location.replace('index.html');
 }
 
 const saveTxns   = () => AppCache.setTransactions(S.transactions);
 const saveNotifs = () => AppCache.setNotifications(S.notifications);
+
 
 /* ═══════════════════════════════════════════
    5. FINANCE CALCULATIONS  (unchanged)
