@@ -82,6 +82,7 @@ html {
   --tx1: #e8f0ff;
   --tx2: #7a94b0;
   --tx3: #4a6278;
+  --text-3: #4a6278; /* alias for JS getComputedStyle chart label color */
 
   --r1: 6px;  --r2: 10px; --r3: 14px;
   --r4: 18px; --r5: 22px; --r6: 28px;
@@ -95,6 +96,8 @@ html {
   --fast:   0.14s;
   --med:    0.24s;
   --slow:   0.40s;
+
+  --fab-ring: rgba(4,7,16,0.94); /* FAB button separator ring — dark bg */
 
   --sh1: 0 2px 12px rgba(0,0,0,0.55);
   --sh2: 0 8px 36px rgba(0,0,0,0.65);
@@ -124,6 +127,7 @@ html {
   --tx1: #0a1628;
   --tx2: #4a6280;
   --tx3: #8aabbf;
+  --text-3: #8aabbf; /* alias for JS getComputedStyle chart label color */
   --sh1: 0 2px 10px rgba(0,0,0,0.06);
   --sh2: 0 8px 32px rgba(0,0,0,0.09);
   --sh3: 0 20px 60px rgba(0,0,0,0.13);
@@ -138,6 +142,7 @@ html {
   --bg-orb1: radial-gradient(ellipse 80% 60% at 12% 0%,   rgba(219,234,254,0.65) 0%, transparent 68%);
   --bg-orb2: radial-gradient(ellipse 55% 45% at 92% 18%,  rgba(207,250,254,0.45) 0%, transparent 62%);
   --bg-orb3: radial-gradient(ellipse 50% 40% at 50% 102%, rgba(254,243,199,0.45) 0%, transparent 58%);
+  --fab-ring: rgba(238,243,252,0.94); /* light bg for FAB separator ring */
 }
 [data-theme="light"] .cmd-bar        { background: rgba(237,242,252,0.97); border-bottom-color: rgba(0,0,0,0.08); }
 [data-theme="light"] .bot-nav        { background: rgba(237,242,252,0.95); border-color: rgba(0,0,0,0.09); }
@@ -837,6 +842,8 @@ body::after {
 /* ══════════════════════════════════════════════════════
    USAGE SUMMARY / RECENT ACTIVITY
 ══════════════════════════════════════════════════════ */
+/* Defined here (before first use) — also referenced by .txn-card below */
+@keyframes cardSlide { from { opacity:0; transform:translateX(-8px); } to { opacity:1; transform:translateX(0); } }
 .usage-empty-msg {
   text-align: center;
   padding: 32px 14px;
@@ -979,7 +986,6 @@ body::after {
 .txn-card[data-type="expense"]::before { background: linear-gradient(to bottom, var(--exp), transparent); }
 .txn-card:last-child { border-bottom: none; }
 .txn-card:hover { background: var(--glassH); }
-@keyframes cardSlide { from { opacity:0; transform:translateX(-8px); } to { opacity:1; transform:translateX(0); } }
 .txn-ico { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font-size: 1.05rem; flex-shrink: 0; }
 .txn-ico.income  { background: var(--inc-bg); border: 1px solid var(--inc-bdr); }
 .txn-ico.expense { background: var(--exp-bg); border: 1px solid var(--exp-bdr); }
@@ -1005,9 +1011,9 @@ body::after {
   background: var(--glass-card-bg); backdrop-filter: var(--glass-card-blur); -webkit-backdrop-filter: var(--glass-card-blur);
   border: var(--glass-card-border); border-radius: var(--glass-card-radius); box-shadow: var(--glass-card-shadow);
 }
-/* FIX: inside .txn-feed the parent already provides card bg/border/shadow — reset to avoid double-border */
+/* FIX: HTML uses id="searchFeed" with class="txn-feed" — not class="search-feed" */
 .txn-feed .empty-state,
-.search-feed .empty-state {
+#searchFeed .empty-state {
   background: none; border: none; box-shadow: none;
   border-radius: 0; backdrop-filter: none; -webkit-backdrop-filter: none;
 }
@@ -1046,7 +1052,8 @@ body::after {
 .period-sel {
   background: var(--glass-card-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
   border: var(--glass-card-border); border-radius: 20px; padding: 5px 12px;
-  font-size: 0.71rem; color: var(--tx2); font-family: 'Plus Jakarta Sans', sans-serif; outline: none; cursor: pointer;
+  font-size: 0.71rem; color: var(--tx2); font-family: 'Plus Jakarta Sans', sans-serif;
+  outline: none; cursor: pointer; appearance: none; -webkit-appearance: none;
 }
 .chart-wrap { height: 108px; position: relative; }
 #spendingCanvas { width: 100% !important; height: 100% !important; }
@@ -1201,17 +1208,17 @@ input:checked + .tog-track::after { transform: translateX(20px); background: #ff
   width: 50px; height: 50px;
   background: var(--amber-grad); border: none; border-radius: 50%;
   color: #1c0d00; display: grid; place-items: center; cursor: pointer;
-  box-shadow: var(--sh-amber), 0 0 0 4px rgba(4,7,16,0.94), 0 0 0 6px rgba(245,166,35,0.14);
+  box-shadow: var(--sh-amber), 0 0 0 4px var(--fab-ring), 0 0 0 6px rgba(245,166,35,0.14);
   transition: all 0.28s var(--spring); margin-top: -10px;
   position: relative; z-index: 10; -webkit-tap-highlight-color: transparent;
   animation: fab-pulse 0.8s ease-out 0.4s 3;
 }
 @keyframes fab-pulse {
-  0%   { box-shadow: var(--sh-amber), 0 0 0 4px rgba(4,7,16,0.94), 0 0 0 6px rgba(245,166,35,0.14); }
-  50%  { box-shadow: var(--sh-amber), 0 0 0 4px rgba(4,7,16,0.94), 0 0 0 14px rgba(245,166,35,0); }
-  100% { box-shadow: var(--sh-amber), 0 0 0 4px rgba(4,7,16,0.94), 0 0 0 6px rgba(245,166,35,0.14); }
+  0%   { box-shadow: var(--sh-amber), 0 0 0 4px var(--fab-ring), 0 0 0 6px rgba(245,166,35,0.14); }
+  50%  { box-shadow: var(--sh-amber), 0 0 0 4px var(--fab-ring), 0 0 0 14px rgba(245,166,35,0); }
+  100% { box-shadow: var(--sh-amber), 0 0 0 4px var(--fab-ring), 0 0 0 6px rgba(245,166,35,0.14); }
 }
-.fab-main:hover  { transform: scale(1.1) translateY(-2px); box-shadow: 0 10px 28px var(--amber-glow), 0 0 0 4px rgba(4,7,16,0.94); }
+.fab-main:hover  { transform: scale(1.1) translateY(-2px); box-shadow: 0 10px 28px var(--amber-glow), 0 0 0 4px var(--fab-ring); }
 .fab-main.open   { transform: rotate(45deg) scale(1.04); }
 .fab-main:active { transform: scale(0.88); }
 .fab-sub {
@@ -1421,3 +1428,90 @@ input:checked + .tog-track::after { transform: translateX(20px); background: #ff
   0%   { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+/* ── Fix 2: .spinning — refresh button loading state ── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+#refreshBtn.spinning svg {
+  animation: spin 0.75s linear infinite;
+  transform-origin: center;
+}
+
+/* ── Fix 3: .agent-send-btn — own class (replaced .afp-apply in HTML) ── */
+.agent-send-btn {
+  padding: 8px 18px;
+  background: var(--amber-grad); border: none;
+  border-radius: var(--r2);
+  font-family: 'Syne', sans-serif; font-size: 0.77rem; font-weight: 700;
+  color: #1c0d00; cursor: pointer;
+  box-shadow: 0 4px 14px var(--amber-glow);
+  transition: all var(--fast) var(--ease);
+  white-space: nowrap; flex-shrink: 0;
+}
+.agent-send-btn:hover  { transform: translateY(-1px); box-shadow: 0 8px 20px var(--amber-glow); }
+.agent-send-btn:active { transform: scale(0.97); }
+.agent-send-btn:disabled {
+  opacity: 0.55; cursor: not-allowed;
+  transform: none; box-shadow: none;
+}
+
+/* ── Fix 4–5: .settings-group--agent / .sg-title--agent (replace inline styles) ── */
+.settings-group--agent {
+  padding: 18px 20px;
+  margin-bottom: 16px;
+}
+.sg-title--agent {
+  margin-bottom: 14px;
+}
+
+/* ── Fix 6–7: .rep-cards--home / .rep-card--wide (replace inline styles) ── */
+.rep-cards--home {
+  margin-bottom: 24px;
+}
+.rep-card--wide {
+  grid-column: span 2;
+}
+
+/* ── Fix 8: #agent-status-box and .status-dot ── */
+#agent-status-box {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.76rem; color: var(--tx2);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  margin-bottom: 8px;
+}
+.status-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+  background: var(--inc);
+  box-shadow: 0 0 6px var(--inc-glow);
+  animation: dot-pulse 2.6s ease-in-out infinite;
+}
+#agent-status {
+  font-size: 0.76rem; color: var(--tx2);
+}
+
+/* ── Fix 9: hide .ai-response-area when empty (no content yet) ── */
+.ai-response-area:empty { display: none; }
+
+/* ── Fix 10: .pc-name-input:read-only — social login visual lock ── */
+.pc-name-input:read-only {
+  opacity: 0.55;
+  cursor: default;
+  border-bottom-style: dashed;
+}
+.pc-name-input:read-only:focus { border-color: var(--border); box-shadow: none; }
+
+/* ── Fix 12: #lastUpdatedChip — smaller in navbar action row ── */
+.nav-actions .date-chip {
+  font-size: 0.58rem;
+  padding: 4px 10px;
+  border-radius: 14px;
+  opacity: 0.75;
+}
+
+/* ── Fix 16: light theme overrides for new elements ── */
+[data-theme="light"] .agent-send-btn     { color: #1c0d00; }
+[data-theme="light"] .ai-response-area   { background: rgba(0,0,0,0.05); border-left-color: var(--amber); }
+[data-theme="light"] #agent-status-box   { color: var(--tx2); }
+[data-theme="light"] .period-sel         { color: var(--tx2); background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.10); }
+[data-theme="light"] .nav-actions .date-chip { background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.10); }

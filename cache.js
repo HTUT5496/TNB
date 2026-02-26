@@ -17,13 +17,15 @@
 /* ── Cache configuration ──────────────────────────────────────────── */
 const CACHE = {
   TTL_MS:   5 * 60 * 1000,   // 5 minutes before data is considered stale
-  VERSION:  "v2",            // bump to invalidate all existing caches
+  VERSION:  "v2",            // Bump this string whenever the stored data schema changes.
+                             // v1 → v2: added LAST_UPDATED + SYNC_SIGNAL keys
 
   KEYS: {
     TRANSACTIONS:  "novapay_transactions",
     NOTIFICATIONS: "novapay_notifications",
     LAST_UPDATED:  "novapay_last_updated",
     CACHE_VER:     "novapay_cache_ver",
+    SYNC_SIGNAL:   "novapay_sync_signal",  // FIX: must be in KEYS so _guardVersion wipes it on version bumps
   },
 };
 
@@ -55,10 +57,11 @@ window.AppCache = {
   /**
    * isFresh()
    * Returns true if data was loaded within the TTL window.
-   * Pass force=true to always return false (manual refresh).
+   * Note: callers should bypass this entirely for manual refreshes —
+   * both dashboard.js and history.js check their own force flag before
+   * calling isFresh(), so no force parameter is needed here.
    */
-  isFresh(force = false) {
-    if (force) return false;
+  isFresh() {
     const ts = _lsGet(CACHE.KEYS.LAST_UPDATED, 0);
     return (Date.now() - ts) < CACHE.TTL_MS;
   },
@@ -83,6 +86,7 @@ window.AppCache = {
   /** Write notifications to cache */
   setNotifications(notifs) {
     _lsSet(CACHE.KEYS.NOTIFICATIONS, notifs);
+    this._broadcastUpdate();  // FIX: was missing — notification changes (clear, mark-read) now cross-tab sync
   },
 
   /** Return the ISO timestamp string of the last successful load */
@@ -112,18 +116,57 @@ window.AppCache = {
   },
 
   /**
+   * clearAll()
+   * Wipes all cache data and resets the timestamp.
+   * Called on logout so stale user data does not persist.
+   * dashboard.js also has its own clearAppData() which calls this.
+   */
+  clearAll() {
+    [
+      CACHE.KEYS.TRANSACTIONS,
+      CACHE.KEYS.NOTIFICATIONS,
+      CACHE.KEYS.LAST_UPDATED,
+      CACHE.KEYS.SYNC_SIGNAL,
+    ].forEach((k) => localStorage.removeItem(k));
+  },
+
+  /**
    * Notify other open tabs/pages that data changed.
-   * Uses the storage event so history.js refreshes when dashboard adds a txn.
+   *
+   * Two-channel broadcast:
+   * 1. localStorage sentinel — fires the "storage" event on OTHER tabs/windows.
+   *    dashboard.js listens via window._onCacheUpdate (set in wire()).
+   * 2. CustomEvent "cacheupdate" on window — fires on THIS tab immediately.
+   *    history.js listens via addEventListener("cacheupdate", ...) in wire().
+   *
+   * FIX: previously only used the storage sentinel, so history.js's
+   * addEventListener("cacheupdate") listener never fired on the same tab.
    */
   _broadcastUpdate() {
-    // Toggling a sentinel key triggers the storage event on other tabs
-    _lsSet("novapay_sync_signal", Date.now());
+    _lsSet(CACHE.KEYS.SYNC_SIGNAL, Date.now());
+    window.dispatchEvent(new CustomEvent("cacheupdate"));
   },
 };
 
 /* ── Cross-tab sync listener ──────────────────────────────────────── */
+/*
+ * When dashboard.js (or any tab) calls setTransactions / setNotifications,
+ * _broadcastUpdate writes novapay_sync_signal.  The browser fires the
+ * "storage" event on every OTHER open tab/window.
+ *
+ * We dispatch "cacheupdate" so history.js's addEventListener("cacheupdate")
+ * handler fires on the receiving tab too, keeping both listener styles working.
+ *
+ * FIX: previously only called window._onCacheUpdate() — this only worked for
+ * dashboard.js (which sets that property).  history.js uses addEventListener
+ * so it never received cross-tab updates.
+ */
 window.addEventListener("storage", (e) => {
-  if (e.key === "novapay_sync_signal" && typeof window._onCacheUpdate === "function") {
-    window._onCacheUpdate();
+  if (e.key === CACHE.KEYS.SYNC_SIGNAL) {
+    // Support both listener styles used by dashboard.js and history.js
+    window.dispatchEvent(new CustomEvent("cacheupdate"));
+    if (typeof window._onCacheUpdate === "function") {
+      window._onCacheUpdate();
+    }
   }
 });

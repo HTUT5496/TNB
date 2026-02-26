@@ -3,9 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-    <meta name="description" content="FinPay — Transaction history" />
+    <meta name="description" content="TNB — Transaction history" />
     <meta name="theme-color" content="#070c18" />
-    <title>FinPay — History</title>
+    <title>TNB — History</title>
     <link rel="stylesheet" href="history.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
@@ -283,6 +283,12 @@
       document.getElementById('bn-dashboard')?.addEventListener('click', () => location.href = 'dashboard.html');
       document.getElementById('bn-reports')?.addEventListener('click',   () => location.href = 'dashboard.html#reports');
       document.getElementById('bn-settings')?.addEventListener('click',  () => location.href = 'dashboard.html#settings');
+      /* FIX: cfmVeil click-outside-to-close — matches txnVeil behaviour */
+      document.getElementById('cfmVeil')?.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('cfmVeil')) {
+          document.getElementById('cfmVeil').classList.remove('open');
+        }
+      });
     </script>
   </body>
 </html>

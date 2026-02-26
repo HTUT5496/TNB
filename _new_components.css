@@ -1,11 +1,13 @@
 
 /* ══════════════════════════════════════════════════════
-   NEW COMPONENTS  v9.0  (cache layer additions)
+   NEW COMPONENTS  v9.1  (cache layer additions)
    ──────────────────────────────────────────────────────
    · .refresh-btn        — circular refresh icon button
    · .refresh-btn.spinning — rotating state
    · .last-updated-chip  — amber "Updated X ago" tag
-   · .toast-dot.info     — teal dot for info toasts
+   · .toast-dot.info     — amber dot for info toasts
+   · .toast-dot.success  — green dot for success toasts
+   · .toast-dot.error    — red dot for error toasts
    · .is-hidden override for afp-error (replaces inline style)
 ══════════════════════════════════════════════════════ */
 
@@ -32,7 +34,8 @@
 .refresh-btn:active { transform: scale(0.88); }
 
 /* Spinning state applied by JS during refresh */
-@keyframes spinCW {
+/* FIX: renamed spinCW → spin to match @keyframes spin defined in dashboard.css / history.css */
+@keyframes spin {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
 }
@@ -42,7 +45,19 @@
   pointer-events: none;
 }
 .refresh-btn.spinning svg {
-  animation: spinCW 0.7s linear infinite;
+  animation: spin 0.7s linear infinite;
+}
+
+/* FIX: light-theme override for .refresh-btn was missing — rgba(255,255,255,...) invisible on white */
+[data-theme="light"] .refresh-btn {
+  background: rgba(0,0,0,0.04);
+  border-color: rgba(0,0,0,0.10);
+  color: var(--tx2);
+}
+[data-theme="light"] .refresh-btn:hover {
+  background: var(--amber-dim);
+  border-color: var(--amber);
+  color: var(--amber);
 }
 
 /* ── Last Updated chip ───────────────────────────────── */
@@ -63,9 +78,12 @@
   align-self: center;
 }
 
-/* Pulse briefly after a successful refresh */
+/* Pulse briefly after a successful refresh.
+   JS should add .did-refresh then remove it after the animation completes:
+   chip.classList.add("did-refresh");
+   chip.addEventListener("animationend", () => chip.classList.remove("did-refresh"), { once: true }); */
 @keyframes chipPulse {
-  0%,100% { color: var(--tx3); }
+  0%,100% { color: var(--tx3); border-color: rgba(255,255,255,0.08); }
   40%     { color: var(--amber); border-color: var(--amber-dim); }
 }
 .last-updated-chip.did-refresh {
@@ -78,8 +96,11 @@
 }
 
 /* ── Info toast dot ──────────────────────────────────── */
-.toast-dot.info    { background: #38bdf8; box-shadow: 0 0 7px rgba(56,189,248,0.50); }
-.toast-dot.success { background: var(--inc); box-shadow: 0 0 7px var(--inc-glow); }
+/* FIX: was hardcoded #38bdf8 — now uses design token. info = general/neutral → amber */
+.toast-dot.info    { background: var(--amber);   box-shadow: 0 0 7px var(--amber-glow); }
+.toast-dot.success { background: var(--inc);     box-shadow: 0 0 7px var(--inc-glow); }
+/* FIX: .error was missing — showToast("error",...) is called in both dashboard.js and history.js */
+.toast-dot.error   { background: var(--exp);     box-shadow: 0 0 7px var(--exp-glow); }
 
 /* ── afp-error: ensure is-hidden works on block elements ── */
 .afp-error.is-hidden { display: none !important; }

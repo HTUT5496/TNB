@@ -14,7 +14,7 @@ const _supabase = createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey);
 ═══════════════════════════════════════════ */
 const TRANSLATIONS = {
   en:{
-    brand:"FinPay",nav_dashboard:"Home",nav_transactions:"History",nav_reports:"Reports",nav_settings:"Settings",
+    brand:"TNB",nav_dashboard:"Home",nav_transactions:"History",nav_reports:"Reports",nav_settings:"Settings",
     available_balance:"Balance",income:"Income",expense:"Expense",add_income:"Add Income",add_expense:"Add Expense",
     all_transactions:"All Transactions",all:"All",export_csv:"Export CSV",notifications:"Notifications",
     clear_all:"Clear All",no_notifs:"No notifications yet",amount:"Amount ($)",category:"Category",
@@ -31,7 +31,7 @@ const TRANSLATIONS = {
     cat_entertainment:"Entertain",cat_education:"Education",cat_rent:"Rent",cat_other_expense:"Other",
   },
   my:{
-    brand:"FinPay",nav_dashboard:"ဒက်ရ်ဘုတ်",nav_transactions:"မှတ်တမ်း",nav_reports:"အစီရင်ခံ",nav_settings:"ဆက်တင်",
+    brand:"TNB",nav_dashboard:"ဒက်ရ်ဘုတ်",nav_transactions:"မှတ်တမ်း",nav_reports:"အစီရင်ခံ",nav_settings:"ဆက်တင်",
     available_balance:"လက်ကျန်",income:"ဝင်ငွေ",expense:"ထွက်ငွေ",add_income:"ဝင်ငွေထည့်",add_expense:"ထွက်ငွေထည့်",
     all_transactions:"ငွေသွင်း/ထုတ် အားလုံး",all:"အားလုံး",export_csv:"CSV ထုတ်ယူ",notifications:"အကြောင်းကြားချက်",
     clear_all:"အားလုံး ရှင်းလင်း",no_notifs:"အကြောင်းကြားချက် မရှိသေးပါ",amount:"ငွေပမာဏ ($)",category:"အမျိုးအစား",
@@ -69,7 +69,7 @@ const CATEGORIES = {
 ═══════════════════════════════════════════ */
 const S = {
   transactions:[],notifications:[],lang:"en",theme:"dark",notifEnabled:true,
-  userName:"Alex Morgan",userAvatar:"",userEmail:"",userProvider:"",isSocialLogin:false,
+  userName:"User",userAvatar:"",userEmail:"",userProvider:"",isSocialLogin:false,
   txnFilter:"all",txnDateFrom:"",txnDateTo:"",txnFilterActive:false,
   searchQuery:"",fabOpen:false,confirmCb:null,
 };
@@ -94,7 +94,7 @@ function loadState(){
   S.lang          = lsGet(LS.lang,"en");
   S.theme         = lsGet(LS.theme,"dark");
   S.notifEnabled  = lsGet(LS.notifEnabled,true);
-  S.userName      = lsGet(LS.userName,"Alex Morgan");
+  S.userName      = lsGet(LS.userName,"User");
   S.userAvatar    = lsGet(LS.userAvatar,"");
   S.userEmail     = lsGet(LS.userEmail,"");
   S.userProvider  = lsGet(LS.userProvider,"");
@@ -198,7 +198,8 @@ function makeTxnCard(txn,idx){
   const meta=getCatMeta(txn.type,txn.categoryKey);
   const lbl=T[txn.categoryKey]||txn.category;
   const sign=txn.type==="income"?"+":"-";
-  const ds=txn.date?new Date(txn.date+"T00:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}):"";
+  const locale=S.lang==="my"?"my-MM":"en-US";
+  const ds=txn.date?new Date(txn.date+"T00:00:00").toLocaleDateString(locale,{month:"short",day:"numeric",year:"numeric"}):"";
   const div=document.createElement("div");
   div.className="txn-card";div.dataset.type=txn.type;
   div.style.animationDelay=Math.min(idx*0.04,0.5)+"s";
@@ -329,7 +330,7 @@ function exportCSV(){
   const csv=[hdr,...rows].join("\n");
   const url=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
   const a=document.createElement("a");a.href=url;
-  a.download=`finpay-${new Date().toISOString().split("T")[0]}.csv`;a.click();
+  a.download=`tnb-${new Date().toISOString().split("T")[0]}.csv`;a.click();
   URL.revokeObjectURL(url);
 }
 
@@ -531,18 +532,22 @@ function wire(){
 
   $("cfmCancel")?.addEventListener("click",closeConfirm);
   $("cfmOk")?.addEventListener("click",()=>{S.confirmCb?.();closeConfirm();});
+  /* FIX: cfmVeil click-outside-to-close (matches txnVeil behaviour) */
+  $("cfmVeil")?.addEventListener("click",(e)=>{if(e.target===$("cfmVeil"))closeConfirm();});
 
   /* ── Refresh button  ← NEW ── */
   $("refreshBtn")?.addEventListener("click",()=>refreshData(true));
 
   /* Cross-tab sync: if dashboard.js mutates transactions, history refreshes too */
-  // FIX #10: guard against duplicate registration if wire() is called more than once
-  if(!window._onCacheUpdate){
-    window._onCacheUpdate=()=>{
+  // FIX: _onCacheUpdate was stored on window but never attached to a real event.
+  // AppCache dispatches a "cacheupdate" CustomEvent on window when data changes.
+  if(!window._histCacheUpdateBound){
+    window._histCacheUpdateBound=true;
+    window.addEventListener("cacheupdate",()=>{
       S.transactions=AppCache.getTransactions();
       S.notifications=AppCache.getNotifications();
       updateTotals();renderTxnFeed();renderNotifPanel();updateLastUpdatedChip();
-    };
+    });
   }
 }
 
