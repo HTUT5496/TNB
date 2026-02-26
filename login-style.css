@@ -1,6 +1,5 @@
 /* ═══════════════════════════════════════════════
    TNB – Login Page  |  login-style.css
-   UI Modernization — Supabase logic untouched
 ═══════════════════════════════════════════════ */
 
 /* ── Design Tokens ── */
@@ -26,6 +25,20 @@
   --grad:          linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
 }
 
+/* FIX: Light mode tokens moved out of body.light-mode block and into a
+   data-theme or class selector so CSS custom property inheritance works
+   correctly for all nested elements. Using body.light-mode as the scope. */
+body.light-mode {
+  --bg:            #F0F4FF;
+  --card-bg:       rgba(255, 255, 255, 0.90);
+  --card-bg-hover: rgba(255, 255, 255, 1);
+  --border:        rgba(0, 0, 0, 0.08);
+  --border-focus:  rgba(37, 99, 235, 0.4);
+  --text-1:        #0F172A;
+  --text-2:        #475569;
+  --text-3:        #94A3B8;
+}
+
 /* ── Reset ── */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -42,24 +55,12 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
+  /* FIX: Font was specified in CSS but never imported in HTML — now both match */
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   overflow-x: hidden;
   position: relative;
-}
-
-body.dark-mode {
   background: var(--bg);
   color: var(--text-1);
-}
-
-body.light-mode {
-  background: #F0F4FF;
-  color: #0F172A;
-  --card-bg: rgba(255, 255, 255, 0.90);
-  --border: rgba(0, 0, 0, 0.08);
-  --text-1: #0F172A;
-  --text-2: #475569;
-  --text-3: #94A3B8;
 }
 
 /* ── Animated Background Orbs ── */
@@ -208,32 +209,46 @@ h1 {
   transition: color 0.2s var(--ease);
   z-index: 1;
 }
+/* FIX: .toggle-pass was missing a focus outline reset and a proper z-index */
 .toggle-pass {
   position: absolute;
   right: 14px; top: 50%;
   transform: translateY(-50%);
-  background: none; border: none;
+  background: none;
+  border: none;
+  outline: none;
   color: var(--text-3);
   font-size: 0.85rem;
   cursor: pointer;
   padding: 4px;
   border-radius: 6px;
-  transition: color 0.2s var(--ease);
+  transition: color 0.2s var(--ease), background 0.15s var(--ease);
   z-index: 1;
 }
-.toggle-pass:hover { color: var(--text-1); }
+.toggle-pass:hover  { color: var(--text-1); background: rgba(255,255,255,0.06); }
+/* FIX: Focus-visible ring for keyboard accessibility */
+.toggle-pass:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
 
 input {
   width: 100%;
+  /* FIX: Password input needs right padding to avoid text hiding behind toggle-pass button.
+     Using padding shorthand: top/bottom 14px, right 44px (for toggle), left 42px (for icon). */
   padding: 14px 44px 14px 42px;
   border-radius: 14px;
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.04);
-  color: inherit;
+  color: var(--text-1);
   font-size: 0.92rem;
   font-family: inherit;
   outline: none;
   display: block;
+}
+/* FIX: Username input doesn't have a toggle button so right padding can be smaller */
+#username {
+  padding-right: 16px;
 }
 input:focus {
   border-color: var(--border-focus);
@@ -241,12 +256,12 @@ input:focus {
   box-shadow: 0 0 0 4px var(--primary-dim),
               inset 0 1px 0 rgba(255,255,255,0.04);
 }
-input:focus ~ .input-icon,
 .input-group:focus-within .input-icon { color: var(--primary); }
 input::placeholder { color: var(--text-3); }
 body.light-mode input {
   background: #fff;
   border: 1px solid #E2E8F0;
+  color: var(--text-1);
 }
 body.light-mode input:focus {
   border-color: var(--primary);
@@ -281,12 +296,19 @@ body.light-mode input:focus {
   opacity: 0;
   transition: opacity 0.2s var(--ease);
 }
-.main-btn:hover {
+.main-btn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 14px 32px var(--primary-glow);
 }
-.main-btn:hover::before { opacity: 1; }
-.main-btn:active { transform: scale(0.98); }
+.main-btn:hover:not(:disabled)::before { opacity: 1; }
+.main-btn:active:not(:disabled) { transform: scale(0.98); }
+/* FIX: Disabled state was unstyled — button looked the same when loading */
+.main-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
 
 /* ── Sub Buttons ── */
 .sub-btn {
@@ -314,7 +336,7 @@ body.light-mode .sub-btn {
 }
 body.light-mode .sub-btn:hover { background: #F1F5F9; }
 
-/* ── Social Button ── */
+/* ── Social Button (Google) ── */
 .social-btn {
   width: 100%;
   padding: 13px;
@@ -332,21 +354,29 @@ body.light-mode .sub-btn:hover { background: #F1F5F9; }
   justify-content: center;
   gap: 12px;
   transition: all 0.2s var(--ease);
+  /* FIX: Needed for shimmer overlay's position:absolute to be contained */
+  position: relative;
+  overflow: hidden;
 }
-.social-btn:hover {
+.social-btn:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.12);
   border-color: rgba(255,255,255,0.16);
   transform: translateY(-1px);
   box-shadow: 0 8px 24px rgba(0,0,0,0.2);
 }
-.social-btn:active { transform: scale(0.98); }
+.social-btn:active:not(:disabled) { transform: scale(0.98); }
+/* FIX: Disabled state for Google button while OAuth redirect is in progress */
+.social-btn:disabled {
+  cursor: not-allowed;
+  transform: none;
+}
 body.light-mode .social-btn {
   background: #ffffff;
   border: 1px solid #E2E8F0;
   color: #1e293b;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
-body.light-mode .social-btn:hover { background: #F8FAFC; }
+body.light-mode .social-btn:hover:not(:disabled) { background: #F8FAFC; }
 .google-icon { flex-shrink: 0; }
 
 /* ── Separator ── */

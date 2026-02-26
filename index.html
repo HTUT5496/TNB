@@ -3,9 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#000000" />
+    <!-- FIX: theme-color updated to match actual dark background (#0F172A not #000000) -->
+    <meta name="theme-color" content="#0F172A" />
     <meta name="description" content="TNB Financial Management - Login Page" />
     <title>TNB - Login</title>
+    <!-- FIX: Import Plus Jakarta Sans (used in CSS font-family but was never loaded) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="login-style.css" />
     <link rel="manifest" href="manifest.json" />
     <link
@@ -31,28 +39,50 @@
     </script>
   </head>
   <body class="dark-mode">
+
+    <!-- FIX: Background orbs were defined in CSS but never added to HTML -->
+    <div class="bg-orb bg-orb-1" aria-hidden="true"></div>
+    <div class="bg-orb bg-orb-2" aria-hidden="true"></div>
+    <div class="bg-orb bg-orb-3" aria-hidden="true"></div>
+
     <div class="glass-container">
       <div class="top-nav">
         <button id="lang-btn" class="sub-btn" aria-label="Change Language">
-          Burmese
+          <i class="fa-solid fa-language"></i> Burmese
         </button>
         <button onclick="location.href = 'register.html'" class="sub-btn">
-          Sign Up
+          <i class="fa-solid fa-user-plus"></i> Sign Up
         </button>
         <button id="theme-btn" class="sub-btn">🌙 Dark</button>
       </div>
+
+      <!-- FIX: Brand mark section was in CSS but missing from HTML -->
+      <div class="brand-mark">
+        <div class="brand-icon" aria-hidden="true">
+          <i class="fa-solid fa-chart-line"></i>
+        </div>
+        <span class="brand-name">TNB</span>
+      </div>
+
       <div class="note-box">
+        <!-- FIX: Note icon was styled in CSS (.note-icon) but missing from HTML -->
+        <i class="fa-solid fa-circle-info note-icon" aria-hidden="true"></i>
         <p id="note-text">
           Welcome to the financial management software. We will always try to
           distinguish your assets and losses.
         </p>
       </div>
+
       <header>
         <h1 id="title">Login</h1>
+        <p class="page-sub" id="page-sub">Sign in to your account</p>
       </header>
+
       <main>
         <form id="login-form">
+          <!-- FIX: Input icons (.input-icon) were styled in CSS but missing from HTML -->
           <div class="input-group">
+            <i class="fa-solid fa-user input-icon" aria-hidden="true"></i>
             <input
               type="text"
               id="username"
@@ -62,6 +92,7 @@
             />
           </div>
           <div class="input-group">
+            <i class="fa-solid fa-lock input-icon" aria-hidden="true"></i>
             <input
               type="password"
               id="password"
@@ -69,53 +100,41 @@
               required
               autocomplete="current-password"
             />
+            <!-- FIX: .toggle-pass was styled in CSS but the button was missing from HTML -->
+            <button
+              type="button"
+              class="toggle-pass"
+              id="toggle-pass"
+              aria-label="Show or hide password"
+            >
+              <i class="fa-solid fa-eye" id="toggle-pass-icon"></i>
+            </button>
           </div>
-          <button type="submit" id="login-btn" class="main-btn">Login</button>
+          <button type="submit" id="login-btn" class="main-btn">
+            <i class="fa-solid fa-right-to-bracket"></i> Login
+          </button>
         </form>
 
         <div class="separator"><span>Or</span></div>
 
         <!--
-          ════════════════════════════════════════════
-          GOOGLE SIGN-IN BUTTON  (inline CSS per spec)
-          Auth flow: Supabase signInWithOAuth → Google
-          Shimmer animation fires while OAuth redirect
-          is in progress so the user sees loading state.
-          ════════════════════════════════════════════
+          FIX: Replaced all heavy inline styles with the .social-btn CSS class
+          that is already defined in login-style.css. Inline styles were
+          duplicating (and partially conflicting with) the existing CSS.
+          Shimmer overlay kept as inline since it requires JS-toggled display.
         -->
         <button
           type="button"
           id="gmail-btn"
+          class="social-btn"
           aria-label="Continue with Google"
-          style="
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-            padding: 13px 20px;
-            border-radius: 12px;
-            border: 1.5px solid rgba(255,255,255,0.13);
-            background: rgba(255,255,255,0.05);
-            color: inherit;
-            font-size: 15px;
-            font-weight: 500;
-            letter-spacing: 0.01em;
-            cursor: pointer;
-            overflow: hidden;
-            transition: background 0.22s ease, border-color 0.22s ease, transform 0.12s ease;
-          "
-          onmouseover="this.style.background='rgba(66,133,244,0.13)';this.style.borderColor='rgba(66,133,244,0.5)';"
-          onmouseout="this.style.background='rgba(255,255,255,0.05)';this.style.borderColor='rgba(255,255,255,0.13)';"
-          onmousedown="this.style.transform='scale(0.975)';"
-          onmouseup="this.style.transform='scale(1)';"
         >
           <!-- Google G logo (official brand SVG) -->
           <svg
+            class="google-icon"
             width="20" height="20"
             viewBox="0 0 48 48"
-            style="flex-shrink:0; pointer-events:none;"
+            aria-hidden="true"
           >
             <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
             <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
@@ -146,7 +165,7 @@
           ></span>
         </button>
 
-        <!-- Shimmer keyframe (single global style block) -->
+        <!-- Shimmer keyframe -->
         <style>
           @keyframes gmailShimmer {
             from { background-position: 200% 0; }
@@ -155,6 +174,7 @@
         </style>
 
       </main>
+
       <footer class="footer-links">
         <p id="signup-text">
           If you don't have an account?
@@ -166,6 +186,7 @@
         </p>
       </footer>
     </div>
+
     <script src="login-script.js"></script>
     <script>
       if ('serviceWorker' in navigator) {

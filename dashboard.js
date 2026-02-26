@@ -20,7 +20,7 @@ const _supabase = createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey);
 ═══════════════════════════════════════════ */
 const TRANSLATIONS = {
   en: {
-    brand:"FinPay",nav_dashboard:"Home",nav_transactions:"History",nav_reports:"Reports",nav_settings:"Settings",
+    brand:"TNB",nav_dashboard:"Home",nav_transactions:"History",nav_reports:"Reports",nav_settings:"Settings",
     premium_member:"Premium Member",good_morning:"Good morning,",good_afternoon:"Good afternoon,",good_evening:"Good evening,",
     available_balance:"Balance",income:"Income",expense:"Expense",add_income:"Add Income",add_expense:"Add Expense",
     reports:"Reports",spending_overview:"Spending Overview",last_7:"Last 7 Days",last_30:"Last 30 Days",
@@ -47,7 +47,7 @@ const TRANSLATIONS = {
     cat_entertainment:"Entertain",cat_education:"Education",cat_rent:"Rent",cat_other_expense:"Other",
   },
   my: {
-    brand:"FinPay",nav_dashboard:"ဒက်ရ်ဘုတ်",nav_transactions:"မှတ်တမ်း",nav_reports:"အစီရင်ခံ",nav_settings:"ဆက်တင်",
+    brand:"TNB",nav_dashboard:"ဒက်ရ်ဘုတ်",nav_transactions:"မှတ်တမ်း",nav_reports:"အစီရင်ခံ",nav_settings:"ဆက်တင်",
     premium_member:"ပရီမီယံ အဖွဲ့ဝင်",good_morning:"မင်္ဂလာနံနက်ခင်းပါ၊",good_afternoon:"မင်္ဂလာနေ့လည်ပါ၊",good_evening:"မင်္ဂလာညနေပါ၊",
     available_balance:"လက်ကျန်",income:"ဝင်ငွေ",expense:"ထွက်ငွေ",add_income:"ဝင်ငွေထည့်",add_expense:"ထွက်ငွေထည့်",
     reports:"အစီရင်ခံ",spending_overview:"ငွေသုံးမှု အနှစ်ချုပ်",last_7:"ၿပီးခဲ့သော ၇ ရက်",last_30:"ၿပီးခဲ့သော ၃၀ ရက်",
@@ -102,7 +102,7 @@ const QUICK_ACTIONS = [
 ═══════════════════════════════════════════ */
 const S = {
   transactions:[],notifications:[],lang:"en",theme:"dark",notifEnabled:true,
-  userName:"Alex Morgan",userAvatar:"",userEmail:"",userProvider:"",isSocialLogin:false,
+  userName:"User",userAvatar:"",userEmail:"",userProvider:"",isSocialLogin:false,
   dashFilter:"all",txnFilter:"all",txnDateFrom:"",txnDateTo:"",txnFilterActive:false,
   searchQuery:"",fabOpen:false,confirmCb:null,
 };
@@ -160,10 +160,12 @@ function loadState() {
   S.isSocialLogin = lsGet(LS.isSocialLogin, false);
 }
 
-// Logout ခလုတ်ကို နှိပ်တဲ့အခါ ဒါကို ခေါ်သုံးပါ
-function handleLogout() {
+// Single logout handler — calls clearAppData() then Supabase signOut.
+// Used by both tipLogoutBtn (avatar tooltip) and logoutBtn (settings page).
+async function handleLogout() {
+  await _supabase.auth.signOut();
   clearAppData();
-  window.location.replace('index.html');
+  window.location.replace("index.html");
 }
 
 const saveTxns   = () => AppCache.setTransactions(S.transactions);
@@ -314,7 +316,8 @@ function makeTxnCard(txn,idx){
   const meta=getCatMeta(txn.type,txn.categoryKey);
   const lbl=T[txn.categoryKey]||txn.category;
   const sign=txn.type==="income"?"+":"-";
-  const ds=txn.date?new Date(txn.date+"T00:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}):"";
+  const dateLocale=S.lang==="my"?"my-MM":"en-US";
+  const ds=txn.date?new Date(txn.date+"T00:00:00").toLocaleDateString(dateLocale,{month:"short",day:"numeric",year:"numeric"}):"";
   const div=document.createElement("div");
   div.className="txn-card";div.dataset.type=txn.type;
   div.style.animationDelay=Math.min(idx*0.04,0.5)+"s";
@@ -484,8 +487,10 @@ function drawChart(){
   ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);
   for(let i=1;i<pts.length;i++){const cx=(pts[i-1].x+pts[i].x)/2;ctx.bezierCurveTo(cx,pts[i-1].y,cx,pts[i].y,pts[i].x,pts[i].y);}
   ctx.strokeStyle="#f5a623";ctx.lineWidth=2.4;ctx.stroke();
-  const fd=(d)=>new Date(d+"T00:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric"});
-  ctx.fillStyle="#2e3d55";ctx.font="10px DM Mono, monospace";
+  const chartDateLocale=S.lang==="my"?"my-MM":"en-US";
+  const fd=(d)=>new Date(d+"T00:00:00").toLocaleDateString(chartDateLocale,{month:"short",day:"numeric"});
+  const chartLabelColor=getComputedStyle(document.documentElement).getPropertyValue("--text-3").trim()||"#64748b";
+  ctx.fillStyle=chartLabelColor;ctx.font="10px Plus Jakarta Sans, system-ui, sans-serif";
   ctx.textAlign="right";ctx.fillText("$"+Math.round(maxV),PAD.l-6,PAD.t+10);
   ctx.textAlign="left";ctx.fillText(fd(labels[0]),PAD.l,H-5);
   ctx.textAlign="right";ctx.fillText(fd(labels[labels.length-1]),W-PAD.r,H-5);
@@ -706,7 +711,8 @@ function updateGreeting(){
 }
 function updateDate(){
   const el=$("dateChip");
-  if(el)el.textContent=new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+  const locale=S.lang==="my"?"my-MM":"en-US";
+  if(el)el.textContent=new Date().toLocaleDateString(locale,{month:"short",day:"numeric",year:"numeric"});
 }
 
 /* ═══════════════════════════════════════════
@@ -720,7 +726,7 @@ function exportCSV(){
   const csv=[hdr,...rows].join("\n");
   const url=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
   const a=document.createElement("a");a.href=url;
-  a.download=`finpay-${new Date().toISOString().split("T")[0]}.csv`;a.click();
+  a.download=`tnb-${new Date().toISOString().split("T")[0]}.csv`;a.click();
   URL.revokeObjectURL(url);
 }
 
@@ -833,7 +839,7 @@ function wire(){
     showConfirm(
       S.lang==="en"?"Logout?":"ထွက်မည်?",
       S.lang==="en"?"Are you sure you want to sign out?":"အကောင့်မှ ထွက်ရန် သေချာပါသလား?",
-      async()=>{await _supabase.auth.signOut();localStorage.clear();location.href="index.html";}
+      handleLogout
     );
   });
 
@@ -884,6 +890,7 @@ function wire(){
   $("csvBtnTxn")?.addEventListener("click",exportCSV);
   $("mcClose")?.addEventListener("click",closeModal);
   $("txnVeil")?.addEventListener("click",(e)=>{if(e.target===$("txnVeil"))closeModal();});
+  $("cfmVeil")?.addEventListener("click",(e)=>{if(e.target===$("cfmVeil"))closeConfirm();});
   $("txnSubmit")?.addEventListener("click",()=>{
     const type=$("txnType").value,amount=parseFloat($("txnAmount").value);
     const catKey=$("txnCategory").value,desc=$("txnDesc").value.trim(),date=$("txnDate").value;
@@ -913,12 +920,37 @@ function wire(){
     showConfirm(
       S.lang==="en"?"Logout?":"ထွက်မည်?",
       S.lang==="en"?"Are you sure you want to sign out?":"အကောင့်မှ ထွက်ရန် သေချာပါသလား?",
-      async()=>{await _supabase.auth.signOut();localStorage.clear();location.href="index.html";}
+      handleLogout
     );
   });
 
-  /* ── Refresh button  ← NEW ── */
+  /* ── Refresh button ── */
   $("refreshBtn")?.addEventListener("click",()=>refreshData(true));
+
+  /* ── Change Password button ── */
+  $("changePasswordBtn")?.addEventListener("click",()=>{
+    window.location.href="reset.html";
+  });
+
+  /* ── Profile name input — persist edits on blur ── */
+  $("profileNameInput")?.addEventListener("blur",(e)=>{
+    const newName=e.target.value.trim();
+    if(newName&&newName!==S.userName){
+      S.userName=newName;
+      lsSet(LS.userName,S.userName);
+      updateProfile();
+      showToast("success",S.lang==="en"?"Name updated":"အမည် ပြောင်းလဲပြီး");
+    }
+  });
+
+  /* ── AI Agent — wired here (not in HTML inline script) ── */
+  $("agentSendBtn")?.addEventListener("click",()=>{
+    const val=$("user-input")?.value?.trim();
+    if(val)askAgent(val);
+  });
+  $("user-input")?.addEventListener("keydown",(e)=>{
+    if(e.key==="Enter"){const val=e.target.value.trim();if(val)askAgent(val);}
+  });
 
   /* Charts */
   $("chartPeriod")?.addEventListener("change",drawChart);
@@ -950,22 +982,42 @@ function seedDemoData(){
 }
 
 /* ═══════════════════════════════════════════
-   28. AI AGENT  (unchanged)
+   28. AI AGENT
 ═══════════════════════════════════════════ */
-// FIX 5: API key now referenced from CONFIG object (defined at top of file).
 async function askAgent(userPrompt){
-  const response=await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${CONFIG.geminiKey}`,
-    {method:"POST",headers:{"Content-Type":"application/json"},
-     body:JSON.stringify({contents:[{parts:[{text:userPrompt}]}]}),}
-  );
-  const data=await response.json();
-  const aiResponse=data.candidates[0].content.parts[0].text;
-  updateDashboardUI(aiResponse);
+  const statusEl=$("agent-status");
+  const resultEl=$("ai-result");
+  const sendBtn=$("agentSendBtn");
+  const inputEl=$("user-input");
+
+  // Show loading state
+  if(sendBtn){sendBtn.disabled=true;sendBtn.textContent="...";}
+  if(statusEl)statusEl.textContent=S.lang==="en"?"Thinking…":"တွေးနေသည်…";
+  if(resultEl)resultEl.textContent="";
+
+  try{
+    const response=await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${CONFIG.geminiKey}`,
+      {method:"POST",headers:{"Content-Type":"application/json"},
+       body:JSON.stringify({contents:[{parts:[{text:userPrompt}]}]}),}
+    );
+    if(!response.ok)throw new Error(`HTTP ${response.status}`);
+    const data=await response.json();
+    const aiResponse=data?.candidates?.[0]?.content?.parts?.[0]?.text||"No response received.";
+    if(resultEl)resultEl.textContent=aiResponse;
+    if(statusEl)statusEl.textContent=S.lang==="en"?"Done":"ပြီးပါပြီ";
+    if(inputEl)inputEl.value="";
+  }catch(err){
+    console.error("Agent error:",err);
+    if(statusEl)statusEl.textContent=S.lang==="en"?"Error — please try again":"အမှားတစ်ခု ဖြစ်နေသည်";
+    if(resultEl)resultEl.textContent=S.lang==="en"?"Failed to get a response. Check your connection and try again.":"တုံ့ပြန်မှုရရှိမသည်။ ကွန်ရက်ချိတ်ဆက်မှု စစ်ဆေးပြီး ထပ်ကြိုးစားပါ။";
+  }finally{
+    if(sendBtn){sendBtn.disabled=false;sendBtn.textContent=S.lang==="en"?"Send":"ပို့မည်";}
+  }
 }
 function updateDashboardUI(text){
-  const statusEl=document.getElementById("agent-status");
-  if(statusEl)statusEl.innerText="Agent processed your request.";
+  const statusEl=$("agent-status");
+  if(statusEl)statusEl.textContent="Agent processed your request.";
 }
 
 /* ═══════════════════════════════════════════
