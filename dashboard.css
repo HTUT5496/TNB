@@ -523,92 +523,56 @@ body::after {
   50%      { transform: scale(1.12); box-shadow: 0 0 0 5px rgba(251,113,133,0); }
 }
 
-/* ── Alerts nav button (3rd nav slot) ── */
-.bn-alerts-shell {
-  flex: 1; display: flex; flex-direction: column; align-items: center;
-  position: relative;
+/* ── Alerts row inside 3-dots menu ── */
+.dmenu-alerts-row {
+  justify-content: flex-start; gap: 10px; position: relative;
 }
-.bn-alerts-shell .bn-btn {
-  /* inherits .bn-btn base — no override needed */
-  width: 100%;
-}
-/* Bell dot on the nav icon */
-.bn-alerts-ico-wrap {
-  position: relative; display: flex; align-items: center; justify-content: center;
-}
-.bn-alerts-ico-wrap .bell-dot {
-  top: -3px; right: -5px;
-  border-color: rgba(4,7,16,0.94); /* matches bot-nav dark bg */
-}
-[data-theme="light"] .bn-alerts-ico-wrap .bell-dot {
-  border-color: rgba(238,243,252,0.90); /* matches bot-nav light bg */
-}
-/* Ringing state on the nav button */
-.bn-alerts-shell .bn-btn.ringing .bn-ico {
-  filter: drop-shadow(0 0 6px var(--amber-glow));
+.dmenu-alerts-row.ringing .dmenu-icon svg {
+  color: var(--amber);
+  filter: drop-shadow(0 0 5px var(--amber-glow));
   animation: bell-shake 0.5s var(--spring);
 }
-.bn-alerts-shell .bn-btn.open { color: var(--amber); }
-.bn-alerts-shell .bn-btn.open .bn-ico {
-  transform: translateY(-2px);
-  filter: drop-shadow(0 2px 6px var(--amber-glow));
+.dmenu-alerts-row.open { color: var(--amber); }
+
+/* Bell dot inside dmenu icon cell */
+.dmenu-alerts-row .bell-dot {
+  top: -3px; right: -4px;
+  border-color: rgba(6,10,22,0.97);
+}
+[data-theme="light"] .dmenu-alerts-row .bell-dot {
+  border-color: rgba(245,248,255,0.98);
 }
 
-/* ── Alerts panel (opens UPWARD from nav) ── */
-.bn-alerts-panel {
-  position: absolute;
-  bottom: calc(100% + 18px); /* above the nav pill */
-  left: 50%; transform: translateX(-50%) translateY(10px) scale(0.96);
-  width: 312px;
-  background: rgba(6,10,22,0.97);
-  backdrop-filter: var(--glass-card-blur); -webkit-backdrop-filter: var(--glass-card-blur);
-  border: 1px solid rgba(255,255,255,0.12); border-radius: var(--glass-card-radius);
-  box-shadow: 0 -8px 40px rgba(0,0,0,0.70), 0 24px 64px rgba(0,0,0,0.75);
-  overflow: hidden; opacity: 0; pointer-events: none;
-  transition: opacity var(--fast) var(--ease), transform var(--med) var(--spring);
-  z-index: 600; max-height: 420px; display: flex; flex-direction: column;
-}
-.bn-alerts-panel.open {
-  opacity: 1; transform: translateX(-50%) translateY(0) scale(1); pointer-events: all;
-}
-
-/* Chip row at the top of the alerts panel */
-.bn-alerts-chip-row {
-  display: flex; align-items: center; justify-content: center;
-  padding: 10px 15px 0; flex-shrink: 0;
-}
-.bn-alerts-chip {
+/* Last-updated chip inline in the alerts row */
+.dmenu-chip {
   font-family: 'DM Mono', monospace;
-  font-size: 0.58rem; font-weight: 400;
+  font-size: 0.54rem; font-weight: 400;
   color: var(--tx3);
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 20px; padding: 4px 10px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 20px; padding: 3px 8px;
   white-space: nowrap; letter-spacing: 0.02em;
-  margin: 0;
+  margin-left: auto; flex-shrink: 0;
 }
-[data-theme="light"] .bn-alerts-chip {
-  background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.09); color: var(--tx3);
-}
-[data-theme="light"] .bn-alerts-panel {
-  background: rgba(245,248,255,0.98); border-color: rgba(0,0,0,0.10);
-  box-shadow: 0 -6px 28px rgba(0,0,0,0.10), 0 16px 48px rgba(0,0,0,0.10);
+[data-theme="light"] .dmenu-chip {
+  background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.09);
 }
 
-/* Keep notif-panel (old top-bar origin) styles intact for .notif-panel class
-   but the panel now uses .bn-alerts-panel — override only if both coexist */
+/* Notif panel — inline inside dots menu, expands below the alerts row */
 .notif-panel {
-  position: absolute; top: calc(100% + 12px); right: 0; width: 312px;
-  background: rgba(6,10,22,0.97);
-  backdrop-filter: var(--glass-card-blur); -webkit-backdrop-filter: var(--glass-card-blur);
-  border: 1px solid rgba(255,255,255,0.12); border-radius: var(--glass-card-radius);
-  box-shadow: 0 24px 64px rgba(0,0,0,0.75);
-  overflow: hidden; opacity: 0;
-  transform: translateY(-10px) scale(0.96); pointer-events: none;
-  transition: opacity var(--fast) var(--ease), transform var(--med) var(--spring);
-  z-index: 600; max-height: 400px; display: flex; flex-direction: column;
+  width: 100%;
+  background: transparent;
+  border: none; border-top: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: none;
+  overflow: hidden; max-height: 0; opacity: 0; pointer-events: none;
+  transition: max-height var(--med) var(--ease), opacity var(--fast) var(--ease);
+  display: flex; flex-direction: column;
 }
-.notif-panel.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: all; }
+.notif-panel.open {
+  max-height: 320px; opacity: 1; pointer-events: all;
+}
+
 .np-head {
   display: flex; justify-content: space-between; align-items: center;
   padding: 13px 15px; border-bottom: 1px solid var(--border); flex-shrink: 0; gap: 8px;
@@ -1428,7 +1392,6 @@ input:checked + .tog-track::after { transform: translateX(20px); background: #ff
   .app-main           { padding: 18px 12px; }
   .qcat-grid          { grid-template-columns: repeat(2,1fr); gap: 8px; }
   .rep-cards          { grid-template-columns: 1fr 1fr; }
-  .notif-panel        { width: 280px; right: -8px; }
   .dots-menu          { width: 202px; }
   .afp-date-group     { min-width: 120px; }
   .qcat-card          { padding: 13px 11px 12px; }
@@ -1452,7 +1415,6 @@ input:checked + .tog-track::after { transform: translateX(20px); background: #ff
   .app-main   { padding: 28px 24px; }
 }
 @media (min-width: 900px) {
-  .notif-panel { width: 344px; }
 }
 @media (hover: none) {
   .txn-del       { opacity: 0.35; }
