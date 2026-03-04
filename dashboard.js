@@ -540,11 +540,12 @@ function addNotif(type,amount,newBalance){
 }
 
 function renderNotifPanel(){
+  // UPDATED: also toggles .has-unread for the premium NEW badge
   const body=$("npBody"),empty=$("npEmpty"),dot=$("bellDot"),bell=$("menuBellBtn");
   if(!body)return;
   const unread=S.notifications.filter(n=>!n.read).length;
   if(dot)dot.classList.toggle("is-hidden",unread===0);
-  if(bell)bell.classList.toggle("ringing",unread>0);
+  if(bell){bell.classList.toggle("ringing",unread>0);bell.classList.toggle("has-unread",unread>0);}
   body.querySelectorAll(".np-item").forEach(el=>el.remove());
   if(!S.notifications.length){if(empty)show(empty);return;}
   if(empty)hide(empty);

@@ -147,17 +147,29 @@
                 <span class="dmenu-label" id="menuLangLabel">Switch to မြန်မာ</span>
               </button>
               <div class="dmenu-divider"></div>
-              <!-- Alerts row — bell + unread dot + last-updated chip -->
+              <!-- UPDATED: Premium Notifications row -->
               <button class="dmenu-row dmenu-alerts-row" id="menuBellBtn" role="menuitem" aria-expanded="false">
-                <span class="dmenu-icon" style="position:relative">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                    <path d="M13.73 21a2 2 0 01-3.46 0"/>
-                  </svg>
+                <!-- Icon cell with animated glow ring -->
+                <span class="dan-icon-cell">
+                  <span class="dan-icon-ring">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                      <path d="M13.73 21a2 2 0 01-3.46 0"/>
+                    </svg>
+                  </span>
                   <span class="bell-dot is-hidden" id="bellDot"></span>
                 </span>
-                <span class="dmenu-label" data-i18n="notifications">Notifications</span>
-                <span class="date-chip dmenu-chip" id="lastUpdatedChipNav" title="Last data refresh"></span>
+                <!-- Text stack -->
+                <span class="dan-text">
+                  <span class="dan-label" data-i18n="notifications">Notifications</span>
+                  <span class="dan-sub" id="lastUpdatedChipNav"></span>
+                </span>
+                <!-- NEW badge — shown when unread exist -->
+                <span class="dan-badge" aria-hidden="true">NEW</span>
+                <!-- Arrow -->
+                <svg class="dan-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
               </button>
             </div>
           </div>
