@@ -207,9 +207,11 @@ const hideFlex=(el)=>{if(el){el.classList.add("is-hidden");el.classList.remove("
 let _luTimer = null;
 
 function updateLastUpdatedChip() {
+  const text = "Updated " + AppCache.formatLastUpdated();
   const chip = $("lastUpdatedChip");
-  if (!chip) return;
-  chip.textContent = "Updated " + AppCache.formatLastUpdated();
+  if (chip) chip.textContent = text;
+  const chipNav = $("lastUpdatedChipNav");
+  if (chipNav) chipNav.textContent = text;
 }
 
 /** Start a 30-second ticker that keeps the "X ago" text fresh */
@@ -800,7 +802,6 @@ function toggleFab(force){
 
 function closeAll(){
   $("dotsMenu")?.classList.remove("open");$("dotsBtn")?.classList.remove("open");
-  $("notifPanel")?.classList.remove("open");
   $("menuBellBtn")?.classList.remove("open");
   $("menuBellBtn")?.setAttribute("aria-expanded","false");
   toggleFab(false);
@@ -852,7 +853,6 @@ function wire(){
     const open=$("dotsMenu").classList.toggle("open");
     $("dotsBtn").classList.toggle("open",open);
     if(open){
-      $("notifPanel")?.classList.remove("open");
       $("menuBellBtn")?.classList.remove("open");
       $("menuBellBtn")?.setAttribute("aria-expanded","false");
     }
@@ -868,13 +868,23 @@ function wire(){
   $("searchInput")?.addEventListener("keydown",(e)=>{if(e.key==="Escape"){$("searchInput").value="";handleSearch("");}});
   $("searchClear")?.addEventListener("click",()=>{$("searchInput").value="";handleSearch("");$("searchInput")?.focus();});
 
-  /* Notifications — wired to bell row inside 3-dots menu */
+  /* Notifications — opens as a modal popup */
   $("menuBellBtn")?.addEventListener("click",(e)=>{
     e.stopPropagation();
-    const open=$("notifPanel").classList.toggle("open");
-    $("menuBellBtn").classList.toggle("open",open);
-    $("menuBellBtn").setAttribute("aria-expanded", open ? "true" : "false");
-    if(open) markAllRead();
+    closeAll();
+    $("notifVeil").classList.add("open");
+    $("menuBellBtn").setAttribute("aria-expanded","true");
+    markAllRead();
+  });
+  $("notifClose")?.addEventListener("click",()=>{
+    $("notifVeil").classList.remove("open");
+    $("menuBellBtn")?.setAttribute("aria-expanded","false");
+  });
+  $("notifVeil")?.addEventListener("click",(e)=>{
+    if(e.target===$("notifVeil")){
+      $("notifVeil").classList.remove("open");
+      $("menuBellBtn")?.setAttribute("aria-expanded","false");
+    }
   });
   $("npMarkRead")?.addEventListener("click",markAllRead);
   $("npClear")?.addEventListener("click",()=>{S.notifications=[];saveNotifs();renderNotifPanel();});
@@ -883,7 +893,6 @@ function wire(){
   document.addEventListener("click",(e)=>{
     if(!$("dotsShell")?.contains(e.target)){
       $("dotsMenu")?.classList.remove("open");$("dotsBtn")?.classList.remove("open");
-      $("notifPanel")?.classList.remove("open");
       $("menuBellBtn")?.classList.remove("open");
       $("menuBellBtn")?.setAttribute("aria-expanded","false");
     }

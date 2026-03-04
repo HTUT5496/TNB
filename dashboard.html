@@ -157,19 +157,8 @@
                   <span class="bell-dot is-hidden" id="bellDot"></span>
                 </span>
                 <span class="dmenu-label" data-i18n="notifications">Notifications</span>
-                <span class="date-chip dmenu-chip" id="lastUpdatedChip" title="Last data refresh"></span>
+                <span class="date-chip dmenu-chip" id="lastUpdatedChipNav" title="Last data refresh"></span>
               </button>
-              <!-- Notif panel — opens below the alerts row -->
-              <div class="notif-panel" id="notifPanel">
-                <div class="np-head">
-                  <span class="np-title" data-i18n="notifications">Notifications</span>
-                  <button class="np-markread" id="npMarkRead">Mark all read</button>
-                  <button class="np-clear" id="npClear" data-i18n="clear_all">Clear All</button>
-                </div>
-                <div class="np-body" id="npBody">
-                  <p class="np-empty" id="npEmpty" data-i18n="no_notifs">No notifications yet</p>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -508,6 +497,34 @@
         <span class="bn-lbl" data-i18n="nav_settings">Settings</span>
       </button>
     </nav>
+
+    <!-- NOTIFICATIONS MODAL -->
+    <div class="modal-veil notif-veil" id="notifVeil" role="dialog" aria-modal="true" aria-labelledby="notifModalTitle">
+      <div class="modal-card notif-modal-card" id="notifPanel">
+        <div class="mc-head">
+          <div class="notif-modal-title-row">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 01-3.46 0"/>
+            </svg>
+            <h2 class="mc-title" id="notifModalTitle" data-i18n="notifications">Notifications</h2>
+            <span class="date-chip notif-modal-chip" id="lastUpdatedChip" title="Last data refresh"></span>
+          </div>
+          <button class="mc-close" id="notifClose" aria-label="Close notifications">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <div class="np-head">
+          <button class="np-markread" id="npMarkRead">Mark all read</button>
+          <button class="np-clear" id="npClear" data-i18n="clear_all">Clear All</button>
+        </div>
+        <div class="np-body" id="npBody">
+          <p class="np-empty" id="npEmpty" data-i18n="no_notifs">No notifications yet</p>
+        </div>
+      </div>
+    </div>
 
     <!-- MODALS -->
     <div class="modal-veil" id="txnVeil" role="dialog" aria-modal="true" aria-labelledby="mcTitle">
