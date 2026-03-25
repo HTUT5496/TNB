@@ -7,6 +7,28 @@
     <meta name="theme-color" content="#070c18" />
     <title>TNB Dashboard</title>
     <link rel="manifest" href="manifest.json" />
+    <!-- Tailwind CSS (via CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary: '#2563EB',
+              secondary: '#7C3AED',
+              success: '#10B981',
+              danger: '#EF4444',
+              dark: '#0F172A',
+              surface: '#1E293B'
+            },
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif']
+            }
+          }
+        }
+      }
+    </script>
     <link rel="stylesheet" href="dashboard.css" />
     <!-- Google Font: Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -22,10 +44,10 @@
     <!-- ══════════════════════════════════════════
          TOP NAVBAR
     ══════════════════════════════════════════ -->
-    <header class="cmd-bar" id="cmdBar">
+    <header class="cmd-bar sticky top-0 z-50 backdrop-blur-md bg-white/10 dark:bg-black/20 border-b border-white/10 transition-all duration-300" id="cmdBar">
 
       <!-- ROW 1 — Avatar · Search · Actions -->
-      <div class="cmd-row cmd-row1">
+      <div class="cmd-row cmd-row1 container mx-auto px-4 py-3 flex items-center justify-between gap-4">
 
         <div class="avatar-pill-wrap">
           <button class="avatar-pill" id="avatarBtn" aria-label="Profile">
