@@ -1697,4 +1697,12 @@ input:checked + .tog-track::after { transform: translateX(20px); background: #ff
 [data-theme="light"] .agent-send-btn     { color: #1c0d00; }
 [data-theme="light"] .ai-response-area   { background: rgba(0,0,0,0.05); border-left-color: var(--amber); }
 [data-theme="light"] #agent-status-box   { color: var(--tx2); }
+
+/* ── Fix: keep amounts inside cards on mobile ── */
+.rep-val {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 [data-theme="light"] .period-sel         { color: var(--tx2); background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.10); }
