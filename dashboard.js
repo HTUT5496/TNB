@@ -9,7 +9,7 @@
 const CONFIG = {
   supabaseUrl: "https://lqfjeamzbxayfbjntarr.supabase.co",
   supabaseKey: "sb_publishable_jDExXkASC_jrulY8B7noFw_r9qut-vQ",
-  openRouterKey: "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",
+  openRouterKey: "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",
 };
 
 const { createClient } = supabase;
