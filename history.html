@@ -6,6 +6,28 @@
     <meta name="description" content="TNB — Transaction history" />
     <meta name="theme-color" content="#070c18" />
     <title>TNB — History</title>
+    <!-- Tailwind CSS (via CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary: '#2563EB',
+              secondary: '#7C3AED',
+              success: '#10B981',
+              danger: '#EF4444',
+              dark: '#0F172A',
+              surface: '#1E293B'
+            },
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif']
+            }
+          }
+        }
+      }
+    </script>
     <link rel="stylesheet" href="history.css" />
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
@@ -13,9 +35,9 @@
     <!-- ══════════════════════════════════════════
          TOP NAVBAR
     ══════════════════════════════════════════ -->
-    <header class="cmd-bar" id="cmdBar">
+    <header class="cmd-bar sticky top-0 z-50 backdrop-blur-md bg-white/10 dark:bg-black/20 border-b border-white/10 transition-all duration-300" id="cmdBar">
       <!-- ROW 1 -->
-      <div class="cmd-row cmd-row1">
+      <div class="cmd-row cmd-row1 container mx-auto px-4 py-3 flex items-center justify-between gap-4">
         <button class="back-btn" id="backBtn" aria-label="Back to Dashboard">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
             <polyline points="15 18 9 12 15 6"/>
@@ -119,7 +141,7 @@
     </header>
 
     <!-- MAIN CONTENT -->
-    <main class="app-main" id="appMain">
+    <main class="app-main container mx-auto px-4 py-6" id="appMain">
 
       <!-- SEARCH RESULTS -->
       <section class="page hidden" id="page-search">
