@@ -9,7 +9,7 @@
 const CONFIG = {
   supabaseUrl: "https://lqfjeamzbxayfbjntarr.supabase.co",
   supabaseKey: "sb_publishable_jDExXkASC_jrulY8B7noFw_r9qut-vQ",
-  geminiKey:   "AIzaSyCFO_Rw7CFH7X1MOtFV6pSCUjgozW9S95g",
+  openRouterKey: "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",
 };
 
 const { createClient } = supabase;
@@ -1020,13 +1020,27 @@ async function askAgent(userPrompt){
 
   try{
     const response=await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${CONFIG.geminiKey}`,
-      {method:"POST",headers:{"Content-Type":"application/json"},
-       body:JSON.stringify({contents:[{parts:[{text:userPrompt}]}]}),}
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json",
+          "Authorization":`Bearer ${CONFIG.openRouterKey}`,
+          // Optional: set site/referer for OpenRouter
+          "HTTP-Referer": window.location.origin,
+          "X-Title": "TNB Command Center"
+        },
+        body:JSON.stringify({
+          model: "openrouter/stepfun/step-3.5-flash:free",
+          messages:[{role:"user", content:userPrompt}],
+          temperature:0.7,
+          max_tokens:512
+        })
+      }
     );
     if(!response.ok)throw new Error(`HTTP ${response.status}`);
     const data=await response.json();
-    const aiResponse=data?.candidates?.[0]?.content?.parts?.[0]?.text||"No response received.";
+    const aiResponse=data?.choices?.[0]?.message?.content||"No response received.";
     if(resultEl)resultEl.textContent=aiResponse;
     if(statusEl)statusEl.textContent=S.lang==="en"?"Done":"ပြီးပါပြီ";
     if(inputEl)inputEl.value="";
