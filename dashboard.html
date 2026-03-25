@@ -344,55 +344,69 @@
       <!-- REPORTS PAGE -->
       <section class="page hidden" id="page-reports">
         <div class="page-head">
-          <h2 class="page-title" data-i18n="reports">Reports</h2>
+          <h2 class="page-title text-2xl font-bold text-white mb-4" data-i18n="reports">Reports</h2>
         </div>
-        <div class="rep-cards">
-          <div class="rep-card income-rc">
-            <div class="rep-icon income-ico-wrap">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <div class="rep-cards grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-4 mb-6">
+          <div class="rep-card income-rc p-4 rounded-2xl bg-gradient-to-br from-green-500/20 to-emerald-500/10 border border-green-500/30">
+            <div class="rep-icon income-ico-wrap mb-2 text-green-400">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
               </svg>
             </div>
-            <div><span class="rep-lbl" data-i18n="total_income">Total Income</span><span class="rep-val income-col" id="repIncome">$0.00</span></div>
+            <div class="flex flex-col">
+              <span class="rep-lbl text-sm text-gray-400" data-i18n="total_income">Total Income</span>
+              <span class="rep-val income-col text-xl font-semibold text-green-400" id="repIncome">$0.00</span>
+            </div>
           </div>
-          <div class="rep-card expense-rc">
-            <div class="rep-icon expense-ico-wrap">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <div class="rep-card expense-rc p-4 rounded-2xl bg-gradient-to-br from-red-500/20 to-rose-500/10 border border-red-500/30">
+            <div class="rep-icon expense-ico-wrap mb-2 text-red-400">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/>
               </svg>
             </div>
-            <div><span class="rep-lbl" data-i18n="total_expense">Total Expense</span><span class="rep-val expense-col" id="repExpense">$0.00</span></div>
+            <div class="flex flex-col">
+              <span class="rep-lbl text-sm text-gray-400" data-i18n="total_expense">Total Expense</span>
+              <span class="rep-val expense-col text-xl font-semibold text-red-400" id="repExpense">$0.00</span>
+            </div>
           </div>
-          <div class="rep-card">
-            <div class="rep-icon balance-ico-wrap">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <div class="rep-card p-4 rounded-2xl bg-gradient-to-br from-blue-500/20 to-indigo-500/10 border border-blue-500/30">
+            <div class="rep-icon balance-ico-wrap mb-2 text-blue-400">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
               </svg>
             </div>
-            <div><span class="rep-lbl" data-i18n="net_balance">Net Balance</span><span class="rep-val" id="repBalance">$0.00</span></div>
+            <div class="flex flex-col">
+              <span class="rep-lbl text-sm text-gray-400" data-i18n="net_balance">Net Balance</span>
+              <span class="rep-val text-xl font-semibold text-blue-400" id="repBalance">$0.00</span>
+            </div>
           </div>
-          <div class="rep-card">
-            <div class="rep-icon count-ico-wrap">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <div class="rep-card p-4 rounded-2xl bg-gradient-to-br from-purple-500/20 to-fuchsia-500/10 border border-purple-500/30">
+            <div class="rep-icon count-ico-wrap mb-2 text-purple-400">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
                 <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
               </svg>
             </div>
-            <div><span class="rep-lbl" data-i18n="total_transactions">Transactions</span><span class="rep-val" id="repCount">0</span></div>
+            <div class="flex flex-col">
+              <span class="rep-lbl text-sm text-gray-400" data-i18n="total_transactions">Transactions</span>
+              <span class="rep-val text-xl font-semibold text-purple-400" id="repCount">0</span>
+            </div>
           </div>
         </div>
-        <div class="chart-card">
-          <div class="cc-head">
-            <h3 class="section-label" data-i18n="spending_overview">Spending Overview</h3>
-            <select class="period-sel" id="chartPeriod">
+        <div class="chart-card p-4 rounded-2xl bg-white/5 border border-white/10 mb-6">
+          <div class="cc-head flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+            <h3 class="section-label text-lg font-semibold text-white" data-i18n="spending_overview">Spending Overview</h3>
+            <select class="period-sel bg-gray-700 text-white rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" id="chartPeriod">
               <option value="7" data-i18n="last_7">Last 7 Days</option>
               <option value="30" data-i18n="last_30">Last 30 Days</option>
             </select>
           </div>
-          <div class="chart-wrap"><canvas id="spendingCanvas" role="img" aria-label="Spending overview chart">Your browser does not support the canvas element.</canvas></div>
+          <div class="chart-wrap w-full overflow-x-auto">
+            <canvas id="spendingCanvas" role="img" aria-label="Spending overview chart" class="w-full min-w-[300px] h-48 sm:h-64"></canvas>
+          </div>
         </div>
-        <h3 class="section-label section-label--reports" data-i18n="category_breakdown">Category Breakdown</h3>
-        <div class="cat-breakdown" id="catBreakdown"></div>
+        <h3 class="section-label section-label--reports text-xl font-semibold text-white mb-4" data-i18n="category_breakdown">Category Breakdown</h3>
+        <div class="cat-breakdown grid gap-3 sm:grid-cols-1 md:grid-cols-2" id="catBreakdown"></div>
       </section>
 
       <!-- SETTINGS PAGE -->
