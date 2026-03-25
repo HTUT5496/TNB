@@ -9,7 +9,6 @@
 const CONFIG = {
   supabaseUrl: "https://lqfjeamzbxayfbjntarr.supabase.co",
   supabaseKey: "sb_publishable_jDExXkASC_jrulY8B7noFw_r9qut-vQ",
-  openRouterKey: "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",
 };
 
 const { createClient } = supabase;
@@ -966,15 +965,6 @@ function wire(){
     }
   });
 
-  /* ── AI Agent — wired here (not in HTML inline script) ── */
-  $("agentSendBtn")?.addEventListener("click",()=>{
-    const val=$("user-input")?.value?.trim();
-    if(val)askAgent(val);
-  });
-  $("user-input")?.addEventListener("keydown",(e)=>{
-    if(e.key==="Enter"){const val=e.target.value.trim();if(val)askAgent(val);}
-  });
-
   /* Charts */
   $("chartPeriod")?.addEventListener("change",drawChart);
   window.addEventListener("resize",()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(drawChart,220);});
@@ -1004,58 +994,7 @@ function seedDemoData(){
   saveTxns();
 }
 
-/* ═══════════════════════════════════════════
-   28. AI AGENT
-═══════════════════════════════════════════ */
-async function askAgent(userPrompt){
-  const statusEl=$("agent-status");
-  const resultEl=$("ai-result");
-  const sendBtn=$("agentSendBtn");
-  const inputEl=$("user-input");
 
-  // Show loading state
-  if(sendBtn){sendBtn.disabled=true;sendBtn.textContent="...";}
-  if(statusEl)statusEl.textContent=S.lang==="en"?"Thinking…":"တွေးနေသည်…";
-  if(resultEl)resultEl.textContent="";
-
-  try{
-    const response=await fetch(
-      "https://openrouter.ai/api/v1/chat/completions",
-      {
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json",
-          "Authorization":`Bearer ${CONFIG.openRouterKey}`,
-          // Optional: set site/referer for OpenRouter
-          "HTTP-Referer": window.location.origin,
-          "X-Title": "TNB Command Center"
-        },
-        body:JSON.stringify({
-          model: "openrouter/stepfun/step-3.5-flash:free",
-          messages:[{role:"user", content:userPrompt}],
-          temperature:0.7,
-          max_tokens:512
-        })
-      }
-    );
-    if(!response.ok)throw new Error(`HTTP ${response.status}`);
-    const data=await response.json();
-    const aiResponse=data?.choices?.[0]?.message?.content||"No response received.";
-    if(resultEl)resultEl.textContent=aiResponse;
-    if(statusEl)statusEl.textContent=S.lang==="en"?"Done":"ပြီးပါပြီ";
-    if(inputEl)inputEl.value="";
-  }catch(err){
-    console.error("Agent error:",err);
-    if(statusEl)statusEl.textContent=S.lang==="en"?"Error — please try again":"အမှားတစ်ခု ဖြစ်နေသည်";
-    if(resultEl)resultEl.textContent=S.lang==="en"?"Failed to get a response. Check your connection and try again.":"တုံ့ပြန်မှုရရှိမသည်။ ကွန်ရက်ချိတ်ဆက်မှု စစ်ဆေးပြီး ထပ်ကြိုးစားပါ။";
-  }finally{
-    if(sendBtn){sendBtn.disabled=false;sendBtn.textContent=S.lang==="en"?"Send":"ပို့မည်";}
-  }
-}
-function updateDashboardUI(text){
-  const statusEl=$("agent-status");
-  if(statusEl)statusEl.textContent="Agent processed your request.";
-}
 
 /* ═══════════════════════════════════════════
    29. INIT  — smart cache gate  ← CHANGED
