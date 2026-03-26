@@ -286,20 +286,36 @@ function animCount(elId,target){
   requestAnimationFrame(step);
 }
 
+/* Animate currency values with $ prefix (Quick Action Mode style) */
+function animCurrency(elId,target,prefix="$"){
+  const el=$(elId);if(!el)return;
+  // Extract numeric value from current text (strip $ commas etc)
+  const cur=el.textContent.replace(/,/g,"");
+  const from=parseFloat(cur.replace(/[^0-9.-]/g,""))||0;
+  const diff=target-from,dur=660;let t0=null;
+  const step=(ts)=>{
+    if(!t0)t0=ts;
+    const p=Math.min((ts-t0)/dur,1);
+    el.textContent=prefix+fmt(from+diff*(1-Math.pow(1-p,3)));
+    if(p<1)requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
 /* ═══════════════════════════════════════════
    10. UPDATE TOTALS  (unchanged)
 ═══════════════════════════════════════════ */
 function updateTotals(){
   const{inc,exp,bal}=calcTotals();
-  animCount("balanceDisplay",bal);
-  setText("totalIncomeDisplay","$"+fmt(inc));
-  setText("totalExpenseDisplay","$"+fmt(exp));
+  animCurrency("balanceDisplay",bal);
+  animCurrency("totalIncomeDisplay",inc);
+  animCurrency("totalExpenseDisplay",exp);
   setText("r2Balance","$"+fmt(bal));
   setText("r2Income","$"+fmt(inc));
   setText("r2Expense","$"+fmt(exp));
-  setText("repIncome","$"+fmt(inc));
-  setText("repExpense","$"+fmt(exp));
-  setText("repBalance","$"+fmt(bal));
+  animCurrency("repIncome",inc);
+  animCurrency("repExpense",exp);
+  animCurrency("repBalance",bal);
   setText("repCount",S.transactions.length);
   const rb=$("repBalance");
   if(rb){rb.classList.remove("income-col","expense-col");rb.classList.add(bal>=0?"income-col":"expense-col");}
