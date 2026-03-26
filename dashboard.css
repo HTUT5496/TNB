@@ -1011,7 +1011,7 @@ body::after {
 }
 .qcat-amount {
   font-family: 'DM Mono', monospace;
-  font-size: 0.82rem; font-weight: 500; letter-spacing: -0.02em;
+  font-size: clamp(0.72rem, 3.5vw, 0.82rem); font-weight: 600; letter-spacing: -0.01em;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
   transition: color var(--fast) var(--ease);
 }
@@ -1273,13 +1273,14 @@ body::after {
 .rep-val {
   display: block;
   font-family: 'DM Mono', monospace;
-  font-size: 1.35rem;
+  font-size: clamp(1rem, 5vw, 1.35rem);
   font-weight: 700;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   line-height: 1.2;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 100%;
 }
 .chart-card {
   background: var(--glass-card-bg); backdrop-filter: var(--glass-card-blur); -webkit-backdrop-filter: var(--glass-card-blur);
