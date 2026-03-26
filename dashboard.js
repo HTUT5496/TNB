@@ -930,7 +930,10 @@ function wire(){
   $("txnVeil")?.addEventListener("click",(e)=>{if(e.target===$("txnVeil"))closeModal();});
   $("cfmVeil")?.addEventListener("click",(e)=>{if(e.target===$("cfmVeil"))closeConfirm();});
   $("txnSubmit")?.addEventListener("click",()=>{
-    const type=$("txnType").value,amount=parseFloat($("txnAmount").value);
+    const type=$("txnType").value;
+    const rawAmount=$("txnAmount").value;
+    // Strip commas before parsing to support formatted input like "32,000,000"
+    const amount=parseFloat(rawAmount.replace(/,/g,""));
     const catKey=$("txnCategory").value,desc=$("txnDesc").value.trim(),date=$("txnDate").value;
     const T=TRANSLATIONS[S.lang];
     if(!amount||amount<=0){const inp=$("txnAmount");inp.classList.add("shake");setTimeout(()=>inp.classList.remove("shake"),1600);return;}
