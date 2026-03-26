@@ -1011,7 +1011,7 @@ body::after {
 }
 .qcat-amount {
   font-family: 'DM Mono', monospace;
-  font-size: clamp(0.72rem, 3.5vw, 0.82rem); font-weight: 600; letter-spacing: -0.01em;
+  font-size: clamp(0.65rem, 3vw, 0.75rem); font-weight: 500; letter-spacing: -0.01em;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
   transition: color var(--fast) var(--ease);
 }
@@ -1224,7 +1224,7 @@ body::after {
 .rep-card {
   background: var(--glass-card-bg); backdrop-filter: var(--glass-card-blur); -webkit-backdrop-filter: var(--glass-card-blur);
   border: var(--glass-card-border); border-radius: 16px; box-shadow: var(--glass-card-shadow);
-  padding: 22px 20px; display: flex; align-items: center; gap: 16px;
+  padding: 18px 16px; display: flex; align-items: center; gap: 14px;
   transition: transform var(--med) var(--spring), box-shadow var(--med) var(--ease);
   position: relative;
   overflow: hidden;
@@ -1240,7 +1240,7 @@ body::after {
 .rep-card:hover::before { opacity: 1; }
 .rep-card:hover { transform: translateY(-5px); box-shadow: var(--glass-card-shadow-hover); }
 .rep-icon {
-  width: 48px; height: 48px; border-radius: 12px;
+  width: 42px; height: 42px; border-radius: 12px;
   display: grid; place-items: center; flex-shrink: 0;
   transition: transform var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
 }
@@ -1263,18 +1263,18 @@ body::after {
 
 .rep-lbl {
   display: block;
-  font-size: 0.73rem;
+  font-size: 0.67rem;
   color: var(--tx3);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
 }
 .rep-val {
   display: block;
   font-family: 'DM Mono', monospace;
-  font-size: clamp(1rem, 5vw, 1.35rem);
-  font-weight: 700;
+  font-size: clamp(0.9rem, 4.5vw, 1.1rem);
+  font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 1.2;
   white-space: nowrap;
